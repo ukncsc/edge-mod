@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% load staticfiles %}
+{% block head-title %}{{ main_title }}{% endblock %}
+{% block head-content %}
+
+<style type="text/css">
+</style>
+
+{% endblock %}
+
+{% block body-content %}
+<p>Hello, world!!</p>
+{% endblock %}
+
+{% block body-end %}
+<script src="{% static "js/require.js" %}" data-main="{% static "js/publisher.js" %}"></script>
+{% endblock %}
