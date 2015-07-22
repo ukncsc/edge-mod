@@ -6,8 +6,12 @@ define(["knockout-3.1.0", "dcl/dcl"], function (ko, declare) {
             this.hasResults = ko.computed(function () {
                 return this.results().length > 0;
             }, this);
+            this.selectedId = ko.observable("");
+            this.selectedIncident = ko.observable(null);
 
             this.search.subscribe(this._onSearchChanged, this);
+            this.selectedId.subscribe(this._onSelectionChanged, this);
+
             this._onSearchChanged(this.search());
         },
 
@@ -16,19 +20,34 @@ define(["knockout-3.1.0", "dcl/dcl"], function (ko, declare) {
                 search: newValue,
                 size: 10,
                 type: "inc"
-            }, this._onResponseReceived.bind(this));
+            }, this._onSearchResponseReceived.bind(this));
         },
 
-        _onResponseReceived: function (response) {
+        _onSearchResponseReceived: function (response) {
             if (response["success"]) {
-                this._onSearchResultsObtained(response["data"]);
+                this.results(response["data"]);
             } else {
                 alert(response["message"]);
             }
         },
 
-        _onSearchResultsObtained: function (results) {
-            this.results(results);
+        select: function (incident) {
+            this.selectedId(incident.id);
+        },
+
+        _onSelectionChanged: function (newId) {
+            console.log("Selected:", newId);
+            postJSON("/catalog/ajax/get_object/", {
+                id: newId
+            }, this._onSelectionResponseReceived.bind(this));
+        },
+
+        _onSelectionResponseReceived: function (response) {
+            if (response["success"]) {
+                this.selectedIncident(response);
+            } else {
+                alert(response["message"]);
+            }
         }
     });
 });

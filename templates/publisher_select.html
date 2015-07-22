@@ -30,13 +30,17 @@
     <tr class="datarow">
         <td data-bind="text: moment(date).calendar()"  class="text-center"></td>
         <td data-bind="text: obj_type_long" class="text-center"></td>
-        <td class="text-left"><a data-bind="text: title, attr: {href: view_url}, css: {revoked: revoked}" title="View this Object"></a></td>
+        <td class="text-left"><a href="" data-bind="text: title, click: $parent.select.bind($parent)" title="Select this incident"></a></td>
         <td data-bind="text: user" class="text-center"></td>
         <td data-bind="text: organization" class="text-center"></td>
         <td data-bind="text: tlp" class="text-center"></td>
     </tr>
 </tbody>
 </table>
+
+<div data-bind="visible: selectedIncident">
+    <pre data-bind="text: JSON.stringify(selectedIncident(), null, '\t')"></pre>
+</div>
 
 {% endblock %}
 
