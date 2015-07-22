@@ -1,4 +1,24 @@
 define(["knockout-3.1.0", "dcl/dcl"], function (ko, declare) {
+
+    function buildIncidentObject (response) {
+        return {
+            "id": response["id"],
+            "typeText": response["typeText"],
+            "title": response["title"],
+            "short_description": response["short_description"],
+            "description": response["description"],
+            "created_on": response["created_on"],
+            "created_by_username": response["created_by_username"],
+            "idns": response["idns"],
+            "etlp": response["etlp"],
+            "sightings": response["sightings"],
+            "edges": ko.utils.arrayFilter(response["edges"], function (edge) {
+                var type = edge.ty;
+                return type == "ttp" || type == "ind" || type == "coa" || type == "inc";
+            })
+        };
+    }
+
     return declare(null, {
         constructor: function () {
             this.search = ko.observable("");
@@ -44,9 +64,9 @@ define(["knockout-3.1.0", "dcl/dcl"], function (ko, declare) {
 
         _onSelectionResponseReceived: function (response) {
             if (response["success"]) {
-                this.selectedIncident(response);
+                this.selectedIncident(buildIncidentObject(response));
             } else {
-                alert(response["message"]);
+                alert(response["error_message"]);
             }
         }
     });

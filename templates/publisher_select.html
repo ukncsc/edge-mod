@@ -38,8 +38,14 @@
 </tbody>
 </table>
 
-<div data-bind="visible: selectedIncident">
-    <pre data-bind="text: JSON.stringify(selectedIncident(), null, '\t')"></pre>
+<div data-bind="visible: selectedIncident, with: selectedIncident">
+    <div>Related indicators, TTPs, COAs and incidents</div>
+    <ul data-bind="foreach: edges">
+        <li>
+            <input type="checkbox" data-bind="attr: { name: id_, id: id_ }">
+            <span data-bind="text: $data['id_'] + ', ' + $data['title']"></span>
+        </li>
+    </ul>
 </div>
 
 {% endblock %}
