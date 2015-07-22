@@ -16,6 +16,8 @@ from stix.core.stix_header import STIXHeader
 from taxii.models import Upload
 from uploads.jobs import process_upload
 
+from catalog.views import ajax_load_catalog
+
 
 @login_required
 def select(request):
