@@ -53,5 +53,11 @@
 {% block body-end %}
 <script src="{% static 'js/moment.min.js' %}"></script>
 <script src="{% static "js/stickytape.js" %}"></script>
-<script src="{% static "js/require.js" %}" data-main="{% static "js/publisher.js" %}"></script>
+<script>
+var require = {
+    baseUrl: "{% static 'js' %}",
+    urlArgs: "{% spaceless %}{% include 'publisher-version.html' %}{% endspaceless %}"
+};
+</script>
+<script src="{% static "js/require.js" %}" data-main="publisher/main"></script>
 {% endblock %}
