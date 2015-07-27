@@ -1,22 +1,21 @@
 define(["knockout-3.1.0", "dcl/dcl"], function (ko, declare) {
 
-    function buildIncidentObject (response) {
-        return {
-            "id": response["id"],
-            "typeText": response["typeText"],
-            "title": response["title"],
-            "short_description": response["short_description"],
-            "description": response["description"],
-            "created_on": response["created_on"],
-            "created_by_username": response["created_by_username"],
-            "idns": response["idns"],
-            "etlp": response["etlp"],
-            "sightings": response["sightings"],
-            "edges": ko.utils.arrayFilter(response["edges"], function (edge) {
-                var type = edge.ty;
-                return type == "ttp" || type == "ind" || type == "coa" || type == "inc";
-            })
-        };
+    function filterIncidentObject (response) {
+        var incident = {};
+        ko.utils.objectForEach(response||{}, function (name, value) {
+            if (name === "edges") {
+                incident.edges = ko.utils.arrayFilter(value, function (edge) {
+                    var type = edge["ty"];
+                    return type === "ttp" || type === "ind"
+                        || type === "coa" || type === "inc";
+                })
+            } else if (name === "success" || name === "error_message") {
+                // ignore these properties
+            } else {
+                incident[name] = value;
+            }
+        });
+        return incident;
     }
 
     return declare(null, {
@@ -28,6 +27,7 @@ define(["knockout-3.1.0", "dcl/dcl"], function (ko, declare) {
             }, this);
             this.selectedId = ko.observable("");
             this.selectedIncident = ko.observable(null);
+            this.selectedEdges = ko.observableArray([]);
 
             this.search.subscribe(this._onSearchChanged, this);
             this.selectedId.subscribe(this._onSelectionChanged, this);
@@ -55,16 +55,24 @@ define(["knockout-3.1.0", "dcl/dcl"], function (ko, declare) {
             this.selectedId(incident.id);
         },
 
+        unselect: function () {
+            this.selectedId(null);
+        },
+
         _onSelectionChanged: function (newId) {
-            console.log("Selected:", newId);
-            postJSON("/catalog/ajax/get_object/", {
-                id: newId
-            }, this._onSelectionResponseReceived.bind(this));
+            this.selectedEdges.removeAll();
+            if (newId) {
+                postJSON("/catalog/ajax/get_object/", {
+                    id: newId
+                }, this._onSelectionResponseReceived.bind(this));
+            } else {
+                this.selectedIncident(null);
+            }
         },
 
         _onSelectionResponseReceived: function (response) {
             if (response["success"]) {
-                this.selectedIncident(buildIncidentObject(response));
+                this.selectedIncident(filterIncidentObject(response));
             } else {
                 alert(response["error_message"]);
             }

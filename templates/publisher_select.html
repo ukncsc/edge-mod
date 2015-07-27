@@ -4,60 +4,144 @@
 {% block head-title %}{{ main_title }}{% endblock %}
 {% block head-content %}
 
-<style type="text/css">
-</style>
+    <style type="text/css">
+    </style>
 
 {% endblock %}
 
 {% block body-content %}
-<form action="#">
-    <label for="search">Search</label>
-    <input id="search" name="search" data-bind="value: search" maxlength="50" size="50"/>
-</form>
-<table data-bind="visible: hasResults()" class="table table-striped table-condensed">
-<thead>
-    <tr>
-        <th class="text-center">Date</th>
-        <th class="text-center">Type</th>
-        <th class="text-center">Title</th>
-        <th class="text-center">User Name</th>
-        <th class="text-center">Organization</th>
-        <th class="text-center">TLP</th>
-        <th></th>
-    </tr>
-</thead>
-<tbody data-bind="foreach: results">
-    <tr class="datarow">
-        <td data-bind="text: moment(date).calendar()"  class="text-center"></td>
-        <td data-bind="text: obj_type_long" class="text-center"></td>
-        <td class="text-left"><a href="" data-bind="text: title, click: $parent.select.bind($parent)" title="Select this incident"></a></td>
-        <td data-bind="text: user" class="text-center"></td>
-        <td data-bind="text: organization" class="text-center"></td>
-        <td data-bind="text: tlp" class="text-center"></td>
-    </tr>
-</tbody>
-</table>
+    <div class="container">
 
-<div data-bind="visible: selectedIncident, with: selectedIncident">
-    <div>Related indicators, TTPs, COAs and incidents</div>
-    <ul data-bind="foreach: edges">
-        <li>
-            <input type="checkbox" data-bind="attr: { name: id_, id: id_ }">
-            <span data-bind="text: $data['id_'] + ', ' + $data['title']"></span>
-        </li>
-    </ul>
-</div>
+        <div data-bind="visible: !selectedIncident()">
+            <div class="row">
+                <div class="col-sm-12">
+                    <form action="" onsubmit="return false;">
+                        <label for="search">Search</label>
+                        <input id="search" name="search" data-bind="value: search" maxlength="50" size="50"/>
+                    </form>
+                </div>
+            </div>
+            <div data-bind="visible: hasResults()">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table class="table table-striped table-condensed">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Date</th>
+                                <th class="text-center">Title</th>
+                            </tr>
+                            </thead>
+                            <tbody data-bind="foreach: results">
+                            <tr class="datarow">
+                                <td data-bind="text: moment(date).calendar()" class="text-center"></td>
+                                <td class="text-left"><a href=""
+                                                         data-bind="text: title, click: $parent.select.bind($parent)"
+                                                         title="Select this incident"></a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <div data-bind="visible: selectedIncident(), with: selectedIncident">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Summary
+                                <button class="pull-right btn btn-default btn-xs" data-bind="click: $parent.unselect.bind($parent)">Select again
+                                </button>
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <dl class="dl-horizontal">
+                                        <dt>Title</dt>
+                                        <dd data-bind="text: title"></dd>
+                                        <dt>Short Description</dt>
+                                        <dd data-bind="html: short_description_html"></dd>
+                                        <dt>Description</dt>
+                                        <dd data-bind="html: description_html"></dd>
+                                    </dl>
+                                </div>
+                                <div class="col-sm-6">
+                                    <dl class="dl-horizontal">
+                                        <dt>Created</dt>
+                                        <dd data-bind="text: moment(created_on).calendar()"></dd>
+                                        <dt>by</dt>
+                                        <dd data-bind="html: created_by_username"></dd>
+                                        <dt>ETLP</dt>
+                                        <dd data-bind="html: etlp"></dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Related indicators, TTPs, COAs and incidents</h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table table-bordered table-striped table-condensed">
+                                <tbody data-bind="foreach: edges">
+                                <tr data-bind="attr: { title: id_ }" class="datarow">
+                                    <td>
+                                        <img data-bind="attr: {
+                                            alt: type,
+                                            title: type,
+                                            src: '{% static '' %}' + '/img/hex/hex_' + ty + '_20.png'
+                                        }">
+                                    </td>
+                                    <td data-bind="text: title"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Selected indicators, TTPs, COAs and incidents</h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table table-bordered table-striped table-condensed">
+                                <tbody data-bind="foreach: $parent.selectedEdges">
+                                <tr data-bind="attr: { title: id_ }" class="datarow">
+                                    <td>
+                                        <img data-bind="attr: {
+                                            alt: type,
+                                            title: type,
+                                            src: '{% static '' %}' + '/img/hex/hex_' + ty + '_20.png'
+                                        }">
+                                    </td>
+                                    <td data-bind="text: title"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block body-end %}
-<script src="{% static 'js/moment.min.js' %}"></script>
-<script src="{% static "js/stickytape.js" %}"></script>
-<script>
-var require = {
-    baseUrl: "{% static 'js' %}",
-    urlArgs: "{% spaceless %}{% include 'publisher-version.html' %}{% endspaceless %}"
-};
-</script>
-<script src="{% static "js/require.js" %}" data-main="publisher/main"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static "js/stickytape.js" %}"></script>
+    <script>
+        var require = {
+            baseUrl: "{% static 'js' %}",
+            urlArgs: "{% spaceless %}{% include 'publisher-version.html' %}{% endspaceless %}"
+        };
+    </script>
+    <script src="{% static "js/require.js" %}" data-main="publisher/main"></script>
 {% endblock %}
