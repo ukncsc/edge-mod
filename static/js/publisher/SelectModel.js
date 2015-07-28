@@ -1,4 +1,4 @@
-define(["knockout-3.1.0", "dcl/dcl"], function (ko, declare) {
+define(["knockout", "knockout-dragdrop", "dcl/dcl"], function (ko, kos, declare) {
 
     function filterIncidentObject (response) {
         var incident = {};
@@ -27,6 +27,7 @@ define(["knockout-3.1.0", "dcl/dcl"], function (ko, declare) {
             }, this);
             this.selectedId = ko.observable("");
             this.selectedIncident = ko.observable(null);
+            this.availableEdges = ko.observableArray([]);
             this.selectedEdges = ko.observableArray([]);
 
             this.search.subscribe(this._onSearchChanged, this);
@@ -72,10 +73,22 @@ define(["knockout-3.1.0", "dcl/dcl"], function (ko, declare) {
 
         _onSelectionResponseReceived: function (response) {
             if (response["success"]) {
-                this.selectedIncident(filterIncidentObject(response));
+                var incident = filterIncidentObject(response);
+                this.selectedIncident(incident);
+                this.availableEdges(incident.edges);
             } else {
                 alert(response["error_message"]);
             }
+        },
+
+        onSelected: function (data, model) {
+            this.availableEdges.remove(data);
+            this.selectedEdges.push(data);
+        },
+
+        onUnselected: function (data, model) {
+            this.selectedEdges.remove(data);
+            this.availableEdges.push(data);
         }
     });
 });
