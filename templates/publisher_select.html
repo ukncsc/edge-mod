@@ -20,6 +20,10 @@
             padding: 0.25em;
         }
 
+        ul.dragdrop li.draggable:empty {
+            padding: 0;
+        }
+
         ul.dragdrop li div.edgeTypeIcon {
             background-repeat: no-repeat;
             height: 20px;
@@ -118,11 +122,12 @@
                         <div class="panel-body">
                             <ul data-bind="foreach: $parent.availableEdges, dropZone: { accepts: 'selected.edges', drop: $parent.onUnselected.bind($parent) } "
                                 class="list-unstyled dragdrop">
-                                <li data-bind="attr: { title: id_ }, dragZone: { name: 'available.edges' }">
+                                <li data-bind="if: _visible, attr: { title: id_ }, dragZone: { name: 'available.edges' }">
                                     <div data-bind="attr: {
                                         title: type
                                     }, style: {
-                                        backgroundImage: 'url(\'{% static '' %}' + '/img/hex/hex_' + ty + '_20.png\')'
+                                        backgroundImage: 'url(\'{% static '' %}' + '/img/hex/hex_' + ty + '_20.png\')',
+                                        marginLeft: (depth * 12) + 'px'
                                     }" class="pull-left edgeTypeIcon"></div>
                                     <span data-bind="text: title"></span>
                                 </li>
