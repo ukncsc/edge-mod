@@ -16,12 +16,14 @@
         }
 
         ul.dragdrop li.draggable {
-            cursor: move;
+            cursor: not-allowed;
+            filter: grayscale(100%);
             padding: 0.25em;
         }
 
-        ul.dragdrop li.draggable:empty {
-            padding: 0;
+        ul.dragdrop li.draggable.enabled {
+            cursor: move;
+            filter: none;
         }
 
         ul.dragdrop li div.edgeTypeIcon {
@@ -120,17 +122,16 @@
                             <h3 class="panel-title">Related indicators, TTPs, COAs and incidents</h3>
                         </div>
                         <div class="panel-body">
-                            <ul data-bind="foreach: $parent.availableEdges, dropZone: { accepts: 'selected.edges', drop: $parent.onUnselected.bind($parent) } "
+                            <ul data-bind="foreach: $parent.availableEdges,
+                                           dropZone: {
+                                               accepts: 'selected.edges',
+                                               drop: $parent.onUnselected.bind($parent)
+                                           }"
                                 class="list-unstyled dragdrop">
-                                <li data-bind="if: _visible, attr: { title: id_ }, dragZone: { name: 'available.edges' }">
-                                    <div data-bind="attr: {
-                                        title: type
-                                    }, style: {
-                                        backgroundImage: 'url(\'{% static '' %}' + '/img/hex/hex_' + ty + '_20.png\')',
-                                        marginLeft: (depth * 12) + 'px'
-                                    }" class="pull-left edgeTypeIcon"></div>
-                                    <span data-bind="text: title"></span>
-                                </li>
+                                <li data-bind="attr: { title: id_ },
+                                               css: { enabled: $root.isEnabled($data) },
+                                               dragZone: { name: 'available.edges', dragStart: $root.isEnabled },
+                                               template: 'item-body'"></li>
                             </ul>
                         </div>
                     </div>
@@ -141,16 +142,16 @@
                             <h3 class="panel-title">Selected indicators, TTPs, COAs and incidents</h3>
                         </div>
                         <div class="panel-body">
-                            <ul data-bind="foreach: $parent.selectedEdges, dropZone: { accepts: 'available.edges', drop: $parent.onSelected.bind($parent) } "
+                            <ul data-bind="foreach: $parent.selectedEdges,
+                                           dropZone: {
+                                               accepts: 'available.edges',
+                                               drop: $parent.onSelected.bind($parent)
+                                           }"
                                 class="list-unstyled dragdrop">
-                                <li data-bind="attr: { title: id_ }, dragZone: { name: 'selected.edges' }">
-                                    <div data-bind="attr: {
-                                        title: type
-                                    }, style: {
-                                        backgroundImage: 'url(\'{% static '' %}' + '/img/hex/hex_' + ty + '_20.png\')'
-                                    }" class="pull-left edgeTypeIcon"></div>
-                                    <span data-bind="text: title"></span>
-                                </li>
+                                <li data-bind="attr: { title: id_ },
+                                               dragZone: { name: 'selected.edges' },
+                                               template: 'item-body'"
+                                    class="enabled"></li>
                             </ul>
                         </div>
                     </div>
@@ -161,6 +162,16 @@
 {% endblock %}
 
 {% block body-end %}
+    <script type="text/html" id="item-body">
+        <div data-bind="attr: {
+                            title: type
+                        }, style: {
+                            backgroundImage: 'url(\'{% static '' %}' + '/img/hex/hex_' + ty + '_20.png\')',
+                            marginLeft: $root.getIndent($data)
+                        }" class="pull-left edgeTypeIcon"></div>
+<span data-bind="text: title"></span>
+    </script>
+
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static "js/stickytape.js" %}"></script>
     <script>

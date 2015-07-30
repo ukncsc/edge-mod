@@ -1,17 +1,16 @@
 define(["knockout", "knockout-dragdrop", "dcl/dcl"], function (ko, kos, declare) {
+    "use strict";
 
-    function filterIncidentObject (response) {
+    function filterIncidentObject(response) {
         var incident = {};
-        ko.utils.objectForEach(response||{}, function (name, value) {
+        ko.utils.objectForEach(response || {}, function (name, value) {
             if (name === "edges") {
-                ko.utils.arrayForEach(value, function (edge) {
+                ko.utils.arrayForEach(value, function (edge, idx) {
+                    var nextEdge = value[idx + 1];
+                    edge._isParent = !!nextEdge && nextEdge.depth === (edge.depth + 1);
                     var type = edge["ty"];
-                    if (type === "ttp" || type === "ind" || type === "coa" || type === "inc") {
-                        edge._selectable = ko.observable(true);
-                    } else {
-                        edge._selectable = ko.observable(false);
-                    }
-                    edge._visible = ko.observable(true);
+                    edge._selectable = (type === "obs" || type === "ttp" || type === "ind" || type === "coa" || type === "inc");
+                    edge._selected = ko.observable(false);
                 });
                 incident.edges = value;
             } else if (name === "success" || name === "error_message") {
@@ -23,6 +22,25 @@ define(["knockout", "knockout-dragdrop", "dcl/dcl"], function (ko, kos, declare)
         return incident;
     }
 
+    function getEdges(self) {
+        return (self.selectedIncident() || {}).edges || [];
+    }
+
+    function hasUnselectedChildren(edges, edge) {
+        var hasUnselectedChildren = false;
+        var idx = ko.utils.arrayIndexOf(edges, edge);
+        if (idx > -1) {
+            for (var i = idx + 1, len = edges.length; hasUnselectedChildren === false && i < len; i++) {
+                if (edges[i].depth > edge.depth) {
+                    hasUnselectedChildren = (edges[i]._selected() === false);
+                } else {
+                    break;
+                }
+            }
+        }
+        return hasUnselectedChildren;
+    }
+
     return declare(null, {
         constructor: function () {
             this.search = ko.observable("");
@@ -32,8 +50,19 @@ define(["knockout", "knockout-dragdrop", "dcl/dcl"], function (ko, kos, declare)
             }, this);
             this.selectedId = ko.observable("");
             this.selectedIncident = ko.observable(null);
-            this.availableEdges = ko.observableArray([]);
-            this.selectedEdges = ko.observableArray([]);
+
+            this.availableEdges = ko.computed(function () {
+                var edges = getEdges(this);
+                return ko.utils.arrayFilter(edges, function (edge) {
+                    return edge._selected() === false
+                        || (edge._isParent === true && hasUnselectedChildren(edges, edge));
+                });
+            }.bind(this));
+            this.selectedEdges = ko.computed(function () {
+                return ko.utils.arrayFilter(getEdges(this), function (edge) {
+                    return edge._selected() === true;
+                });
+            }.bind(this));
 
             this.search.subscribe(this._onSearchChanged, this);
             this.selectedId.subscribe(this._onSelectionChanged, this);
@@ -66,8 +95,6 @@ define(["knockout", "knockout-dragdrop", "dcl/dcl"], function (ko, kos, declare)
         },
 
         _onSelectionChanged: function (newId) {
-            this.availableEdges.removeAll();
-            this.selectedEdges.removeAll();
             if (newId) {
                 postJSON("/catalog/ajax/get_object/", {
                     id: newId
@@ -79,22 +106,28 @@ define(["knockout", "knockout-dragdrop", "dcl/dcl"], function (ko, kos, declare)
 
         _onSelectionResponseReceived: function (response) {
             if (response["success"]) {
-                var incident = filterIncidentObject(response);
-                this.selectedIncident(incident);
-                this.availableEdges(incident.edges);
+                this.selectedIncident(filterIncidentObject(response));
             } else {
                 alert(response["error_message"]);
             }
         },
 
         onSelected: function (data, model) {
-            data._visible(false);
-            this.selectedEdges.push(data);
+            if (data._selectable === true) {
+                data._selected(true);
+            }
         },
 
         onUnselected: function (data, model) {
-            this.selectedEdges.remove(data);
-            data._visible(true);
+            data._selected(false);
+        },
+
+        getIndent: function (edge) {
+            return edge._selected() === true ? "0" : (edge.depth * 12) + "px";
+        },
+
+        isEnabled: function (edge) {
+            return edge._selectable === true && edge._selected() === false;
         }
     });
 });
