@@ -128,6 +128,30 @@ define(["knockout", "knockout-dragdrop", "dcl/dcl"], function (ko, kos, declare)
 
         isEnabled: function (edge) {
             return edge._selectable === true && edge._selected() === false;
+        },
+
+        canPublish: function() {
+            return true;//this.selectedEdges().length > 0;
+        },
+
+        publish: function() {
+            postJSON("/adapter/publisher/ajax/publish/", {
+                object_ids: this.selectedEdges().map(function (edge) {
+                    return edge.id_;
+                }).concat(this.selectedId()),
+                package_info: {
+                    title: 'TEST PACKAGE',
+                    description: 'Package description goes here...',
+                    short_description: 'Short description :)'
+                }
+            }, this._onPublishResponseReceived.bind(this));
+        },
+
+        _onPublishResponseReceived: function(response) {
+            alert(response['message']);
+            if (response['success']) {
+                this.selectedIncident(null);
+            }
         }
     });
 });
