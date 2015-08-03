@@ -6,6 +6,7 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
                        url(r'^select/$', 'adapters.publisher.views.select', name='publisher_select'),
+                       url(r'^missing/$', 'adapters.publisher.views.not_found', name='publisher_not_found'),
                        #    url(r'^review/$', 'adapters.publisher.views.review', name='publisher_review'),
                        #    url(r'^publish/$', 'adapters.publisher.views.publish', name='publisher_publish'),
                        )

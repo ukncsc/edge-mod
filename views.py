@@ -1,6 +1,7 @@
-
 from itertools import chain
 from StringIO import StringIO
+import re
+import urllib2
 
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -18,12 +19,30 @@ from uploads.jobs import process_upload
 
 from catalog.views import ajax_load_catalog
 
+objectid_matcher = re.compile(
+    # {STIX/ID Alias}:{type}-{GUID}
+    r".*/([a-z\d-]+:[a-z\d]+-[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})/?$",
+    re.IGNORECASE  # | re.DEBUG
+)
+
 
 @login_required
 def select(request):
-    return render(request, "publisher_select.html", {
+    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
+    match = objectid_matcher.match(referrer)
+    if match is not None and len(match.groups()) == 1:
+        id_ = match.group(1)
+        return render(request, "publisher_select.html", {
+            "stix_id": id_
+        })
+    else:
+        return redirect(reverse("publisher_not_found"))
 
-    })
+
+@login_required
+def not_found(request):
+    return render(request, "publisher_not_found.html", {})
+
 
 '''
 def do_upload(request):

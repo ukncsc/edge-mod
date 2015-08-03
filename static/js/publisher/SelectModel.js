@@ -43,11 +43,6 @@ define(["knockout", "knockout-dragdrop", "dcl/dcl"], function (ko, kos, declare)
 
     return declare(null, {
         constructor: function () {
-            this.search = ko.observable("");
-            this.results = ko.observableArray([]);
-            this.hasResults = ko.computed(function () {
-                return this.results().length > 0;
-            }, this);
             this.selectedId = ko.observable("");
             this.selectedIncident = ko.observable(null);
 
@@ -64,34 +59,11 @@ define(["knockout", "knockout-dragdrop", "dcl/dcl"], function (ko, kos, declare)
                 });
             }.bind(this));
 
-            this.search.subscribe(this._onSearchChanged, this);
             this.selectedId.subscribe(this._onSelectionChanged, this);
-
-            this._onSearchChanged(this.search());
-        },
-
-        _onSearchChanged: function (/*String*/ newValue) {
-            postJSON("/catalog/ajax/load_catalog/", {
-                search: newValue,
-                size: 10,
-                type: "inc"
-            }, this._onSearchResponseReceived.bind(this));
-        },
-
-        _onSearchResponseReceived: function (response) {
-            if (response["success"]) {
-                this.results(response["data"]);
-            } else {
-                alert(response["message"]);
-            }
         },
 
         select: function (incident) {
             this.selectedId(incident.id);
-        },
-
-        unselect: function () {
-            this.selectedId(null);
         },
 
         _onSelectionChanged: function (newId) {
