@@ -1,21 +1,20 @@
 
-from stix.core import STIXPackage, STIXHeader
+from stix.core import STIXHeader
 from edge import IDManager
 from edge.edge_object import EdgeObject
-from edge.generic import PACKAGE_ADD_DISPATCH
 
 
 class PackageGenerator(object):
 
     @staticmethod
-    def build_package(object_ids, package_info):
-        stix_package = STIXPackage(id_=PackageGenerator._generate_package_id(),
-                                   stix_header=PackageGenerator._generate_stix_header(package_info.get('title'),
-                                                                                      package_info.get(
-                                                                                          'short_description'),
-                                                                                      package_info.get('description')))
+    def build_package(object_id, package_info):
+        edge_object = EdgeObject.load(object_id)
+        (stix_package, package_contents) = edge_object.capsulize(pkg_id=PackageGenerator._generate_package_id(),
+                                                                 enable_bfs=True)
 
-        PackageGenerator._add_objects_to_package(object_ids, stix_package)
+        stix_package.stix_header = PackageGenerator._generate_stix_header(package_info.get('title'),
+                                                                          package_info.get('short_description'),
+                                                                          package_info.get('description'))
 
         return stix_package
 
@@ -26,9 +25,3 @@ class PackageGenerator(object):
     @staticmethod
     def _generate_stix_header(title, short_description, description):
         return STIXHeader(title=title, short_description=short_description, description=description)
-
-    @staticmethod
-    def _add_objects_to_package(object_ids, package):
-        for id in object_ids:
-            edge_object = EdgeObject.load(id)
-            PACKAGE_ADD_DISPATCH[edge_object.ty](package, edge_object.obj)

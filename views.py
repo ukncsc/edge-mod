@@ -9,7 +9,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 
-from users.decorators import superuser_or_staff_role, json_body
+from users.decorators import superuser_or_staff_role
 from edge import LOCAL_ALIAS, LOCAL_NAMESPACE
 #  from xforms import package_from_csv
 from stix.core.stix_header import STIXHeader
@@ -18,27 +18,6 @@ from uploads.jobs import process_upload
 
 from catalog.views import ajax_load_catalog
 
-
-from publisher import Publisher
-from package_generator import PackageGenerator
-
-
-@login_required
-@json_body
-def ajax_publish(request, data):
-    success = True
-    message = "The package was published."
-    try:
-        stix_package = PackageGenerator.build_package(data['object_ids'], data['package_info'])
-        Publisher.push_package(stix_package)
-    except Exception, e:
-        success = False
-        message = e.message
-
-    return {
-        'success': success,
-        'message': message
-    }
 
 @login_required
 def select(request):

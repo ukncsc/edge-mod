@@ -14,14 +14,14 @@ class PublisherConfig(object):
             'site_id': '55b7b76b34550739a0c860dc',
             'namespace_id': LOCAL_NAMESPACE,
             'namespace_alias': LOCAL_ALIAS,
-            'valid_types': {
+            'valid_root_types': {
                 'ind': True,
                 'cam': False,
                 'act': False,
-                'ttp': True,
+                'ttp': False,
                 'tgt': False,
                 'inc': True,
-                'obs': True,
+                'obs': False,
                 'coa': False
             }
         }
