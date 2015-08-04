@@ -10,6 +10,8 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 
+from edge import IDManager
+from edge.edge_object import EdgeObject
 from users.decorators import superuser_or_staff_role
 from edge import LOCAL_ALIAS, LOCAL_NAMESPACE
 #  from xforms import package_from_csv
@@ -27,13 +29,18 @@ objectid_matcher = re.compile(
 
 
 @login_required
-def select(request):
+def review(request):
     referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
     match = objectid_matcher.match(referrer)
     if match is not None and len(match.groups()) == 1:
         id_ = match.group(1)
-        return render(request, "publisher_select.html", {
-            "stix_id": id_
+        root = EdgeObject.load(id_)
+        pkgid = IDManager().get_new_id(prefix="package")
+        package, contents = root.capsulize(pkgid, enable_bfs=True)
+        return render(request, "publisher_review.html", {
+            "root_id": id_,
+            "root_type": root.ty,
+            "package": package,
         })
     else:
         return redirect(reverse("publisher_not_found"))

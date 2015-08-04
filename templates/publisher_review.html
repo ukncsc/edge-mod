@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% load staticfiles %}
+{% block head-title %}{{ main_title }}{% endblock %}
+{% block head-content %}
+
+    <style type="text/css">
+    </style>
+
+{% endblock %}
+
+{% block body-content %}
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <h3 class="obj-title"><img alt="" data-bind="attr:{src: '{% static '' %}img/hex/hex_'+root_type()+'.png'}"/>
+                    <span>Package</span><br>
+                    <small data-bind="text: stix_id"></small>
+                </h3>
+            </div>
+        </div>
+
+        <div class="row">
+            <h4>Observables</h4>
+            <em>TODO</em>
+        </div>
+
+        <div class="row">
+            <h4>Indicators</h4>
+            <em>TODO</em>
+        </div>
+
+        <div class="row">
+            <h4>Incidents</h4>
+            <em>TODO</em>
+        </div>
+
+        <div class="row">
+            <h4>Tactics, Techniques, and Procedures</h4>
+            <table class="table table-condensed table-striped">
+                <thead>
+                <tr>
+                    <th>TTP</th>
+                    <th>Behaviour</th>
+                    <th>Intended Effect(s)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr data-bind="foreach: ttps">
+                    <td data-bind="text: title"></td>
+                    <td>
+                        <!-- ko foreach: behavior.malware_instances -->
+                            <!-- ko foreach: types -->
+                                <!-- ko text: value --><!-- /ko --><br>
+                            <!-- /ko -->
+                        <!-- /ko -->
+                    </td>
+                    <td>
+                        <!-- ko foreach: intended_effects -->
+                            <!-- ko text: value.value --><!-- /ko --><br>
+                        <!-- /ko -->
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row">
+            <h4>Courses of Action</h4>
+            <table class="table table-condensed table-striped">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Objective</th>
+                        <th>Impact</th>
+                        <th>Cost</th>
+                        <th>Efficacy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-bind="foreach: coas">
+                        <td data-bind="text: title"></td>
+                        <td data-bind="text: objective.description"></td>
+                        <td data-bind="text: impact.description"></td>
+                        <td data-bind="text: cost.description"></td>
+                        <td data-bind="text: efficacy.description"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body-end %}
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static "js/stickytape.js" %}"></script>
+    <script>
+        var require = {
+            baseUrl: "{% static 'js' %}",
+            paths: {
+                knockout: "knockout-3.1.0",
+                "knockout-dragdrop": "knockout.dragdrop"
+            },
+            urlArgs: "{% spaceless %}{% include 'publisher-version.html' %}{% endspaceless %}"
+        };
+        var root_id = "{{ root_id }}";
+        var root_type = "{{ root_type }}";
+        var stix_package = {{ package.to_json|safe }};
+    </script>
+    <script src="{% static "js/require.js" %}" data-main="publisher/main"></script>
+{% endblock %}

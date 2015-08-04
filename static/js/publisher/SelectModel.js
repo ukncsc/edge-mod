@@ -1,105 +1,29 @@
-define(["knockout", "knockout-dragdrop", "dcl/dcl"], function (ko, kos, declare) {
+define(["knockout", "dcl/dcl"], function (ko, declare) {
     "use strict";
 
-    function filterIncidentObject(response) {
-        var incident = {};
-        ko.utils.objectForEach(response || {}, function (name, value) {
-            if (name === "edges") {
-                ko.utils.arrayForEach(value, function (edge, idx) {
-                    var nextEdge = value[idx + 1];
-                    edge._isParent = !!nextEdge && nextEdge.depth === (edge.depth + 1);
-                    var type = edge["ty"];
-                    edge._selectable = (type === "obs" || type === "ttp" || type === "ind" || type === "coa" || type === "inc");
-                    edge._selected = ko.observable(false);
-                });
-                incident.edges = value;
-            } else if (name === "success" || name === "error_message") {
-                // ignore these properties
-            } else {
-                incident[name] = value;
-            }
-        });
-        return incident;
-    }
-
-    function getEdges(self) {
-        return (self.selectedIncident() || {}).edges || [];
-    }
-
-    function hasUnselectedChildren(edges, edge) {
-        var hasUnselectedChildren = false;
-        var idx = ko.utils.arrayIndexOf(edges, edge);
-        if (idx > -1) {
-            for (var i = idx + 1, len = edges.length; hasUnselectedChildren === false && i < len; i++) {
-                if (edges[i].depth > edge.depth) {
-                    hasUnselectedChildren = (edges[i]._selected() === false);
-                } else {
-                    break;
-                }
-            }
-        }
-        return hasUnselectedChildren;
-    }
-
     return declare(null, {
-        constructor: function () {
-            this.selectedId = ko.observable("");
-            this.selectedIncident = ko.observable(null);
+        constructor: function (root_id, root_type, stix_package) {
+console.log(root_type, root_id);
+console.dir(stix_package);
+            this.root_id = ko.observable(root_id);
+            this.root_type = ko.observable(root_type);
+            this.stix_package = ko.observable(stix_package);
 
-            this.availableEdges = ko.computed(function () {
-                var edges = getEdges(this);
-                return ko.utils.arrayFilter(edges, function (edge) {
-                    return edge._selected() === false
-                        || (edge._isParent === true && hasUnselectedChildren(edges, edge));
-                });
-            }.bind(this));
-            this.selectedEdges = ko.computed(function () {
-                return ko.utils.arrayFilter(getEdges(this), function (edge) {
-                    return edge._selected() === true;
-                });
-            }.bind(this));
+            this.stix_id = ko.computed(function () {
+                return stix_package.id;
+            });
 
-            this.selectedId.subscribe(this._onSelectionChanged, this);
-        },
+            this.incidents = ko.computed(function () {
+                return stix_package["incidents"];
+            });
 
-        select: function (incident) {
-            this.selectedId(incident.id);
-        },
+            this.ttps = ko.computed(function () {
+                return stix_package["ttps"]["ttps"];
+            });
 
-        _onSelectionChanged: function (newId) {
-            if (newId) {
-                postJSON("/catalog/ajax/get_object/", {
-                    id: newId
-                }, this._onSelectionResponseReceived.bind(this));
-            } else {
-                this.selectedIncident(null);
-            }
-        },
-
-        _onSelectionResponseReceived: function (response) {
-            if (response["success"]) {
-                this.selectedIncident(filterIncidentObject(response));
-            } else {
-                alert(response["error_message"]);
-            }
-        },
-
-        onSelected: function (data, model) {
-            if (data._selectable === true) {
-                data._selected(true);
-            }
-        },
-
-        onUnselected: function (data, model) {
-            data._selected(false);
-        },
-
-        getIndent: function (edge) {
-            return edge._selected() === true ? "0" : (edge.depth * 12) + "px";
-        },
-
-        isEnabled: function (edge) {
-            return edge._selectable === true && edge._selected() === false;
+            this.coas = ko.computed(function () {
+                return stix_package["courses_of_action"];
+            });
         }
     });
 });
