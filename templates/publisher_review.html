@@ -12,30 +12,13 @@
 {% block body-content %}
     <div class="container">
 
-        <div class="row">
-            <div class="col-sm-12">
-                <h3 class="obj-title"><img alt="" data-bind="attr:{src: '{% static '' %}img/hex/hex_'+root_type()+'.png'}"/>
-                    <span>Package</span><br>
-                    <small data-bind="text: stix_id"></small>
-                </h3>
-            </div>
-        </div>
+        <div class="row" data-bind="template: 'header'"></div>
 
-        <div class="row">
-            <h4>Observables</h4>
-            <em>TODO</em>
-        </div>
+        <div class="row" data-bind="template: 'warning'"></div>
 
-        <div class="row">
-            <h4>Indicators</h4>
-            <em>TODO</em>
-        </div>
+        <div class="row" data-bind="template: { name: 'root-' + typeCode(), data: root }"></div>
 
-        <div class="row">
-            <h4>Incidents</h4>
-            <em>TODO</em>
-        </div>
-
+{% comment %}
         <div class="row">
             <h4>Tactics, Techniques, and Procedures</h4>
             <table class="table table-condensed table-striped">
@@ -89,11 +72,63 @@
                 </tbody>
             </table>
         </div>
+{% endcomment %}
     </div>
 {% endblock %}
 
 {% block body-end %}
-    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script type="text/html" id="header">
+        <div class="col-sm-12">
+            <h3 class="obj-title">
+                <button type="button" class="btn btn-danger pull-right"
+                        data-bind="click: onPublish">Publish<br>Externally</button>
+                <img alt="" data-bind="attr: {
+                    src: '{% static '' %}img/hex/hex_'+typeCode()+'.png'
+                }">
+                <span data-bind="text: typeText"></span><br>
+                <small data-bind="text: rootId"></small>
+            </h3>
+        </div>
+    </script>
+
+    <script type="text/html" id="warning">
+        <div class="col-sm-12">
+            {# inline styles because someone used !important in soltra.css #}
+            <div class="panel panel-danger" style="border: 1px solid #EBCCD1 !important;">
+                <div class="panel-heading" style="background-color:#F2DEDE !important;border-bottom:1px solid #EBCCD1 !important;color:#A94442 !important;">
+                    Warning
+                </div>
+                <div class="panel-body" style="background-color: #ffffff !important;">
+                    <span>A warning about making this public</span>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/html" id="root-coa">
+
+    </script>
+
+    <script type="text/html" id="root-ttp">
+
+    </script>
+
+    <script type="text/html" id="root-inc">
+        <dl class="dl-horizontal">
+            <dt>Title</dt>
+            <dd data-bind="text: title"></dd>
+        </dl>
+    </script>
+
+    <script type="text/html" id="root-ind">
+
+    </script>
+
+    <script type="text/html" id="root-obs">
+
+    </script>
+
+        <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static "js/stickytape.js" %}"></script>
     <script>
         var require = {
@@ -104,9 +139,8 @@
             },
             urlArgs: "{% spaceless %}{% include 'publisher-version.html' %}{% endspaceless %}"
         };
-        var root_id = "{{ root_id }}";
-        var root_type = "{{ root_type }}";
-        var stix_package = {{ package.to_json|safe }};
+        var rootId = "{{ root_id }}";
+        var stixPackage = {{ package.to_json|safe }};
     </script>
     <script src="{% static "js/require.js" %}" data-main="publisher/main"></script>
 {% endblock %}

@@ -1,29 +1,59 @@
 define(["knockout", "dcl/dcl"], function (ko, declare) {
     "use strict";
 
+    var TYPES = Object.freeze({
+        "coa": {"collection": "courses_of_action", "label": "Course Of Action", "code": "coa"},
+        "ttp": {"collection": "ttps", "label": "TTP", "code": "ttp"},
+        "incident": {"collection": "incidents", "label": "Incident", "code": "inc"},
+        "indicator": {"collection": "indicators", "label": "Indicator", "code": "ind"},
+        "observable": {"collection": "observables", "label": "Observable", "code": "obs"}
+    });
+
+    function findType(/*String*/ id) {
+        var pattern = new RegExp(
+            "^[a-z\d-]+:([a-z\d]+)-[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$"
+        );
+        var match = pattern.exec(id.toLowerCase());
+        return TYPES[match && match[1]];
+    }
+
+    function findById(/*String*/ id) {
+        var listToSearch = this.stixPackage()[findType(id).collection];
+        return ko.utils.arrayFirst(listToSearch, function (item) {
+            return item.id === id;
+        }, this);
+    }
+
+    function findRoot() {
+        return findById.bind(this)(this.rootId());
+    }
+
     return declare(null, {
-        constructor: function (root_id, root_type, stix_package) {
-console.log(root_type, root_id);
-console.dir(stix_package);
-            this.root_id = ko.observable(root_id);
-            this.root_type = ko.observable(root_type);
-            this.stix_package = ko.observable(stix_package);
 
-            this.stix_id = ko.computed(function () {
-                return stix_package.id;
-            });
+        constructor: function (rootId, stixPackage) {
+console.log(rootId);
+console.dir(stixPackage);
+            this.rootId = ko.observable(rootId);
+            this.stixPackage = ko.observable(stixPackage);
 
-            this.incidents = ko.computed(function () {
-                return stix_package["incidents"];
-            });
+            this.root = ko.computed(findRoot, this);
 
-            this.ttps = ko.computed(function () {
-                return stix_package["ttps"]["ttps"];
-            });
+            this.type = ko.computed(function () {
+                return findType(this.rootId());
+            }, this);
 
-            this.coas = ko.computed(function () {
-                return stix_package["courses_of_action"];
-            });
+            this.typeCode = ko.computed(function () {
+                return this.type().code;
+            }, this);
+
+            this.typeText = ko.computed(function () {
+                return this.type().label;
+            }, this);
+        },
+
+        onPublish: function (data, event) {
+            alert("TODO: publish");
+            //console.dir({ data: data, event: event });
         }
     });
 });

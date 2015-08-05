@@ -42,7 +42,6 @@ def review(request):
         package, contents = root.capsulize(pkgid, enable_bfs=True)
         return render(request, "publisher_review.html", {
             "root_id": id_,
-            "root_type": root.ty,
             "package": package,
         })
     else:
