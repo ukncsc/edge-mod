@@ -7,8 +7,7 @@ from edge.edge_object import EdgeObject
 class PackageGenerator(object):
 
     @staticmethod
-    def build_package(object_id, package_info):
-        edge_object = EdgeObject.load(object_id)
+    def build_package(edge_object, package_info):
         (stix_package, package_contents) = edge_object.capsulize(pkg_id=PackageGenerator._generate_package_id(),
                                                                  enable_bfs=True)
 
@@ -17,6 +16,10 @@ class PackageGenerator(object):
                                                                           package_info.get('description'))
 
         return stix_package
+
+    @staticmethod
+    def get_namespaces(root_edge_object):
+        return root_edge_object.ns_dict()
 
     @staticmethod
     def _generate_package_id():

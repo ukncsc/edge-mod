@@ -38,7 +38,8 @@ def review(request):
     match = objectid_matcher.match(referrer)
     if match is not None and len(match.groups()) == 1:
         id_ = match.group(1)
-        package = PackageGenerator.build_package(id_, {})
+        root_edge_object = EdgeObject.load(id_)
+        package = PackageGenerator.build_package(root_edge_object, {})
         return render(request, "publisher_review.html", {
             "root_id": id_,
             "package": package,
@@ -112,8 +113,10 @@ def ajax_publish(request, data):
 
     try:
         root_id = data['root_id']
-        package = PackageGenerator.build_package(root_id, {})
-        Publisher.push_package(package)
+        edge_object = EdgeObject.load(root_id)
+        package = PackageGenerator.build_package(edge_object, {})
+        namespace_info = PackageGenerator.get_namespaces(edge_object)
+        Publisher.push_package(package, namespace_info)
     # Narrow down which exceptions we catch...?
     except Exception, e:
         success = False

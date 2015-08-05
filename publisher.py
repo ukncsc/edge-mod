@@ -10,15 +10,15 @@ from peers.push import send_message, discover_inbox_url
 class Publisher(object):
 
     @staticmethod
-    def push_package(package):
+    def push_package(package, namespace_info):
         config = PublisherConfig.get_config()
         if config['site_id'] is None:
             # Is this the appropriate exception type? Create a custom one?
             raise Warning('No site has been configured to publish to.')
 
-        namespace_info = {
+        namespace_info.update({
             config['namespace_id']: config['namespace_alias']
-        }
+        })
         xml_data = package.to_xml(ns_dict=namespace_info, include_idgen=False, include_schemalocs=False)
         output_block = libtaxii.tm11.ContentBlock(
             content_binding=libtaxii.CB_STIX_XML_111,
