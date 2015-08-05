@@ -21,7 +21,8 @@ from uploads.jobs import process_upload
 
 from catalog.views import ajax_load_catalog
 from peers.models import PeerSite
-from publisher import PublisherConfig
+from publisher import Publisher, PublisherConfig
+from package_generator import PackageGenerator
 
 
 objectid_matcher = re.compile(
@@ -37,9 +38,7 @@ def review(request):
     match = objectid_matcher.match(referrer)
     if match is not None and len(match.groups()) == 1:
         id_ = match.group(1)
-        root = EdgeObject.load(id_)
-        pkgid = IDManager().get_new_id(prefix="package")
-        package, contents = root.capsulize(pkgid, enable_bfs=True)
+        package = PackageGenerator.build_package(id_, {})
         return render(request, "publisher_review.html", {
             "root_id": id_,
             "package": package,
@@ -101,6 +100,29 @@ def ajax_set_publish_site(request, data):
     return {
         'success': success,
         'saved_id': site_id,
+        'error_message': error_message
+    }
+
+
+@login_required
+@json_body
+def ajax_publish(request, data):
+    success = True
+    error_message = ""
+
+    try:
+        root_id = data['root_id']
+        package = PackageGenerator.build_package(root_id, {})
+        Publisher.push_package(package)
+    # Narrow down which exceptions we catch...?
+    except Exception, e:
+        success = False
+        error_message = e.message
+
+    # The whole try/except... return { success.. } thing seems repeated quite a bit for
+    # our ajax handlers (and also in the core code)...
+    return {
+        'success': success,
         'error_message': error_message
     }
 

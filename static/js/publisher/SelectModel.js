@@ -51,9 +51,15 @@ console.dir(stixPackage);
             }, this);
         },
 
-        onPublish: function (data, event) {
-            alert("TODO: publish");
-            //console.dir({ data: data, event: event });
+        onPublish: function () {
+            postJSON("/adapter/publisher/ajax/publish/", {
+                root_id: this.rootId()
+            }, this._onPublishResponseReceived.bind(this));
+        },
+
+        _onPublishResponseReceived: function (response) {
+            var message = response["success"] ? "The package was successfully published." : response["error_message"];
+            alert(message);
         }
     });
 });

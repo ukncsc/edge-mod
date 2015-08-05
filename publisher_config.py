@@ -52,7 +52,7 @@ class PublisherConfig(object):
         site_id = None
         site = get_db().peer_sites.find_one({'is_publish_site': True})
         if site is not None:
-            site_id = site.id
+            site_id = site['_id']
 
         return {
             'site_id': site_id,

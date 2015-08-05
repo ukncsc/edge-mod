@@ -9,8 +9,8 @@ urlpatterns = patterns('',
                        url(r'^missing/$', 'adapters.publisher.views.not_found', name='publisher_not_found'),
                        url(r'^config/$', 'adapters.publisher.views.config', name='publisher_config'),
                        url(r'^ajax/get_sites/$', 'adapters.publisher.views.ajax_get_sites'),
-                       url(r'^ajax/set_publish_site/$', 'adapters.publisher.views.ajax_set_publish_site')
-                       #    url(r'^publish/$', 'adapters.publisher.views.publish', name='publisher_publish'),
+                       url(r'^ajax/set_publish_site/$', 'adapters.publisher.views.ajax_set_publish_site'),
+                       url(r'^ajax/publish/$', 'adapters.publisher.views.ajax_publish')
                        )
 
 navitems = [
