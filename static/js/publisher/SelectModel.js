@@ -65,8 +65,8 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
                 return this.type().label;
             }, this);
 
+            this.title = ko.computed(safeGet.bind(this, this.root(), "title"));
             this.shortDescription = ko.computed(safeGet.bind(this, this.root(), "short_description"));
-
             this.description = ko.computed(safeGet.bind(this, this.root(), "description"));
 console.dir(this.root());
         },
