@@ -9,7 +9,7 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
         "observable": {"collection": "observables", "label": "Observable", "code": "obs"}
     });
 
-    function findType(/*String*/ id) {
+    function findType (/*String*/ id) {
         var pattern = new RegExp(
             "^[a-z\d-]+:([a-z\d]+)-[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$"
         );
@@ -17,22 +17,37 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
         return TYPES[match && match[1]];
     }
 
-    function findById(/*String*/ id) {
+    function findById (/*String*/ id) {
         var listToSearch = this.stixPackage()[findType(id).collection];
         return ko.utils.arrayFirst(listToSearch, function (item) {
             return item.id === id;
         }, this);
     }
 
-    function findRoot() {
+    function findRoot () {
         return findById.bind(this)(this.rootId());
+    }
+
+    function safeGet (object, propertyPath) {
+        var propertyNames = propertyPath.split(".");
+        var current = object;
+        for (var i = 0, len = propertyNames.length; i < len; i++) {
+            var p = propertyNames[i];
+            if (p in current) {
+                current = current[p];
+            } else {
+                current = null;
+                break;
+            }
+        }
+        return current;
     }
 
     return declare(null, {
 
         constructor: function (rootId, stixPackage) {
-console.log(rootId);
-console.dir(stixPackage);
+//console.log(rootId);
+//console.dir(stixPackage);
             this.rootId = ko.observable(rootId);
             this.stixPackage = ko.observable(stixPackage);
 
@@ -49,7 +64,18 @@ console.dir(stixPackage);
             this.typeText = ko.computed(function () {
                 return this.type().label;
             }, this);
+
+            this.shortDescription = ko.computed(safeGet.bind(this, this.root(), "short_description"));
+
+            this.description = ko.computed(safeGet.bind(this, this.root(), "description"));
+console.dir(this.root());
         },
+
+        getTLP: function (object) {
+            return safeGet(object, "handling.0.marking_structures.0.color");
+        },
+
+        safeGet: safeGet.bind(this),
 
         onPublish: function () {
             postJSON("/adapter/publisher/ajax/publish/", {

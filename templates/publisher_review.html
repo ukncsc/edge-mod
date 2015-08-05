@@ -16,7 +16,7 @@
 
         <div class="row" data-bind="template: 'warning'"></div>
 
-        <div class="row" data-bind="template: { name: 'root-' + typeCode(), data: root }"></div>
+        <div class="row" data-bind="template: { name: 'root-' + typeCode() }"></div>
 
 {% comment %}
         <div class="row">
@@ -99,7 +99,9 @@
                     Warning
                 </div>
                 <div class="panel-body" style="background-color: #ffffff !important;">
-                    <span>A warning about making this public</span>
+                    By clicking the <em>Publish Externally</em> button, you will be placing the information contained
+                    within this package into the public domain. Before doing so, please consider carefully whether this
+                    would expose sensitive data or damage CERT-UK's reputation.
                 </div>
             </div>
         </div>
@@ -116,7 +118,29 @@
     <script type="text/html" id="root-inc">
         <dl class="dl-horizontal">
             <dt>Title</dt>
-            <dd data-bind="text: title"></dd>
+            <dd data-bind="text: root().title"></dd>
+            <!-- ko if: shortDescription -->
+            <dt>Short Description</dt>
+            <dd data-bind="text: shortDescription"></dd>
+            <!-- /ko -->
+            <!-- ko if: description -->
+            <dt>Description</dt>
+            <dd data-bind="text: description"></dd>
+            <!-- /ko -->
+            <dt>TLP</dt>
+            <dd data-bind="text: getTLP(root())"></dd>
+            <!-- ko if: safeGet(root(), 'status.value') -->
+            <dt>Status</dt>
+            <dd data-bind="text: safeGet(root(), 'status.value')"></dd>
+            <!-- /ko -->
+            <!-- ko if: safeGet(root(), 'reporter.identity.name') -->
+            <dt>Reporter</dt>
+            <dd data-bind="text: safeGet(root(), 'reporter.identity.name')"></dd>
+            <!-- /ko -->
+            <!-- ko if: safeGet(root(), 'confidence.value.value') -->
+            <dt>Confidence</dt>
+            <dd data-bind="text: safeGet(root(), 'confidence.value.value')"></dd>
+            <!-- /ko -->
         </dl>
     </script>
 
