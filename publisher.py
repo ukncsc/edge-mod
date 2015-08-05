@@ -12,6 +12,10 @@ class Publisher(object):
     @staticmethod
     def push_package(package):
         config = PublisherConfig.get_config()
+        if config['site_id'] is None:
+            # Is this the appropriate exception type? Create a custom one?
+            raise Warning('No site has been configured to publish to.')
+
         namespace_info = {
             config['namespace_id']: config['namespace_alias']
         }

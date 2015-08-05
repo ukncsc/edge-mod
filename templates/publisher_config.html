@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% load staticfiles %}
+{% block head-title %}{{ main_title }}{% endblock %}
+
+{% block body-content %}
+    <div class="container">
+
+        <div class="obj-title">
+            <div class="col-sm-7">
+                <div class="row">
+                    <img src="/static/img/hex/hex_.png">
+                    <h3>External Publisher</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row builder">
+            <div class="col-sm-7">
+
+                <!-- Generic settings pages could have multiple panels, each containing multiple dropdowns/fields -->
+                <div class="panel panel-default">
+                    <div class="panel-heading">Configuration</div>
+                    <div class="panel-body">
+
+                        <div class="row">
+                            <div class="col-sm-1">
+                                <h4 class="pull-right">Site: </h4>
+                            </div>
+
+                            <div class="col-sm-7">
+                                <div class="dropdown">
+                                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <!-- Candidate for template/component. The "generic" configuration pages could
+                                         use this, icons indicate which is the saved option. -->
+                                        <span class="glyphicon"
+                                              data-bind="css: {
+                                              'glyphicon-remove': !selectedSite(),
+                                              'glyphicon-cloud-upload': selectedSite() && !(selectedSite().is_publish_site()),
+                                              'glyphicon-ok': selectedSite() && selectedSite().is_publish_site()}"></span>
+                                        <span data-bind="text: selectedSite() ? selectedSite().name : 'None'"></span>
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#" data-bind="click: function() { selectedSite(null) }">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                            None
+                                        </a></li>
+                                        <!-- ko foreach: sites -->
+                                        <li>
+                                            <a href="#" data-bind="click: $parent.selectedSite">
+                                                <span class="glyphicon"
+                                                      data-bind="css: {
+                                                      'glyphicon-cloud-upload': $data && !($data.is_publish_site()),
+                                                      'glyphicon-ok': $data && $data.is_publish_site() }"></span>
+                                                <span data-bind="text: $data.name"></span>
+                                            </a>
+                                        </li>
+                                        <!-- /ko -->
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <button class="btn btn-default pull-right"
+                                        data-bind="click: savePublishSite,
+                                                   css: {
+                                                   disabled: (!selectedSite() && !publishId()) ||
+                                                   (selectedSite() && selectedSite().is_publish_site()) }">
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-sm-5">
+                <!-- Could place a panel here, showing a summary of the selected settings -->
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static "js/stickytape.js" %}"></script>
+    <script>
+        var require = {
+            baseUrl: "{% static 'js' %}",
+            paths: {
+                knockout: "knockout-3.1.0"
+            },
+            urlArgs: "{% spaceless %}{% include 'publisher-version.html' %}{% endspaceless %}"
+        };
+    </script>
+    <script src="{% static "js/require.js" %}" data-main="publisher/config-main"></script>
+{% endblock %}

@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 
 from edge import IDManager
 from edge.edge_object import EdgeObject
-from users.decorators import superuser_or_staff_role
+from users.decorators import superuser_or_staff_role, json_body
 from edge import LOCAL_ALIAS, LOCAL_NAMESPACE
 #  from xforms import package_from_csv
 from stix.core.stix_header import STIXHeader
@@ -20,6 +20,9 @@ from taxii.models import Upload
 from uploads.jobs import process_upload
 
 from catalog.views import ajax_load_catalog
+from peers.models import PeerSite
+from publisher import PublisherConfig
+
 
 objectid_matcher = re.compile(
     # {STIX/ID Alias}:{type}-{GUID}
@@ -50,6 +53,57 @@ def review(request):
 def not_found(request):
     return render(request, "publisher_not_found.html", {})
 
+
+@superuser_or_staff_role
+@login_required
+def config(request):
+    return render(request, "publisher_config.html", {})
+
+
+@superuser_or_staff_role
+@login_required
+@json_body
+def ajax_get_sites(request, data):
+    # The generic settings pages could define callbacks for dropdown options.
+    # Probably just provide this data at the Django template rendering stage instead.
+    # Or maybe make AJAX call optional, e.g. for large option lists?
+    success = True
+    error_message = ""
+    sites = []
+
+    try:
+        sites = PublisherConfig.get_sites()
+    except Exception, e:
+        success = False
+        error_message = e.message
+
+    return {
+        'success': success,
+        'error_message': error_message,
+        'sites': sites
+    }
+
+
+@superuser_or_staff_role
+@login_required
+@json_body
+def ajax_set_publish_site(request, data):
+    success = True
+    error_message = ""
+    site_id = data['site_id']
+
+    try:
+        PublisherConfig.update_config(data)
+    except Exception, e:
+        success = False
+        error_message = e.message
+        site_id = ""
+
+    return {
+        'success': success,
+        'saved_id': site_id,
+        'error_message': error_message
+    }
 
 '''
 def do_upload(request):
