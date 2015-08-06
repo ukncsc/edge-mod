@@ -18,7 +18,13 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
     }
 
     function findById (/*Object*/ stixPackage, /*String*/ id) {
+        if (!(stixPackage && typeof id === "string")) {
+            return null;
+        }
         var listToSearch = safeGet(stixPackage, findType(id).collection) || [];
+        if (!listToSearch) {
+            return null;
+        }
         return ko.utils.arrayFirst(listToSearch, function (item) {
             return item.id === id;
         }, this);
@@ -94,7 +100,7 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
         var propertyList = ko.observableArray([]);
         var properties = safeGet(observable, "object.properties");
         ko.utils.objectForEach(properties, function (name, value) {
-            if (typeof value === "string" && name !== "xsi:type") {
+            if (name !== "xsi:type" && typeof value === "string" && value.length > 0) {
                 propertyList.push({label: name, value: value});
             }
         });
@@ -110,7 +116,7 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
 
         constructor: function (rootId, stixPackage) {
 //console.log(rootId);
-console.dir(stixPackage);
+//console.dir(stixPackage);
             this.rootId = ko.observable(rootId);
             this.stixPackage = ko.observable(stixPackage);
 
@@ -173,7 +179,19 @@ console.dir(stixPackage);
             this.relatedObservables = ko.computed(function () {
                 return safeReferenceArrayGet(this.root(), "related_observables.observables", this.stixPackage(), "observable.idref", buildObservable);
             }, this);
-console.dir(this.root());
+            this.producer = ko.computed(function () {
+                return safeGet(this.root(), "producer.identity.name");
+            }, this);
+            this.indicatorTypes = ko.computed(function () {
+                return safeListGet(this.root(), "indicator_types");
+            }, this);
+            this.observable = ko.computed(function () {
+                return findById(this.stixPackage(), safeGet(this.root(), "observable.idref"));
+            }, this);
+            this.observables = ko.computed(function () {
+                return safeReferenceArrayGet(this.observable(), "observable_composition.observables", this.stixPackage(), "idref", buildObservable);
+            }, this);
+//console.dir(this.root());
         },
 
         onPublish: function () {

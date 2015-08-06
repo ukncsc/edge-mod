@@ -16,6 +16,10 @@
     dl.dl-horizontal dd table th:nth-child(n+3) {
         width: auto;
     }
+
+    dl.dl-horizontal dd table.cols-2 th:nth-child(n+2) {
+        width: auto;
+    }
     </style>
 
 {% endblock %}
@@ -116,8 +120,22 @@
     <script type="text/html" id="root-ind">
         <dl class="dl-horizontal">
             <!-- ko template: { name: "common-fields" } --><!-- /ko -->
+            <!-- ko template: {
+                name: "optional-labelled-field", data: { label: "Producer", value: producer }
+            } --><!-- /ko -->
+            <!-- ko template: {
+                name: "optional-labelled-field", data: { label: "Confidence", value: confidence }
+            } --><!-- /ko -->
+            <!-- ko template: {
+                name: "optional-labelled-field", data: { label: "Type", value: indicatorTypes }
+            } --><!-- /ko -->
+            <!-- ko template: {
+                name: "optional-labelled-field", data: { label: "Composition", value: observable().observable_composition.operator }
+            } --><!-- /ko -->
+            <!-- ko template: {
+                name: "observables", data: { label: "Observables", value: observables }
+            } --><!-- /ko -->
         </dl>
-        <p><em>Type specific fields not yet implemented</em></p>
     </script>
 
     <script type="text/html" id="root-obs">
@@ -143,6 +161,7 @@
     </script>
 
     <script type="text/html" id="leveraged-ttps">
+        <!-- ko if: value -->
         <dt data-bind="text: label"></dt>
         <dd>
             <table class="table table-condensed table-hover table-striped">
@@ -162,9 +181,11 @@
                 </tbody>
             </table>
         </dd>
+        <!-- /ko -->
     </script>
 
     <script type="text/html" id="related-incidents">
+        <!-- ko if: value -->
         <dt data-bind="text: label"></dt>
         <dd>
             <table class="table table-condensed table-striped">
@@ -184,9 +205,11 @@
                 </tbody>
             </table>
         </dd>
+        <!-- /ko -->
     </script>
 
     <script type="text/html" id="related-indicators">
+        <!-- ko if: value -->
         <dt data-bind="text: label"></dt>
         <dd>
             <table class="table table-condensed table-striped">
@@ -206,9 +229,11 @@
                 </tbody>
             </table>
         </dd>
+        <!-- /ko -->
     </script>
 
     <script type="text/html" id="related-observables">
+        <!-- ko if: value -->
         <dt data-bind="text: label"></dt>
         <dd>
             <table class="table table-condensed table-striped">
@@ -236,6 +261,37 @@
                 </tbody>
             </table>
         </dd>
+        <!-- /ko -->
+    </script>
+
+    <script type="text/html" id="observables">
+        <!-- ko if: value -->
+        <dt data-bind="text: label"></dt>
+        <dd>
+            <table class="table table-condensed table-striped cols-2">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Properties</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: value">
+                    <tr data-bind="attr: { title: id }">
+                        <td data-bind="text: type"></td>
+                        <td>
+                            <em data-bind="if: properties().length === 0">None</em>
+                            <!-- ko if: properties().length > 0 -->
+                            <dl class="dl-horizontal" data-bind="foreach: properties">
+                                <dt data-bind="text: label"></dt>
+                                <dd data-bind="text: value"></dd>
+                            </dl>
+                            <!-- /ko -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </dd>
+        <!-- /ko -->
     </script>
 
     <script type="text/html" id="labelled-field">
