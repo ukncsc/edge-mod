@@ -24,11 +24,7 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
         }, this);
     }
 
-    function findRoot () {
-        return findById.bind(this)(this.rootId());
-    }
-
-    function safeGet (object, propertyPath) {
+    function safeGet (/*Object*/ object, /*String*/ propertyPath) {
         var propertyNames = propertyPath.split(".");
         var current = object;
         for (var i = 0, len = propertyNames.length; i < len; i++) {
@@ -43,6 +39,16 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
         return current;
     }
 
+    function safeListGet (/*Object*/ object, /*String*/ propertyPath, /*String?*/ valueKey, /*String?*/ delimiter) {
+        var list = safeGet(object, propertyPath);
+        var itemPropertyPath = valueKey || "value";
+        return list instanceof Array && list.length > 0
+            ? ko.utils.arrayMap(list, function (item) {
+                return safeGet(item, itemPropertyPath);
+            }).join(delimiter || ", ")
+            : null;
+    }
+
     return declare(null, {
 
         constructor: function (rootId, stixPackage) {
@@ -51,31 +57,31 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
             this.rootId = ko.observable(rootId);
             this.stixPackage = ko.observable(stixPackage);
 
-            this.root = ko.computed(findRoot, this);
-
-            this.type = ko.computed(function () {
-                return findType(this.rootId());
-            }, this);
-
+            this.root = ko.computed(findById.bind(this, this.rootId()));
+            this.type = ko.computed(findType.bind(this, this.rootId()));
             this.typeCode = ko.computed(function () {
                 return this.type().code;
             }, this);
-
             this.typeText = ko.computed(function () {
                 return this.type().label;
             }, this);
 
+            // core properties
             this.title = ko.computed(safeGet.bind(this, this.root(), "title"));
             this.shortDescription = ko.computed(safeGet.bind(this, this.root(), "short_description"));
             this.description = ko.computed(safeGet.bind(this, this.root(), "description"));
+            this.tlp = ko.computed(safeGet.bind(this, this.root(), "handling.0.marking_structures.0.color"));
+
+            // incident properties
+            this.status = ko.computed(safeGet.bind(this, this.root(), "status.value"));
+            this.reporter = ko.computed(safeGet.bind(this, this.root(), "reporter.identity.name"));
+            this.confidence = ko.computed(safeGet.bind(this, this.root(), "confidence.value.value"));
+            this.intendedEffects = ko.computed(safeListGet.bind(this, this.root(), "intended_effects", "value.value"));
+            this.discoveryMethods = ko.computed(safeListGet.bind(this, this.root(), "discovery_methods"));
+            this.impactAssessment = ko.computed(safeListGet.bind(this, this.root(), "impact_assessment.effects"));
+
 console.dir(this.root());
         },
-
-        getTLP: function (object) {
-            return safeGet(object, "handling.0.marking_structures.0.color");
-        },
-
-        safeGet: safeGet.bind(this),
 
         onPublish: function () {
             postJSON("/adapter/publisher/ajax/publish/", {

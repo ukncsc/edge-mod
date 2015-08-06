@@ -108,69 +108,85 @@
     </script>
 
     <script type="text/html" id="root-coa">
-
+        <dl class="dl-horizontal">
+            <!-- ko template: { name: "common-fields" } --><!-- /ko -->
+        </dl>
+        <p><em>Type specific fields not yet implemented</em></p>
     </script>
 
     <script type="text/html" id="root-ttp">
-
+        <dl class="dl-horizontal">
+            <!-- ko template: { name: "common-fields" } --><!-- /ko -->
+        </dl>
+        <p><em>Type specific fields not yet implemented</em></p>
     </script>
 
     <script type="text/html" id="root-inc">
         <dl class="dl-horizontal">
-            <dt>Title</dt>
-            <dd data-bind="text: title"></dd>
-            <!-- ko if: shortDescription -->
-            <dt>Short Description</dt>
-            <dd data-bind="text: shortDescription"></dd>
-            <!-- /ko -->
-            <!-- ko if: description -->
-            <dt>Description</dt>
-            <dd data-bind="text: description"></dd>
-            <!-- /ko -->
-            <dt>TLP</dt>
-            <dd data-bind="text: getTLP(root())"></dd>
-            <!-- ko if: safeGet(root(), 'status.value') -->
-            <dt>Status</dt>
-            <dd data-bind="text: safeGet(root(), 'status.value')"></dd>
-            <!-- /ko -->
-            <!-- ko if: safeGet(root(), 'reporter.identity.name') -->
-            <dt>Reporter</dt>
-            <dd data-bind="text: safeGet(root(), 'reporter.identity.name')"></dd>
-            <!-- /ko -->
-            <!-- ko if: safeGet(root(), 'confidence.value.value') -->
-            <dt>Confidence</dt>
-            <dd data-bind="text: safeGet(root(), 'confidence.value.value')"></dd>
-            <!-- /ko -->
-            <!-- ko if: safeGet(root(), 'intended_effects.length') > 0 -->
-            <dt>Intended Effects</dt>
-            <!-- ko foreach: safeGet(root(), 'intended_effects') -->
-            <dd data-bind="text: $root.safeGet($data, 'value.value')"></dd>
-            <!-- /ko -->
-            <!-- /ko -->
-            <!-- ko if: safeGet(root(), 'discovery_methods.length') > 0 -->
-            <dt>Discovery Methods</dt>
-            <!-- ko foreach: safeGet(root(), 'discovery_methods') -->
-            <dd data-bind="text: $root.safeGet($data, 'value')"></dd>
-            <!-- /ko -->
-            <!-- /ko -->
-            <!-- ko if: safeGet(root(), 'impact_assessment.effects.length') > 0 -->
-            <dt>Impact Assessment</dt>
-            <!-- ko foreach: safeGet(root(), 'impact_assessment.effects') -->
-            <dd data-bind="text: $root.safeGet($data, 'value')"></dd>
-            <!-- /ko -->
-            <!-- /ko -->
+            <!-- ko template: { name: "common-fields" } --><!-- /ko -->
+
+            <!-- ko template: {
+                name: "optional-labelled-field", data: { label: "Status", value: status }
+            } --><!-- /ko -->
+            <!-- ko template: {
+                name: "optional-labelled-field", data: { label: "Reporter", value: reporter }
+            } --><!-- /ko -->
+            <!-- ko template: {
+                name: "optional-labelled-field", data: { label: "Confidence", value: confidence }
+            } --><!-- /ko -->
+            <!-- ko template: {
+                name: "optional-labelled-field", data: { label: "Intended Effects", value: intendedEffects }
+            } --><!-- /ko -->
+            <!-- ko template: {
+                name: "optional-labelled-field", data: { label: "Discovery Methods", value: discoveryMethods }
+            } --><!-- /ko -->
+            <!-- ko template: {
+                name: "optional-labelled-field", data: { label: "Impact Assessment", value: impactAssessment }
+            } --><!-- /ko -->
         </dl>
     </script>
 
     <script type="text/html" id="root-ind">
-
+        <dl class="dl-horizontal">
+            <!-- ko template: { name: "common-fields" } --><!-- /ko -->
+        </dl>
+        <p><em>Type specific fields not yet implemented</em></p>
     </script>
 
     <script type="text/html" id="root-obs">
-
+        <dl class="dl-horizontal">
+            <!-- ko template: { name: "common-fields" } --><!-- /ko -->
+        </dl>
+        <p><em>Type specific fields not yet implemented</em></p>
     </script>
 
-        <script src="{% static 'js/moment.min.js' %}"></script>
+    <script type="text/html" id="common-fields">
+        <!-- ko template: {
+            name: "labelled-field", data: { label: "Title", value: title }
+        } --><!-- /ko -->
+        <!-- ko template: {
+            name: "optional-labelled-field", data: { label: "Short Description", value: shortDescription }
+        } --><!-- /ko -->
+        <!-- ko template: {
+            name: "optional-labelled-field", data: { label: "Description", value: description }
+        } --><!-- /ko -->
+        <!-- ko template: {
+            name: "labelled-field", data: { label: "TLP", value: tlp }
+        } --><!-- /ko -->
+    </script>
+
+    <script type="text/html" id="labelled-field">
+        <dt data-bind="text: label"></dt>
+        <dd data-bind="text: value"></dd>
+    </script>
+
+    <script type="text/html" id="optional-labelled-field">
+        <!-- ko if: value -->
+            <!-- ko template: { name: "labelled-field", data: $data } --><!-- /ko -->
+        <!-- /ko -->
+    </script>
+
+    <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static "js/stickytape.js" %}"></script>
     <script>
         var require = {
