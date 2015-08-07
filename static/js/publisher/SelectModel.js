@@ -218,9 +218,11 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
         },
 
         onPublish: function () {
-            postJSON("/adapter/publisher/ajax/publish/", {
-                root_id: this.rootId()
-            }, this._onPublishResponseReceived.bind(this));
+            if (confirm("Are you absolutely sure you want to publish this package?")) {
+                postJSON("/adapter/publisher/ajax/publish/", {
+                    root_id: this.rootId()
+                }, this._onPublishResponseReceived.bind(this));
+            }
         },
 
         _onPublishResponseReceived: function (response) {
