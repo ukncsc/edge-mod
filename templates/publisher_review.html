@@ -135,6 +135,12 @@
             <!-- ko template: {
                 name: "observables", data: { label: "Observables", value: observables }
             } --><!-- /ko -->
+            <!-- ko template: {
+                name: "related-indicators", data: { label: "Related Indicators", value: relatedIndicators }
+            } --><!-- /ko -->
+            <!-- ko template: {
+                name: "suggested-coas", data: { label: "Suggested COAs", value: suggestedCOAs }
+            } --><!-- /ko -->
         </dl>
     </script>
 
@@ -288,6 +294,36 @@
                             <!-- /ko -->
                         </td>
                     </tr>
+                </tbody>
+            </table>
+        </dd>
+        <!-- /ko -->
+    </script>
+
+    <script type="text/html" id="suggested-coas">
+        <!-- ko if: value -->
+        <dt data-bind="text: label"></dt>
+        <dd>
+            <table class="table table-condensed table-striped cols-2">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Properties</th>
+                </tr>
+                </thead>
+                <tbody data-bind="foreach: value">
+                <tr data-bind="attr: { title: id }">
+                    <td data-bind="text: title"></td>
+                    <td>
+                        <em data-bind="if: properties().length === 0">None</em>
+                        <!-- ko if: properties().length > 0 -->
+                        <dl class="dl-horizontal" data-bind="foreach: properties">
+                            <dt data-bind="text: label"></dt>
+                            <dd data-bind="text: value"></dd>
+                        </dl>
+                        <!-- /ko -->
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </dd>

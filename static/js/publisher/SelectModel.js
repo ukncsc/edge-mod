@@ -112,6 +112,25 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
         });
     }
 
+    function buildCOA (/*Object*/ coa) {
+        var propertyList = ko.utils.arrayFilter([
+            { label: "stage", value: safeGet(coa, "stage.value")},
+            { label: "type", value: safeGet(coa, "type.value")},
+            { label: "objective", value: safeGet(coa, "objective.description")},
+            { label: "impact", value: safeGet(coa, "impact.description")},
+            { label: "efficacy", value: safeGet(coa, "efficacy.description")},
+            { label: "cost", value: safeGet(coa, "cost.description")}
+        ], function (property) {
+            return typeof property.value === "string" && property.value.length > 0;
+        });
+        return ko.observable({
+            id: safeGet(coa, "id"),
+            title: safeGet(coa, "title"),
+            tlp: safeGet(coa, "handling.0.marking_structures.0.color"),
+            properties: ko.observableArray(propertyList)
+        });
+    }
+
     return declare(null, {
 
         constructor: function (rootId, stixPackage) {
@@ -174,7 +193,8 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
                 return safeReferenceArrayGet(this.root(), "related_incidents.incidents", this.stixPackage(), "incident.idref", buildIncident);
             }, this);
             this.relatedIndicators = ko.computed(function () {
-                return safeReferenceArrayGet(this.root(), "related_indicators.indicators", this.stixPackage(), "indicator.idref", buildIndicator);
+                return safeReferenceArrayGet(this.root(), "related_indicators.indicators", this.stixPackage(), "indicator.idref", buildIndicator)
+                    || safeReferenceArrayGet(this.root(), "related_indicators.related_indicators", this.stixPackage(), "indicator.idref", buildIndicator);
             }, this);
             this.relatedObservables = ko.computed(function () {
                 return safeReferenceArrayGet(this.root(), "related_observables.observables", this.stixPackage(), "observable.idref", buildObservable);
@@ -190,6 +210,9 @@ define(["knockout", "dcl/dcl"], function (ko, declare) {
             }, this);
             this.observables = ko.computed(function () {
                 return safeReferenceArrayGet(this.observable(), "observable_composition.observables", this.stixPackage(), "idref", buildObservable);
+            }, this);
+            this.suggestedCOAs = ko.computed(function () {
+                return safeReferenceArrayGet(this.root(), "suggested_coas.suggested_coas", this.stixPackage(), "course_of_action.idref", buildCOA);
             }, this);
 //console.dir(this.root());
         },
