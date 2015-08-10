@@ -20,7 +20,7 @@ define([
         onPublish: function () {
             if (confirm("Are you absolutely sure you want to publish this package?")) {
                 postJSON("/adapter/publisher/ajax/publish/", {
-                    root_id: this.root().id
+                    root_id: this.root().id()
                 }, this._onPublishResponseReceived.bind(this));
             }
         },
