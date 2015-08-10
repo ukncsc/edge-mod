@@ -36,7 +36,7 @@
     <div class="container">
         <div class="row" data-bind="template: 'header'"></div>
         <div class="row" data-bind="template: 'warning'"></div>
-        <div class="row" data-bind="template: { name: 'root-' + typeCode() }"></div>
+        <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
     </div>
 {% endblock %}
 
@@ -46,11 +46,11 @@
             <h3 class="obj-title">
                 <button type="button" class="btn btn-danger pull-right"
                         data-bind="click: onPublish">Publish<br>Externally</button>
-                <img alt="" data-bind="attr: {
-                    src: '{% static '' %}img/hex/hex_'+typeCode()+'.png'
+                <img alt="" src="" data-bind="attr: {
+                    src: '{% static "img/hex" %}/hex_'+type().code+'.png'
                 }">
-                <span data-bind="text: typeText"></span><br>
-                <small data-bind="text: rootId"></small>
+                <span data-bind="text: type().label"></span><br>
+                <small data-bind="text: root().id"></small>
             </h3>
         </div>
     </script>
@@ -138,7 +138,7 @@
                 name: "optional-labelled-field", data: { label: "Type", value: indicatorTypes }
             } --><!-- /ko -->
             <!-- ko template: {
-                name: "optional-labelled-field", data: { label: "Composition", value: observable().observable_composition.operator }
+                name: "optional-labelled-field", data: { label: "Composition", value: composition }
             } --><!-- /ko -->
             <!-- ko template: {
                 name: "observables", data: { label: "Observables", value: observables }
@@ -238,7 +238,7 @@
                     <tr data-bind="attr: { title: id }">
                         <td data-bind="text: title"></td>
                         <td data-bind="text: tlp"></td>
-                        <td data-bind="text: types"></td>
+                        <td data-bind="text: indicatorTypes"></td>
                     </tr>
                 </tbody>
             </table>
@@ -350,7 +350,7 @@
     </script>
 
     <script src="{% static 'js/moment.min.js' %}"></script>
-    <script src="{% static "js/stickytape.js" %}"></script>
+    <script src="{% static 'js/stickytape.js' %}"></script>
     <script>
         var require = {
             baseUrl: "{% static 'js' %}",
@@ -363,5 +363,5 @@
         var rootId = "{{ root_id }}";
         var stixPackage = {{ package.to_json|safe }};
     </script>
-    <script src="{% static "js/require.js" %}" data-main="publisher/main"></script>
+    <script src="{% static 'js/require.js' %}" data-main="publisher/main"></script>
 {% endblock %}

@@ -1,0 +1,90 @@
+define([
+    "dcl/dcl",
+    "knockout",
+    "stix/CourseOfAction",
+    "stix/Incident",
+    "stix/Indicator",
+    "stix/Observable",
+    "stix/TTP"
+], function (declare, ko, CourseOfAction, Incident, Indicator, Observable, TTP) {
+    "use strict";
+
+    var TYPES = Object.freeze({
+        "coa": {"class": CourseOfAction, "collection": "courses_of_action", "label": "Course Of Action", "code": "coa"},
+        "ttp": {"class": TTP, "collection": "ttps.ttps", "label": "TTP", "code": "ttp"},
+        "incident": {"class": Incident, "collection": "incidents", "label": "Incident", "code": "inc"},
+        "indicator": {"class": Indicator, "collection": "indicators", "label": "Indicator", "code": "ind"},
+        "observable": {"class": Observable, "collection": "observables.observables", "label": "Observable", "code": "obs"}
+    });
+
+    function findType(/*String*/ id) {
+        var pattern = new RegExp(
+            "^[a-z\d-]+:([a-z\d]+)-[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$"
+        );
+        var match = pattern.exec(id.toLowerCase());
+        return TYPES[match && match[1]];
+    }
+
+    return declare(null, {
+        constructor: function (stixPackage, rootId) {
+            this._data = stixPackage;
+            this.root = this.findById(rootId);
+            this.type = findType(rootId);
+        },
+
+        findById: function (/*String*/ id) {
+            if (!(typeof id === "string")) {
+                return null;
+            }
+            var type = findType(id);
+            var listToSearch = this.safeGet(this._data, type.collection);
+            if (!listToSearch) {
+                return null;
+            }
+            var data = ko.utils.arrayFirst(listToSearch, function (item) {
+                return item.id === id;
+            }, this);
+            return new type.class(data, this);
+        },
+
+        safeGet: function (/*Object*/ stixObject, /*String*/ propertyPath) {
+            var propertyNames = propertyPath.split(".");
+            var current = stixObject;
+            for (var i = 0, len = propertyNames.length; current && i < len; i++) {
+                var p = propertyNames[i];
+                if (p in current) {
+                    current = current[p];
+                } else {
+                    current = null;
+                    break;
+                }
+            }
+            return current;
+        },
+
+        safeArrayGet: function (/*Object*/ object, /*String*/ propertyPath,
+                                /*function*/ itemCallback, /*Object?*/ itemCallbackBinding) {
+            var collection = this.safeGet(object, propertyPath);
+            var cb = itemCallbackBinding ? itemCallback.bind(itemCallbackBinding) : itemCallback;
+            return collection instanceof Array && collection.length > 0
+                ? ko.utils.arrayMap(collection, cb)
+                : null;
+        },
+
+        safeListGet: function (/*Object*/ object, /*String*/ propertyPath,
+                               /*String?*/ valueKey, /*String?*/ delimiter) {
+            var itemPropertyPath = valueKey || "value";
+            return (this.safeArrayGet(object, propertyPath, function (item) {
+                return this.safeGet(item, itemPropertyPath);
+            }, this) || []).join(delimiter || ", ");
+        },
+
+        safeReferenceArrayGet: function (/*Object*/ object, /*String*/ propertyPath,
+                                         /*String*/ idrefKey) {
+            return this.safeArrayGet(object, propertyPath, function (item) {
+                return this.findById(this.safeGet(item, idrefKey));
+            }, this);
+        }
+
+    });
+});
