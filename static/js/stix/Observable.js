@@ -23,6 +23,12 @@ define([
                 });
                 return propertyList;
             }, this);
+            this.hashes = ko.computed(function () {
+                var hashes = stixPackage.safeArrayGet(this.data(), "object.properties.hashes", function (hash) {
+                    return hash["type"] + ": " + hash["simple_hash_value"];
+                }, this);
+                return hashes && hashes.length > 0 ? hashes.join(", ") : null;
+            }, this);
         }
     });
 });

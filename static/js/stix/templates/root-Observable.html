@@ -1,4 +1,15 @@
 <dl class="dl-horizontal">
-    <!-- ko template: { name: "common-fields" } --><!-- /ko -->
+    <!-- ko template: {
+        name: "optional-labelled-field", data: { label: "Type", value: type }
+    } --><!-- /ko -->
+    <!-- ko if: properties().length -->
+        <!-- ko foreach: properties -->
+            <!-- ko template: {
+                name: "labelled-field", data: { label: label, value: value }
+            } --><!-- /ko -->
+        <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko template: {
+        name: "optional-labelled-field", data: { label: "Hashes", value: hashes }
+    } --><!-- /ko -->
 </dl>
-<p><em>Type specific fields not yet implemented</em></p>
