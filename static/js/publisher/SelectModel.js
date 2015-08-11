@@ -1,8 +1,10 @@
 define([
-    "knockout",
     "dcl/dcl",
+    "knockout",
+    "common/modal/ConfirmModal",
+    "common/modal/Modal",
     "stix/StixPackage"
-], function (ko, declare, StixPackage) {
+], function (declare, ko, ConfirmModal, Modal, StixPackage) {
     "use strict";
 
     return declare(null, {
@@ -18,16 +20,29 @@ define([
         },
 
         onPublish: function () {
-            if (confirm("Are you absolutely sure you want to publish this package?")) {
-                postJSON("/adapter/publisher/ajax/publish/", {
-                    root_id: this.root().id()
-                }, this._onPublishResponseReceived.bind(this));
-            }
+            var confirmModal = new ConfirmModal({
+                title: "Warning",
+                contentData: "Are you absolutely sure you want to publish this package?",
+                showIcons: true,
+                onConfirm: this.publish.bind(this)
+            });
+            confirmModal.show();
+        },
+
+        publish: function() {
+            postJSON("/adapter/publisher/ajax/publish/", {
+                root_id: this.root().id()
+            }, this._onPublishResponseReceived.bind(this));
         },
 
         _onPublishResponseReceived: function (response) {
             var message = response["success"] ? "The package was successfully published." : response["error_message"];
-            alert(message);
+            var title = response["success"] ? "Success" : "Error";
+            var modal = new Modal({
+                title: title,
+                contentData: message
+            });
+            modal.show();
         }
     });
 });

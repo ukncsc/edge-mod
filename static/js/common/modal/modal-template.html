@@ -1,0 +1,21 @@
+<div class="modal fade" role="dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-bind="text: title"></h3>
+            </div>
+            <div class="modal-body">
+                <!-- ko template: { name: contentTemplate, data: contentData } -->
+                <!-- /ko -->
+            </div>
+            <div class="modal-footer">
+                <!-- ko foreach: buttonData -->
+                    <button class="btn btn-default" data-bind="click: $parent.handleClick.bind($parent)">
+                        <span class="glyphicon" data-bind="css: $data.icon"></span>
+                        <span data-bind="text: label"></span>
+                    </button>
+                <!-- /ko -->
+            </div>
+        </div>
+
+</div>
