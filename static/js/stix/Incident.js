@@ -1,4 +1,10 @@
-define(["dcl/dcl", "knockout", "./StixObject"], function (declare, ko, StixObject) {
+define([
+    "dcl/dcl",
+    "knockout",
+    "./StixObject",
+    "kotemplate!root-inc:./templates/root-Incident.html",
+    "kotemplate!related-incidents:./templates/related-Incidents.html"
+], function (declare, ko, StixObject) {
     "use strict";
 
     return declare(StixObject, {

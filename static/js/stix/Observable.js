@@ -1,4 +1,11 @@
-define(["dcl/dcl", "knockout", "./StixObject"], function (declare, ko, StixObject) {
+define([
+    "dcl/dcl",
+    "knockout",
+    "./StixObject",
+    "kotemplate!root-obs:./templates/root-Observable.html",
+    "kotemplate!observables:./templates/Observables.html",
+    "kotemplate!related-observables:./templates/related-Observables.html"
+], function (declare, ko, StixObject) {
     "use strict";
 
     return declare(StixObject, {
