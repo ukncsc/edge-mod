@@ -22,6 +22,7 @@ define([
         onPublish: function () {
             var confirmModal = new ConfirmModal({
                 title: "Warning",
+                titleIcon: "glyphicon-exclamation-sign",
                 contentData: "Are you absolutely sure you want to publish this package?",
                 showIcons: true,
                 onConfirm: this.publish.bind(this)

@@ -8,16 +8,11 @@ define([
 
     return declare(null, {
         constructor: function (options) {
-            this.title = ko.observable(options["title"] || "");
-            this.contentTemplate = ko.observable(options["contentTemplate"] || defaultContentTemplate.id);
+            this.title = options["title"];
+            this.titleIcon = options["titleIcon"];
 
-            var contentData = options["contentData"];
-            if (typeof contentData === "string") {
-                contentData = {
-                    data: contentData
-                };
-            }
-            this.contentData = contentData; // No default viewmodel, let the bindings fail instead...
+            this.contentTemplate = options["contentTemplate"] || defaultContentTemplate.id;
+            this.contentData = options["contentData"]; // No default viewmodel, let the bindings fail instead...
 
             this.buttonData = ko.observableArray(options["buttonData"] || [
                     {
@@ -25,17 +20,17 @@ define([
                     }
                 ]);
 
-            this.modalReference = null;
+            this.width = options["width"];
+            this.height = options["height"];
 
-            // TODO: make these functions?
-            // Currently not used..!
-            this.width = options["width"] || 500;
-            this.height = options["height"] || 400;
+            this.modalReference = null;
         },
 
         show: function () {
             if (this.modalReference !== null) {
-                console.log("Attempt to show modal (title: " + this.title() + ") that is already open.")
+                console.log("Attempt to show modal (title: " + this.title() + ") that is already open.");
+                this.modalReference.modal("hide");
+                this.modalReference = null;
             }
 
             var self = this;
@@ -64,7 +59,9 @@ define([
                         // Show it:
                         modal.modal({
                             backdrop: "static",
-                            keyboard: false
+                            keyboard: false,
+                            width: self.width,
+                            height: self.height
                         });
 
                         self.modalReference = modal;

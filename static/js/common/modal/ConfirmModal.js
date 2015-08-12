@@ -7,14 +7,16 @@ define([
 
     return declare(Modal, {
         constructor: function (options) {
+            this.titleIcon = options["titleIcon"] || "glyphicon-question-sign";
+
             this.buttonData([
                 {
-                    label: "OK",
+                    label: options["isYesNo"] ? "Yes" : "OK",
                     icon: options["showIcons"] ? "glyphicon-ok" : "",
                     callback: options["onConfirm"]
                 },
                 {
-                    label: "Cancel",
+                    label: options["isYesNo"] ? "No" : "Cancel",
                     icon: options["showIcons"] ? "glyphicon-remove" : ""
                 }
             ]);
