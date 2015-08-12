@@ -41,6 +41,7 @@ define([
             var title = response["success"] ? "Success" : "Error";
             var modal = new Modal({
                 title: title,
+                titleIcon: "glyphicon-ok-sign",
                 contentData: message
             });
             modal.show();

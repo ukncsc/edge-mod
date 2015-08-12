@@ -9,7 +9,7 @@ define([
         constructor: function (options) {
             this.titleIcon = options["titleIcon"] || "glyphicon-question-sign";
 
-            this.buttonData([
+            this.buttonData(options["buttonData"] || [
                 {
                     label: options["isYesNo"] ? "Yes" : "OK",
                     icon: options["showIcons"] ? "glyphicon-ok" : "",
