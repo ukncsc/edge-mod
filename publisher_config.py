@@ -12,26 +12,37 @@ class PublisherConfig(object):
         # In practice, we'd probably want a mongo collection specifically for adapter config.
         # ...in which case, we'd probably just save the ID of the publish site instead.
         site_id = data['site_id']
-        object_site_id = None
         unset_sites = {}
-
-        if site_id:
-            object_site_id = ObjectId(site_id)
-            unset_sites['_id'] = {'$ne': object_site_id}
 
         db = get_db()
 
-        if object_site_id is not None:
-            db.peer_sites.update({
-                '_id': object_site_id
-            }, {
-                '$set': {'is_publish_site': True}
-            })
+        if site_id:
+            PublisherConfig._set_site(site_id)
+        else:
+            PublisherConfig._unset_all_sites()
 
         db.peer_sites.update(unset_sites, {
             '$set': {'is_publish_site': False}
         }, multi=True)
 
+    @staticmethod
+    def _set_site(site_id):
+        object_site_id = ObjectId(site_id)
+        db = get_db()
+        db.peer_sites.update({
+            '_id': object_site_id
+        }, {
+            '$set': {'is_publish_site': True}
+        })
+        db.peer_sites.update({'$ne': object_site_id}, {
+            '$set': {'is_publish_site': False}
+        }, multi=True)
+
+    @staticmethod
+    def _unset_all_sites():
+        get_db().peer_sites.update({}, {
+            '$set': {'is_publish_site': False}
+        }, multi=True)
 
     @staticmethod
     def get_sites():
@@ -69,4 +80,3 @@ class PublisherConfig(object):
                 'coa': False
             }
         }
-
