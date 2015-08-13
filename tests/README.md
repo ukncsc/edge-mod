@@ -15,7 +15,7 @@
 * install the `NodeJS` plugin
 * _optionally install the `Markdown` plugin to more easily view this document_
 * restart PyCharm
-* create a run configuration as follows:
+* create a `Node.js` run configuration as follows:
     * Configuration
         <table><tbody>
         <tr><td>Node interpreter</td><td>`/usr/bin/nodemon`</td></tr>
@@ -33,7 +33,8 @@
 ## Useful links
 
 * [Intern](https://theintern.github.io/intern/)
-    * [Writing a unit test](https://theintern.github.io/intern/#writing-unit-test)
-    * [Writing a functional test](https://theintern.github.io/intern/#writing-functional-test)
+    * [User Guide](https://theintern.github.io/intern/)
+        * [Writing a unit test](https://theintern.github.io/intern/#writing-unit-test)
+        * [Writing a functional test](https://theintern.github.io/intern/#writing-functional-test)
 * [Chai Assertion Library](http://chaijs.com)
     * [`assert` API reference](http://chaijs.com/api/assert/)
