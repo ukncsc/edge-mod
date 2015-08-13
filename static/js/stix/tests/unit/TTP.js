@@ -3,7 +3,7 @@ define([
     "intern/chai!assert",
     "stix/StixPackage",
     "stix/TTP",
-    "intern/dojo/text!./TTP_package_01.json"
+    "intern/dojo/text!./data/TTP_package_01.json"
 ], function (registerSuite, assert, StixPackage, TTP, package01) {
     "use strict";
 
