@@ -39,6 +39,9 @@ define([
                     return typeof property.value === "string" && property.value.length > 0;
                 });
             }, this);
+            this.relatedCOAs = ko.computed(function () {
+                return stixPackage.safeReferenceArrayGet(this.data(), "related_coas.coas", "course_of_action.idref");
+            }, this);
         }
     });
 });
