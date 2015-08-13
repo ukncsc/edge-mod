@@ -19,11 +19,11 @@
     * Configuration
         <table><tbody>
         <tr><td>Node interpreter</td><td>`/usr/bin/nodemon`</td></tr>
-        <tr><td>Node parameters</td><td>_leave blank_</td></tr>
-        <tr><td>Working directory</td><td>_project root_</td></tr>
+        <tr><td>Node parameters</td><td><em>leave blank</em></td></tr>
+        <tr><td>Working directory</td><td><em>project root</em></td></tr>
         <tr><td>JavaScript file</td><td>`/usr/bin/intern-runner`</td></tr>
         <tr><td>Application parameters</td><td>`config=tests/intern`</td></tr>
-        <tr><td>Environment variables</td><td>_leave blank_</td></tr>
+        <tr><td>Environment variables</td><td><em>leave blank</em></td></tr>
         </tbody></table>
     * Browser / Live Edit
         * tick `After launch`
