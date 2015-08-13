@@ -3,14 +3,14 @@ define([
     "intern/chai!assert",
     "stix/StixPackage",
     "stix/TTP",
-    "intern/dojo/text!./package1.json"
-], function (registerSuite, assert, StixPackage, TTP, package1) {
+    "intern/dojo/text!./TTP_package_01.json"
+], function (registerSuite, assert, StixPackage, TTP, package01) {
     "use strict";
 
     // statics go here
     var packageData = Object.freeze({
         "purple-secure-systems:ttp-00000000-0000-0000-0000-000000000000": Object.freeze({}),
-        "purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59": Object.freeze(JSON.parse(package1))
+        "purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59": Object.freeze(JSON.parse(package01))
     });
 
     return registerSuite(function () {
