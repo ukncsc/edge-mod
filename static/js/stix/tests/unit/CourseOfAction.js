@@ -9,7 +9,6 @@ define([
 
     // statics go here
     var packageData = Object.freeze({
-        "purple-secure-systems:coa-00000000-0000-0000-0000-000000000000": Object.freeze({}),
         "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30": Object.freeze(JSON.parse(package01))
     });
 
@@ -26,14 +25,6 @@ define([
 
         return {
             name: "stix/CourseOfAction",
-            "empty package": {
-                setup: function () {
-                    loadPackage("purple-secure-systems:coa-00000000-0000-0000-0000-000000000000");
-                },
-                "returns null": function () {
-                    assert.isNull(classUnderTest);
-                }
-            },
             "valid package": {
                 setup: function () {
                     loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");

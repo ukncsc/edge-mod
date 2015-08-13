@@ -19,14 +19,24 @@ define([
 
     function findType(/*String*/ id) {
         var pattern = new RegExp(
-            "^[a-z\d-]+:([a-z\d]+)-[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$"
+            "^[a-z\d-]+:([a-z\d]+)-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
         );
         var match = pattern.exec(id.toLowerCase());
-        return TYPES[match && match[1]];
+        if (!match) {
+            throw new Error("Unable to derive type from id: " + id);
+        }
+        var type = TYPES[match[1]];
+        if (!type) {
+            throw new TypeError("Unknown type: " + match[1]);
+        }
+        return type;
     }
 
     return declare(null, {
         constructor: function (stixPackage, rootId) {
+            if (!(stixPackage instanceof Object)) {
+                throw new Error("STIX package cannot be null or undefined");
+            }
             this._data = stixPackage;
             this.root = this.findById(rootId);
             this.type = findType(rootId);
@@ -39,11 +49,14 @@ define([
             var type = findType(id);
             var listToSearch = this.safeGet(this._data, type.collection);
             if (!listToSearch) {
-                return null;
+                throw new Error("Object not found with id: " + id);
             }
             var data = ko.utils.arrayFirst(listToSearch, function (item) {
                 return item.id === id;
             }, this);
+            if (!data) {
+                throw new Error("Object not found with id: " + id);
+            }
             return new type.class(data, this);
         },
 
