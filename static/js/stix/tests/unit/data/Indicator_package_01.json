@@ -1,0 +1,427 @@
+{
+  "stix_header": {},
+  "courses_of_action": [
+    {
+      "impact": {
+        "timestamp": "2015-07-30T08:53:08.662255+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662278+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "Minor productivity loss",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "efficacy": {
+        "timestamp": "2015-07-30T08:53:08.662300+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662322+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "Won't do it again",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "title": "Shoot the employee",
+      "timestamp": "2015-07-30T08:53:08.662108+00:00",
+      "cost": {
+        "timestamp": "2015-07-30T08:53:08.662193+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662227+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "None",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "objective": {
+        "description": "Deterrent to others",
+        "applicability_confidence": {
+          "timestamp": "2015-07-30T08:53:08.662356+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "Medium"
+          }
+        }
+      },
+      "type": {
+        "xsi:type": "stixVocabs:CourseOfActionTypeVocab-1.0",
+        "value": "Eradication"
+      },
+      "id": "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064",
+      "stage": {
+        "xsi:type": "stixVocabs:COAStageVocab-1.0",
+        "value": "Response"
+      }
+    }
+  ],
+  "timestamp": "2015-08-14T14:25:38.089368+00:00",
+  "ttps": {
+    "ttps": [
+      {
+        "handling": [
+          {
+            "controlled_structure": "../../../descendant-or-self::node()",
+            "marking_structures": [
+              {
+                "color": "AMBER",
+                "xsi:type": "tlpMarking:TLPMarkingStructureType"
+              }
+            ]
+          }
+        ],
+        "title": "pjb.vbs",
+        "timestamp": "2015-07-30T08:49:32.286574+00:00",
+        "intended_effects": [
+          {
+            "timestamp": "2015-07-30T08:49:32.286657+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+              "value": "Unauthorized Access"
+            }
+          }
+        ],
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "pjb.vbs"
+              ],
+              "types": [
+                {
+                  "xsi:type": "stixVocabs:MalwareTypeVocab-1.0",
+                  "value": "Bot - Loader"
+                }
+              ],
+              "title": "pjb.vbs"
+            }
+          ]
+        },
+        "id": "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32"
+      }
+    ]
+  },
+  "version": "1.1.1",
+  "indicators": [
+    {
+      "observable": {
+        "idref": "purple-secure-systems:observable-346b24fb-52a3-40b3-9e1c-c30985a1253a"
+      },
+      "confidence": {
+        "timestamp": "2015-08-07T10:14:50.359668+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "RED",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "description": "Every field, collection, etc has a value",
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "Malware Artifacts"
+        }
+      ],
+      "title": "Fully populated indicator",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064"
+            }
+          }
+        ]
+      },
+      "timestamp": "2015-08-07T10:14:50.359503+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32"
+          }
+        }
+      ],
+      "related_indicators": {
+        "related_indicators": [
+          {
+            "indicator": {
+              "idref": "purple-secure-systems:Indicator-7fc78054-e6f4-4b13-b3fc-44b1f4e2d9b8"
+            }
+          }
+        ]
+      },
+      "short_description": "Every field has a value",
+      "id": "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3619"
+    },
+    {
+      "observable": {
+        "idref": "purple-secure-systems:Observable-860dda74-94d5-4706-8258-1c140f0c1462"
+      },
+      "confidence": {
+        "timestamp": "2015-06-29T14:11:56.227110+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "IP Watchlist"
+        }
+      ],
+      "description": "141015indicators546_705.csv; Zbot.ppy malware, Kill Chain Phase:Post-compromise",
+      "producer": {
+        "identity": {
+          "name": "CERT-UK"
+        },
+        "time": {
+          "received_time": "2014-10-15T13:58:00"
+        }
+      },
+      "title": "Zbot.ppy malware",
+      "timestamp": "2015-06-29T14:11:56.226804+00:00",
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "GREEN",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "id": "purple-secure-systems:Indicator-7fc78054-e6f4-4b13-b3fc-44b1f4e2d9b8"
+    }
+  ],
+  "observables": {
+    "observables": [
+      {
+        "id": "purple-secure-systems:Observable-860dda74-94d5-4706-8258-1c140f0c1462",
+        "observable_composition": {
+          "operator": "OR",
+          "observables": [
+            {
+              "idref": "purple-secure-systems:Observable-3445f0d7-3296-49d2-a5b9-afa650f1fe37"
+            },
+            {
+              "idref": "purple-secure-systems:Observable-937d2af2-b810-4ad1-8f64-b46e8c460c45"
+            },
+            {
+              "idref": "purple-secure-systems:Observable-11ac9b85-ae1e-45ef-af45-cd207b45e981"
+            },
+            {
+              "idref": "purple-secure-systems:Observable-f07b16d8-5607-422b-ad15-d65ad77b71f3"
+            },
+            {
+              "idref": "purple-secure-systems:Observable-f65567fc-d57f-4ec6-b9f6-2ab333631387"
+            },
+            {
+              "idref": "purple-secure-systems:Observable-678e850e-7ff3-4c1c-99de-05c665776e18"
+            },
+            {
+              "idref": "purple-secure-systems:Observable-1ef37ffd-1a0b-420a-9380-fdd364062efd"
+            },
+            {
+              "idref": "purple-secure-systems:Observable-99367f4f-7b52-4111-84f8-d68e9359a7d4"
+            }
+          ]
+        }
+      },
+      {
+        "object": {
+          "id": "purple-secure-systems:Address-74776313-df81-4d36-ae66-1c8e4adb0b19",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": "94.23.35.188"
+          }
+        },
+        "id": "purple-secure-systems:Observable-f65567fc-d57f-4ec6-b9f6-2ab333631387"
+      },
+      {
+        "object": {
+          "id": "purple-secure-systems:Address-da336e16-4944-4cef-aa47-f78c9d6676fc",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": "23.61.195.120"
+          }
+        },
+        "id": "purple-secure-systems:Observable-678e850e-7ff3-4c1c-99de-05c665776e18"
+      },
+      {
+        "object": {
+          "id": "purple-secure-systems:Address-7f47ae60-ab45-4559-86f9-cc952c94bef5",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": "77.72.174.161"
+          }
+        },
+        "id": "purple-secure-systems:Observable-99367f4f-7b52-4111-84f8-d68e9359a7d4"
+      },
+      {
+        "object": {
+          "id": "purple-secure-systems:Address-5a5f9d35-0407-4dd6-8a60-1088b6f76deb",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": "77.72.174.163"
+          }
+        },
+        "id": "purple-secure-systems:Observable-11ac9b85-ae1e-45ef-af45-cd207b45e981"
+      },
+      {
+        "object": {
+          "id": "purple-secure-systems:Address-e4f9c6cf-837a-49c2-bf82-035e6747882c",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": "66.7.201.55"
+          }
+        },
+        "id": "purple-secure-systems:Observable-1ef37ffd-1a0b-420a-9380-fdd364062efd"
+      },
+      {
+        "object": {
+          "id": "purple-secure-systems:Address-72a55fb9-9e72-4ae6-b223-e33ed70acf85",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": "66.7.201.55"
+          }
+        },
+        "id": "purple-secure-systems:Observable-937d2af2-b810-4ad1-8f64-b46e8c460c45"
+      },
+      {
+        "object": {
+          "id": "purple-secure-systems:Address-8066d8d3-ab89-4eae-8195-ada239eea619",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": "77.72.174.162"
+          }
+        },
+        "id": "purple-secure-systems:Observable-f07b16d8-5607-422b-ad15-d65ad77b71f3"
+      },
+      {
+        "object": {
+          "id": "purple-secure-systems:Address-98d6426f-64a9-4683-9d34-ad209e5810f0",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": "94.75.233.13"
+          }
+        },
+        "id": "purple-secure-systems:Observable-3445f0d7-3296-49d2-a5b9-afa650f1fe37"
+      },
+      {
+        "id": "purple-secure-systems:observable-346b24fb-52a3-40b3-9e1c-c30985a1253a",
+        "observable_composition": {
+          "operator": "AND",
+          "observables": [
+            {
+              "idref": "purple-secure-systems:observable-4a7c90a4-7735-440b-a6d9-d81ee0632449"
+            },
+            {
+              "idref": "purple-secure-systems:Observable-9e96c799-7710-425f-a308-d4b6716f930c"
+            },
+            {
+              "idref": "purple-secure-systems:Observable-043c5263-c43a-4e7a-adff-553a04e4cc34"
+            }
+          ]
+        }
+      },
+      {
+        "object": {
+          "id": "purple-secure-systems:File-4a5bdb0d-f991-428a-afa8-14e8dede367d",
+          "properties": {
+            "hashes": [
+              {
+                "simple_hash_value": "377a00b8d5119d2593826d967ae4cd09978df7f2",
+                "type": "SHA1"
+              }
+            ],
+            "xsi:type": "FileObjectType"
+          }
+        },
+        "id": "purple-secure-systems:Observable-9e96c799-7710-425f-a308-d4b6716f930c"
+      },
+      {
+        "description": "",
+        "object": {
+          "id": "purple-secure-systems:file-5490f35f-9afa-43a0-8d1d-a326360a610d",
+          "properties": {
+            "device_path": "",
+            "file_format": "",
+            "file_name": "pjb.vbs",
+            "file_extension": "vbs",
+            "hashes": [
+              {
+                "simple_hash_value": "377a00b8d5119d2593826d967ae4cd09978df7f2",
+                "type": "MD5"
+              }
+            ],
+            "xsi:type": "FileObjectType",
+            "full_path": ""
+          }
+        },
+        "id": "purple-secure-systems:observable-4a7c90a4-7735-440b-a6d9-d81ee0632449",
+        "title": "PJB Observables Testing"
+      },
+      {
+        "object": {
+          "id": "purple-secure-systems:URI-c07cf147-1bce-4848-bb4b-c70e4ffbf1d2",
+          "properties": {
+            "xsi:type": "URIObjectType",
+            "type": "URL",
+            "value": "https://malwr.com/analysis/YTcxNmU5MDU5YWQ2NDM0NWI5Y2JhZWU3ZGJiMWY3MzA/"
+          }
+        },
+        "id": "purple-secure-systems:Observable-043c5263-c43a-4e7a-adff-553a04e4cc34"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "id": "purple-secure-systems:Package-4f1f820a-1bf5-4bfc-8357-26778eda0369"
+}
