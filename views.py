@@ -15,7 +15,7 @@ from import_helper import EdgeObject
 
 objectid_matcher = re.compile(
     # {STIX/ID Alias}:{type}-{GUID}
-    r".*/([a-z\d-]+:[a-z\d]+-[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})/?$",
+    r".*/([a-z\d-]+:[a-z\d]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
     re.IGNORECASE  # | re.DEBUG
 )
 
