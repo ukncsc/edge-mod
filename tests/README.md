@@ -22,7 +22,7 @@
         <tr><td>Node parameters</td><td><em>leave blank</em></td></tr>
         <tr><td>Working directory</td><td><em>project root</em></td></tr>
         <tr><td>JavaScript file</td><td>`/usr/bin/intern-runner`</td></tr>
-        <tr><td>Application parameters</td><td>`config=tests/intern`</td></tr>
+        <tr><td>Application parameters</td><td>`config=tests/intern proxyOnly=true`</td></tr>
         <tr><td>Environment variables</td><td><em>leave blank</em></td></tr>
         </tbody></table>
     * Browser / Live Edit

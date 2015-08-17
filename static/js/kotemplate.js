@@ -9,17 +9,23 @@ define(["text"], function (text) {
         }
     }
 
+    function isBrowser() {
+        return !(typeof document === "undefined");
+    }
+
     return {
         version: "0.0.1",
 
         load: function (name, parentRequire, onLoad, config) {
             var params = parse(name);
             text.load(params.name, parentRequire, function (templateText) {
-                var scriptTag = document.createElement("script");
-                scriptTag.setAttribute("type", "text/html");
-                scriptTag.setAttribute("id", params.id);
-                scriptTag.appendChild(document.createTextNode(templateText));
-                document.body.appendChild(scriptTag);
+                if (isBrowser()) {
+                    var scriptTag = document.createElement("script");
+                    scriptTag.setAttribute("type", "text/html");
+                    scriptTag.setAttribute("id", params.id);
+                    scriptTag.appendChild(document.createTextNode(templateText));
+                    document.body.appendChild(scriptTag);
+                }
                 onLoad({
                     id: params.id,
                     template: templateText
