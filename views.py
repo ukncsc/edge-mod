@@ -19,6 +19,7 @@ objectid_matcher = re.compile(
     re.IGNORECASE  # | re.DEBUG
 )
 
+
 @login_required
 def review(request):
     referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
@@ -40,14 +41,14 @@ def not_found(request):
     return render(request, "publisher_not_found.html", {})
 
 
-@superuser_or_staff_role
 @login_required
+@superuser_or_staff_role
 def config(request):
     return render(request, "publisher_config.html", {})
 
 
-@superuser_or_staff_role
 @login_required
+@superuser_or_staff_role
 @json_body
 def ajax_get_sites(request, data):
     # The generic settings pages could define callbacks for dropdown options.
@@ -70,8 +71,8 @@ def ajax_get_sites(request, data):
     }
 
 
-@superuser_or_staff_role
 @login_required
+@superuser_or_staff_role
 @json_body
 def ajax_set_publish_site(request, data):
     success = True
