@@ -61,6 +61,17 @@ define([
                     "STIX package cannot be null or undefined"
                 );
             },
+            "no id": function () {
+                assert.throws(
+                    function () {
+                        new StixPackage(
+                            packageData["purple-secure-systems:coa-00000000-0000-0000-0000-000000000000"],
+                            null
+                        );
+                    },
+                    "Identifier cannot be null or undefined"
+                );
+            },
             "invalid id": function () {
                 assert.throws(
                     function () {

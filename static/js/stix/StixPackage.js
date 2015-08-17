@@ -19,7 +19,7 @@ define([
 
     function findType(/*String*/ id) {
         var pattern = new RegExp(
-            "^[a-z\d-]+:([a-z\d]+)-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+            "^[a-z\\d-]+:([a-z\\d]+)-[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}$"
         );
         var match = pattern.exec(id.toLowerCase());
         if (!match) {
@@ -44,7 +44,7 @@ define([
 
         findById: function (/*String*/ id) {
             if (!(typeof id === "string")) {
-                return null;
+                throw new Error("Identifier cannot be null or undefined");
             }
             var type = findType(id);
             var listToSearch = this.safeGet(this._data, type.collection);
