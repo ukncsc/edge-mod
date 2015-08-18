@@ -16,6 +16,13 @@ define([
         "indicator": {"class": Indicator, "collection": "indicators", "label": "Indicator", "code": "ind"},
         "observable": {"class": Observable, "collection": "observables.observables", "label": "Observable", "code": "obs"}
     });
+    var TYPE_ALIASES = Object.freeze({
+        "courseofaction": "coa"
+    });
+
+    function resolveAlias(type) {
+        return TYPE_ALIASES[type] || type;
+    }
 
     function findType(/*String*/ id) {
         var pattern = new RegExp(
@@ -25,7 +32,7 @@ define([
         if (!match) {
             throw new Error("Unable to derive type from id: " + id);
         }
-        var type = TYPES[match[1]];
+        var type = TYPES[resolveAlias(match[1])];
         if (!type) {
             throw new TypeError("Unknown type: " + match[1]);
         }
