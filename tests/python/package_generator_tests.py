@@ -28,5 +28,6 @@ class PackageGeneratorTests(unittest.TestCase):
         self.assertEqual(package.stix_header.short_description.value, package_info['short_description'])
         self.assertEqual(package.stix_header.description.value, package_info['description'])
 
+
 if __name__ == '__main__':
     unittest.main()

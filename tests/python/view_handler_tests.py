@@ -201,3 +201,7 @@ class ViewHandlerTests(unittest.TestCase):
             'success': False,
             'error_message': mock_error
         })
+
+
+if __name__ == '__main__':
+    unittest.main()
