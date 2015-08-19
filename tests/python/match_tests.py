@@ -17,6 +17,7 @@ class MatchTests(unittest.TestCase):
         self.characters_after_id = \
             '/PurpleSecureSystems:indicator-4a75d646-97e5-4002-9d24-038eacdaa06d/some random string'
         self.empty_object_type = '/PurpleSecureSystems:-4a75d646-97e5-4002-9d24-038eacdaa06d/'
+        self.non_az_object_type = '/PurpleSecureSystems:indicat0r-4a75d646-97e5-4002-9d24-038eacdaa06d/'
 
         self.regex_under_test = objectid_matcher
 
@@ -54,6 +55,9 @@ class MatchTests(unittest.TestCase):
         self.assertIsNotMatch(self.characters_after_id)
 
     def test_IDMatch_EmptyObjectType_Rejected(self):
+        self.assertIsNotMatch(self.empty_object_type)
+
+    def test_IDMatch_NonAZObjectType_Rejected(self):
         self.assertIsNotMatch(self.empty_object_type)
 
 
