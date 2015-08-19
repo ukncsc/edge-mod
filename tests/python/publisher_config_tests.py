@@ -8,10 +8,7 @@ class PublisherConfigTests(unittest.TestCase):
 
     @mock.patch('publisher_config.PublisherConfig._unset_all_sites')
     def test_UpdateConfig_IfNoSiteId_UnsetAllSites(self, mock_unset_all_sites):
-        new_configs = [
-            {'site_id': None},
-            {'site_id': ''}
-        ]
+        new_configs = [None, '']
 
         for new_config in new_configs:
             PublisherConfig.update_config(new_config)
@@ -20,10 +17,10 @@ class PublisherConfigTests(unittest.TestCase):
 
     @mock.patch('publisher_config.PublisherConfig._set_site')
     def test_UpdateConfig_IfSiteId_SetSite(self, mock_set_site):
-        new_config = {'site_id': 'Dummy Site ID'}
+        new_config = 'Dummy Site ID'
         PublisherConfig.update_config(new_config)
         self.assertEqual(mock_set_site.call_count, 1)
-        mock_set_site.assert_called_with(new_config['site_id'])
+        mock_set_site.assert_called_with(new_config)
 
     @mock.patch('publisher_config.LOCAL_NAMESPACE', new='Dummy local namespace')
     @mock.patch('publisher_config.LOCAL_ALIAS', new='Dummy local alias')

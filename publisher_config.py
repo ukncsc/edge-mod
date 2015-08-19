@@ -7,11 +7,10 @@ from bson import ObjectId
 class PublisherConfig(object):
 
     @staticmethod
-    def update_config(data):
+    def update_config(site_id):
         # For now, just store an extra flag against the peer_site documents.
         # In practice, we'd probably want a mongo collection specifically for adapter config.
         # ...in which case, we'd probably just save the ID of the publish site instead.
-        site_id = data['site_id']
 
         if site_id:
             PublisherConfig._set_site(site_id)

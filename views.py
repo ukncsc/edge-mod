@@ -15,7 +15,7 @@ from import_helper import EdgeObject
 
 objectid_matcher = re.compile(
     # {STIX/ID Alias}:{type}-{GUID}
-    r".*/([a-z\d-]+:[a-z\d]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
+    r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
     re.IGNORECASE  # | re.DEBUG
 )
 
@@ -76,15 +76,15 @@ def ajax_get_sites(request, data):
 @json_body
 def ajax_set_publish_site(request, data):
     success = True
-    error_message = ""
-    site_id = data['site_id']
+    error_message = ''
+    site_id = data.get('site_id', '')
 
     try:
-        PublisherConfig.update_config(data)
+        PublisherConfig.update_config(site_id)
     except Exception, e:
         success = False
         error_message = e.message
-        site_id = ""
+        site_id = ''
 
     return {
         'success': success,
