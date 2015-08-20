@@ -2,32 +2,44 @@ define([
     "dcl/dcl",
     "knockout",
     "./StixObject",
+    "./objectTypes/StixObjectType",
+    "./objectTypes/Address",
+    "./objectTypes/DomainName",
+    "./objectTypes/EmailMessage",
+    "./objectTypes/File",
+    "./objectTypes/Mutex",
+    "./objectTypes/URI",
     "kotemplate!root-obs:./templates/root-Observable.html",
     "kotemplate!observables:./templates/Observables.html",
     "kotemplate!related-observables:./templates/related-Observables.html"
-], function (declare, ko, StixObject) {
+], function (declare, ko, StixObject, StixObjectType, AddressObjectType, DomainNameObjectType, EmailMessageObjectType,
+             FileObjectType, MutexObjectType, URIObjectType) {
     "use strict";
+
+    var OBJECT_TYPES = Object.freeze({
+        "AddressObjectType": AddressObjectType,
+        "DomainNameObjectType": DomainNameObjectType,
+        "EmailMessageObjectType": EmailMessageObjectType,
+        "FileObjectType": FileObjectType,
+        "MutexObjectType": MutexObjectType,
+        "URIObjectType": URIObjectType
+    });
+
+    function getObjectType(type) {
+        return OBJECT_TYPES[type] || StixObjectType;
+    }
 
     return declare(StixObject, {
         constructor: function (data, stixPackage) {
             this.type = ko.computed(function () {
                 return stixPackage.safeGet(this.data(), "object.properties.xsi:type");
             }, this);
-            this.properties = ko.computed(function () {
-                var propertyList = [];
-                var properties = stixPackage.safeGet(this.data(), "object.properties");
-                ko.utils.objectForEach(properties, function (name, value) {
-                    if (name !== "xsi:type" && typeof value === "string" && value.length > 0) {
-                        propertyList.push({label: name, value: value});
-                    }
-                });
-                return propertyList;
+            var objectType = ko.computed(function () {
+                var ctor = getObjectType(this.type());
+                return new ctor(stixPackage.safeGet(this.data(), "object.properties"), stixPackage);
             }, this);
-            this.hashes = ko.computed(function () {
-                var hashes = stixPackage.safeArrayGet(this.data(), "object.properties.hashes", function (hash) {
-                    return hash["type"] + ": " + hash["simple_hash_value"];
-                }, this);
-                return hashes && hashes.length > 0 ? hashes.join(", ") : null;
+            this.properties = ko.computed(function () {
+                return objectType().properties();
             }, this);
         }
     });
