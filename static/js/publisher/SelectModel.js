@@ -3,8 +3,9 @@ define([
     "knockout",
     "common/modal/ConfirmModal",
     "common/modal/Modal",
-    "stix/StixPackage"
-], function (declare, ko, ConfirmModal, Modal, StixPackage) {
+    "stix/StixPackage",
+    "kotemplate!publish-modal:common/modal/publish-modal-content.html"
+], function (declare, ko, ConfirmModal, Modal, StixPackage, publishTemplate) {
     "use strict";
 
     return declare(null, {
@@ -20,31 +21,86 @@ define([
         },
 
         onPublish: function () {
-            var confirmModal = new ConfirmModal({
+            var contentData = {
+                message: ko.observable("Are you absolutely sure you want to publish this package?"),
+                waitingForResponse: ko.observable(false)
+            };
+
+            var onOKCallback = function(modal) {
+                var yesButton = modal.getButtonByLabel("Yes");
+                var noButton = modal.getButtonByLabel("No");
+                var closeButton = modal.getButtonByLabel("Close");
+
+                yesButton.disabled(true);
+                noButton.disabled(true);
+
+                contentData.waitingForResponse(true);
+
+                this.publish(function(response) {
+                    contentData.waitingForResponse(false);
+
+                    var success = !!(response["success"]);
+                    var errorMessage = response["error_message"];
+                    if (errorMessage) {
+                        errorMessage = errorMessage.replace(/^[A-Z]/, function(match) {
+                            return match.toLowerCase();
+                        }).replace(/[,.]+$/, "");
+                    }
+                    var message = success?
+                        "The package was successfully published." :
+                        "An error occurred during publish (" + errorMessage + "). Would you like to try again?";
+                    var title = success ? "Success" : "Error";
+                    var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
+
+                    testConfirmModal.title(title);
+                    testConfirmModal.titleIcon(titleIcon);
+                    contentData.message(message);
+
+                    if (success) {
+                        yesButton.hide(true);
+                        noButton.hide(true);
+                        closeButton.hide(false);
+                    } else {
+                        yesButton.disabled(false);
+                        noButton.disabled(false);
+                    }
+                }.bind(this));
+            }.bind(this);
+
+            var testConfirmModal = new Modal({
                 title: "Warning",
                 titleIcon: "glyphicon-exclamation-sign",
-                contentData: "Are you absolutely sure you want to publish this package?",
-                showIcons: true,
-                onConfirm: this.publish.bind(this)
+                contentData: contentData,
+                contentTemplate: publishTemplate.id,
+                buttonData: [
+                    {
+                        label: "Yes",
+                        noClose: true,
+                        callback: onOKCallback,
+                        disabled: ko.observable(false),
+                        icon: "glyphicon-ok",
+                        hide: ko.observable(false)
+                    },
+                    {
+                        label: "No",
+                        icon: "glyphicon-remove",
+                        disabled: ko.observable(false),
+                        hide: ko.observable(false)
+                    },
+                    {
+                        label: "Close",
+                        hide: ko.observable(true)
+                    }
+                ]
             });
-            confirmModal.show();
+
+            testConfirmModal.show();
         },
 
-        publish: function() {
+        publish: function(onPublishCallback) {
             postJSON("/adapter/publisher/ajax/publish/", {
                 root_id: this.root().id()
-            }, this._onPublishResponseReceived.bind(this));
-        },
-
-        _onPublishResponseReceived: function (response) {
-            var message = response["success"] ? "The package was successfully published." : response["error_message"];
-            var title = response["success"] ? "Success" : "Error";
-            var modal = new Modal({
-                title: title,
-                titleIcon: response["success"] ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign",
-                contentData: message
-            });
-            modal.show();
+            }, onPublishCallback);
         }
     });
 });

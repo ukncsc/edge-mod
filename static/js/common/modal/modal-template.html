@@ -13,7 +13,9 @@
             </div>
             <div class="modal-footer">
                 <!-- ko foreach: buttonData -->
-                    <button class="btn btn-default" data-bind="click: $parent.handleClick.bind($parent)">
+                    <button class="btn btn-default"
+                            data-bind="visible: !$data.hide || !$data.hide(), click: $parent.handleClick.bind($parent),
+                                css: { disabled: $data.disabled }">
                         <span class="glyphicon" data-bind="css: $data.icon"></span>
                         <span data-bind="text: label"></span>
                     </button>

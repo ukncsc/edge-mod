@@ -1,0 +1,13 @@
+<div style="height: 80px;">
+    <div data-bind="visible: waitingForResponse">
+        <div class="row">
+            <img class="center-block" src="/static/img/soltra_flame_anim.gif"/>
+        </div>
+        <div class="row text-center">
+            Publishing...
+        </div>
+    </div>
+    <div data-bind="visible: !waitingForResponse()">
+        <span data-bind="text: message"></span>
+    </div>
+</div>

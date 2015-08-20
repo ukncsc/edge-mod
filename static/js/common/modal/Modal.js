@@ -8,8 +8,8 @@ define([
 
     return declare(null, {
         constructor: function (options) {
-            this.title = options["title"];
-            this.titleIcon = options["titleIcon"];
+            this.title = ko.observable(options["title"]);
+            this.titleIcon = ko.observable(options["titleIcon"]);
 
             this.contentTemplate = options["contentTemplate"] || defaultContentTemplate.id;
             this.contentData = options["contentData"]; // No default viewmodel, let the bindings fail instead...
@@ -74,12 +74,28 @@ define([
 
         handleClick: function (button) {
             if (typeof button.callback === "function") {
-                button.callback();
+                button.callback(this);
             }
             if (button.noClose !== true) {
                 this.modalReference.modal("hide");
                 this.modalReference = null;
             }
+        },
+
+        getButtonByLabel: function (label) {
+            if (typeof label !== "string") {
+                throw new TypeError("Label must be of string type and cannot be null.");
+            }
+
+            var button = ko.utils.arrayFirst(this.buttonData(), function (item) {
+                return item.label === label;
+            }, this);
+
+            if (!button) {
+                throw new Error("A button with label='" + label + "' was not found.")
+            }
+
+            return button;
         }
     });
 });
