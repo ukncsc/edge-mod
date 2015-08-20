@@ -2,6 +2,7 @@ define([
     "dcl/dcl",
     "knockout",
     "kotemplate!labelled-field:./templates/labelled-field.html",
+    "kotemplate!mandatory-labelled-field:./templates/mandatory-labelled-field.html",
     "kotemplate!optional-labelled-field:./templates/optional-labelled-field.html",
     "kotemplate!common-fields:./templates/common.html"
 ], function (declare, ko) {

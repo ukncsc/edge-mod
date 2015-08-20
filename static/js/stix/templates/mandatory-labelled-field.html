@@ -1,0 +1,6 @@
+<!-- ko if: value -->
+    <!-- ko template: { name: "labelled-field", data: $data } --><!-- /ko -->
+<!-- /ko -->
+<!-- ko ifnot: value -->
+    <!-- ko template: { name: "labelled-field", data: { label: $data.label, value: '(missing)', state: 'error'} } --><!-- /ko -->
+<!-- /ko -->
