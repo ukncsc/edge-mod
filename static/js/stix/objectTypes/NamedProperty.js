@@ -18,7 +18,7 @@ define([
         });
     }
 
-    return declare(null, {
+    var NamedProperty = declare(null, {
         declaredClass: "NamedProperty",
         constructor: function (name, value) {
             if (typeof name !== "string") {
@@ -32,12 +32,14 @@ define([
         },
         value: function () {
             return this._value;
-        },
-        addToPropertyList: function (aPropertyList) {
-            var value = this.value();
-            if (value) {
-                aPropertyList.push({label: this.name(), value: value});
-            }
         }
     });
+    NamedProperty.addToPropertyList = function (aPropertyList, name, value) {
+        var namedProperty = new NamedProperty(name, value);
+        var realValue = namedProperty.value();
+        if (realValue) {
+            aPropertyList.push({label: namedProperty.name(), value: realValue});
+        }
+    };
+    return NamedProperty;
 });

@@ -14,10 +14,11 @@ define([
                 var hashes = this.stixPackage.safeGet(this.data, "hashes");
                 if (hashes instanceof Array) {
                     ko.utils.arrayForEach(hashes, function (hash) {
-                        (new NamedProperty(
+                        NamedProperty.addToPropertyList(
+                            propertyList,
                             this.stixPackage.safeGet(hash, "type"),
                             this.stixPackage.safeGet(hash, "simple_hash_value")
-                        )).addToPropertyList(propertyList);
+                        );
                     }.bind(this));
                 }
                 return propertyList;
