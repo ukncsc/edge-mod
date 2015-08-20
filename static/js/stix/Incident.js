@@ -1,13 +1,13 @@
 define([
     "dcl/dcl",
     "knockout",
-    "./StixObject",
+    "./StixObjectTLP",
     "kotemplate!root-inc:./templates/root-Incident.html",
     "kotemplate!related-incidents:./templates/related-Incidents.html"
-], function (declare, ko, StixObject) {
+], function (declare, ko, StixObjectTLP) {
     "use strict";
 
-    return declare(StixObject, {
+    return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
             this.status = ko.computed(function () {
                 return stixPackage.safeGet(this.data(), "status.value");

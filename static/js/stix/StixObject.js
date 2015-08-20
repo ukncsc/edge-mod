@@ -14,6 +14,9 @@ define([
             this.id = ko.computed(function () {
                 return stixPackage.safeGet(this.data(), "id");
             }, this);
+            this.namespace = ko.computed(function () {
+                return this.id().split(":", 2)[0];
+            }, this);
             this.title = ko.computed(function () {
                 return stixPackage.safeGet(this.data(), "title");
             }, this);
@@ -22,9 +25,6 @@ define([
             }, this);
             this.description = ko.computed(function () {
                 return stixPackage.safeGet(this.data(), "description");
-            }, this);
-            this.tlp = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "handling.0.marking_structures.0.color");
             }, this);
         }
     });

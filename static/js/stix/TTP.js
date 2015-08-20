@@ -1,13 +1,13 @@
 define([
     "dcl/dcl",
     "knockout",
-    "./StixObject",
+    "./StixObjectTLP",
     "kotemplate!root-ttp:./templates/root-TTP.html",
     "kotemplate!leveraged-ttps:./templates/leveraged-TTPs.html"
-], function (declare, ko, StixObject) {
+], function (declare, ko, StixObjectTLP) {
     "use strict";
 
-    return declare(StixObject, {
+    return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
             this.target = ko.computed(function () {
                 return stixPackage.safeGet(this.data(), "victim_targeting.identity.name");

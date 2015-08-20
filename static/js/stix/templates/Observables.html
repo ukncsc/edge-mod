@@ -1,15 +1,19 @@
 <!-- ko if: value -->
 <dt data-bind="text: label"></dt>
 <dd>
-    <table class="table table-condensed table-striped cols-2">
+    <table class="table table-condensed table-striped">
         <thead>
         <tr>
+            <th>Title</th>
+            <th>Namespace</th>
             <th>Type</th>
             <th>Properties</th>
         </tr>
         </thead>
         <tbody data-bind="foreach: value">
         <tr data-bind="attr: { title: id }">
+            <td data-bind="text: title"></td>
+            <td data-bind="text: namespace"></td>
             <td data-bind="text: type"></td>
             <td>
                 <em data-bind="if: properties().length === 0">None</em>
