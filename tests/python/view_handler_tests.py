@@ -1,7 +1,4 @@
 
-import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'repository.settings'
-
 import mock
 import unittest
 from import_helper import EdgeObject
