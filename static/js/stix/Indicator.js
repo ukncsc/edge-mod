@@ -3,8 +3,7 @@ define([
     "knockout",
     "./StixObjectTLP",
     "kotemplate!root-ind:./templates/root-Indicator.html",
-    "kotemplate!leveraged-TTPs:./templates/leveraged-TTPs.html",
-    "kotemplate!related-indicators:./templates/related-Indicators.html"
+    "kotemplate!list-ind:./templates/list-Indicators.html"
 ], function (declare, ko, StixObjectTLP) {
     "use strict";
 

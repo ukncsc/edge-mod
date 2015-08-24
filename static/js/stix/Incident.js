@@ -3,7 +3,7 @@ define([
     "knockout",
     "./StixObjectTLP",
     "kotemplate!root-inc:./templates/root-Incident.html",
-    "kotemplate!related-incidents:./templates/related-Incidents.html"
+    "kotemplate!list-inc:./templates/list-Incidents.html"
 ], function (declare, ko, StixObjectTLP) {
     "use strict";
 
