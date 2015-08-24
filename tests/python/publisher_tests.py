@@ -17,7 +17,7 @@ class PublisherTests(unittest.TestCase):
 
     @mock.patch('publisher.send_message')
     @mock.patch('publisher.discover_inbox_url')
-    @mock.patch('publisher.PeerSite', autospec=True)
+    @mock.patch('publisher.PeerSite')
     @mock.patch('stix.core.stix_package.STIXPackage', autospec=True)
     @mock.patch('publisher.PublisherConfig', autospec=True)
     def test_PushPackage_IfSiteDetailsFound_SendsMessage(self, mock_config, mock_package, mock_peer_site,

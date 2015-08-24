@@ -1,8 +1,4 @@
 
-import os
-
-os.environ['DJANGO_SETTINGS_MODULE'] = 'repository.settings'
-
 import mock
 import unittest
 from view_loader import get_views_module

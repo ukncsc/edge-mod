@@ -1,6 +1,5 @@
 
 import unittest
-import django.test
 from django.core.urlresolvers import reverse, resolve
 from django.conf.urls import patterns, url
 from urls import publisher_urls
@@ -10,44 +9,44 @@ publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publis
 urlpatterns = patterns('', *publisher_url_patterns)
 
 
-class URLConfTests(django.test.SimpleTestCase):
+class URLConfTests(unittest.TestCase):
 
     urls = 'tests.python.urlconf_tests'
 
     def test_Reverse_PublisherReview_ReturnsCorrectURL(self):
-        review_url = reverse('publisher_review')
+        review_url = reverse('publisher_review', URLConfTests.urls)
         self.assertEqual(review_url, '/review/')
 
     def test_Resolve_PublisherReview_ReturnsCorrectHandler(self):
-        review_resolve_match = resolve('/review/')
+        review_resolve_match = resolve('/review/', URLConfTests.urls)
         self.assertEqual(review_resolve_match.func, views.review)
 
     def test_Reverse_PublisherNotFound_ReturnsCorrectURL(self):
-        not_found_url = reverse('publisher_not_found')
+        not_found_url = reverse('publisher_not_found', URLConfTests.urls)
         self.assertEqual(not_found_url, '/missing/')
 
     def test_Resolve_PublisherNotFound_ReturnsCorrectHandler(self):
-        not_found_resolve_match = resolve('/missing/')
+        not_found_resolve_match = resolve('/missing/', URLConfTests.urls)
         self.assertEqual(not_found_resolve_match.func, views.not_found)
 
     def test_Reverse_PublisherConfig_ReturnsCorrectURL(self):
-        config_url = reverse('publisher_config')
+        config_url = reverse('publisher_config', URLConfTests.urls)
         self.assertEqual(config_url, '/config/')
 
     def test_Resolve_PublisherConfig_ReturnsCorrectHandler(self):
-        config_resolve_match = resolve('/config/')
+        config_resolve_match = resolve('/config/', URLConfTests.urls)
         self.assertEqual(config_resolve_match.func, views.config)
 
     def test_Resolve_AJAXGetSites_ReturnsCorrectHandler(self):
-        get_sites_resolve_match = resolve('/ajax/get_sites/')
+        get_sites_resolve_match = resolve('/ajax/get_sites/', URLConfTests.urls)
         self.assertEqual(get_sites_resolve_match.func, views.ajax_get_sites)
 
     def test_Resolve_AJAXSetPublishSite_ReturnsCorrectHandler(self):
-        set_site_resolve_match = resolve('/ajax/set_publish_site/')
+        set_site_resolve_match = resolve('/ajax/set_publish_site/', URLConfTests.urls)
         self.assertEqual(set_site_resolve_match.func, views.ajax_set_publish_site)
 
     def test_Resolve_AJAXPublish_ReturnsCorrectHandler(self):
-        publish_resolve_match = resolve('/ajax/publish/')
+        publish_resolve_match = resolve('/ajax/publish/', URLConfTests.urls)
         self.assertEqual(publish_resolve_match.func, views.ajax_publish)
 
 
