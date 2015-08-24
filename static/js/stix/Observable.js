@@ -10,7 +10,6 @@ define([
     "./objectTypes/Mutex",
     "./objectTypes/URI",
     "kotemplate!root-obs:./templates/root-Observable.html",
-    "kotemplate!observables:./templates/Observables.html",
     "kotemplate!related-observables:./templates/related-Observables.html"
 ], function (declare, ko, StixObject, StixObjectType, AddressObjectType, DomainNameObjectType, EmailMessageObjectType,
              FileObjectType, MutexObjectType, URIObjectType) {

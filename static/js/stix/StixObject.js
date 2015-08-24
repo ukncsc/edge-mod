@@ -4,6 +4,9 @@ define([
     "kotemplate!labelled-field:./templates/labelled-field.html",
     "kotemplate!mandatory-labelled-field:./templates/mandatory-labelled-field.html",
     "kotemplate!optional-labelled-field:./templates/optional-labelled-field.html",
+    "kotemplate!grid-field:./templates/grid-field.html",
+    "kotemplate!mandatory-grid-field:./templates/mandatory-grid-field.html",
+    "kotemplate!grid-properties-field:./templates/grid-properties-field.html",
     "kotemplate!common-fields:./templates/common.html"
 ], function (declare, ko) {
     "use strict";

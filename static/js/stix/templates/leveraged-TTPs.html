@@ -1,7 +1,7 @@
 <!-- ko if: value -->
 <dt data-bind="text: label"></dt>
 <dd>
-    <table class="table table-condensed table-hover table-striped">
+    <table class="table table-condensed table-striped">
         <thead>
         <tr>
             <th>Title</th>
@@ -12,10 +12,10 @@
         </thead>
         <tbody data-bind="foreach: value">
         <tr data-bind="attr: { title: id }">
-            <td data-bind="text: title"></td>
-            <td data-bind="text: namespace"></td>
-            <td data-bind="text: tlp"></td>
-            <td data-bind="text: intendedEffects"></td>
+            <!-- ko template: { name: "mandatory-grid-field", data: { value: title } } --><!-- /ko -->
+            <!-- ko template: { name: "mandatory-grid-field", data: { value: namespace } } --><!-- /ko -->
+            <!-- ko template: { name: "mandatory-grid-field", data: { value: tlp } } --><!-- /ko -->
+            <!-- ko template: { name: "mandatory-grid-field", data: { value: intendedEffects } } --><!-- /ko -->
         </tr>
         </tbody>
     </table>

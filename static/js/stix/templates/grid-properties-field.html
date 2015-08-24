@@ -1,0 +1,9 @@
+<td>
+    <em data-bind="if: $data.length === 0">None</em>
+    <!-- ko if: $data.length > 0 -->
+    <dl class="dl-horizontal" data-bind="foreach: $data">
+        <dt data-bind="text: label"></dt>
+        <dd data-bind="text: value"></dd>
+    </dl>
+    <!-- /ko -->
+</td>
