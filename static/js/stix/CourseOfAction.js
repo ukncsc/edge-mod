@@ -29,12 +29,12 @@ define([
             }, this);
             this.properties = ko.computed(function () {
                 return ko.utils.arrayFilter([
-                    {label: "stage", value: this.stage()},
-                    {label: "type", value: this.type()},
-                    {label: "objective", value: this.objective()},
-                    {label: "impact", value: this.impact()},
-                    {label: "efficacy", value: this.efficacy()},
-                    {label: "cost", value: this.cost()}
+                    {label: "Stage", value: this.stage()},
+                    {label: "Type", value: this.type()},
+                    {label: "Objective", value: this.objective()},
+                    {label: "Impact", value: this.impact()},
+                    {label: "Efficacy", value: this.efficacy()},
+                    {label: "Cost", value: this.cost()}
                 ], function (property) {
                     return typeof property.value === "string" && property.value.length > 0;
                 });
