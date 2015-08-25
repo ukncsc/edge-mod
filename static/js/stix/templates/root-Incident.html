@@ -1,14 +1,13 @@
 <dl class="dl-horizontal">
-    <!-- ko template: { name: "common-fields" } --><!-- /ko -->
-
+    <!-- ko template: {
+        name: "optional-labelled-field", data: { label: "Confidence", value: confidence }
+    } --><!-- /ko -->
+    <!-- ko template: { name: "common-fields-TLP" } --><!-- /ko -->
     <!-- ko template: {
         name: "optional-labelled-field", data: { label: "Status", value: status }
     } --><!-- /ko -->
     <!-- ko template: {
         name: "optional-labelled-field", data: { label: "Reporter", value: reporter }
-    } --><!-- /ko -->
-    <!-- ko template: {
-        name: "optional-labelled-field", data: { label: "Confidence", value: confidence }
     } --><!-- /ko -->
     <!-- ko template: {
         name: "optional-labelled-field", data: { label: "Responders", value: responders }
@@ -23,15 +22,15 @@
         name: "optional-labelled-field", data: { label: "Impact Assessment", value: impactAssessment }
     } --><!-- /ko -->
     <!-- ko template: {
-        name: "leveraged-ttps", data: { label: "Leveraged TTPs", value: leveragedTTPs }
+        name: "list-ttp", data: { label: "Leveraged TTPs", value: leveragedTTPs }
     } --><!-- /ko -->
     <!-- ko template: {
-        name: "related-incidents", data: { label: "Related Incidents", value: relatedIncidents }
+        name: "list-inc", data: { label: "Related Incidents", value: relatedIncidents }
     } --><!-- /ko -->
     <!-- ko template: {
-        name: "related-indicators", data: { label: "Related Indicators", value: relatedIndicators }
+        name: "list-ind", data: { label: "Related Indicators", value: relatedIndicators }
     } --><!-- /ko -->
     <!-- ko template: {
-        name: "related-observables", data: { label: "Related Observables", value: relatedObservables }
+        name: "list-obs", data: { label: "Related Observables", value: relatedObservables }
     } --><!-- /ko -->
 </dl>

@@ -1,15 +1,7 @@
 <dl class="dl-horizontal">
+    <!-- ko template: { name: "common-fields" } --><!-- /ko -->
     <!-- ko template: {
-        name: "mandatory-labelled-field", data: { label: "Title", value: title }
-    } --><!-- /ko -->
-    <!-- ko template: {
-        name: "optional-labelled-field", data: { label: "Short Description", value: shortDescription }
-    } --><!-- /ko -->
-    <!-- ko template: {
-        name: "optional-labelled-field", data: { label: "Description", value: description }
-    } --><!-- /ko -->
-    <!-- ko template: {
-        name: "optional-labelled-field", data: { label: "Type", value: type }
+        name: "mandatory-labelled-field", data: { label: "Type", value: type }
     } --><!-- /ko -->
     <!-- ko if: properties().length -->
         <!-- ko foreach: properties -->

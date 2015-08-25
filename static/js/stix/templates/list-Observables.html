@@ -1,0 +1,23 @@
+<!-- ko if: value -->
+<dt data-bind="text: label"></dt>
+<dd>
+    <table class="table table-condensed table-striped">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Namespace</th>
+            <th>Type</th>
+            <th>Properties</th>
+        </tr>
+        </thead>
+        <tbody data-bind="foreach: value">
+        <tr data-bind="attr: { title: id }">
+            <!-- ko template: { name: "mandatory-grid-field", data: { value: title } } --><!-- /ko -->
+            <!-- ko template: { name: "mandatory-grid-field", data: { value: namespace } } --><!-- /ko -->
+            <!-- ko template: { name: "mandatory-grid-field", data: { value: type } } --><!-- /ko -->
+            <!-- ko template: { name: "grid-properties-field", data: properties } --><!-- /ko -->
+        </tr>
+        </tbody>
+    </table>
+</dd>
+<!-- /ko -->
