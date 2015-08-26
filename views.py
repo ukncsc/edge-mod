@@ -8,7 +8,8 @@ from django.contrib.auth.decorators import login_required
 
 from users.decorators import superuser_or_staff_role, json_body
 
-from publisher import Publisher, PublisherConfig
+from package_publisher import Publisher
+from publisher_config import PublisherConfig
 from package_generator import PackageGenerator
 from import_helper import EdgeObject
 

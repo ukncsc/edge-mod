@@ -2,12 +2,12 @@
 import unittest
 import mock
 import libtaxii
-from publisher import Publisher
+from package_publisher import Publisher
 
 
 class PublisherTests(unittest.TestCase):
 
-    @mock.patch('publisher.PublisherConfig', autospec=True)
+    @mock.patch('package_publisher.PublisherConfig', autospec=True)
     def test_PushPackage_IfNoSiteId_RaisesWarning(self, mock_config):
         configs = [{'site_id': None}, {}]
         for config in configs:
@@ -15,11 +15,11 @@ class PublisherTests(unittest.TestCase):
                 mock_config.get_config.return_value = config
                 Publisher.push_package(None, None)
 
-    @mock.patch('publisher.send_message')
-    @mock.patch('publisher.discover_inbox_url')
-    @mock.patch('publisher.PeerSite')
+    @mock.patch('package_publisher.send_message')
+    @mock.patch('package_publisher.discover_inbox_url')
+    @mock.patch('package_publisher.PeerSite')
     @mock.patch('stix.core.stix_package.STIXPackage', autospec=True)
-    @mock.patch('publisher.PublisherConfig', autospec=True)
+    @mock.patch('package_publisher.PublisherConfig', autospec=True)
     def test_PushPackage_IfSiteDetailsFound_SendsMessage(self, mock_config, mock_package, mock_peer_site,
                                                          mock_discover_inbox, mock_send_message):
         mock_config.get_config.return_value = {
