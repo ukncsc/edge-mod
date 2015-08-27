@@ -41,6 +41,9 @@ define([
     }
 
     function findType(/*String*/ id) {
+        if (!(typeof id === "string")) {
+            throw new TypeError("Identifier cannot be null or undefined");
+        }
         var pattern = new RegExp(
             "^" + PATTERN.namespace + ":(" + PATTERN.type + ")-" + PATTERN.uuid + "$"
         );

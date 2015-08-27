@@ -67,12 +67,12 @@ define([
                 },
                 "has correct properties": function () {
                     assert.deepEqual(classUnderTest.properties(), [
-                        {label: "stage", value: "Response"},
-                        {label: "type", value: "Policy Actions"},
-                        {label: "objective", value: "Prevent hiding of evidence by perpetrator"},
-                        {label: "impact", value: "Loss of productivity"},
-                        {label: "efficacy", value: "No access to affected systems"},
-                        {label: "cost", value: "Up to 2 days pay"}
+                        {label: "Stage", value: "Response"},
+                        {label: "Type", value: "Policy Actions"},
+                        {label: "Objective", value: "Prevent hiding of evidence by perpetrator"},
+                        {label: "Impact", value: "Loss of productivity"},
+                        {label: "Efficacy", value: "No access to affected systems"},
+                        {label: "Cost", value: "Up to 2 days pay"}
                     ]);
                 },
                 "has correct related COAs": function () {
