@@ -10,7 +10,7 @@ from django.conf.urls import patterns, url
 
 publisher_urls = [
     (r'^review/$', 'views.discover', 'publisher_discover'),
-    (r'^review/(?P<id_>[a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})$', 'views.review', 'publisher_review'),
+    (r'^review/(?P<id_>[A-Za-z][\w\d-]+:[A-Za-z]+-[A-Fa-f\d]{8}-[A-Fa-f\d]{4}-[A-Fa-f\d]{4}-[A-Fa-f\d]{4}-[A-Fa-f\d]{12})$', 'views.review', 'publisher_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
     (r'^config/$', 'views.config', 'publisher_config'),
     (r'^ajax/get_sites/$', 'views.ajax_get_sites', None),
