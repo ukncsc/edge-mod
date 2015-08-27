@@ -2,7 +2,6 @@ import re
 import urllib2
 
 from django.shortcuts import render, redirect
-from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 
 from users.decorators import superuser_or_staff_role, json_body

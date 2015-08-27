@@ -57,8 +57,6 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch.object(views, 'objectid_matcher')
     @mock.patch('django.http.request.HttpRequest')
     def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_regex, mock_package_builder, mock_render):
-        type(mock_request).META = mock.PropertyMock(return_value={})
-
         mock_id = 'Dummy ID'
         mock_regex.match.return_value = mock.MagicMock(
             group=mock.Mock(return_value=mock_id),
