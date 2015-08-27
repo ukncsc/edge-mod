@@ -1,4 +1,3 @@
-
 import re
 import urllib2
 
@@ -22,19 +21,24 @@ objectid_matcher = re.compile(
 
 
 @login_required
-def review(request):
+def discover(request):
     referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
     match = objectid_matcher.match(referrer)
     if match is not None and len(match.groups()) == 1:
         id_ = match.group(1)
-        root_edge_object = EdgeObject.load(id_)
-        package = PackageGenerator.build_package(root_edge_object, {})
-        return render(request, "publisher_review.html", {
-            "root_id": id_,
-            "package": package,
-        })
+        return redirect("publisher_review", id_=id_)
     else:
-        return redirect(reverse("publisher_not_found"))
+        return redirect("publisher_not_found")
+
+
+@login_required
+def review(request, id_):
+    root_edge_object = EdgeObject.load(id_)
+    package = PackageGenerator.build_package(root_edge_object, {})
+    return render(request, "publisher_review.html", {
+        "root_id": id_,
+        "package": package,
+    })
 
 
 @login_required

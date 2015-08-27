@@ -13,12 +13,18 @@ class URLConfTests(unittest.TestCase):
 
     urls = 'tests.python.urlconf_tests'
 
+    def test_Resolve_PublisherDiscover_ReturnsCorrectHandler(self):
+        review_resolve_match = resolve('/review/', URLConfTests.urls)
+        self.assertEqual(review_resolve_match.func, views.discover)
+
     def test_Reverse_PublisherReview_ReturnsCorrectURL(self):
-        review_url = reverse('publisher_review', URLConfTests.urls)
-        self.assertEqual(review_url, '/review/')
+        review_url = reverse('publisher_review', URLConfTests.urls,
+                             kwargs={"id_": "example:incident-02468346-fdf2-4095-a905-f3731fccd58d"})
+        self.assertEqual(review_url, '/review/example%3Aincident-02468346-fdf2-4095-a905-f3731fccd58d')
 
     def test_Resolve_PublisherReview_ReturnsCorrectHandler(self):
-        review_resolve_match = resolve('/review/', URLConfTests.urls)
+        review_resolve_match = resolve('/review/example:incident-02468346-fdf2-4095-a905-f3731fccd58d',
+                                       URLConfTests.urls)
         self.assertEqual(review_resolve_match.func, views.review)
 
     def test_Reverse_PublisherNotFound_ReturnsCorrectURL(self):

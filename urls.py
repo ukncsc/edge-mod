@@ -9,7 +9,8 @@ from django.conf.urls import patterns, url
 # resolve in our unit tests (unless we run the tests from within Edge!).
 
 publisher_urls = [
-    (r'^review/$', 'views.review', 'publisher_review'),
+    (r'^review/$', 'views.discover', 'publisher_discover'),
+    (r'^review/(?P<id_>[a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})$', 'views.review', 'publisher_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
     (r'^config/$', 'views.config', 'publisher_config'),
     (r'^ajax/get_sites/$', 'views.ajax_get_sites', None),
@@ -22,6 +23,6 @@ publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publis
 urlpatterns = patterns('adapters.publisher', *publisher_url_patterns)
 
 navitems = [
-    ('External Publisher', 'publisher_review'),
+    ('External Publisher', 'publisher_discover'),
     ('External Publisher Configuration', 'publisher_config')
 ]

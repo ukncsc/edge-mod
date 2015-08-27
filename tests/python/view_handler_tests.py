@@ -14,12 +14,49 @@ with mock.patch('django.contrib.auth.decorators.login_required', lambda func: fu
 
 class ViewHandlerTests(unittest.TestCase):
 
+    @mock.patch.object(views, 'redirect')
+    @mock.patch(EdgeObject.__module__ + '.' + EdgeObject.__name__ + '.load', new=mock.Mock())
+    @mock.patch.object(views, 'objectid_matcher')
+    @mock.patch('django.http.request.HttpRequest')
+    def test_Discover_IfIdMatch_RedirectToReviewPage(self, mock_request, mock_regex, mock_redirect):
+        type(mock_request).META = mock.PropertyMock(return_value={})
+
+        mock_id = 'Dummy ID'
+        mock_regex.match.return_value = mock.MagicMock(
+            group=mock.Mock(return_value=mock_id),
+            groups=mock.Mock(
+                return_value=(mock_id,))
+        )
+
+        mock_redirect.return_value = 'Mock redirect'
+
+        response = views.discover(mock_request)
+
+        mock_redirect.assert_called_with('publisher_review', id_=mock_id)
+
+        self.assertEqual(response, mock_redirect.return_value)
+
+    @mock.patch.object(views, 'redirect')
+    @mock.patch.object(views, 'objectid_matcher')
+    @mock.patch('django.http.request.HttpRequest')
+    def test_Discover_IfNoIdMatch_RedirectToMissingPage(self, mock_request, mock_regex, mock_redirect):
+        type(mock_request).META = mock.PropertyMock(return_value={})
+
+        mock_regex.match.return_value = None
+
+        mock_redirect.return_value = 'Mock redirect'
+
+        response = views.discover(mock_request)
+
+        mock_redirect.assert_called_with('publisher_not_found')
+        self.assertEqual(response, mock_redirect.return_value)
+
     @mock.patch.object(views, 'render')
     @mock.patch('package_generator.PackageGenerator.build_package')
     @mock.patch(EdgeObject.__module__ + '.' + EdgeObject.__name__ + '.load', new=mock.Mock())
     @mock.patch.object(views, 'objectid_matcher')
     @mock.patch('django.http.request.HttpRequest')
-    def test_Review_IfIdMatch_RenderReviewPage(self, mock_request, mock_regex, mock_package_builder, mock_render):
+    def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_regex, mock_package_builder, mock_render):
         type(mock_request).META = mock.PropertyMock(return_value={})
 
         mock_id = 'Dummy ID'
@@ -31,7 +68,7 @@ class ViewHandlerTests(unittest.TestCase):
 
         mock_render.return_value = 'Mock render'
 
-        response = views.review(mock_request)
+        response = views.review(mock_request, id_=mock_id)
 
         mock_render.assert_called_with(mock_request, 'publisher_review.html', {
             'root_id': mock_id,
@@ -39,25 +76,6 @@ class ViewHandlerTests(unittest.TestCase):
         })
 
         self.assertEqual(response, mock_render.return_value)
-
-    @mock.patch.object(views, 'reverse')
-    @mock.patch.object(views, 'redirect')
-    @mock.patch.object(views, 'objectid_matcher')
-    @mock.patch('django.http.request.HttpRequest')
-    def test_Review_IfNoIdMatch_RedirectToMissingPage(self, mock_request, mock_regex,
-                                                      mock_redirect, mock_reverse):
-        type(mock_request).META = mock.PropertyMock(return_value={})
-
-        mock_regex.match.return_value = None
-
-        mock_reverse.return_value = 'Mock reverse call'
-        mock_redirect.return_value = 'Mock redirect'
-
-        response = views.review(mock_request)
-
-        mock_reverse.assert_called_with('publisher_not_found')
-        mock_redirect.assert_called_with(mock_reverse.return_value)
-        self.assertEqual(response, mock_redirect.return_value)
 
     @mock.patch.object(views, 'PublisherConfig')
     def test_AJAXGetSites_IfConfigOK_ReturnSites(self, mock_publisher):
