@@ -1,11 +1,10 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/modal/ConfirmModal",
     "common/modal/Modal",
     "stix/StixPackage",
     "kotemplate!publish-modal:common/modal/publish-modal-content.html"
-], function (declare, ko, ConfirmModal, Modal, StixPackage, publishTemplate) {
+], function (declare, ko, Modal, StixPackage, publishModalTemplate) {
     "use strict";
 
     return declare(null, {
@@ -35,6 +34,7 @@ define([
                 noButton.disabled(true);
 
                 contentData.waitingForResponse(true);
+                contentData.message("Publishing...");
 
                 this.publish(function(response) {
                     contentData.waitingForResponse(false);
@@ -52,8 +52,8 @@ define([
                     var title = success ? "Success" : "Error";
                     var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
 
-                    testConfirmModal.title(title);
-                    testConfirmModal.titleIcon(titleIcon);
+                    confirmModal.title(title);
+                    confirmModal.titleIcon(titleIcon);
                     contentData.message(message);
 
                     if (success) {
@@ -67,11 +67,11 @@ define([
                 }.bind(this));
             }.bind(this);
 
-            var testConfirmModal = new Modal({
+            var confirmModal = new Modal({
                 title: "Warning",
                 titleIcon: "glyphicon-exclamation-sign",
                 contentData: contentData,
-                contentTemplate: publishTemplate.id,
+                contentTemplate: publishModalTemplate.id,
                 buttonData: [
                     {
                         label: "Yes",
@@ -94,7 +94,7 @@ define([
                 ]
             });
 
-            testConfirmModal.show();
+            confirmModal.show();
         },
 
         publish: function(onPublishCallback) {

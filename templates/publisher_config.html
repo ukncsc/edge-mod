@@ -11,6 +11,7 @@
                 <div class="row">
                     <img src="/static/img/hex/hex_.png">
                     <h3>External Publisher</h3>
+                    <small>Configuration</small>
                 </div>
             </div>
         </div>
@@ -20,12 +21,12 @@
 
                 <!-- Generic settings pages could have multiple panels, each containing multiple dropdowns/fields -->
                 <div class="panel panel-default">
-                    <div class="panel-heading">Configuration</div>
+                    <div class="panel-heading">Select site</div>
                     <div class="panel-body">
 
                         <div class="row">
                             <div class="col-sm-1">
-                                <h4 class="pull-right">Site: </h4>
+                                <h4>Site: </h4>
                             </div>
 
                             <div class="col-sm-7">
@@ -63,11 +64,11 @@
 
                             <div class="col-sm-4">
                                 <button class="btn btn-default pull-right"
-                                        data-bind="click: savePublishSite,
+                                        data-bind="click: onSavePublishSite,
                                                    css: {
                                                    disabled: (!selectedSite() && !publishId()) ||
-                                                   (selectedSite() && selectedSite().is_publish_site()) }">
-                                    Save
+                                                   (selectedSite() && selectedSite().is_publish_site()) },
+                                                   text: gotSites() ? 'Save' : 'Retrieving sites...'">
                                 </button>
                             </div>
                         </div>

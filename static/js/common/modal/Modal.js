@@ -12,7 +12,7 @@ define([
             this.titleIcon = ko.observable(options["titleIcon"]);
 
             this.contentTemplate = options["contentTemplate"] || defaultContentTemplate.id;
-            this.contentData = options["contentData"]; // No default viewmodel, let the bindings fail instead...
+            this.contentData = options["contentData"]; // No default view-model, let the bindings fail instead...
 
             this.buttonData = ko.observableArray(options["buttonData"] || [
                     {
@@ -24,6 +24,8 @@ define([
             this.height = options["height"];
 
             this.modalReference = null;
+
+            this.onShow = options["onShow"];
         },
 
         show: function () {
@@ -33,43 +35,49 @@ define([
                 this.modalReference = null;
             }
 
-            var self = this;
-
             var targetDiv = document.createElement("div");
             targetDiv.style.display = "none";
             document.body.appendChild(targetDiv);
+
+            var afterRender = this._afterModalRender.bind(this);
 
             ko.renderTemplate(
                 modalContainerTemplate.id,
                 this,
                 {
-                    afterRender: function(nodes) {
-                        // Get the modal:
-                        var modalElements = nodes.filter(function(node) {
-                            return node.nodeType === 1; // Ignore text
-                        });
-                        var modal = $(modalElements);
-
-                        // Ensure it always removes itself from the DOM when closed, and clean up the KO bindings:
-                        modal.on("hidden.bs.modal", function () {
-                            modal.each(function (index, element) { ko.cleanNode(element); });
-                            modal.remove();
-                        });
-
-                        // Show it:
-                        modal.modal({
-                            backdrop: "static",
-                            keyboard: false,
-                            width: self.width,
-                            height: self.height
-                        });
-
-                        self.modalReference = modal;
-                    }
+                    afterRender: afterRender
                 },
                 targetDiv,
                 "replaceNode"
             );
+        },
+
+        _afterModalRender: function (nodes) {
+            // Get the modal:
+            var modalElements = nodes.filter(function(node) {
+                return node.nodeType === 1; // Ignore text
+            });
+            var modal = $(modalElements);
+
+            // Ensure it always removes itself from the DOM when closed, and clean up the KO bindings:
+            modal.on("hidden.bs.modal", function () {
+                modal.each(function (index, element) { ko.cleanNode(element); });
+                modal.remove();
+            });
+
+            // Show it:
+            modal.modal({
+                backdrop: "static",
+                keyboard: false,
+                width: this.width,
+                height: this.height
+            });
+
+            this.modalReference = modal;
+
+            if (this.onShow) {
+                this.onShow(this);
+            }
         },
 
         handleClick: function (button) {
