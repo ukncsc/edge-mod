@@ -101,6 +101,12 @@ define([
             postJSON("/adapter/publisher/ajax/publish/", {
                 root_id: this.root().id()
             }, onPublishCallback);
+        },
+
+        onRowClicked: function (item) {
+            var path = window.location.href.split("/");
+            path[path.length - 1] = item.id();
+            window.location.assign(path.join("/"));
         }
     });
 });
