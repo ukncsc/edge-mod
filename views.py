@@ -34,6 +34,7 @@ def discover(request):
 def review(request, id_):
     root_edge_object = EdgeObject.load(id_)
     package = PackageGenerator.build_package(root_edge_object, {})
+    request.breadcrumbs([("Publisher", "")])
     return render(request, "publisher_review.html", {
         "root_id": id_,
         "package": package,
@@ -48,6 +49,7 @@ def not_found(request):
 @login_required
 @superuser_or_staff_role
 def config(request):
+    request.breadcrumbs([("Publisher Configuration", "")])
     return render(request, "publisher_config.html", {})
 
 
