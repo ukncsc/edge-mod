@@ -1,8 +1,8 @@
 define([
     "dcl/dcl",
     "knockout",
-    "kotemplate!modal-container:./modal-template.html",
-    "kotemplate!modal-default-content:./text-content.html"
+    "kotemplate!modal-container:./templates/modal-template.html",
+    "kotemplate!modal-default-content:./templates/text-content.html"
 ], function (declare, ko, modalContainerTemplate, defaultContentTemplate) {
     "use strict";
 

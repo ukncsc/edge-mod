@@ -2,7 +2,7 @@ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
-    "kotemplate!publish-modal:common/modal/publish-modal-content.html"
+    "kotemplate!publish-modal:./templates/publish-modal-content.html"
 ], function (declare, ko, Modal, publishModalTemplate) {
     "use strict";
 
@@ -101,39 +101,38 @@ define([
             }.bind(this));
         },
 
+        _onShowSaveModal: function (modal) {
+            var siteSelected = !!(this.selectedSite());
+
+            if (siteSelected) {
+                // Save!
+                this._modalOnSaveSite.call(this, modal);
+            } else {
+                // Warn before save
+                modal.contentData.message("Selecting 'None' will remove the publish site. Are you sure?");
+
+                var yesButton = modal.getButtonByLabel("Yes");
+                var noButton = modal.getButtonByLabel("No");
+                var closeButton = modal.getButtonByLabel("Close");
+
+                yesButton.hide(false);
+                noButton.hide(false);
+                closeButton.hide(true);
+            }
+        },
+
         onSavePublishSite: function () {
             var contentData = {
                 message: ko.observable(""),
                 waitingForResponse: ko.observable(false)
             };
 
-            var onShowCallback = function(modal) {
-                var siteSelected = !!(this.selectedSite());
-
-                if (siteSelected) {
-                    // Save!
-                    this._modalOnSaveSite.call(this, modal);
-                } else {
-                    // Warn before save
-                    modal.contentData.message("Selecting 'None' will remove the publish site. Are you sure?");
-
-                    var yesButton = modal.getButtonByLabel("Yes");
-                    var noButton = modal.getButtonByLabel("No");
-                    var closeButton = modal.getButtonByLabel("Close");
-
-                    yesButton.hide(false);
-                    noButton.hide(false);
-                    closeButton.hide(true);
-                }
-
-            }.bind(this);
-
             var onSaveModal = new Modal({
                 title: "Save settings",
                 titleIcon: "glyphicon-cloud-upload",
                 contentData: contentData,
                 contentTemplate: publishModalTemplate.id,
-                onShow: onShowCallback,
+                onShow: this._onShowSaveModal.bind(this),
                 buttonData: [
                     {
                         label: "Yes",
