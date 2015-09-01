@@ -13,7 +13,7 @@
             name: "publisher/config-main"
         }
     ],
-    fileExclusionRegExp: /^\.|^tests$|^build.js$|\.md$/,
+    fileExclusionRegExp: /^\.|^tests$|^build.js$|\.md$|\.pyc$/,
     locale: "en-gb",
     optimize: "uglify2",
     skipDirOptimize: true,
