@@ -10,6 +10,11 @@
 * from the root of your project, run: `nodemon /usr/bin/intern-runner config=tests/intern`
 * point you browser at [http://localhost:9000/__intern/client.html?initialBaseUrl=/&config=tests/intern](http://localhost:9000/__intern/client.html?initialBaseUrl=/&config=tests/intern)
 
+You can also run the unit tests and view coverage from the command line by
+typing the following in the root of the project directory:
+
+* `intern-client config=tests/intern reporters=Console`
+
 ## Integration with PyCharm
 
 * install the `NodeJS` plugin
@@ -29,6 +34,16 @@
         * tick `After launch`
         * select your preferred browser
         * set URL to: `http://localhost:9000/__intern/client.html?initialBaseUrl=/&config=tests/intern`
+* create a `Node.js` run configuration as follows:
+    * Configuration
+        <table><tbody>
+        <tr><td>Node interpreter</td><td>`/usr/bin/node`</td></tr>
+        <tr><td>Node parameters</td><td><em>leave blank</em></td></tr>
+        <tr><td>Working directory</td><td><em>project root</em></td></tr>
+        <tr><td>JavaScript file</td><td>`/usr/bin/intern-client`</td></tr>
+        <tr><td>Application parameters</td><td>`config=tests/intern reporters=Console`</td></tr>
+        <tr><td>Environment variables</td><td><em>leave blank</em></td></tr>
+        </tbody></table>
 
 ## Useful links
 
