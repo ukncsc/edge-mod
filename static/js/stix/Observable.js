@@ -3,25 +3,19 @@ define([
     "knockout",
     "./StixObject",
     "./objectTypes/StixObjectType",
-    "./objectTypes/Address",
-    "./objectTypes/DomainName",
     "./objectTypes/EmailMessage",
     "./objectTypes/File",
-    "./objectTypes/Mutex",
-    "./objectTypes/URI",
+    "./objectTypes/WindowsRegistryKey",
     "kotemplate!root-obs:./templates/root-Observable.html",
     "kotemplate!list-obs:./templates/list-Observables.html"
-], function (declare, ko, StixObject, StixObjectType, AddressObjectType, DomainNameObjectType, EmailMessageObjectType,
-             FileObjectType, MutexObjectType, URIObjectType) {
+], function (declare, ko, StixObject, StixObjectType, EmailMessageObjectType,
+             FileObjectType, WindowsRegistryKeyObjectType) {
     "use strict";
 
     var OBJECT_TYPES = Object.freeze({
-        "AddressObjectType": AddressObjectType,
-        "DomainNameObjectType": DomainNameObjectType,
         "EmailMessageObjectType": EmailMessageObjectType,
         "FileObjectType": FileObjectType,
-        "MutexObjectType": MutexObjectType,
-        "URIObjectType": URIObjectType
+        "WindowsRegistryKeyObjectType": WindowsRegistryKeyObjectType
     });
 
     function getObjectType(type) {
