@@ -60,5 +60,10 @@ define({
     functionalSuites: [/* "myPackage/tests/functional" */],
 
     // A regular expression matching URLs to files that should not be included in code coverage analysis
-    excludeInstrumentation: /(?:(?:tests|node_modules|dcl)\/|js\/(?:kotemplate|text).js$)/
+    excludeInstrumentation: /(?:(?:tests|node_modules|dcl)\/|js\/(?:kotemplate|text).js$)/,
+
+    reporters: [
+        { id: "JUnit", filename: "junit.xml" },
+        { id: "Cobertura", filename: "cobertura.xml" }
+    ]
 });
