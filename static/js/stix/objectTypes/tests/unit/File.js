@@ -24,7 +24,7 @@ define([
         }
 
         return {
-            name: "stix/objectTypes/EmailMessage",
+            name: "stix/objectTypes/File",
             "with hashes" : {
                 setup: function () {
                     loadPackage("purple-secure-systems:observable-b8ece3b4-2260-42bf-80cc-e11a932000a8");
