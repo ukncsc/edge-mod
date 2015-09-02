@@ -40,42 +40,40 @@ define([
         return TYPE_ALIASES[type] || type;
     }
 
-    function findType(/*String*/ id) {
+    function parseId(/*String*/ id) {
         if (!(typeof id === "string")) {
-            throw new TypeError("Identifier cannot be null or undefined");
+            throw new TypeError("Identifier must be a string");
         }
         var pattern = new RegExp(
-            "^" + PATTERN.namespace + ":(" + PATTERN.type + ")-" + PATTERN.uuid + "$"
-        );
-        var match = pattern.exec(id.toLowerCase());
-        if (!match) {
-            throw new Error("Unable to derive type from id: " + id);
-        }
-        var type = TYPES[resolveAlias(match[1])];
-        if (!type) {
-            throw new TypeError("Unknown type: " + match[1]);
-        }
-        return type;
-    }
-
-    function findNamespace(/*String*/ id) {
-        var pattern = new RegExp(
-            "^(" + PATTERN.namespace + "):" + PATTERN.type + "-" + PATTERN.uuid + "$",
+            "^(" + PATTERN.namespace + "):(" + PATTERN.type + ")-" + PATTERN.uuid + "$",
             "i"
         );
         var match = pattern.exec(id);
         if (!match) {
-            throw new Error("Unable to derive namespace from id: " + id);
+            throw new Error("Unable to parse id: " + id);
         }
-        return match[1];
+        return match;
+    }
+
+    function findType(parsedId) {
+        var type = TYPES[resolveAlias(parsedId[2].toLowerCase())];
+        if (!type) {
+            throw new TypeError("Unknown type: " + parsedId[2]);
+        }
+        return type;
+    }
+
+    function findNamespace(parsedId) {
+        return parsedId[1];
     }
 
     return declare(null, {
         declaredClass: "StixId",
         constructor: function (id) {
+            var parsedId = parseId(id);
             this._id = id;
-            this._type = findType(id);
-            this._namespace = findNamespace(id);
+            this._type = findType(parsedId);
+            this._namespace = findNamespace(parsedId);
         },
         id: function () {
             return this._id;

@@ -61,39 +61,6 @@ define([
                     "STIX package cannot be null or undefined"
                 );
             },
-            "no id": function () {
-                assert.throws(
-                    function () {
-                        new StixPackage(
-                            packageData["purple-secure-systems:coa-00000000-0000-0000-0000-000000000000"],
-                            null
-                        );
-                    },
-                    "Identifier cannot be null or undefined"
-                );
-            },
-            "invalid id": function () {
-                assert.throws(
-                    function () {
-                        loadPackage(
-                            "purple-secure-systems:coa-00000000-0000-0000-0000-000000000000",
-                            "invalid"
-                        );
-                    },
-                    "Unable to derive type from id: invalid"
-                );
-            },
-            "unknown type": function () {
-                assert.throws(
-                    function () {
-                        loadPackage(
-                            "purple-secure-systems:coa-00000000-0000-0000-0000-000000000000",
-                            "purple-secure-systems:badtype-00000000-0000-0000-0000-000000000000"
-                        );
-                    },
-                    "Unknown type: badtype"
-                );
-            },
             "rootId not found (empty package)": function () {
                 assert.throws(
                     function () {
@@ -125,6 +92,19 @@ define([
                 },
                 "has correct id": function () {
                     assert.equal(classUnderTest.root.id(), "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
+                }
+            },
+            "findById()": {
+                setup: function () {
+                    loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
+                },
+                "not a StixId": function () {
+                    assert.throws(
+                        function () {
+                            classUnderTest.findById("purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
+                        },
+                        "Identifier must be a StixId: purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064"
+                    );
                 }
             },
             "safeGet()": {

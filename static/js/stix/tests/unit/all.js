@@ -1,4 +1,5 @@
 define([
+    "./StixId",
     "./StixPackage",
     "./CourseOfAction",
     "./Incident",
