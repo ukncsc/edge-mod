@@ -24,8 +24,8 @@ define([
         }
 
         return {
-            name: "stix/objectTypes/File",
-            "with hashes" : {
+            name: "stix/objectTypes/WindowsRegistryKey",
+            "with key values" : {
                 setup: function () {
                     loadPackage(
                         "purple-secure-systems:Package-c324c477-f4e4-47b6-a0fc-6754ddc089b7",
@@ -44,7 +44,7 @@ define([
                     ]);
                 }
             },
-            "without hashes" : {
+            "without key values" : {
                 setup: function () {
                     loadPackage(
                         "purple-secure-systems:Package-c324c477-f4e4-47b6-a0fc-6754ddc089b7",

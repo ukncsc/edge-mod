@@ -13,7 +13,8 @@ define([
     });
     var simpleObject = Object.freeze({
         prop1: "value1",
-        prop2: [
+        prop2: [],
+        prop3: [
             "One", "Two"
         ],
         sub1: {
@@ -131,8 +132,11 @@ define([
                 "not an array returns null": function () {
                     assert.isNull(classUnderTest.safeArrayGet(simpleObject, "prop1", passthrough, this));
                 },
+                "empty array returns null": function () {
+                    assert.isNull(classUnderTest.safeArrayGet(simpleObject, "prop2", passthrough, this));
+                },
                 "simple property path returns value": function () {
-                    assert.deepEqual(classUnderTest.safeArrayGet(simpleObject, "prop2", passthrough, this), ["One", "Two"]);
+                    assert.deepEqual(classUnderTest.safeArrayGet(simpleObject, "prop3", passthrough, this), ["One", "Two"]);
                 },
                 "compound property path returns value": function () {
                     assert.deepEqual(classUnderTest.safeArrayGet(simpleObject, "sub1.sub1prop1", passthrough, this), ["Alpha", "Beta"]);
