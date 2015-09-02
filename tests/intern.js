@@ -63,7 +63,7 @@ define({
     excludeInstrumentation: /(?:(?:tests|node_modules|dcl)\/|js\/(?:kotemplate|text).js$)/,
 
     reporters: [
-        { id: "JUnit", filename: "junit.xml" },
-        { id: "Cobertura", filename: "cobertura.xml" }
+        { id: "JUnit", filename: "tests/junit.xml" },
+        { id: "Cobertura", filename: "tests/cobertura.xml" }
     ]
 });

@@ -2,4 +2,5 @@ dist
 .idea
 *.iml
 *.pyc
-
+cobertura.xml
+junit.xml
