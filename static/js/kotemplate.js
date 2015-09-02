@@ -26,16 +26,17 @@ define(["text"], function (text) {
         load: function (name, parentRequire, onLoad, config) {
             var params = parse(name);
             text.load(params.name, parentRequire, function (templateText) {
+                var id = params.id;
                 if (config && config.isBuild) {
-                    buildMap[params.id] = templateText;
+                    buildMap[id] = templateText;
                 } else if (isBrowser()) {
                     var scriptTag = document.createElement("script");
                     scriptTag.setAttribute("type", "text/html");
-                    scriptTag.setAttribute("id", params.id);
+                    scriptTag.setAttribute("id", id);
                     scriptTag.appendChild(document.createTextNode(templateText));
                     document.body.appendChild(scriptTag);
                 }
-                onLoad();
+                onLoad({ id: id });
             }, config);
         },
 
