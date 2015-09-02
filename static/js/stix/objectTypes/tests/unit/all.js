@@ -2,7 +2,8 @@ define([
     "./NamedProperty",
     "./StixObjectType",
     "./EmailMessage",
-    "./File"
+    "./File",
+    "./WindowsRegistryKey"
 ], function () {
 
 });
