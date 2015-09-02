@@ -23,23 +23,45 @@ define([
                     "name must be a string"
                 );
             },
-            "constructor: valid (simple value)": {
+            "constructor: valid (simple name and value)": {
                 setup: function () {
-                    classUnderTest = new NamedProperty("a_name", "a value");
+                    classUnderTest = new NamedProperty("simple_name", "simple value");
                 },
                 "name()": function () {
-                    assert.equal(classUnderTest.name(), "A Name");
+                    assert.equal(classUnderTest.name(), "Simple Name");
                 },
                 "value()": function () {
-                    assert.equal(classUnderTest.value(), "a value");
+                    assert.equal(classUnderTest.value(), "simple value");
                 }
             },
-            "constructor: valid (embedded value)": {
+            "constructor: valid (embedded name, simple value)": {
                 setup: function () {
-                    classUnderTest = new NamedProperty("another_name", { value: "embedded value" });
+                    classUnderTest = new NamedProperty({ value: "embedded_name" }, "simple value");
                 },
                 "name()": function () {
-                    assert.equal(classUnderTest.name(), "Another Name");
+                    assert.equal(classUnderTest.name(), "Embedded Name");
+                },
+                "value()": function () {
+                    assert.equal(classUnderTest.value(), "simple value");
+                }
+            },
+            "constructor: valid (simple name, embedded value)": {
+                setup: function () {
+                    classUnderTest = new NamedProperty("simple_name", { value: "embedded value" });
+                },
+                "name()": function () {
+                    assert.equal(classUnderTest.name(), "Simple Name");
+                },
+                "value()": function () {
+                    assert.equal(classUnderTest.value(), "embedded value");
+                }
+            },
+            "constructor: valid (embedded name and value)": {
+                setup: function () {
+                    classUnderTest = new NamedProperty({ value: "embedded_name" }, { value: "embedded value" });
+                },
+                "name()": function () {
+                    assert.equal(classUnderTest.name(), "Embedded Name");
                 },
                 "value()": function () {
                     assert.equal(classUnderTest.value(), "embedded value");

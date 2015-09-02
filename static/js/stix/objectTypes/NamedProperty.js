@@ -21,10 +21,11 @@ define([
     var NamedProperty = declare(null, {
         declaredClass: "NamedProperty",
         constructor: function (name, value) {
-            if (typeof name !== "string") {
-                throw new TypeError("name must be a string");
+            var useName = findValue(name);
+            if (typeof useName !== "string") {
+                throw new TypeError("name must be a string: " + name);
             }
-            this._name = formatName(name);
+            this._name = formatName(useName);
             this._value = findValue(value);
         },
         name: function () {
