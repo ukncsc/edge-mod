@@ -4,4 +4,4 @@
   "publisher":"CERT-UK",
   "edge_min":"2.4.*",
   "edge_max":"2.4.*",
-  "version":"1.0.0" }
+  "version":"development" }

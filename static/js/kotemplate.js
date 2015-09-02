@@ -26,7 +26,7 @@ define(["text"], function (text) {
         load: function (name, parentRequire, onLoad, config) {
             var params = parse(name);
             text.load(params.name, parentRequire, function (templateText) {
-                if (config.isBuild) {
+                if (config && config.isBuild) {
                     buildMap[params.id] = templateText;
                 } else if (isBrowser()) {
                     var scriptTag = document.createElement("script");
