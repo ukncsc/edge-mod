@@ -1,0 +1,3 @@
+[submodule "static/js/dcl"]
+	path = static/js/dcl
+	url = https://github.com/uhop/dcl.git
