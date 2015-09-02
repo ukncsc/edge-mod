@@ -1,6 +1,7 @@
 define([
     "./NamedProperty",
-    "./StixObjectType"
+    "./StixObjectType",
+    "./EmailMessage"
 ], function () {
 
 });
