@@ -14,7 +14,7 @@ define([
         var propertyList = null;
 
         return {
-            name: "NamedProperty",
+            name: "stix/objectTypes/NamedProperty",
             "constructor: missing name": function () {
                 assert.throws(
                     function () {

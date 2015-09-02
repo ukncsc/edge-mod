@@ -1,5 +1,6 @@
 define([
-    "./NamedProperty"
+    "./NamedProperty",
+    "./StixObjectType"
 ], function () {
 
 });
