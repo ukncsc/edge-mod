@@ -1,4 +1,5 @@
 dist
+html-report
 .idea
 *.iml
 *.pyc

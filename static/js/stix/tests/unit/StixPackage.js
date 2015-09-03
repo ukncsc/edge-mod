@@ -140,6 +140,9 @@ define([
                 },
                 "compound property path returns value": function () {
                     assert.deepEqual(classUnderTest.safeArrayGet(simpleObject, "sub1.sub1prop1", passthrough, this), ["Alpha", "Beta"]);
+                },
+                "compound property path returns value (no callback binding)": function () {
+                    assert.deepEqual(classUnderTest.safeArrayGet(simpleObject, "sub1.sub1prop1", passthrough), ["Alpha", "Beta"]);
                 }
             },
             "safeListGet()": {
