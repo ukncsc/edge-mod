@@ -110,14 +110,14 @@
     <script src="{% static 'js/stickytape.js' %}"></script>
     <script>
         var require = {
-            baseUrl: "{% static 'js' %}",
+            baseUrl: "../static/js",
             paths: {
-                knockout: "knockout-3.1.0"
+                knockout: "{% static 'js/knockout-3.1.0' %}"
             },
             urlArgs: "{% spaceless %}{% include 'publisher-version.html' %}{% endspaceless %}"
         };
         var rootId = "{{ root_id }}";
         var stixPackage = {{ package.to_json|safe }};
     </script>
-    <script src="{% static 'js/require.js' %}" data-main="publisher/main"></script>
+    <script src="../static/js/require.js" data-main="publisher/main"></script>
 {% endblock %}
