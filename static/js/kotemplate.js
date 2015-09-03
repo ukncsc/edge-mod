@@ -50,6 +50,7 @@ define(["text"], function (text) {
                         "scriptTag.setAttribute('id', '" + params.id + "');" +
                         "scriptTag.appendChild(document.createTextNode('" + text.jsEscape(buildMap[params.id]) + "'));" +
                         "document.body.appendChild(scriptTag);" +
+                        "return { id: '" + params.id + "' };" +
                     "});"
             );
         }
