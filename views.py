@@ -1,6 +1,8 @@
+import os
 import re
 import urllib2
 
+from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
@@ -17,6 +19,17 @@ objectid_matcher = re.compile(
     r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
     re.IGNORECASE  # | re.DEBUG
 )
+
+
+@login_required
+def static(request, path):
+    clean_path = urllib2.unquote(path)
+    if "../" not in clean_path:
+        return FileResponse(
+            open(os.path.dirname(__file__) + "/static/" + clean_path, mode="rb")
+        )
+    else:
+        return HttpResponseNotFound()
 
 
 @login_required
