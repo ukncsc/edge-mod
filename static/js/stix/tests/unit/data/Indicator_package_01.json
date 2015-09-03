@@ -153,6 +153,14 @@
         }
       ],
       "description": "Every field, collection, etc has a value",
+      "producer": {
+        "identity": {
+          "name": "Purple Secure Systems"
+        },
+        "time": {
+          "received_time": "2014-10-15T13:58:00"
+        }
+      },
       "indicator_types": [
         {
           "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",

@@ -5,13 +5,16 @@ define([
     "stix/CourseOfAction",
     "stix/Indicator",
     "stix/Observable",
-    "intern/dojo/text!./data/Indicator_package_01.json"
-], function (registerSuite, assert, StixPackage, CourseOfAction, Indicator, Observable, package01) {
+    "stix/TTP",
+    "intern/dojo/text!./data/Indicator_package_01.json",
+    "intern/dojo/text!./data/Indicator_package_02.json"
+], function (registerSuite, assert, StixPackage, CourseOfAction, Indicator, Observable, TTP, package01, package02) {
     "use strict";
 
     // statics go here
     var packageData = Object.freeze({
-        "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3619": Object.freeze(JSON.parse(package01))
+        "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3619": Object.freeze(JSON.parse(package01)),
+        "fireeye:indicator-35dc3aed-d934-41c8-b920-5a5c9e814d41": Object.freeze(JSON.parse(package02))
     });
 
     return registerSuite(function () {
@@ -50,8 +53,7 @@ define([
                     assert.equal(classUnderTest.tlp(), "RED");
                 },
                 "has correct producer": function () {
-                    // TODO: add producer data to ./data/indicator_package_01.json
-                    //assert.equal(classUnderTest.producer(), "Producer");
+                    assert.equal(classUnderTest.producer(), "Purple Secure Systems");
                 },
                 "has correct confidence": function () {
                     assert.equal(classUnderTest.confidence(), "High");
@@ -89,6 +91,14 @@ define([
                     assert.instanceOf(actualRelatedIndicator, Indicator);
                     assert.equal(actualRelatedIndicator.id(), "purple-secure-systems:Indicator-7fc78054-e6f4-4b13-b3fc-44b1f4e2d9b8");
                 },
+                "has correct indicated TTPs" : function () {
+                    var actual = classUnderTest.indicatedTTPs();
+                    assert.isArray(actual);
+                    assert.lengthOf(actual, 1);
+                    var actualIndicatedTTP = actual[0];
+                    assert.instanceOf(actualIndicatedTTP, TTP);
+                    assert.equal(actualIndicatedTTP.id(), "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32");
+                },
                 "has correct suggested COAs": function () {
                     var actual = classUnderTest.suggestedCOAs();
                     assert.isArray(actual);
@@ -96,6 +106,31 @@ define([
                     var actualSuggestedCOA = actual[0];
                     assert.instanceOf(actualSuggestedCOA, CourseOfAction);
                     assert.equal(actualSuggestedCOA.id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
+                }
+            },
+            "valid composite indicators": {
+                setup: function () {
+                    loadPackage("fireeye:indicator-35dc3aed-d934-41c8-b920-5a5c9e814d41");
+                },
+                "has correct composite indicator expression": function () {
+                    var actual = classUnderTest.compositeIndicatorComposition();
+                    assert.equal(actual, "OR");
+                },
+                "has correct composite indicators": function () {
+                    var actual = classUnderTest.compositeIndicators();
+                    assert.deepEqual(actual.map(function(item) {
+                        return item.id();
+                    }), [
+                        "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d",
+                        "fireeye:indicator-56dc9707-3656-4ebf-a6d3-6b979aca2ad6",
+                        "fireeye:indicator-f2c4c357-0c73-4d4b-86b2-a8a787afe5a1",
+                        "fireeye:indicator-9bf1be84-cf12-4b62-8baa-755c7a5438e8",
+                        "fireeye:indicator-ac185665-2fc9-443b-94b9-fedb9e1d5494",
+                        "fireeye:indicator-cd5515a5-cc36-4541-9579-78f810c45c8d",
+                        "fireeye:indicator-4fd76fab-a2c1-4025-8e2c-0ff97ca3d376",
+                        "fireeye:indicator-f7663237-55da-4d1c-aa52-6b24d39c47f7",
+                        "fireeye:indicator-e9c5f7c7-dee3-44e7-b2ee-c105aa08e634"
+                    ]);
                 }
             }
         }
