@@ -1,0 +1,59 @@
+{
+  "timestamp": "2015-09-02T16:24:57.089331+00:00",
+  "version": "1.1.1",
+  "id": "purple-secure-systems:Package-43efde7e-5eff-41f4-a963-77e9d959f74c",
+  "observables": {
+    "observables": [
+      {
+        "description": "Phishing email purporting to be from Lloyds Bank which links to http://www.mbarbysmink.hu/img/index.htm via http://bit.ly/1DEW3nN",
+        "object": {
+          "id": "purple-secure-systems:Email-837b45c9-59ef-42bb-a365-6bbca9904dd5",
+          "properties": {
+            "header": {
+              "from": {
+                "category": "e-mail",
+                "xsi:type": "AddressObjectType",
+                "address_value": "\"Lloyds Bank\" <online@lloydsbankv.com>"
+              },
+              "cc": [
+                {
+                  "category": "e-mail",
+                  "xsi:type": "AddressObjectType",
+                  "address_value": "customers@lloyds.bank"
+                }
+              ],
+              "x_mailer": "custom",
+              "bcc": [
+                {
+                  "category": "e-mail",
+                  "xsi:type": "AddressObjectType",
+                  "address_value": "not specified"
+                }
+              ],
+              "to": [
+                {
+                  "category": "e-mail",
+                  "xsi:type": "AddressObjectType",
+                  "address_value": "me@home"
+                }
+              ],
+              "user_agent": "not specified",
+              "date": "2015-04-21T00:04:25+00:00",
+              "subject": "Important Security Alert"
+            },
+            "email_server": "unknown",
+            "raw_header": "not recorded",
+            "xsi:type": "EmailMessageObjectType",
+            "raw_body": "Dear Customer..."
+          }
+        },
+        "id": "purple-secure-systems:observable-58016966-96f8-4b13-a499-58f57afef616",
+        "title": "Email : Important Security Alert"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "stix_header": {}
+}

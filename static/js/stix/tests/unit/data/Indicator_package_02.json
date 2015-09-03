@@ -1,0 +1,1800 @@
+{
+  "stix_header": {},
+  "courses_of_action": [
+    {
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "description": "Calamine is a set of free tools to help organizations detect and examine Poison Ivy infections on their systems. The package includes these components:\n  * PIVY callback-decoding tool (ChopShop module, available here: https://github.com/fireeye/chopshop)\n  * PIVY memory-decoding tool (PIVY PyCommand script, available here: https://github.com/fireeye/pycommands)\n",
+      "id": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b",
+      "title": "Analyze with FireEye Calamine Toolset"
+    }
+  ],
+  "timestamp": "2015-09-02T14:44:13.111718+00:00",
+  "ttps": {
+    "ttps": [
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-d9bd9ffd-3e6f-453d-80f1-c2205c46dc78",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "1d4e74574bd8fde793d85cbe59f8a288"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (1d4e74574bd8fde793d85cbe59f8a288)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "description": "Poison Ivy is a remote access tool that is freely available for download from its official web site at www.poisonivy-rat.com. First released in 2005, the tool has gone unchanged since 2008 with version 2.3.2. Poison Ivy includes features common to most Windows-based RATs, including key logging, screen capturing, video capturing, file transfers, system administration, password theft, and traffic relaying.\n\nPoison Ivy's wide availability and easy-to-use features make it a popular choice for all kinds of criminals. But it is probably most notable for its role in many high profile, targeted APT attacks.\n\nThese APTs pursue specific targets, using RATs to maintain a persistent presence within the target's network. They move laterally and escalate system privileges to extract sensitive information-whenever the attacker wants to do so.4,5 Because some RATs used in targeted attacks are widely available, determining whether an attack is part of a broader APT campaign can be difficult. Equally challenging is identifying malicious traffic to determine the attacker's post-compromise activities and assess overall damage-these RATs often encrypt their network communications after the initial exploit.\n\nIn 2011, three years after the most recent release of PIVY, attackers used the RAT to compromise security firm RSA and steal data about its SecureID authentication system. That data was subsequently used in other attacks. The RSA attack was linked to Chinese threat actors and described at the time as extremely sophisticated. Exploiting a zero-day vulnerability, the attack delivered PIVY as the payload. It was not an isolated incident. The campaign appears to have started in 2010, with many other companies compromised.\n \nPIVY also played a key role in the 2011 campaign known as Nitro that targeted chemical makers, government agencies, defense contractors, and human rights groups. Still active a year later, the Nitro attackers used a zero-day vulnerability in Java to deploy PIVY in 2012. Just recently, PIVY was the payload of a zero-day exploit in Internet Explorer used in what is known as a \"strategic web compromise\" attack against visitors to a U.S. government website and a variety of others.\n\nRATs require live, direct, real-time human interaction by the APT attacker. This characteristic is distinctly different from crimeware (malware focused on cybercrime), where the criminal can issue commands to their botnet of compromised endpoints whenever they please and set them to work on a common goal such as a spam relay. In contrast, RATs are much more personal and may indicate that you are dealing with a dedicated threat actor that is interested in your organization specifically.\n",
+        "id": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "Poison Ivy (PIVY)"
+              ]
+            }
+          ]
+        },
+        "title": "Poison Ivy (PIVY)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-5b971b83-f177-46d4-98ff-d2ffaac3f29e",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "7aa047cd6dac1d0a4fbc6d968c1b6407"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (7aa047cd6dac1d0a4fbc6d968c1b6407)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-fb6cb6fa-d4c4-4f4a-87e3-c3b7ae4d4a3c",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "2ffe59a6a047b2333a1f3eb58753f3bc"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (2ffe59a6a047b2333a1f3eb58753f3bc)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-ca7cd0ef-48cf-4cf1-9ad8-aed3f83ffdc7",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "330ddac1f605ff8abf60880c584ed797"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (330ddac1f605ff8abf60880c584ed797)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-70d7f498-93a8-4a33-b6a0-028f5ef6ab36",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "a4d13be7f6b8f66c80731b75d7d5aff8"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (a4d13be7f6b8f66c80731b75d7d5aff8)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-027acc14-5136-478c-a9ff-24d7a8288014",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "f6ae04677428c54c80caf84f25488403"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (f6ae04677428c54c80caf84f25488403)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-8e939441-036c-4a34-a80d-751a0395ae8e",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "60963553335fa5877bd5f9be9d8b23a6"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (60963553335fa5877bd5f9be9d8b23a6)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-7ace7258-bfff-4c5b-bae4-6583a164abf4",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "86328b05ffaf47ae90de61689a3536c4"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (86328b05ffaf47ae90de61689a3536c4)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-435adcbb-7a46-4255-a581-f9f8cf39644b",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "cab66da82594ff5266ac8dd89e3d1539"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (cab66da82594ff5266ac8dd89e3d1539)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-4fe1269e-7360-471e-9788-d13af3dc77ef",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "e5e3fd8a9ee0a5b8e66c11ce1e081067"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (e5e3fd8a9ee0a5b8e66c11ce1e081067)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-767d4bfe-da1d-4567-a9e5-982c69d6be45",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "0eb56631aca651cf163b8c02d5d791de"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (0eb56631aca651cf163b8c02d5d791de)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-c91715d4-e81f-4621-8d09-fec8c15d596f",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "95bcaebe0fb21cfc3b4218e1e1c4033e"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (95bcaebe0fb21cfc3b4218e1e1c4033e)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-c31b9c7e-3eda-4a93-aabc-e5a01d1e8577",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "070d1e5c9299afa47df25e63572a3ae8"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (070d1e5c9299afa47df25e63572a3ae8)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-7e39361b-cd37-450a-ab88-f934a103ff72",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "1000371d10154fcfd94028ad66285519"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (1000371d10154fcfd94028ad66285519)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-03fcd8c2-a5ee-46f3-b32e-0f0d655f1d92",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "27cd0af60f08b0270e1ec1a50a7ba90a"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (27cd0af60f08b0270e1ec1a50a7ba90a)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-dcc8004b-ab26-4582-b7dc-568acbb48a57",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "c3171961e78d3acdb4cd299c643ba482"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (c3171961e78d3acdb4cd299c643ba482)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-3b83b772-fcba-46e4-9a52-cd4678c68b83",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "9de349e581b66bd410cf7a737d0db1e1"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (9de349e581b66bd410cf7a737d0db1e1)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-7e16ec98-a87f-403d-a546-a0deb9fa4b81",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "841ec2dec944964fc54786a1167713ff"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (841ec2dec944964fc54786a1167713ff)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-b7610226-c87a-465e-bff9-c3656f423416",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "4ab9bcbec67cafda3a1e4bf6d2d60de9"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (4ab9bcbec67cafda3a1e4bf6d2d60de9)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-76b27221-959b-4471-8c9a-2af95655816c",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "441d239744d05b861202e3e25a2af0cd"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (441d239744d05b861202e3e25a2af0cd)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-ddc66992-4a1a-470d-bfae-694e740ce181",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "8002debc47e04d534b45f7bb7dfcab4d"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (8002debc47e04d534b45f7bb7dfcab4d)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-cc3533bd-a1e5-411c-9cfe-3660dd07e8e3",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "ef90df225101836952ad7e91b55b30cd"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (ef90df225101836952ad7e91b55b30cd)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-45c33198-370c-4cf6-99e0-9cea66f237fa",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "85321dee31100bd3ece5b586ac3e6557"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (85321dee31100bd3ece5b586ac3e6557)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-773eea2a-193c-4c85-9521-65f8f9042140",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "6d989302166ba1709d66f90066c2fd59"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (6d989302166ba1709d66f90066c2fd59)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-7e310f39-a851-4fcd-b687-d3565ffe6a57",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "8a2205deb22c6ad61f007d52dc220351"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (8a2205deb22c6ad61f007d52dc220351)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-3db69389-6359-4b1d-9f36-956a4e4e65e3",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "f7bb9fe955bf88e02992b86b7ee898e7"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (f7bb9fe955bf88e02992b86b7ee898e7)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-4703ede5-2184-4f06-a6d0-0144faca4662",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "37f70717f549f1938e5785527e56978d"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (37f70717f549f1938e5785527e56978d)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-bf2bdcaf-61a0-4e90-bcce-ad0b0551a02e",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "f18c7639dbb8644c4bca179243ee2a99"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (f18c7639dbb8644c4bca179243ee2a99)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "b9ddbb07c4bde0d4f8e6b2065a7d8848"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (b9ddbb07c4bde0d4f8e6b2065a7d8848)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-ed7733f2-eaf6-4880-b6b8-b96061717d5a",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "55c0b07de69a0cee01101d0d6f66ca3e"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (55c0b07de69a0cee01101d0d6f66ca3e)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-b30eab7f-e848-4170-acce-a21b7ae45902",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "5d7060f4d72b52f73d49a554a59df27a"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (5d7060f4d72b52f73d49a554a59df27a)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-e5b7be4b-c7ca-40b8-b9f3-e686bb9c3c0d",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "6e99585c3fbd4f3a55bd8f604cb35f38"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (6e99585c3fbd4f3a55bd8f604cb35f38)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-cc00cffe-36b3-40ad-a69c-26427af29935",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "8d36fd85d9c7d1f4bb170a28cc23498a"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (8d36fd85d9c7d1f4bb170a28cc23498a)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-585b2299-7a01-48ee-89f9-7f966b2f641c",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "2173b43a66070aadf052ab66dd6933ce"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (2173b43a66070aadf052ab66dd6933ce)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-ceb035a7-096c-4d8a-bb4c-8fdf2fb93cad",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "a5a672d5573f01ae3457bb22107be93f"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (a5a672d5573f01ae3457bb22107be93f)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-5032acb9-c978-476a-953a-5d8ebd034d10",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "fde24cf3e9dc626b3a6f4481f74de699"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (fde24cf3e9dc626b3a6f4481f74de699)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-cb1f97b1-2919-4535-bfae-ceb396c52f44",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "4ad286a97c82f91df3e07b101a224f5"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (4ad286a97c82f91df3e07b101a224f5)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-80cd5722-40ff-4938-aba5-991bd8da2b39",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "5032ff32a41748bdb40df0fd581cd669"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (5032ff32a41748bdb40df0fd581cd669)"
+      }
+    ]
+  },
+  "version": "1.1.1",
+  "indicators": [
+    {
+      "composite_indicator_expression": {
+        "indicators": [
+          {
+            "idref": "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d"
+          },
+          {
+            "idref": "fireeye:indicator-56dc9707-3656-4ebf-a6d3-6b979aca2ad6"
+          },
+          {
+            "idref": "fireeye:indicator-f2c4c357-0c73-4d4b-86b2-a8a787afe5a1"
+          },
+          {
+            "idref": "fireeye:indicator-9bf1be84-cf12-4b62-8baa-755c7a5438e8"
+          },
+          {
+            "idref": "fireeye:indicator-ac185665-2fc9-443b-94b9-fedb9e1d5494"
+          },
+          {
+            "idref": "fireeye:indicator-cd5515a5-cc36-4541-9579-78f810c45c8d"
+          },
+          {
+            "idref": "fireeye:indicator-4fd76fab-a2c1-4025-8e2c-0ff97ca3d376"
+          },
+          {
+            "idref": "fireeye:indicator-f7663237-55da-4d1c-aa52-6b24d39c47f7"
+          },
+          {
+            "idref": "fireeye:indicator-e9c5f7c7-dee3-44e7-b2ee-c105aa08e634"
+          }
+        ],
+        "operator": "OR"
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "Malware Artifacts"
+        }
+      ],
+      "title": "Composite Indicator (b9ddbb07c4bde0d4f8e6b2065a7d8848)",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b"
+            }
+          }
+        ],
+        "scope": "exclusive"
+      },
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9"
+          }
+        }
+      ],
+      "id": "fireeye:indicator-35dc3aed-d934-41c8-b920-5a5c9e814d41"
+    },
+    {
+      "observable": {
+        "idref": "fireeye:observable-f44badfb-1c6a-4e15-87da-307dc9fc4239"
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "Malware Artifacts"
+        }
+      ],
+      "title": "Password: admin",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b"
+            }
+          }
+        ],
+        "scope": "exclusive"
+      },
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-80cd5722-40ff-4938-aba5-991bd8da2b39"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-cc3533bd-a1e5-411c-9cfe-3660dd07e8e3"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-c31b9c7e-3eda-4a93-aabc-e5a01d1e8577"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-e5b7be4b-c7ca-40b8-b9f3-e686bb9c3c0d"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-cc00cffe-36b3-40ad-a69c-26427af29935"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-ca7cd0ef-48cf-4cf1-9ad8-aed3f83ffdc7"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4703ede5-2184-4f06-a6d0-0144faca4662"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-ddc66992-4a1a-470d-bfae-694e740ce181"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-027acc14-5136-478c-a9ff-24d7a8288014"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-ceb035a7-096c-4d8a-bb4c-8fdf2fb93cad"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-03fcd8c2-a5ee-46f3-b32e-0f0d655f1d92"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-b30eab7f-e848-4170-acce-a21b7ae45902"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-c91715d4-e81f-4621-8d09-fec8c15d596f"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-3db69389-6359-4b1d-9f36-956a4e4e65e3"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-767d4bfe-da1d-4567-a9e5-982c69d6be45"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-d9bd9ffd-3e6f-453d-80f1-c2205c46dc78"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-773eea2a-193c-4c85-9521-65f8f9042140"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-cb1f97b1-2919-4535-bfae-ceb396c52f44"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-5b971b83-f177-46d4-98ff-d2ffaac3f29e"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-ed7733f2-eaf6-4880-b6b8-b96061717d5a"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-7ace7258-bfff-4c5b-bae4-6583a164abf4"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-7e310f39-a851-4fcd-b687-d3565ffe6a57"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-5032acb9-c978-476a-953a-5d8ebd034d10"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-8e939441-036c-4a34-a80d-751a0395ae8e"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-dcc8004b-ab26-4582-b7dc-568acbb48a57"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-7e39361b-cd37-450a-ab88-f934a103ff72"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-585b2299-7a01-48ee-89f9-7f966b2f641c"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-fb6cb6fa-d4c4-4f4a-87e3-c3b7ae4d4a3c"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-76b27221-959b-4471-8c9a-2af95655816c"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-b7610226-c87a-465e-bff9-c3656f423416"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-7e16ec98-a87f-403d-a546-a0deb9fa4b81"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-45c33198-370c-4cf6-99e0-9cea66f237fa"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-3b83b772-fcba-46e4-9a52-cd4678c68b83"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-70d7f498-93a8-4a33-b6a0-028f5ef6ab36"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-435adcbb-7a46-4255-a581-f9f8cf39644b"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4fe1269e-7360-471e-9788-d13af3dc77ef"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-bf2bdcaf-61a0-4e90-bcce-ad0b0551a02e"
+          }
+        }
+      ],
+      "id": "fireeye:indicator-f7663237-55da-4d1c-aa52-6b24d39c47f7"
+    },
+    {
+      "observable": {
+        "idref": "fireeye:observable-4434041c-3fd8-4979-aeff-f06bcd33b1dc"
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "Malware Artifacts"
+        }
+      ],
+      "title": "Sample: b9ddbb07c4bde0d4f8e6b2065a7d8848",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b"
+            }
+          }
+        ],
+        "scope": "exclusive"
+      },
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9"
+          }
+        }
+      ],
+      "id": "fireeye:indicator-e9c5f7c7-dee3-44e7-b2ee-c105aa08e634"
+    },
+    {
+      "observable": {
+        "idref": "fireeye:observable-a0fad595-29d3-4e38-8050-9512f503e5f8"
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "Malware Artifacts"
+        }
+      ],
+      "title": "Mutex: !@#$%^!@#",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b"
+            }
+          }
+        ],
+        "scope": "exclusive"
+      },
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9"
+          }
+        }
+      ],
+      "id": "fireeye:indicator-ac185665-2fc9-443b-94b9-fedb9e1d5494"
+    },
+    {
+      "observable": {
+        "idref": "fireeye:observable-534efd4c-c5ea-4dfb-956e-d13131095645"
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "IP Watchlist"
+        }
+      ],
+      "title": "IP: 223.25.233.244",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b"
+            }
+          }
+        ],
+        "scope": "exclusive"
+      },
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-e5b7be4b-c7ca-40b8-b9f3-e686bb9c3c0d"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-b7610226-c87a-465e-bff9-c3656f423416"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-bf2bdcaf-61a0-4e90-bcce-ad0b0551a02e"
+          }
+        }
+      ],
+      "id": "fireeye:indicator-56dc9707-3656-4ebf-a6d3-6b979aca2ad6"
+    },
+    {
+      "observable": {
+        "idref": "fireeye:observable-3dc2473a-1bc8-4b9e-a286-cbf65a362ffe"
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "IP Watchlist"
+        }
+      ],
+      "title": "IP: 203.81.48.82",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b"
+            }
+          }
+        ],
+        "scope": "exclusive"
+      },
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9"
+          }
+        }
+      ],
+      "id": "fireeye:indicator-9bf1be84-cf12-4b62-8baa-755c7a5438e8"
+    },
+    {
+      "observable": {
+        "idref": "fireeye:observable-87d8a335-cabf-4e43-a29f-0fcdd6eb0798"
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "Malware Artifacts"
+        }
+      ],
+      "title": "ID: aaa",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b"
+            }
+          }
+        ],
+        "scope": "exclusive"
+      },
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9"
+          }
+        }
+      ],
+      "id": "fireeye:indicator-cd5515a5-cc36-4541-9579-78f810c45c8d"
+    },
+    {
+      "observable": {
+        "idref": "fireeye:observable-8328d5ae-2016-4049-b9d5-ebcd60accf17"
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "IP Watchlist"
+        }
+      ],
+      "title": "IP: 223.25.233.230",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b"
+            }
+          }
+        ],
+        "scope": "exclusive"
+      },
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-e5b7be4b-c7ca-40b8-b9f3-e686bb9c3c0d"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-b7610226-c87a-465e-bff9-c3656f423416"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-bf2bdcaf-61a0-4e90-bcce-ad0b0551a02e"
+          }
+        }
+      ],
+      "id": "fireeye:indicator-f2c4c357-0c73-4d4b-86b2-a8a787afe5a1"
+    },
+    {
+      "observable": {
+        "idref": "fireeye:observable-836ab0f7-ea62-4441-b3ca-4b892b3fb4f8"
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "Domain Watchlist"
+        }
+      ],
+      "title": "Domain: aaa.aa24.net",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b"
+            }
+          }
+        ],
+        "scope": "exclusive"
+      },
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9"
+          }
+        }
+      ],
+      "id": "fireeye:indicator-4fd76fab-a2c1-4025-8e2c-0ff97ca3d376"
+    },
+    {
+      "observable": {
+        "idref": "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928"
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "IP Watchlist"
+        }
+      ],
+      "title": "IP: 223.25.233.247",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b"
+            }
+          }
+        ],
+        "scope": "exclusive"
+      },
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-e5b7be4b-c7ca-40b8-b9f3-e686bb9c3c0d"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-bf2bdcaf-61a0-4e90-bcce-ad0b0551a02e"
+          }
+        }
+      ],
+      "id": "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d"
+    }
+  ],
+  "observables": {
+    "observables": [
+      {
+        "object": {
+          "id": "fireeye:object-81182592-c484-462e-9fa4-8de63df93f8a",
+          "properties": {
+            "custom_properties": [
+              {
+                "condition": "Equals",
+                "value": "admin",
+                "name": "PIVY Password"
+              }
+            ],
+            "xsi:type": "FileObjectType"
+          }
+        },
+        "id": "fireeye:observable-f44badfb-1c6a-4e15-87da-307dc9fc4239",
+        "title": "Password: admin"
+      },
+      {
+        "object": {
+          "related_objects": [
+            {
+              "idref": "fireeye:object-533b38c9-ff0a-4f60-8562-08ec490c690e",
+              "relationship": {
+                "xsi:type": "cyboxVocabs:ObjectRelationshipVocab-1.0",
+                "value": "Created"
+              }
+            },
+            {
+              "idref": "fireeye:object-321eddb6-8e68-488f-a988-5cf4f3bdc3ff",
+              "relationship": {
+                "xsi:type": "cyboxVocabs:ObjectRelationshipVocab-1.0",
+                "value": "Characterized_By"
+              }
+            },
+            {
+              "idref": "fireeye:object-a4337056-abc1-4a18-9073-775709ff7ec5",
+              "relationship": {
+                "xsi:type": "cyboxVocabs:ObjectRelationshipVocab-1.0",
+                "value": "Connected_To"
+              }
+            },
+            {
+              "idref": "fireeye:object-81182592-c484-462e-9fa4-8de63df93f8a",
+              "relationship": {
+                "xsi:type": "cyboxVocabs:ObjectRelationshipVocab-1.0",
+                "value": "Characterized_By"
+              }
+            }
+          ],
+          "id": "fireeye:object-6237259d-3916-43d5-9b0e-e549c2baf2b0",
+          "properties": {
+            "hashes": [
+              {
+                "simple_hash_value": {
+                  "condition": "Equals",
+                  "value": "b9ddbb07c4bde0d4f8e6b2065a7d8848"
+                },
+                "type": {
+                  "xsi:type": null,
+                  "value": "MD5"
+                }
+              }
+            ],
+            "xsi:type": "FileObjectType"
+          }
+        },
+        "id": "fireeye:observable-4434041c-3fd8-4979-aeff-f06bcd33b1dc",
+        "title": "Sample: b9ddbb07c4bde0d4f8e6b2065a7d8848"
+      },
+      {
+        "object": {
+          "id": "fireeye:object-533b38c9-ff0a-4f60-8562-08ec490c690e",
+          "properties": {
+            "xsi:type": "MutexObjectType",
+            "name": {
+              "condition": "Equals",
+              "value": "!@#$%^!@#"
+            }
+          }
+        },
+        "id": "fireeye:observable-a0fad595-29d3-4e38-8050-9512f503e5f8",
+        "title": "Mutex: !@#$%^!@#"
+      },
+      {
+        "object": {
+          "id": "fireeye:object-26c5f3a5-ed13-48c9-858f-cfc59459ca25",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": {
+              "condition": "Equals",
+              "value": "223.25.233.244"
+            }
+          }
+        },
+        "id": "fireeye:observable-534efd4c-c5ea-4dfb-956e-d13131095645",
+        "title": "IP: 223.25.233.244"
+      },
+      {
+        "object": {
+          "id": "fireeye:object-2400b5de-0b83-4751-9b3e-422a0395bfaf",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": {
+              "condition": "Equals",
+              "value": "203.81.48.82"
+            }
+          }
+        },
+        "id": "fireeye:observable-3dc2473a-1bc8-4b9e-a286-cbf65a362ffe",
+        "title": "IP: 203.81.48.82"
+      },
+      {
+        "object": {
+          "id": "fireeye:object-321eddb6-8e68-488f-a988-5cf4f3bdc3ff",
+          "properties": {
+            "custom_properties": [
+              {
+                "condition": "Equals",
+                "value": "aaa",
+                "name": "ID"
+              }
+            ],
+            "xsi:type": "FileObjectType"
+          }
+        },
+        "id": "fireeye:observable-87d8a335-cabf-4e43-a29f-0fcdd6eb0798",
+        "title": "ID: aaa"
+      },
+      {
+        "object": {
+          "id": "fireeye:object-c39b5c88-79d2-44b1-b052-d6528c0259f7",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": {
+              "condition": "Equals",
+              "value": "223.25.233.230"
+            }
+          }
+        },
+        "id": "fireeye:observable-8328d5ae-2016-4049-b9d5-ebcd60accf17",
+        "title": "IP: 223.25.233.230"
+      },
+      {
+        "object": {
+          "related_objects": [
+            {
+              "idref": "fireeye:object-13b4deae-023f-4a91-a2bf-68c9d1dde07f",
+              "relationship": {
+                "xsi:type": "cyboxVocabs:ObjectRelationshipVocab-1.0",
+                "value": "Resolved_To"
+              }
+            },
+            {
+              "idref": "fireeye:object-26c5f3a5-ed13-48c9-858f-cfc59459ca25",
+              "relationship": {
+                "xsi:type": "cyboxVocabs:ObjectRelationshipVocab-1.0",
+                "value": "Resolved_To"
+              }
+            },
+            {
+              "idref": "fireeye:object-c39b5c88-79d2-44b1-b052-d6528c0259f7",
+              "relationship": {
+                "xsi:type": "cyboxVocabs:ObjectRelationshipVocab-1.0",
+                "value": "Resolved_To"
+              }
+            },
+            {
+              "idref": "fireeye:object-2400b5de-0b83-4751-9b3e-422a0395bfaf",
+              "relationship": {
+                "xsi:type": "cyboxVocabs:ObjectRelationshipVocab-1.0",
+                "value": "Resolved_To"
+              }
+            }
+          ],
+          "id": "fireeye:object-a4337056-abc1-4a18-9073-775709ff7ec5",
+          "properties": {
+            "xsi:type": "DomainNameObjectType",
+            "type": "FQDN",
+            "value": {
+              "condition": "Equals",
+              "value": "aaa.aa24.net"
+            }
+          }
+        },
+        "id": "fireeye:observable-836ab0f7-ea62-4441-b3ca-4b892b3fb4f8",
+        "title": "Domain: aaa.aa24.net"
+      },
+      {
+        "object": {
+          "id": "fireeye:object-13b4deae-023f-4a91-a2bf-68c9d1dde07f",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": {
+              "condition": "Equals",
+              "value": "223.25.233.247"
+            }
+          }
+        },
+        "id": "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928",
+        "title": "IP: 223.25.233.247"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "id": "PurpleSecureSystems:Package-59d795a7-a3c4-437f-8fcb-916bbafafa4d"
+}

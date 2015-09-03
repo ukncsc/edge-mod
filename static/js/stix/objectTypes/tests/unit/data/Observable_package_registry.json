@@ -1,0 +1,49 @@
+{
+  "timestamp": "2015-09-02T17:07:15.791240+00:00",
+  "version": "1.1.1",
+  "id": "purple-secure-systems:Package-c324c477-f4e4-47b6-a0fc-6754ddc089b7",
+  "observables": {
+    "observables": [
+      {
+        "description": "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+        "object": {
+          "id": "purple-secure-systems:WinRegistryKey-a3078d90-4c2a-4879-972a-7ac91b9ba9cb",
+          "properties": {
+            "xsi:type": "WindowsRegistryKeyObjectType",
+            "values": [
+              {
+                "data": "C:\\BotNet.exe -serve C:\\",
+                "name": "BOTNET"
+              },
+              {
+                "data": "C:\\KeyLogger.exe",
+                "name": "KEYLOGGER"
+              }
+            ],
+            "hive": "HKEY_LOCAL_MACHINE\\Software",
+            "key": "\\Microsoft\\Windows\\CurrentVersion\\Run"
+          }
+        },
+        "id": "purple-secure-systems:observable-84519300-e075-4788-91b3-68af827e1fd0",
+        "title": "Registry Key : \\Microsoft\\Windows\\CurrentVersion\\Run"
+      },
+      {
+        "description": "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+        "object": {
+          "id": "purple-secure-systems:WinRegistryKey-71ca64af-b143-458e-bd0a-09d1d1b1dcee",
+          "properties": {
+            "xsi:type": "WindowsRegistryKeyObjectType",
+            "hive": "HKEY_LOCAL_MACHINE\\Software",
+            "key": "\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
+          }
+        },
+        "id": "purple-secure-systems:observable-00a48e2e-800d-445e-8431-92f597b0686f",
+        "title": "Registry Key : \\Microsoft\\Windows\\CurrentVersion\\RunOnce"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "stix_header": {}
+}

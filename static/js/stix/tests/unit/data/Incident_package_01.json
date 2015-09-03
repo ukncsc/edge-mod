@@ -1,0 +1,1058 @@
+{
+  "stix_header": {},
+  "courses_of_action": [
+    {
+      "impact": {
+        "timestamp": "2015-07-30T08:53:08.662255+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662278+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "Minor productivity loss",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "efficacy": {
+        "timestamp": "2015-07-30T08:53:08.662300+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662322+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "Won't do it again",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "title": "Shoot the employee",
+      "timestamp": "2015-07-30T08:53:08.662108+00:00",
+      "cost": {
+        "timestamp": "2015-07-30T08:53:08.662193+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662227+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "None",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "objective": {
+        "description": "Deterrent to others",
+        "applicability_confidence": {
+          "timestamp": "2015-07-30T08:53:08.662356+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "Medium"
+          }
+        }
+      },
+      "type": {
+        "xsi:type": "stixVocabs:CourseOfActionTypeVocab-1.0",
+        "value": "Eradication"
+      },
+      "id": "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064",
+      "stage": {
+        "xsi:type": "stixVocabs:COAStageVocab-1.0",
+        "value": "Response"
+      }
+    }
+  ],
+  "timestamp": "2015-08-14T14:54:00.614226+00:00",
+  "ttps": {
+    "ttps": [
+      {
+        "handling": [
+          {
+            "controlled_structure": "../../../descendant-or-self::node()",
+            "marking_structures": [
+              {
+                "color": "AMBER",
+                "xsi:type": "tlpMarking:TLPMarkingStructureType"
+              }
+            ]
+          }
+        ],
+        "title": "pjb.vbs",
+        "timestamp": "2015-07-30T08:49:32.286574+00:00",
+        "intended_effects": [
+          {
+            "timestamp": "2015-07-30T08:49:32.286657+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+              "value": "Unauthorized Access"
+            }
+          }
+        ],
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "pjb.vbs"
+              ],
+              "types": [
+                {
+                  "xsi:type": "stixVocabs:MalwareTypeVocab-1.0",
+                  "value": "Bot - Loader"
+                }
+              ],
+              "title": "pjb.vbs"
+            }
+          ]
+        },
+        "id": "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32"
+      }
+    ]
+  },
+  "version": "1.1.1",
+  "incidents": [
+    {
+      "status": {
+        "xsi:type": "stixVocabs:IncidentStatusVocab-1.0",
+        "value": "Incident Reported"
+      },
+      "confidence": {
+        "timestamp": "2015-08-05T14:25:56.721918+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "RED",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "victims": [
+        {
+          "xsi:type": "ciqIdentity:CIQIdentity3.0InstanceType",
+          "specification": {
+            "party_name": {
+              "name_lines": [
+                {
+                  "type": "string",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "name": "Victim 2",
+          "roles": [
+            "Role 2"
+          ],
+          "id": "purple-secure-systems:identity-46b0151a-be75-4c29-9b1f-a9e353493329"
+        },
+        {
+          "xsi:type": "ciqIdentity:CIQIdentity3.0InstanceType",
+          "specification": {
+            "languages": [
+              {
+                "value": "Language 1"
+              }
+            ],
+            "electronic_address_identifiers": [
+              {
+                "type": "AIM",
+                "value": "Address 1"
+              }
+            ],
+            "party_name": {
+              "name_lines": [
+                {
+                  "type": "string",
+                  "value": "Party 1"
+                }
+              ]
+            },
+            "free_text_lines": [
+              {
+                "type": "string",
+                "value": "Notes 1"
+              }
+            ]
+          },
+          "name": "Victim 1",
+          "roles": [
+            "Role 1"
+          ],
+          "id": "purple-secure-systems:identity-22017371-c434-42d6-80d5-b8352997c7be"
+        }
+      ],
+      "description": "It appears that the 'Bottom' bot-net is running on our intranet",
+      "title": "Bot-net found on intranet",
+      "timestamp": "2015-08-05T14:25:56.721822+00:00",
+      "intended_effects": [
+        {
+          "timestamp": "2015-08-05T14:25:56.721996+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Unauthorized Access"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722029+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Traffic Diversion"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722051+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "ICS Control"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722072+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Harassment"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722093+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Fraud"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722113+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Extortion"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722132+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Exposure"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722152+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Embarrassment"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722171+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Disruption"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722190+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Destruction"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722210+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Denial and Deception"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722228+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Degradation of Service"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722246+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Competitive Advantage"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722264+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Brand Damage"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722335+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Account Takeover"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722355+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Theft - Theft of Proprietary Information"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722373+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Theft - Identity Theft"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722392+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Theft - Credential Theft"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722410+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Theft - Intellectual Property"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722427+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Theft - Intellectual Property"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722444+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Theft"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722460+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Advantage - Political"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722477+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Advantage - Military"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722493+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Advantage - Economic"
+          }
+        },
+        {
+          "timestamp": "2015-08-05T14:25:56.722509+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Advantage"
+          }
+        }
+      ],
+      "leveraged_ttps": {
+        "ttps": [
+          {
+            "ttp": {
+              "idref": "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32"
+            }
+          }
+        ]
+      },
+      "discovery_methods": [
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Unknown"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "User"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Security Alarm"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "NIDS"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Log Review"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "IT Audit"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "HIPS"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Fraud Detection"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Financial Audit"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Incident Response"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Antivirus"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Audit"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Unrelated Party"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Customer"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Law Enforcement"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Monitoring Service"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Fraud Detection"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Agent Disclosure"
+        }
+      ],
+      "impact_assessment": {
+        "effects": [
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "User Data Loss"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Unintended Access"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Regulatory, Compliance or Legal Impact"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Loss of Confidential / Proprietary Information or Intellectual Property"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Unintended Access"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Disruption of Service / Operations"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Destruction"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Degradation of Service"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Data Breach or Compromise"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Loss of Competitive Advantage - Political"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Loss of Competitive Advantage - Military"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Loss of Competitive Advantage - Economic"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Loss of Competitive Advantage"
+          },
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Brand or Image Degradation"
+          }
+        ]
+      },
+      "related_incidents": {
+        "incidents": [
+          {
+            "incident": {
+              "idref": "purple-secure-systems:incident-2ac2d36b-fa0f-49aa-87bc-bdc27a497f19"
+            }
+          },
+          {
+            "incident": {
+              "idref": "purple-secure-systems:incident-0b0090ab-bae8-4167-a538-9cc68033f9c9"
+            }
+          }
+        ]
+      },
+      "related_indicators": {
+        "indicators": [
+          {
+            "indicator": {
+              "idref": "purple-secure-systems:indicator-d46e13c9-7dce-4272-a593-1cd2f9212a2d"
+            }
+          },
+          {
+            "indicator": {
+              "idref": "purple-secure-systems:indicator-1cf691e8-6428-402c-a28e-b609ba7d6d2d"
+            }
+          }
+        ]
+      },
+      "short_description": "Bottom bot-net running",
+      "responders": [
+        {
+          "identity": {
+            "xsi:type": "ciqIdentity:CIQIdentity3.0InstanceType",
+            "specification": {
+              "party_name": {
+                "name_lines": [
+                  {
+                    "type": "string",
+                    "value": ""
+                  }
+                ]
+              }
+            },
+            "name": "Responser 2",
+            "roles": [
+              "Role 2"
+            ],
+            "id": "purple-secure-systems:identity-ea5b1da8-31ea-4519-831b-caf1766c622b"
+          }
+        },
+        {
+          "identity": {
+            "xsi:type": "ciqIdentity:CIQIdentity3.0InstanceType",
+            "specification": {
+              "languages": [
+                {
+                  "value": "Language 1"
+                }
+              ],
+              "electronic_address_identifiers": [
+                {
+                  "type": "AIM",
+                  "value": "Address 1"
+                }
+              ],
+              "party_name": {
+                "name_lines": [
+                  {
+                    "type": "string",
+                    "value": "Party 1"
+                  }
+                ]
+              },
+              "free_text_lines": [
+                {
+                  "type": "string",
+                  "value": "Notes 1"
+                }
+              ]
+            },
+            "name": "Responser 1",
+            "roles": [
+              "Role 1"
+            ],
+            "id": "purple-secure-systems:identity-7bcfd6fc-dca4-490b-9101-6db0d349d4d7"
+          }
+        }
+      ],
+      "id": "purple-secure-systems:incident-02468346-fdf2-4095-a905-f3731fccd58d",
+      "reporter": {
+        "identity": {
+          "xsi:type": "ciqIdentity:CIQIdentity3.0InstanceType",
+          "specification": {
+            "languages": [
+              {
+                "value": "English"
+              }
+            ],
+            "electronic_address_identifiers": [
+              {
+                "type": "GOOGLE",
+                "value": "cynthia.james@gmail.com"
+              }
+            ],
+            "party_name": {
+              "name_lines": [
+                {
+                  "type": "string",
+                  "value": "Independant IT support"
+                }
+              ]
+            },
+            "free_text_lines": [
+              {
+                "type": "string",
+                "value": "Some notes about Cynthia"
+              }
+            ]
+          },
+          "name": "Cynthia James",
+          "roles": [
+            "IT Technician"
+          ],
+          "id": "purple-secure-systems:identity-f20cb6fc-eb7e-41e5-b868-02fe34c0a52a"
+        }
+      },
+      "related_observables": {
+        "observables": [
+          {
+            "observable": {
+              "idref": "purple-secure-systems:observable-f9faeb29-9c98-434c-b07a-4647e6cdd6f2"
+            }
+          },
+          {
+            "observable": {
+              "idref": "purple-secure-systems:observable-1fb0e40b-d23d-4b81-ab78-0824e2642ebf"
+            }
+          },
+          {
+            "observable": {
+              "idref": "purple-secure-systems:observable-9db11783-3887-4f32-9f10-f18ebf2fba98"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "status": {
+        "xsi:type": "stixVocabs:IncidentStatusVocab-1.0",
+        "value": "Incident Reported"
+      },
+      "confidence": {
+        "timestamp": "2015-07-30T08:47:12.594608+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "RED",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "related_observables": {
+        "observables": [
+          {
+            "observable": {
+              "idref": "purple-secure-systems:observable-e23e53ac-5a24-4775-9c6e-a81f731fd564"
+            }
+          },
+          {
+            "observable": {
+              "idref": "purple-secure-systems:observable-9db11783-3887-4f32-9f10-f18ebf2fba98"
+            }
+          }
+        ]
+      },
+      "title": "Malware discovered on intranet",
+      "timestamp": "2015-07-30T08:47:12.594509+00:00",
+      "intended_effects": [
+        {
+          "timestamp": "2015-07-30T08:47:12.594673+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Unauthorized Access"
+          }
+        }
+      ],
+      "discovery_methods": [
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Antivirus"
+        }
+      ],
+      "related_indicators": {
+        "indicators": [
+          {
+            "indicator": {
+              "idref": "purple-secure-systems:indicator-1cf691e8-6428-402c-a28e-b609ba7d6d2d"
+            }
+          }
+        ]
+      },
+      "id": "purple-secure-systems:incident-2ac2d36b-fa0f-49aa-87bc-bdc27a497f19"
+    },
+    {
+      "status": {
+        "xsi:type": "stixVocabs:IncidentStatusVocab-1.0",
+        "value": "Incident Reported"
+      },
+      "confidence": {
+        "timestamp": "2015-07-30T09:00:51.970924+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "RED",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "related_observables": {
+        "observables": [
+          {
+            "observable": {
+              "idref": "purple-secure-systems:observable-f9faeb29-9c98-434c-b07a-4647e6cdd6f2"
+            }
+          }
+        ]
+      },
+      "title": "pjb.vbs",
+      "timestamp": "2015-07-30T09:00:51.970838+00:00",
+      "intended_effects": [
+        {
+          "timestamp": "2015-07-30T09:00:51.970988+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Unauthorized Access"
+          }
+        }
+      ],
+      "leveraged_ttps": {
+        "ttps": [
+          {
+            "ttp": {
+              "idref": "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32"
+            }
+          }
+        ]
+      },
+      "discovery_methods": [
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Antivirus"
+        }
+      ],
+      "impact_assessment": {
+        "effects": [
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Unintended Access"
+          }
+        ]
+      },
+      "related_incidents": {
+        "incidents": [
+          {
+            "incident": {
+              "idref": "purple-secure-systems:incident-2ac2d36b-fa0f-49aa-87bc-bdc27a497f19"
+            }
+          }
+        ]
+      },
+      "related_indicators": {
+        "indicators": [
+          {
+            "indicator": {
+              "idref": "purple-secure-systems:indicator-d46e13c9-7dce-4272-a593-1cd2f9212a2d"
+            }
+          }
+        ]
+      },
+      "id": "purple-secure-systems:incident-0b0090ab-bae8-4167-a538-9cc68033f9c9"
+    }
+  ],
+  "indicators": [
+    {
+      "observable": {
+        "idref": "purple-secure-systems:observable-3cdf3e59-1634-4213-9068-345abe170209"
+      },
+      "confidence": {
+        "timestamp": "2015-07-06T09:35:58.820388+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "Malware Artifacts"
+        }
+      ],
+      "title": "Test 42",
+      "timestamp": "2015-07-06T09:35:58.820358+00:00",
+      "kill_chain_phases": {
+        "kill_chain_phases": [
+          {
+            "phase_id": "stix:TTP-af1016d6-a744-4ed7-ac91-00fe2272185a",
+            "kill_chain_id": "stix:TTP-af3e707f-2fb9-49e5-8c37-14026ca0a5ff"
+          }
+        ]
+      },
+      "short_description": "Test 42",
+      "id": "purple-secure-systems:indicator-1cf691e8-6428-402c-a28e-b609ba7d6d2d"
+    },
+    {
+      "observable": {
+        "idref": "purple-secure-systems:observable-fc6dbde1-98bb-49b1-b3b4-41443f0c210b"
+      },
+      "confidence": {
+        "timestamp": "2015-07-30T08:59:16.183487+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "RED",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "Malware Artifacts"
+        }
+      ],
+      "title": "pjb.vbs",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064"
+            }
+          }
+        ]
+      },
+      "timestamp": "2015-07-30T08:59:16.183450+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32"
+          }
+        }
+      ],
+      "related_indicators": {
+        "related_indicators": [
+          {
+            "indicator": {
+              "idref": "purple-secure-systems:indicator-1cf691e8-6428-402c-a28e-b609ba7d6d2d"
+            }
+          }
+        ]
+      },
+      "id": "purple-secure-systems:indicator-d46e13c9-7dce-4272-a593-1cd2f9212a2d"
+    }
+  ],
+  "observables": {
+    "observables": [
+      {
+        "description": "DESCRIPTION",
+        "object": {
+          "id": "purple-secure-systems:WinRegistryKey-1b1ba352-4cfa-4047-b148-abec4ad9f997"
+        },
+        "id": "purple-secure-systems:observable-f9faeb29-9c98-434c-b07a-4647e6cdd6f2",
+        "title": "Registry Key : KEY"
+      },
+      {
+        "id": "purple-secure-systems:observable-3cdf3e59-1634-4213-9068-345abe170209",
+        "observable_composition": {
+          "operator": "AND",
+          "observables": [
+            {
+              "idref": "purple-secure-systems:observable-e23e53ac-5a24-4775-9c6e-a81f731fd564"
+            },
+            {
+              "idref": "purple-secure-systems:observable-9db11783-3887-4f32-9f10-f18ebf2fba98"
+            }
+          ]
+        }
+      },
+      {
+        "description": "Session 4242",
+        "object": {
+          "id": "purple-secure-systems:http_session-877e2f1a-3ef0-4e2e-88cf-8572328a9918",
+          "properties": {
+            "http_request_response": [
+              {
+                "http_client_request": {
+                  "http_request_header": {
+                    "parsed_header": {
+                      "user_agent": "HHGTTGalaxy"
+                    }
+                  }
+                }
+              }
+            ],
+            "xsi:type": "HTTPSessionObjectType"
+          }
+        },
+        "id": "purple-secure-systems:observable-9db11783-3887-4f32-9f10-f18ebf2fba98",
+        "title": "SESS42"
+      },
+      {
+        "description": "4242",
+        "object": {
+          "id": "purple-secure-systems:Artifact-e9acfbd2-dba3-4267-843d-f8ca2963cb69",
+          "properties": {
+            "xsi:type": "ArtifactObjectType",
+            "raw_artifact": "0x4242",
+            "type": "Memory Region"
+          }
+        },
+        "id": "purple-secure-systems:observable-e23e53ac-5a24-4775-9c6e-a81f731fd564",
+        "title": "42"
+      },
+      {
+        "id": "purple-secure-systems:observable-fc6dbde1-98bb-49b1-b3b4-41443f0c210b",
+        "observable_composition": {
+          "operator": "AND",
+          "observables": [
+            {
+              "idref": "purple-secure-systems:observable-4a7c90a4-7735-440b-a6d9-d81ee0632449"
+            }
+          ]
+        }
+      },
+      {
+        "description": "",
+        "object": {
+          "id": "purple-secure-systems:file-5490f35f-9afa-43a0-8d1d-a326360a610d",
+          "properties": {
+            "device_path": "",
+            "file_format": "",
+            "file_name": "pjb.vbs",
+            "file_extension": "vbs",
+            "hashes": [
+              {
+                "simple_hash_value": "377a00b8d5119d2593826d967ae4cd09978df7f2",
+                "type": "MD5"
+              }
+            ],
+            "xsi:type": "FileObjectType",
+            "full_path": ""
+          }
+        },
+        "id": "purple-secure-systems:observable-4a7c90a4-7735-440b-a6d9-d81ee0632449",
+        "title": "PJB Observables Testing"
+      },
+      {
+        "description": "Another .vbs",
+        "object": {
+          "id": "purple-secure-systems:file-8c25ff2a-cf96-4cd4-933f-f0582c8d554a",
+          "properties": {
+            "device_path": "C:",
+            "file_format": "vbs",
+            "file_name": "another.vbs",
+            "size_in_bytes": 9838,
+            "file_path": "\\Windows\\system32",
+            "xsi:type": "FileObjectType",
+            "hashes": [
+              {
+                "simple_hash_value": "1234",
+                "type": "MD5"
+              },
+              {
+                "simple_hash_value": "7890",
+                "type": "SHA1"
+              }
+            ],
+            "file_extension": "vbs",
+            "full_path": "C:\\Windows\\system32"
+          }
+        },
+        "id": "purple-secure-systems:observable-1fb0e40b-d23d-4b81-ab78-0824e2642ebf",
+        "title": "File : another.vbs"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "id": "purple-secure-systems:Package-ac4cae39-cba0-4210-8daf-f1bc37a65e4b"
+}

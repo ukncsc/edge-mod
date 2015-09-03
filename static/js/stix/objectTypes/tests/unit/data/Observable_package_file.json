@@ -1,0 +1,55 @@
+{
+  "timestamp": "2015-09-02T16:34:09.546067+00:00",
+  "version": "1.1.1",
+  "id": "purple-secure-systems:Package-71aebeb3-cc43-46c8-a565-0366653c7bb8",
+  "observables": {
+    "observables": [
+      {
+        "description": "Single pdf file with the Windows kernel x86 and x64 font exploits embedded",
+        "object": {
+          "id": "purple-secure-systems:file-795969e5-f9ac-4246-9636-bc8666d82ed0",
+          "properties": {
+            "device_path": "Any device path",
+            "file_format": "pdf + dll + pfm",
+            "file_name": "pjb.pdf",
+            "size_in_bytes": 73379,
+            "file_path": "Any file path",
+            "xsi:type": "FileObjectType",
+            "hashes": [
+              {
+                "simple_hash_value": "3dbf4fc0b508d8859f3e1d30651590bb",
+                "type": "MD5"
+              },
+              {
+                "simple_hash_value": "625da05610003ff4d82bdfcb48bcfc84613a51156f83ea0c28fa52997b128935",
+                "type": "SHA256"
+              },
+              {
+                "simple_hash_value": "2f533cb43ec00fae6363fdc57359ee23deb8a915",
+                "type": "SHA1"
+              }
+            ],
+            "file_extension": "pdf",
+            "full_path": "Any full path"
+          }
+        },
+        "id": "purple-secure-systems:observable-b8ece3b4-2260-42bf-80cc-e11a932000a8",
+        "title": "File : pjb.pdf"
+      },
+      {
+        "object": {
+          "id": "certuk:File-35b46601-003b-4a2c-8194-cf764ced1abc",
+          "properties": {
+            "file_name": "document_521789_pdf.exe",
+            "xsi:type": "FileObjectType"
+          }
+        },
+        "id": "certuk:Observable-bbe6cfae-8d71-4e69-87aa-97b642e4b549"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "stix_header": {}
+}
