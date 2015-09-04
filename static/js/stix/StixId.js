@@ -58,7 +58,7 @@ define([
     function findType(parsedId) {
         var type = TYPES[resolveAlias(parsedId[2].toLowerCase())];
         if (!type) {
-            throw new TypeError("Unknown type: " + parsedId[2]);
+            throw new TypeError("Unsupported type: " + parsedId[2]);
         }
         return type;
     }
