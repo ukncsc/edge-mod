@@ -50,7 +50,7 @@ define([
                     function () {
                         new StixId("certuk:wibble-00000000-0000-0000-0000-000000000000");
                     },
-                    "Unknown type: wibble"
+                    "Unsupported type: wibble"
                 );
             },
             "valid: type matched": function () {
