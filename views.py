@@ -11,7 +11,7 @@ from users.decorators import superuser_or_staff_role, json_body
 from package_publisher import Publisher
 from publisher_config import PublisherConfig
 from package_generator import PackageGenerator
-from import_helper import EdgeObject
+from publisher_edge_object import PublisherEdgeObject
 
 
 objectid_matcher = re.compile(
@@ -45,7 +45,7 @@ def discover(request):
 
 @login_required
 def review(request, id_):
-    root_edge_object = EdgeObject.load(id_)
+    root_edge_object = PublisherEdgeObject.load(id_)
     package = PackageGenerator.build_package(root_edge_object, {})
     request.breadcrumbs([("Publisher", "")])
     return render(request, "publisher_review.html", {
@@ -120,7 +120,7 @@ def ajax_publish(request, data):
 
     try:
         root_id = data['root_id']
-        edge_object = EdgeObject.load(root_id)
+        edge_object = PublisherEdgeObject.load(root_id)
         package = PackageGenerator.build_package(edge_object, {})
         namespace_info = edge_object.ns_dict()
         Publisher.push_package(package, namespace_info)
