@@ -66,6 +66,21 @@ class PublisherEdgeObjectTests(unittest.TestCase):
             edge_object_under_test.filters = None
             self.assertRaises(Exception, edge_object_under_test.ns_dict)
 
+    @mock.patch('publisher_edge_object.STIXScanner')
+    def test_STIXScanner_AnyEdgeObject_CalledWithCorrectArguments(self, mock_stix_scanner):
+        patcher = mock.patch('publisher_edge_object.PublisherEdgeObject.__bases__', (mock.MagicMock,))
+        with patcher:
+            patcher.is_local = True
+            mock_stix_scanner.side_effect = PublisherEdgeObjectTests.stix_scanner_setup(
+                PublisherEdgeObjectTests.ok_ids)
+            mock_root_id = PublisherEdgeObjectTests.ok_ids.keys()[0]
+            mock_filter = 'Dummy filter'
+            edge_object_under_test = PublisherEdgeObject(None)
+            edge_object_under_test.id_ = mock_root_id
+            edge_object_under_test.filters = mock_filter
+            edge_object_under_test.ns_dict()
+            mock_stix_scanner.assert_called_with({'_id': mock_root_id}, mock_filter)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -11,7 +11,7 @@ urlpatterns = patterns('', *publisher_url_patterns)
 
 class URLConfTests(unittest.TestCase):
 
-    urls = 'tests.python.urlconf_tests'
+    urls = 'tests.unit.urlconf_tests'
 
     def test_Resolve_PublisherDiscover_ReturnsCorrectHandler(self):
         review_resolve_match = resolve('/review/', URLConfTests.urls)
