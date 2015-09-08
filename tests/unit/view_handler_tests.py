@@ -133,7 +133,7 @@ class ViewHandlerTests(unittest.TestCase):
 
     @mock.patch.object(views, 'Publisher', mock.Mock())
     @mock.patch.object(views, 'PackageGenerator', mock.Mock())
-    @mock.patch.object(views, 'EdgeObject', mock.Mock())
+    @mock.patch.object(views, 'PublisherEdgeObject', mock.Mock())
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
     def test_AJAXPublish_IfPublishOK_ReturnOK(self):
         response = views.ajax_publish(None, {'root_id': ''})
@@ -145,7 +145,7 @@ class ViewHandlerTests(unittest.TestCase):
 
     @mock.patch.object(views, 'Publisher', mock.Mock())
     @mock.patch.object(views, 'PackageGenerator', mock.Mock())
-    @mock.patch.object(views, 'EdgeObject', mock.Mock())
+    @mock.patch.object(views, 'PublisherEdgeObject', mock.Mock())
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
     def test_AJAXPublish_IfNoRootId_ReturnError(self):
         response = views.ajax_publish(None, {})
@@ -157,7 +157,7 @@ class ViewHandlerTests(unittest.TestCase):
 
     @mock.patch.object(views, 'Publisher', mock.Mock())
     @mock.patch.object(views, 'PackageGenerator', mock.Mock())
-    @mock.patch.object(views, 'EdgeObject')
+    @mock.patch.object(views, 'PublisherEdgeObject')
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
     def test_AJAXPublish_IfEdgeObjectLoadFails_ReturnError(self, mock_edge_object):
         mock_error = 'Mock error'
@@ -172,7 +172,7 @@ class ViewHandlerTests(unittest.TestCase):
 
     @mock.patch.object(views, 'Publisher', mock.Mock())
     @mock.patch.object(views, 'PackageGenerator')
-    @mock.patch.object(views, 'EdgeObject', mock.Mock())
+    @mock.patch.object(views, 'PublisherEdgeObject', mock.Mock())
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
     def test_AJAXPublish_IfBuildPackageFails_ReturnError(self, mock_package_generator):
         mock_error = 'Mock error'
@@ -187,7 +187,7 @@ class ViewHandlerTests(unittest.TestCase):
 
     @mock.patch.object(views, 'Publisher', mock.Mock())
     @mock.patch.object(views, 'PackageGenerator', mock.Mock())
-    @mock.patch.object(views, 'EdgeObject')
+    @mock.patch.object(views, 'PublisherEdgeObject')
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
     def test_AJAXPublish_IfEdgeObjectGetNameSpacesFails_ReturnError(self, mock_edge_object):
         mock_error = 'Mock error'
@@ -202,7 +202,7 @@ class ViewHandlerTests(unittest.TestCase):
 
     @mock.patch.object(views, 'Publisher')
     @mock.patch.object(views, 'PackageGenerator', mock.Mock())
-    @mock.patch.object(views, 'EdgeObject', mock.Mock())
+    @mock.patch.object(views, 'PublisherEdgeObject', mock.Mock())
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
     def test_AJAXPublish_IfPushPackageFails_ReturnError(self, mock_publisher):
         mock_error = 'Mock error'
