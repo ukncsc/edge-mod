@@ -4,7 +4,12 @@ from datetime import datetime
 import libtaxii
 from publisher_config import PublisherConfig
 from peers.models import PeerSite
-from peers.push import send_message, discover_inbox_url
+try:
+    # Edge 2.4.4 and later
+    from peers.client_push import send_message, discover_inbox_url
+except ImportError:
+    # Edge 2.4.3 and earlier
+    from peers.push import send_message, discover_inbox_url
 
 
 class Publisher(object):
