@@ -2,14 +2,16 @@ define([
     "intern!object",
     "intern/chai!assert",
     "stix/StixPackage",
-    "intern/dojo/text!./data/COA_package_01.json"
-], function (registerSuite, assert, StixPackage, package01) {
+    "intern/dojo/text!./data/COA_package_01.json",
+    "intern/dojo/text!./data/TTP_package_01.json"
+], function (registerSuite, assert, StixPackage, package01, package02) {
     "use strict";
 
     // statics go here
     var packageData = Object.freeze({
         "purple-secure-systems:coa-00000000-0000-0000-0000-000000000000": Object.freeze({}),
-        "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30": Object.freeze(JSON.parse(package01))
+        "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30": Object.freeze(JSON.parse(package01)),
+        "purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59": Object.freeze(JSON.parse(package02))
     });
     var simpleObject = Object.freeze({
         prop1: "value1",
@@ -106,6 +108,34 @@ define([
                         },
                         "Identifier must be a StixId: purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064"
                     );
+                }
+            },
+            "header() no header": {
+                setup: function () {
+                    loadPackage("purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59");
+                },
+                "empty structure returned": function () {
+                    assert.deepEqual(classUnderTest.header(), {});
+                }
+            },
+            "header() has header": {
+                setup: function () {
+                    loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
+                },
+                "header structure returned": function () {
+                    assert.deepEqual(classUnderTest.header(), {
+                        handling: [
+                            {
+                                controlled_structure: "../../../../descendant-or-self::node()",
+                                marking_structures: [
+                                    {
+                                        color: "WHITE",
+                                        "xsi:type": "tlpMarking:TLPMarkingStructureType"
+                                    }
+                                ]
+                            }
+                        ]
+                    });
                 }
             },
             "safeGet()": {

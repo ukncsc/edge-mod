@@ -174,5 +174,17 @@
       }
     }
   ],
-  "stix_header": {}
+  "stix_header": {
+    "handling": [
+      {
+        "controlled_structure": "../../../../descendant-or-self::node()",
+        "marking_structures": [
+          {
+            "color": "WHITE",
+            "xsi:type": "tlpMarking:TLPMarkingStructureType"
+          }
+        ]
+      }
+    ]
+  }
 }

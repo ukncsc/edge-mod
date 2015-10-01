@@ -39,6 +39,10 @@ define([
             return this.findById(new StixId(id));
         },
 
+        header: function () {
+            return this._data["stix_header"] || {};
+        },
+
         safeGet: function (/*Object*/ stixObject, /*String*/ propertyPath) {
             var propertyNames = propertyPath.split(".");
             var current = stixObject;
