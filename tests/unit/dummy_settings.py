@@ -3,10 +3,14 @@ import mock
 
 
 def mock_get_json_config_by_key(key):
+    # This is fragile to extra config options being added...!
+    # Need a better way, perhaps pull in dummy settings from a JSON file?
     if key == 'company_alias':
         return 'DummyAlias'
     if key == 'company_namespace':
         return 'DummyNamespace'
+    if key == 'peer_watchdog_timeout':
+        return 1
     return ''
 
 BASE_DIR = ''
