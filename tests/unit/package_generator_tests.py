@@ -16,17 +16,9 @@ class PackageGeneratorTests(unittest.TestCase):
         mock_edge_object.capsulize.return_value = (mock_package, {})
         mock_id_generator.return_value.get_new_id.return_value = package_id
 
-        package_info = {
-            'title': 'Dummy title',
-            'short_description': 'Dummy short description',
-            'description': 'Dummy description'
-        }
-        package = PackageGenerator.build_package(mock_edge_object, package_info)
+        PackageGenerator.build_package(mock_edge_object)
 
         self.assertEqual(mock_edge_object.capsulize.call_args[1]['pkg_id'], package_id)
-        self.assertEqual(package.stix_header.title, package_info['title'])
-        self.assertEqual(package.stix_header.short_description.value, package_info['short_description'])
-        self.assertEqual(package.stix_header.description.value, package_info['description'])
 
 
 if __name__ == '__main__':
