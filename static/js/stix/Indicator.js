@@ -34,7 +34,14 @@ define([
             }, this);
             this.observables = ko.computed(function () {
                 var observable = this.observable();
-                return observable ? stixPackage.safeReferenceArrayGet(observable.data(), "observable_composition.observables", "idref") : null;
+                var observableList = null;
+                if (observable) {
+                    observableList = stixPackage.safeReferenceArrayGet(observable.data(), "observable_composition.observables", "idref");
+                    if (!observableList) {
+                        observableList = [observable];
+                    }
+                }
+                return observableList;
             }, this);
             this.relatedIndicators = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.data(), "related_indicators.related_indicators", "indicator.idref");

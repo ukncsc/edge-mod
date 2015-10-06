@@ -7,14 +7,16 @@ define([
     "stix/Observable",
     "stix/TTP",
     "intern/dojo/text!./data/Indicator_package_01.json",
-    "intern/dojo/text!./data/Indicator_package_02.json"
-], function (registerSuite, assert, StixPackage, CourseOfAction, Indicator, Observable, TTP, package01, package02) {
+    "intern/dojo/text!./data/Indicator_package_02.json",
+    "intern/dojo/text!./data/Indicator_package_03.json"
+], function (registerSuite, assert, StixPackage, CourseOfAction, Indicator, Observable, TTP, package01, package02, package03) {
     "use strict";
 
     // statics go here
     var packageData = Object.freeze({
         "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3619": Object.freeze(JSON.parse(package01)),
-        "fireeye:indicator-35dc3aed-d934-41c8-b920-5a5c9e814d41": Object.freeze(JSON.parse(package02))
+        "fireeye:indicator-35dc3aed-d934-41c8-b920-5a5c9e814d41": Object.freeze(JSON.parse(package02)),
+        "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d": Object.freeze(JSON.parse(package03))
     });
 
     return registerSuite(function () {
@@ -131,6 +133,16 @@ define([
                         "fireeye:indicator-f7663237-55da-4d1c-aa52-6b24d39c47f7",
                         "fireeye:indicator-e9c5f7c7-dee3-44e7-b2ee-c105aa08e634"
                     ]);
+                }
+            },
+            "valid non-composition observables": {
+                setup: function () {
+                    loadPackage("fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d");
+                },
+                "has correct observable": function () {
+                    var actual = classUnderTest.observable();
+                    assert.instanceOf(actual, Observable);
+                    assert.equal(actual.id(), "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928");
                 }
             }
         }
