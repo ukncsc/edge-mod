@@ -3,5 +3,5 @@
     'text-danger': typeof state === 'string' && state === 'error',
     'bg-warning': typeof state === 'string' && state === 'warn',
     'text-warning': typeof state === 'string' && state === 'warn',
-    'value-missing': !value()
+    'value-missing': typeof value === 'function' && !value()
 }"></td>
