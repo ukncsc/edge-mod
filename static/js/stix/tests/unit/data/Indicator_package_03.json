@@ -1,0 +1,189 @@
+{
+  "stix_header": {
+    "handling": [
+      {
+        "controlled_structure": "../../../../descendant-or-self::node()",
+        "marking_structures": [
+          {
+            "xsi:type": "TOUMarking:TermsOfUseMarkingStructureType",
+            "terms_of_use": "Copyright 2013 FireEye, Inc."
+          }
+        ]
+      }
+    ]
+  },
+  "courses_of_action": [
+    {
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "description": "Calamine is a set of free tools to help organizations detect and examine Poison Ivy infections on their systems. The package includes these components:\n  * PIVY callback-decoding tool (ChopShop module, available here: https://github.com/fireeye/chopshop)\n  * PIVY memory-decoding tool (PIVY PyCommand script, available here: https://github.com/fireeye/pycommands)\n",
+      "id": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b",
+      "title": "Analyze with FireEye Calamine Toolset"
+    }
+  ],
+  "timestamp": "2015-10-06T12:06:14.672932+00:00",
+  "ttps": {
+    "ttps": [
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-bf2bdcaf-61a0-4e90-bcce-ad0b0551a02e",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "f18c7639dbb8644c4bca179243ee2a99"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (f18c7639dbb8644c4bca179243ee2a99)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "description": "Poison Ivy is a remote access tool that is freely available for download from its official web site at www.poisonivy-rat.com. First released in 2005, the tool has gone unchanged since 2008 with version 2.3.2. Poison Ivy includes features common to most Windows-based RATs, including key logging, screen capturing, video capturing, file transfers, system administration, password theft, and traffic relaying.\n\nPoison Ivy's wide availability and easy-to-use features make it a popular choice for all kinds of criminals. But it is probably most notable for its role in many high profile, targeted APT attacks.\n\nThese APTs pursue specific targets, using RATs to maintain a persistent presence within the target's network. They move laterally and escalate system privileges to extract sensitive information-whenever the attacker wants to do so.4,5 Because some RATs used in targeted attacks are widely available, determining whether an attack is part of a broader APT campaign can be difficult. Equally challenging is identifying malicious traffic to determine the attacker's post-compromise activities and assess overall damage-these RATs often encrypt their network communications after the initial exploit.\n\nIn 2011, three years after the most recent release of PIVY, attackers used the RAT to compromise security firm RSA and steal data about its SecureID authentication system. That data was subsequently used in other attacks. The RSA attack was linked to Chinese threat actors and described at the time as extremely sophisticated. Exploiting a zero-day vulnerability, the attack delivered PIVY as the payload. It was not an isolated incident. The campaign appears to have started in 2010, with many other companies compromised.\n \nPIVY also played a key role in the 2011 campaign known as Nitro that targeted chemical makers, government agencies, defense contractors, and human rights groups. Still active a year later, the Nitro attackers used a zero-day vulnerability in Java to deploy PIVY in 2012. Just recently, PIVY was the payload of a zero-day exploit in Internet Explorer used in what is known as a \"strategic web compromise\" attack against visitors to a U.S. government website and a variety of others.\n\nRATs require live, direct, real-time human interaction by the APT attacker. This characteristic is distinctly different from crimeware (malware focused on cybercrime), where the criminal can issue commands to their botnet of compromised endpoints whenever they please and set them to work on a common goal such as a spam relay. In contrast, RATs are much more personal and may indicate that you are dealing with a dedicated threat actor that is interested in your organization specifically.\n",
+        "id": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "Poison Ivy (PIVY)"
+              ]
+            }
+          ]
+        },
+        "title": "Poison Ivy (PIVY)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "b9ddbb07c4bde0d4f8e6b2065a7d8848"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (b9ddbb07c4bde0d4f8e6b2065a7d8848)"
+      },
+      {
+        "timestamp": "2014-05-08T09:00:00+00:00",
+        "related_ttps": {
+          "scope": "exclusive",
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "fireeye:ttp-591f0cb7-d66f-4e14-a8e6-5927b597f920"
+              },
+              "relationship": "Variant Of"
+            }
+          ]
+        },
+        "id": "fireeye:ttp-e5b7be4b-c7ca-40b8-b9f3-e686bb9c3c0d",
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "6e99585c3fbd4f3a55bd8f604cb35f38"
+              ]
+            }
+          ]
+        },
+        "title": "PIVY Variant (6e99585c3fbd4f3a55bd8f604cb35f38)"
+      }
+    ]
+  },
+  "version": "1.1.1",
+  "indicators": [
+    {
+      "observable": {
+        "idref": "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928"
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "IP Watchlist"
+        }
+      ],
+      "title": "IP: 223.25.233.247",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "fireeye:courseofaction-70b3d5f6-374b-4488-8688-729b6eedac5b"
+            }
+          }
+        ],
+        "scope": "exclusive"
+      },
+      "timestamp": "2014-05-08T09:00:00+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-e5b7be4b-c7ca-40b8-b9f3-e686bb9c3c0d"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-4d0aeaec-d073-4615-90b3-a9e717025db9"
+          }
+        },
+        {
+          "ttp": {
+            "idref": "fireeye:ttp-bf2bdcaf-61a0-4e90-bcce-ad0b0551a02e"
+          }
+        }
+      ],
+      "id": "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d"
+    }
+  ],
+  "observables": {
+    "observables": [
+      {
+        "object": {
+          "id": "fireeye:object-13b4deae-023f-4a91-a2bf-68c9d1dde07f",
+          "properties": {
+            "category": "ipv4-addr",
+            "xsi:type": "AddressObjectType",
+            "address_value": {
+              "condition": "Equals",
+              "value": "223.25.233.247"
+            }
+          }
+        },
+        "id": "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928",
+        "title": "IP: 223.25.233.247"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "id": "PurpleSecureSystems:Package-5bfd9f20-f36a-40b4-9c8a-5ccdd0ac458a"
+}
