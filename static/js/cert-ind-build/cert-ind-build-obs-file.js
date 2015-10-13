@@ -5,14 +5,14 @@ define([
 ], function (declare, indicator_builder, validation) {
     "use strict";
 
-    return declare(indicator_builder.ObservableAddress, {
+    return declare(indicator_builder.ObservableFile, {
         constructor: function () {
-            this.category.extend({
+            this.file_name.extend({
                 validate: {
-                    "isValidCallback": validation.hasValue,
-                    "failedValidationMessage": "An address category is required."
+                    "isValidCallback": validation.isNotEmpty,
+                    "failedValidationMessage": "A file name is required."
                 }
-            });
+            }).valueHasMutated();
         },
 
         doValidation: declare.superCall(function (sup) {
@@ -21,8 +21,8 @@ define([
                 if (sup) {
                     msgs = sup.call(this);
                 }
-                if (this.category.hasError()) {
-                    msgs.push(this.category.errorMessage());
+                if (this.file_name.hasError()) {
+                    msgs.push(this.file_name.errorMessage());
                 }
                 return msgs;
             };
