@@ -35,6 +35,7 @@ define([
                 assert.deepEqual(classUnderTest.properties(), [
                     { "label": "String Property", "value": "Hello, world" },
                     { "label": "Number Property", "value": 42 },
+                    { "label": "Boolean Property", "value": true },
                     { "label": "PIVY Password", "value": "pa55w0rd" },
                     { "label": "PIVY Username", "value": "admin" }
                 ]);
