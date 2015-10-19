@@ -10,6 +10,7 @@
           "properties": {
             "string_property": "Hello, world",
             "number_property": 42,
+            "boolean_property": true,
             "custom_properties": [
               {
                 "condition": "Equals",

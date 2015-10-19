@@ -5,7 +5,8 @@ define([
 
     function isValueSet(value) {
         return (typeof value === "string" && value.length > 0)
-            || (typeof value === "number" && isFinite(value));
+            || (typeof value === "number" && isFinite(value))
+            || (typeof value === "boolean");
     }
 
     function findValue(valueObj) {
