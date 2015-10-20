@@ -7,12 +7,12 @@ from django.contrib import messages
 
 from edge import NamespaceNotConfigured
 
-from indicator.observable_object_generator import ObservableObjectGenerator
+from cert_observable_object_generator import CERTObservableObjectGenerator
 from indicator.indicator_builder import IndicatorBuilder
 from indicator.view_seed_data import IndicatorBuilderTemplateDataGenerator
 
 
-observable_object_generator = ObservableObjectGenerator()
+observable_object_generator = CERTObservableObjectGenerator()
 indicator_builder = IndicatorBuilder(observable_object_generator)
 view_data_generator = IndicatorBuilderTemplateDataGenerator('Indicator', 'cert-ind-build.html', indicator_builder)
 
