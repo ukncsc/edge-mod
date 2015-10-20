@@ -1,6 +1,6 @@
 
 from url_helper import replace_patterns
-from django.conf.urls import patterns, url, include
+from django.conf.urls import patterns, url
 from indicator.urls import urlpatterns as original_indicator_urls
 from repository.urls import urlpatterns as core_url_patterns
 
