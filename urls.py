@@ -2,8 +2,9 @@
 from django.conf.urls import patterns, url
 
 urlpatterns = patterns(
-    '',
-    url(r'^build/$', 'adapters.cert-ind-build.views.indicator_build', name='cert_ind_build')
+    'adapters.cert-ind-build',
+    url(r'^static/(?P<path>[\S]+)$', 'views.static', name='cert_ind_build_static_content'),
+    url(r'^build/$', 'views.indicator_build', name='cert_ind_build')
 )
 
 navitems = [

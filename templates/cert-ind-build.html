@@ -4,15 +4,16 @@
 {% block constants %}
     <script>
         var require = {
-            baseUrl: "../../../static/js",
+            baseUrl: "../static/js",
             paths: {
                 knockout: "{% static 'js/knockout-3.1.0' %}"
-            }
+            },
+            urlArgs: "{% spaceless %}{% include 'cert-ind-build-version.html' %}{% endspaceless %}"
         };
     </script>
 {% endblock %}
 
 {% block view-model-on-ready %}
-    <script type="text/javascript" src="{% static "ind-build-ready.js" %}"></script>
-    <script src="{% static 'js/require.js' %}" data-main="cert-ind-build/main"></script>
+    <script type="text/javascript" src="{% static 'ind-build-ready.js' %}"></script>
+    <script src="../static/js/require.js" data-main="cert-ind-build/main"></script>
 {% endblock %}

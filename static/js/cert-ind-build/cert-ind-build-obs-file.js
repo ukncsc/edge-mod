@@ -17,12 +17,9 @@ define([
 
         doValidation: declare.superCall(function (sup) {
             return function () {
-                var msgs = [];
-                if (sup) {
-                    msgs = sup.call(this);
-                }
+                var msgs = sup.call(this);
                 if (this.file_name.hasError()) {
-                    msgs.push(this.file_name.errorMessage());
+                    msgs.addError(this.file_name.errorMessage());
                 }
                 return msgs;
             };

@@ -1,5 +1,7 @@
-
+import os
+import urllib2
 from django.contrib.auth.decorators import login_required
+from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
@@ -13,6 +15,17 @@ from indicator.view_seed_data import IndicatorBuilderTemplateDataGenerator
 observable_object_generator = ObservableObjectGenerator()
 indicator_builder = IndicatorBuilder(observable_object_generator)
 view_data_generator = IndicatorBuilderTemplateDataGenerator('Indicator', 'cert-ind-build.html', indicator_builder)
+
+
+@login_required
+def static(request, path):
+    clean_path = urllib2.unquote(path)
+    if "../" not in clean_path:
+        return FileResponse(
+            open(os.path.dirname(__file__) + "/static/" + clean_path, mode="rb")
+        )
+    else:
+        return HttpResponseNotFound()
 
 
 @login_required

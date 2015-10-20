@@ -24,15 +24,12 @@ define([
 
         doValidation: declare.superCall(function (sup) {
             return function () {
-                var msgs = [];
-                if (sup) {
-                    msgs = sup.call(this);
-                }
+                var msgs = sup.call(this);
                 if (this.artifactType.hasError()) {
-                    msgs.push(this.artifactType.errorMessage());
+                    msgs.addError(this.artifactType.errorMessage());
                 }
                 if (this.artifactRaw.hasError()) {
-                    msgs.push(this.artifactRaw.errorMessage());
+                    msgs.addError(this.artifactRaw.errorMessage());
                 }
                 return msgs;
             };
