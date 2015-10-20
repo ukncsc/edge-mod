@@ -1,0 +1,8 @@
+dist
+html-report
+.idea
+*.iml
+*.pyc
+cobertura.xml
+junit.xml
+.coverage

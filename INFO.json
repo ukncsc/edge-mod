@@ -1,0 +1,9 @@
+{
+  "name": "INFO",
+  "description": "CERT-UK Indicator Builder extensions adapter",
+  "id": "9aa5982e-675a-11e5-9d70-feff819cdc9f",
+  "publisher": "CERT-UK",
+  "edge_min": "2.4.*",
+  "edge_max": "2.6.*",
+  "version": "0.1"
+}

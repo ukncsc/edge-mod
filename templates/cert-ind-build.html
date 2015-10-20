@@ -1,0 +1,18 @@
+{% extends "ind-build.html" %}
+{% load staticfiles %}
+
+{% block constants %}
+    <script>
+        var require = {
+            baseUrl: "../../../static/js",
+            paths: {
+                knockout: "{% static 'js/knockout-3.1.0' %}"
+            }
+        };
+    </script>
+{% endblock %}
+
+{% block view-model-on-ready %}
+    <script type="text/javascript" src="{% static "ind-build-ready.js" %}"></script>
+    <script src="{% static 'js/require.js' %}" data-main="cert-ind-build/main"></script>
+{% endblock %}
