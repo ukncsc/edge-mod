@@ -1,4 +1,3 @@
-
 require([
     "cert-ind-build/indicator_builder",
     "cert-ind-build/cert-ind-build-obs-address",
@@ -7,6 +6,7 @@ require([
     "cert-ind-build/cert-ind-build-obs-email",
     "cert-ind-build/cert-ind-build-obs-file",
     "cert-ind-build/cert-ind-build-obs-artifact",
+    "cert-ind-build/cert-ind-build-obs-http-session",
     "domReady!"
 ], function (indicator_builder,
              CERTObservableAddress,
@@ -14,11 +14,14 @@ require([
              CERTObservableURI,
              CERTObservableEmail,
              CERTObservableFile,
-             CERTObservableArtifact) {
+             CERTObservableArtifact,
+             CERTObservableHTTPSession
+) {
     indicator_builder.ObservableAddress = CERTObservableAddress;
     indicator_builder.ObservableDomainName = CERTObservableDomainName;
     indicator_builder.ObservableURI = CERTObservableURI;
     indicator_builder.ObservableEmail = CERTObservableEmail;
     indicator_builder.ObservableFile = CERTObservableFile;
     indicator_builder.ObservableArtifact = CERTObservableArtifact;
+    indicator_builder.ObservableHTTPSession = CERTObservableHTTPSession;
 });
