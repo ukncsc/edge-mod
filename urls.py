@@ -2,12 +2,13 @@
 from url_helper import replace_patterns
 from django.conf.urls import patterns, url
 from indicator.urls import urlpatterns as original_indicator_urls
-from repository.urls import urlpatterns as core_url_patterns
 
 
+# Our own urls
 urlpatterns = []
 
-url_overrides = replace_patterns(
+# Add/replace module urls
+replace_patterns(
     original_indicator_urls,
     '',
     patterns(
@@ -17,13 +18,5 @@ url_overrides = replace_patterns(
     )
 )
 
-core_url_patterns = replace_patterns(
-    core_url_patterns,
-    '',
-    patterns(
-        '',
-        url(r'^indicator/', url_overrides)
-    )
-)
 
 navitems = []
