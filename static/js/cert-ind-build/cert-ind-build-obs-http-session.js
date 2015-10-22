@@ -1,12 +1,12 @@
 define([
     "dcl/dcl",
-    "cert-ind-build/indicator_builder",
+    "cert-ind-build/indicator-builder-shim",
     "cert-ind-build/validation",
     "knockout"
 ], function (declare, indicator_builder, validation, ko) {
     "use strict";
 
-    return declare(indicator_builder.AbstractObservable, {
+    var CERTObservableHTTPSession = declare(indicator_builder.AbstractObservable, {
         constructor: declare.superCall(function (sup) {
             return function () {
                 sup.call(this, "HTTP Session");
@@ -48,4 +48,6 @@ define([
             };
         })
     });
+    indicator_builder.ObservableHTTPSession = CERTObservableHTTPSession;
+    return CERTObservableHTTPSession;
 });

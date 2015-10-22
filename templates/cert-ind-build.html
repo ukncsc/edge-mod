@@ -6,14 +6,18 @@
         var require = {
             baseUrl: "../static/js",
             paths: {
-                knockout: "cert-ind-build/knockout_shim"
+                knockout: "cert-ind-build/knockout-shim"
             },
             urlArgs: "{% spaceless %}{% include 'cert-ind-build-version.html' %}{% endspaceless %}"
         };
     </script>
+    <script src="../static/js/require.js"></script>
 {% endblock %}
 
-{% block view-model-on-ready %}
-    <script type="text/javascript" src="{% static 'ind-build-ready.js' %}"></script>
-    <script src="../static/js/require.js" data-main="cert-ind-build/main"></script>
+{% block custom-observables %}
+    <script src="../static/js/cert-ind-build/custom-observables.js"></script>
+{% endblock %}
+
+{% block custom-builder-sections %}
+    <script src="../static/js/cert-ind-build/custom-builder-sections.js"></script>
 {% endblock %}

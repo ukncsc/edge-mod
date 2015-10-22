@@ -1,11 +1,11 @@
 define([
     "dcl/dcl",
-    "cert-ind-build/indicator_builder",
+    "cert-ind-build/indicator-builder-shim",
     "cert-ind-build/validation"
 ], function (declare, indicator_builder, validation) {
     "use strict";
 
-    return declare(indicator_builder.ObservableURI, {
+    var CERTObservableURI = declare(indicator_builder.ObservableURI, {
         constructor: function () {
             this.type.extend({
                 validate: {
@@ -25,4 +25,6 @@ define([
             };
         })
     });
+    indicator_builder.ObservableURI = CERTObservableURI;
+    return CERTObservableURI;
 });

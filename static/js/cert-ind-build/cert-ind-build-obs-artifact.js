@@ -1,11 +1,11 @@
 define([
     "dcl/dcl",
-    "cert-ind-build/indicator_builder",
+    "cert-ind-build/indicator-builder-shim",
     "cert-ind-build/validation"
 ], function (declare, indicator_builder, validation) {
     "use strict";
 
-    return declare(indicator_builder.ObservableArtifact, {
+    var CERTObservableArtifact = declare(indicator_builder.ObservableArtifact, {
         constructor: function () {
             this.artifactType.extend({
                 validate: {
@@ -35,4 +35,6 @@ define([
             };
         })
     });
+    indicator_builder.ObservableArtifact = CERTObservableArtifact;
+    return CERTObservableArtifact
 });

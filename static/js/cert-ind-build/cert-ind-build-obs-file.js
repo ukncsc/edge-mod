@@ -1,11 +1,11 @@
 define([
     "dcl/dcl",
-    "cert-ind-build/indicator_builder",
+    "cert-ind-build/indicator-builder-shim",
     "cert-ind-build/validation"
 ], function (declare, indicator_builder, validation) {
     "use strict";
 
-    return declare(indicator_builder.ObservableFile, {
+    var CERTObservableFile = declare(indicator_builder.ObservableFile, {
         constructor: function () {
             this.file_name.extend({
                 validate: {
@@ -25,4 +25,6 @@ define([
             };
         })
     });
+    indicator_builder.ObservableFile = CERTObservableFile;
+    return CERTObservableFile;
 });
