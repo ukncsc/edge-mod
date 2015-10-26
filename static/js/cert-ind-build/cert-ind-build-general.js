@@ -71,6 +71,21 @@ define([
                 }
                 return msgs;
             }
+        }),
+
+        load: declare.superCall(function (sup) {
+            return function (data) {
+                sup.call(this, data);
+                this.killChainPhase(data["kill_chain_phase"] || "");
+            }
+        }),
+
+        save: declare.superCall(function (sup) {
+            return function () {
+                var baseData = sup.call(this);
+                baseData['kill_chain_phase'] = this.killChainPhase();
+                return baseData;
+            }
         })
     });
 
