@@ -14,14 +14,14 @@
 {% block constants %}
     <script>
         var require = {
-            baseUrl: "../static/js",
+            baseUrl: "/adapter/cert-ind-build{% static 'js' %}",
             paths: {
                 knockout: "cert-ind-build/knockout-shim"
             },
             urlArgs: "{% spaceless %}{% include 'cert-ind-build-version.html' %}{% endspaceless %}"
         };
     </script>
-    <script src="../static/js/require.js" data-main="cert-ind-build/cert-ind-build-ready"></script>
+    <script src="/adapter/cert-ind-build{% static 'js/require.js'%}" data-main="cert-ind-build/cert-ind-build-ready"></script>
 {% endblock %}
 
 {% block extra-fields %}
