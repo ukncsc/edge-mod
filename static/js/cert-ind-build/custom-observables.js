@@ -1,4 +1,4 @@
-require([
+define([
     "cert-ind-build/cert-ind-build-obs-address",
     "cert-ind-build/cert-ind-build-obs-domain-name",
     "cert-ind-build/cert-ind-build-obs-uri",
