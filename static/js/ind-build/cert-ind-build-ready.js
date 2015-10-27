@@ -1,10 +1,10 @@
 require([
     "knockout",
-    "cert-ind-build/builder-shim",
-    "cert-ind-build/indicator-builder-shim",
-    "cert-ind-build/change-tracker",
-    "cert-ind-build/custom-builder-sections",
-    "cert-ind-build/custom-observables"
+    "ind-build/builder-shim",
+    "ind-build/indicator-builder-shim",
+    "ind-build/change-tracker",
+    "ind-build/custom-builder-sections",
+    "ind-build/custom-observables"
 ], function (ko, builder, indicator_builder, ChangeTracker) {
     "use strict";
 

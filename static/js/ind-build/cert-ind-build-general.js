@@ -1,7 +1,7 @@
 define([
     "dcl/dcl",
     "knockout",
-    "cert-ind-build/indicator-builder-shim"
+    "ind-build/indicator-builder-shim"
 ], function (declare, ko, indicator_builder) {
     "use strict";
 

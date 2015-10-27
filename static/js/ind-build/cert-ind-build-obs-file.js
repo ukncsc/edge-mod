@@ -1,7 +1,7 @@
 define([
     "dcl/dcl",
-    "cert-ind-build/indicator-builder-shim",
-    "cert-ind-build/validation"
+    "ind-build/indicator-builder-shim",
+    "ind-build/validation"
 ], function (declare, indicator_builder, validation) {
     "use strict";
 
