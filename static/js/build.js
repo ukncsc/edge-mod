@@ -13,7 +13,7 @@
             name: "publisher/config-main"
         },
         {
-            name: "ind-build/main"
+            name: "ind-build/cert-ind-build-ready"
         }
     ],
     fileExclusionRegExp: /^\.|^tests$|^build.js$|\.md$|\.pyc$/,
