@@ -12,13 +12,20 @@ from package_publisher import Publisher
 from publisher_config import PublisherConfig
 from package_generator import PackageGenerator
 from publisher_edge_object import PublisherEdgeObject
-
+from cert_observable_object_generator import CERTObservableObjectGenerator
+from indicator.indicator_builder import IndicatorBuilder
+from view_seed_data import CERTIndicatorBuilderTemplateDataGenerator
+from indicator import views as original_views
 
 objectid_matcher = re.compile(
     # {STIX/ID Alias}:{type}-{GUID}
     r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
     re.IGNORECASE  # | re.DEBUG
 )
+original_views.observable_object_generator = CERTObservableObjectGenerator()
+original_views.indicator_builder = IndicatorBuilder(original_views.observable_object_generator)
+original_views.view_data_generator = CERTIndicatorBuilderTemplateDataGenerator('Indicator', 'cert-ind-build.html',
+                                                                               original_views.indicator_builder)
 
 
 @login_required

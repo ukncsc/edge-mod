@@ -1,0 +1,5 @@
+{% extends "../../indicator/templates/related_items.html" %}
+
+{% block extra-read-only-observable-templates %}
+    <div data-bind="template: { name: 'http-session-readonly', if: objectType=='HTTP Session'}"></div>
+{% endblock %}

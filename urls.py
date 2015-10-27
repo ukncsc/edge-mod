@@ -3,6 +3,14 @@
 # See LICENSE.txt for more information.
 
 from django.conf.urls import patterns, url
+from repository.adaptertools import AdapterInfo
+from repository.settings import TEMPLATE_DIRS
+
+# load our templates first
+this_adapter = next(adapter for adapter in AdapterInfo.scan() if adapter.name == 'cert-ind-build')
+if this_adapter:
+    for dir_ in this_adapter.find_subdir('templates/'):
+        TEMPLATE_DIRS = (dir_,) + TEMPLATE_DIRS
 
 # We have to do this if we want to test our urlconf is correct, because of the way the adapter framework imports
 # urls. The mapped views (in Edge) are of the form 'adapters.<adapter_name>.<view_module>.<view_name>', which won't

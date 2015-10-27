@@ -11,6 +11,9 @@
         },
         {
             name: "publisher/config-main"
+        },
+        {
+            name: "cert-ind-build/main"
         }
     ],
     fileExclusionRegExp: /^\.|^tests$|^build.js$|\.md$|\.pyc$/,
