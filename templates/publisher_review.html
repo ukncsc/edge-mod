@@ -110,13 +110,14 @@
         </div>
     </script>
 
+    <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/stickytape.js' %}"></script>
     <script>
         var require = {
             baseUrl: "/adapter/certuk-mod{% static 'js' %}",
             paths: {
-                knockout: "{% static 'js/knockout-3.1.0' %}"
+                knockout: "common/knockout-shim"
             },
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
