@@ -1,0 +1,17 @@
+<!-- ko if: value -->
+<dt data-bind="text: label"></dt>
+<dd>
+    <table class="table table-condensed table-striped" data-bind="css: { 'cols-3': columns.length === 3 }">
+        <thead>
+        <tr data-bind="foreach: columns">
+            <th data-bind="text: heading"></th>
+        </tr>
+        </thead>
+        <tbody data-bind="foreach: value">
+        <tr data-bind="attr: { title: $data[$parent.row.tooltip] }, click: $root.onRowClicked.bind($root), foreach: $parent.columns">
+            <!-- ko template: { name: templateName, data: { value: $parent[propertyName] } } --><!-- /ko -->
+        </tr>
+        </tbody>
+    </table>
+</dd>
+<!-- /ko -->

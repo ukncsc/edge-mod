@@ -1,0 +1,43 @@
+{
+  "timestamp": "2015-09-02T15:42:27.255902+00:00",
+  "version": "1.1.1",
+  "id": "purple-secure-systems:Package-14bf4015-f073-4b11-9521-d3e44610db35",
+  "observables": {
+    "observables": [
+      {
+        "object": {
+          "id": "fireeye:object-81182592-c484-462e-9fa4-8de63df93f8a",
+          "properties": {
+            "string_property": "Hello, world",
+            "number_property": 42,
+            "boolean_property": true,
+            "custom_properties": [
+              {
+                "condition": "Equals",
+                "value": "pa55w0rd",
+                "name": "PIVY Password"
+              },
+              {
+                "condition": "Equals",
+                "value": "SomeGenericObjectType",
+                "name": "xsi:type"
+              },
+              {
+                "condition": "Equals",
+                "value": "admin",
+                "name": "PIVY Username"
+              }
+            ],
+            "xsi:type": "SomeGenericObjectType"
+          }
+        },
+        "id": "fireeye:observable-f44badfb-1c6a-4e15-87da-307dc9fc4239",
+        "title": "Password: admin"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "stix_header": {}
+}

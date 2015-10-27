@@ -1,0 +1,24 @@
+<dl class="dl-horizontal">
+    <!-- ko template: {
+        name: "mandatory-labelled-field", data: { label: "Namespace", value: namespace }
+    } --><!-- /ko -->
+    <!-- ko template: {
+        name: "optional-labelled-field", data: { label: "Title", value: title }
+    } --><!-- /ko -->
+    <!-- ko template: {
+        name: "optional-labelled-field", data: { label: "Short Description", value: shortDescription }
+    } --><!-- /ko -->
+    <!-- ko template: {
+        name: "optional-labelled-field", data: { label: "Description", value: description }
+    } --><!-- /ko -->
+    <!-- ko template: {
+        name: "mandatory-labelled-field", data: { label: "Type", value: type }
+    } --><!-- /ko -->
+    <!-- ko if: properties().length -->
+        <!-- ko foreach: properties -->
+            <!-- ko template: {
+                name: "labelled-field", data: { label: label, value: value }
+            } --><!-- /ko -->
+        <!-- /ko -->
+    <!-- /ko -->
+</dl>

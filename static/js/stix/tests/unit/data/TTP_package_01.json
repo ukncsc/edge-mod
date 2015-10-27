@@ -1,0 +1,318 @@
+{
+  "courses_of_action": [
+    {
+      "impact": {
+        "timestamp": "2015-07-30T08:53:08.662255+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662278+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "Minor productivity loss",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "efficacy": {
+        "timestamp": "2015-07-30T08:53:08.662300+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662322+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "Won't do it again",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "title": "Shoot the employee",
+      "timestamp": "2015-07-30T08:53:08.662108+00:00",
+      "cost": {
+        "timestamp": "2015-07-30T08:53:08.662193+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662227+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "None",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "objective": {
+        "description": "Deterrent to others",
+        "applicability_confidence": {
+          "timestamp": "2015-07-30T08:53:08.662356+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "Medium"
+          }
+        }
+      },
+      "type": {
+        "xsi:type": "stixVocabs:CourseOfActionTypeVocab-1.0",
+        "value": "Eradication"
+      },
+      "id": "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064",
+      "stage": {
+        "xsi:type": "stixVocabs:COAStageVocab-1.0",
+        "value": "Response"
+      }
+    }
+  ],
+  "timestamp": "2015-08-13T10:59:45.223690+00:00",
+  "ttps": {
+    "ttps": [
+      {
+        "handling": [
+          {
+            "controlled_structure": "../../../descendant-or-self::node()",
+            "marking_structures": [
+              {
+                "color": "RED",
+                "xsi:type": "tlpMarking:TLPMarkingStructureType"
+              }
+            ]
+          }
+        ],
+        "description": "Including the kitchen sink",
+        "title": "Trying everything",
+        "timestamp": "2015-08-11T14:10:23.701149+00:00",
+        "intended_effects": [
+          {
+            "timestamp": "2015-08-11T14:10:23.701249+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+              "value": "Unauthorized Access"
+            }
+          },
+          {
+            "timestamp": "2015-08-11T14:10:23.701279+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+              "value": "Brand Damage"
+            }
+          },
+          {
+            "timestamp": "2015-08-11T14:10:23.701297+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+              "value": "Account Takeover"
+            }
+          },
+          {
+            "timestamp": "2015-08-11T14:10:23.701313+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+              "value": "Theft"
+            }
+          },
+          {
+            "timestamp": "2015-08-11T14:10:23.701466+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+              "value": "Advantage"
+            }
+          }
+        ],
+        "victim_targeting": {
+          "identity": {
+            "xsi:type": "ciqIdentity:CIQIdentity3.0InstanceType",
+            "specification": {
+              "party_name": {
+                "name_lines": [
+                  {
+                    "type": "string",
+                    "value": ""
+                  }
+                ]
+              }
+            },
+            "name": "Primary Target",
+            "id": "purple-secure-systems:identity-788b7ac0-27d5-4f1d-bcd0-3ca4763e8a4f"
+          }
+        },
+        "related_ttps": {
+          "ttps": [
+            {
+              "ttp": {
+                "idref": "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32"
+              }
+            }
+          ]
+        },
+        "exploit_targets": {
+          "exploit_targets": [
+            {
+              "exploit_target": {
+                "idref": "purple-secure-systems:et-ef26d805-be46-483f-81c7-b809127ff6b4"
+              }
+            }
+          ]
+        },
+        "behavior": {
+          "malware_instances": [
+            {
+              "description": "Malware 1",
+              "title": "Malware 1",
+              "xsi:type": null,
+              "names": [
+                "ATS"
+              ],
+              "short_description": "Malware 1",
+              "types": [
+                {
+                  "xsi:type": "stixVocabs:MalwareTypeVocab-1.0",
+                  "value": "Automated Transfer Scripts"
+                }
+              ]
+            },
+            {
+              "description": "Malware 2",
+              "title": "Malware 2",
+              "xsi:type": null,
+              "names": [
+                "ADW"
+              ],
+              "short_description": "Malware 2",
+              "types": [
+                {
+                  "xsi:type": "stixVocabs:MalwareTypeVocab-1.0",
+                  "value": "Adware"
+                }
+              ]
+            },
+            {
+              "description": "Malware 3",
+              "title": "Malware 3",
+              "xsi:type": null,
+              "names": [
+                "DIA"
+              ],
+              "short_description": "Malware 3",
+              "types": [
+                {
+                  "xsi:type": "stixVocabs:MalwareTypeVocab-1.0",
+                  "value": "Dialer"
+                }
+              ]
+            }
+          ],
+          "attack_patterns": [
+            {
+              "short_description": "Pattern 1",
+              "capec_id": "CAPEC-01",
+              "description": "Pattern 1",
+              "title": "Pattern 1"
+            },
+            {
+              "short_description": "Pattern 2",
+              "capec_id": "CAPEC-02",
+              "description": "Pattern 2",
+              "title": "Pattern 2"
+            },
+            {
+              "short_description": "Pattern 3",
+              "capec_id": "CAPEC-03",
+              "description": "Pattern 3",
+              "title": "Pattern 3"
+            }
+          ]
+        },
+        "short_description": "All the tricks in the book",
+        "id": "purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59"
+      },
+      {
+        "handling": [
+          {
+            "controlled_structure": "../../../descendant-or-self::node()",
+            "marking_structures": [
+              {
+                "color": "AMBER",
+                "xsi:type": "tlpMarking:TLPMarkingStructureType"
+              }
+            ]
+          }
+        ],
+        "title": "pjb.vbs",
+        "timestamp": "2015-07-30T08:49:32.286574+00:00",
+        "intended_effects": [
+          {
+            "timestamp": "2015-07-30T08:49:32.286657+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+              "value": "Unauthorized Access"
+            }
+          }
+        ],
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "pjb.vbs"
+              ],
+              "types": [
+                {
+                  "xsi:type": "stixVocabs:MalwareTypeVocab-1.0",
+                  "value": "Bot - Loader"
+                }
+              ],
+              "title": "pjb.vbs"
+            }
+          ]
+        },
+        "id": "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32"
+      }
+    ]
+  },
+  "version": "1.1.1",
+  "exploit_targets": [
+    {
+      "timestamp": "2015-08-11T13:40:37.480535+00:00",
+      "potential_coas": {
+        "coas": [
+          {
+            "course_of_action": {
+              "idref": "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064"
+            }
+          }
+        ]
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "RED",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "id": "purple-secure-systems:et-ef26d805-be46-483f-81c7-b809127ff6b4",
+      "title": "My PC"
+    }
+  ],
+  "id": "purple-secure-systems:Package-a9d80bb2-5c2b-4d55-bbd7-a6f72ed49b18"
+}

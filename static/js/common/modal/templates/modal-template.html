@@ -1,0 +1,26 @@
+<div class="modal fade" role="dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <span class="glyphicon" data-bind="css: $data.titleIcon"></span>
+                    <span data-bind="text: title"></span>
+                </h3>
+            </div>
+            <div class="modal-body" style="overflow: auto;">
+                <!-- ko template: { name: contentTemplate, data: contentData } -->
+                <!-- /ko -->
+            </div>
+            <div class="modal-footer">
+                <!-- ko foreach: buttonData -->
+                    <button class="btn btn-default"
+                            data-bind="visible: !$data.hide || !$data.hide(), click: $parent.handleClick.bind($parent),
+                                css: { disabled: $data.disabled }">
+                        <span class="glyphicon" data-bind="css: $data.icon"></span>
+                        <span data-bind="text: label"></span>
+                    </button>
+                <!-- /ko -->
+            </div>
+        </div>
+
+</div>

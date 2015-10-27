@@ -1,0 +1,190 @@
+{
+  "timestamp": "2015-08-13T13:37:31.358735+00:00",
+  "version": "1.1.1",
+  "id": "purple-secure-systems:Package-e1d15783-83f2-4264-b9d0-131b43df88f6",
+  "courses_of_action": [
+    {
+      "impact": {
+        "timestamp": "2015-08-13T13:37:11.186542+00:00",
+        "confidence": {
+          "timestamp": "2015-08-13T13:37:11.186565+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "Loss of productivity",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Low"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "description": "Suspend the employee for up to 48 hours while a full investigation is carried out",
+      "efficacy": {
+        "timestamp": "2015-08-13T13:37:11.186586+00:00",
+        "confidence": {
+          "timestamp": "2015-08-13T13:37:11.186608+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "Medium"
+          }
+        },
+        "description": "No access to affected systems",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "title": "Suspension",
+      "timestamp": "2015-08-13T13:37:11.186366+00:00",
+      "related_coas": {
+        "coas": [
+          {
+            "course_of_action": {
+              "idref": "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064"
+            }
+          }
+        ]
+      },
+      "objective": {
+        "short_description": "Evidence protection",
+        "description": "Prevent hiding of evidence by perpetrator",
+        "applicability_confidence": {
+          "timestamp": "2015-08-13T13:37:11.186645+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        }
+      },
+      "cost": {
+        "timestamp": "2015-08-13T13:37:11.186475+00:00",
+        "confidence": {
+          "timestamp": "2015-08-13T13:37:11.186515+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "Medium"
+          }
+        },
+        "description": "Up to 2 days pay",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Low"
+        }
+      },
+      "short_description": "Suspend the employee",
+      "type": {
+        "xsi:type": "stixVocabs:CourseOfActionTypeVocab-1.0",
+        "value": "Policy Actions"
+      },
+      "id": "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30",
+      "stage": {
+        "xsi:type": "stixVocabs:COAStageVocab-1.0",
+        "value": "Response"
+      }
+    },
+    {
+      "impact": {
+        "timestamp": "2015-07-30T08:53:08.662255+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662278+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "Minor productivity loss",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "efficacy": {
+        "timestamp": "2015-07-30T08:53:08.662300+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662322+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "Won't do it again",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "title": "Shoot the employee",
+      "timestamp": "2015-07-30T08:53:08.662108+00:00",
+      "cost": {
+        "timestamp": "2015-07-30T08:53:08.662193+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662227+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "None",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "objective": {
+        "description": "Deterrent to others",
+        "applicability_confidence": {
+          "timestamp": "2015-07-30T08:53:08.662356+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "Medium"
+          }
+        }
+      },
+      "type": {
+        "xsi:type": "stixVocabs:CourseOfActionTypeVocab-1.0",
+        "value": "Eradication"
+      },
+      "id": "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064",
+      "stage": {
+        "xsi:type": "stixVocabs:COAStageVocab-1.0",
+        "value": "Response"
+      }
+    }
+  ],
+  "stix_header": {
+    "handling": [
+      {
+        "controlled_structure": "../../../../descendant-or-self::node()",
+        "marking_structures": [
+          {
+            "color": "WHITE",
+            "xsi:type": "tlpMarking:TLPMarkingStructureType"
+          }
+        ]
+      }
+    ]
+  }
+}

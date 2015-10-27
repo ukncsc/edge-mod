@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% load staticfiles %}
+{% block head-title %}{{ main_title }}{% endblock %}
+{% block head-content %}
+
+    <style type="text/css">
+    button.btn.btn-danger {
+        background-color: #D9534F;
+    }
+
+    button.btn.btn-danger:hover, .btn.btn-danger:focus, .btn.btn-danger:active {
+        background-color: #D2322D;
+    }
+
+    dl.dl-horizontal dd {
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
+
+    dl.dl-horizontal dd table {
+        table-layout: fixed;
+    }
+
+    dl.dl-horizontal dd table th {
+        width: 15%;
+    }
+
+    dl.dl-horizontal dd table th:nth-child(1) {
+        width: 20%;
+    }
+
+    dl.dl-horizontal dd table th:nth-child(n+4) {
+        width: auto;
+    }
+
+    dl.dl-horizontal dd table.cols-3 th:nth-child(n+3) {
+        width: auto;
+    }
+
+    dl.dl-horizontal dd dl.dl-horizontal dt {
+        width: 110px;
+    }
+
+    dl.dl-horizontal dd dl.dl-horizontal dd {
+        margin-left: 120px;
+    }
+
+    dd.text-danger, dd.text-warning, td.text-danger, td.text-warning {
+        font-style: italic;
+        font-weight: bold;
+    }
+
+    .table-striped > tbody > tr:nth-child(2n+1) > td.bg-danger {
+        background-color: #e2cece;
+    }
+
+    dd table tbody tr[title] {
+        cursor: pointer;
+    }
+
+    dd table tbody tr[title]:hover {
+        outline: 1px dotted #a94442;
+    }
+
+    .value-missing:after {
+        content: "(missing)";
+        font-style: italic;
+    }
+    </style>
+
+{% endblock %}
+
+{% block body-content %}
+    <div class="container">
+        <div class="row" data-bind="template: 'header'"></div>
+        <div class="row" data-bind="template: 'warning'"></div>
+        <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
+    </div>
+{% endblock %}
+
+{% block body-end %}
+    <script type="text/html" id="header">
+        <div class="col-sm-12">
+            <h3 class="obj-title">
+                <button type="button" class="btn btn-danger pull-right"
+                        data-bind="click: onPublish">Publish<br>Externally</button>
+                <img alt="" src="" data-bind="attr: {
+                    src: '{% static "img/hex" %}/hex_'+type().code+'.png'
+                }">
+                <span data-bind="text: type().label"></span><br>
+                <small data-bind="text: root().id"></small>
+            </h3>
+        </div>
+    </script>
+
+    <script type="text/html" id="warning">
+        <div class="col-sm-12">
+            {# inline styles because someone used !important in soltra.css #}
+            <div class="panel panel-danger" style="border: 1px solid #EBCCD1 !important;">
+                <div class="panel-heading" style="background-color:#F2DEDE !important;border-bottom:1px solid #EBCCD1 !important;color:#A94442 !important;">
+                    Warning
+                </div>
+                <div class="panel-body" style="background-color: #ffffff !important;">
+                    By clicking the <em>Publish Externally</em> button, you will be placing the information contained
+                    within this package into the public domain. Before doing so, please consider carefully whether this
+                    would expose sensitive data or damage CERT-UK's reputation.
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/stickytape.js' %}"></script>
+    <script>
+        var require = {
+            baseUrl: "../static/js",
+            paths: {
+                knockout: "{% static 'js/knockout-3.1.0' %}"
+            },
+            urlArgs: "{% spaceless %}{% include 'publisher-version.html' %}{% endspaceless %}"
+        };
+        var rootId = "{{ root_id }}";
+        var stixPackage = {{ package.to_json|safe }};
+        console.log(JSON.stringify(stixPackage));
+    </script>
+    <script src="../static/js/require.js" data-main="publisher/main"></script>
+{% endblock %}
