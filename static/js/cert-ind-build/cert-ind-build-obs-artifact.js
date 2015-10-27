@@ -1,11 +1,11 @@
 define([
     "dcl/dcl",
-    "cert-ind-build/indicator_builder",
+    "cert-ind-build/indicator-builder-shim",
     "cert-ind-build/validation"
 ], function (declare, indicator_builder, validation) {
     "use strict";
 
-    return declare(indicator_builder.ObservableArtifact, {
+    var CERTObservableArtifact = declare(indicator_builder.ObservableArtifact, {
         constructor: function () {
             this.artifactType.extend({
                 validate: {
@@ -24,18 +24,17 @@ define([
 
         doValidation: declare.superCall(function (sup) {
             return function () {
-                var msgs = [];
-                if (sup) {
-                    msgs = sup.call(this);
-                }
+                var msgs = sup.call(this);
                 if (this.artifactType.hasError()) {
-                    msgs.push(this.artifactType.errorMessage());
+                    msgs.addError(this.artifactType.errorMessage());
                 }
                 if (this.artifactRaw.hasError()) {
-                    msgs.push(this.artifactRaw.errorMessage());
+                    msgs.addError(this.artifactRaw.errorMessage());
                 }
                 return msgs;
             };
         })
     });
+    indicator_builder.ObservableArtifact = CERTObservableArtifact;
+    return CERTObservableArtifact
 });

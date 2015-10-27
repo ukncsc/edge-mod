@@ -1,11 +1,11 @@
 define([
     "dcl/dcl",
-    "cert-ind-build/indicator_builder",
+    "cert-ind-build/indicator-builder-shim",
     "cert-ind-build/validation"
 ], function (declare, indicator_builder, validation) {
     "use strict";
 
-    return declare(indicator_builder.ObservableEmail, {
+    var CERTObservableEmail = declare(indicator_builder.ObservableEmail, {
         constructor: function () {
             this.from.extend({
                 validate: {
@@ -24,18 +24,17 @@ define([
 
         doValidation: declare.superCall(function (sup) {
             return function () {
-                var msgs = [];
-                if (sup) {
-                    msgs = sup.call(this);
-                }
+                var msgs = sup.call(this);
                 if (this.from.hasError()) {
-                    msgs.push(this.from.errorMessage());
+                    msgs.addError(this.from.errorMessage());
                 }
                 if (this.subject.hasError()) {
-                    msgs.push(this.subject.errorMessage());
+                    msgs.addError(this.subject.errorMessage());
                 }
                 return msgs;
             };
         })
     });
+    indicator_builder.ObservableEmail = CERTObservableEmail;
+    return CERTObservableEmail;
 });

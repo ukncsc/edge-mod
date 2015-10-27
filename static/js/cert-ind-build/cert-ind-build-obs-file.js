@@ -1,11 +1,11 @@
 define([
     "dcl/dcl",
-    "cert-ind-build/indicator_builder",
+    "cert-ind-build/indicator-builder-shim",
     "cert-ind-build/validation"
 ], function (declare, indicator_builder, validation) {
     "use strict";
 
-    return declare(indicator_builder.ObservableFile, {
+    var CERTObservableFile = declare(indicator_builder.ObservableFile, {
         constructor: function () {
             this.file_name.extend({
                 validate: {
@@ -17,15 +17,14 @@ define([
 
         doValidation: declare.superCall(function (sup) {
             return function () {
-                var msgs = [];
-                if (sup) {
-                    msgs = sup.call(this);
-                }
+                var msgs = sup.call(this);
                 if (this.file_name.hasError()) {
-                    msgs.push(this.file_name.errorMessage());
+                    msgs.addError(this.file_name.errorMessage());
                 }
                 return msgs;
             };
         })
     });
+    indicator_builder.ObservableFile = CERTObservableFile;
+    return CERTObservableFile;
 });

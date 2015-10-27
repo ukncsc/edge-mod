@@ -1,18 +1,50 @@
 {% extends "ind-build.html" %}
 {% load staticfiles %}
 
+{% block head-content %}
+
+    <style type="text/css">
+        textarea { resize: none; }
+        /* leave content hidden until we've bound the model */
+        #content { visibility: hidden; }
+    </style>
+
+{% endblock %}
+
 {% block constants %}
     <script>
         var require = {
-            baseUrl: "../../../static/js",
+            baseUrl: "/adapter/cert-ind-build{% static 'js' %}",
             paths: {
-                knockout: "{% static 'js/knockout-3.1.0' %}"
-            }
+                knockout: "cert-ind-build/knockout-shim"
+            },
+            urlArgs: "{% spaceless %}{% include 'cert-ind-build-version.html' %}{% endspaceless %}"
         };
+        indicator_builder.kill_chain_phase_list = {{ kill_chain_phase_list|safe }};
     </script>
+    <script src="/adapter/cert-ind-build{% static 'js/require.js'%}" data-main="cert-ind-build/cert-ind-build-ready"></script>
 {% endblock %}
 
-{% block view-model-on-ready %}
-    <script type="text/javascript" src="{% static "ind-build-ready.js" %}"></script>
-    <script src="{% static 'js/require.js' %}" data-main="cert-ind-build/main"></script>
+{% block extra-fields %}
+                <div class="form-group">
+                    <label for="killChainPhase" class="col-lg-2 control-label">Kill Chain Phase</label>
+                    <!-- ko if: killChainPhase.hasValidation -->
+                    <span class="validation-error" data-bind="visible: killChainPhase.hasError, text: killChainPhase.errorMessage"></span>
+                    <!-- /ko -->
+                    <div class="col-lg-6">
+                        <select data-bind="options: kill_chain_phase_list,
+                                           value: killChainPhase,
+                                           optionsCaption: 'Choose...',
+                                           optionsText: 'name',
+                                           optionsValue: 'phase_id',
+                                           disable: $root.mode().isReadOnly()"
+                                id='killChainPhase' name='killChainPhase'></select>
+                    </div>
+                </div>
 {% endblock %}
+
+{% block ind-build-viewmodel-setup %}{% endblock %}
+
+{% block knockout-setup %}{% endblock %}
+
+{% block view-model-on-ready %}{% endblock %}
