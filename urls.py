@@ -7,7 +7,7 @@ from repository.adaptertools import AdapterInfo
 from repository.settings import TEMPLATE_DIRS
 
 # load our templates first
-this_adapter = next(adapter for adapter in AdapterInfo.scan() if adapter.name == 'cert-ind-build')
+this_adapter = next(adapter for adapter in AdapterInfo.scan() if adapter.name == 'certuk-mod')
 if this_adapter:
     for dir_ in this_adapter.find_subdir('templates/'):
         TEMPLATE_DIRS = (dir_,) + TEMPLATE_DIRS
@@ -29,7 +29,7 @@ publisher_urls = [
 
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]
 
-urlpatterns = patterns('adapters.publisher', *publisher_url_patterns)
+urlpatterns = patterns('adapters.certuk-mod', *publisher_url_patterns)
 
 navitems = [
     ('External Publisher', 'publisher_discover'),
