@@ -17,7 +17,8 @@ require([
         "tlps_list": indicator_builder.tlps_list,
         "trustgroups_list": indicator_builder.trustgroups_list,
         "indicatorTypes": indicator_builder.indicatorTypes,
-        "confidence_list": indicator_builder.confidence_list
+        "confidence_list": indicator_builder.confidence_list,
+        "kill_chain_phase_list": indicator_builder.kill_chain_phase_list
     });
 
     indicator_builder.vm.id(indicator_builder.id);

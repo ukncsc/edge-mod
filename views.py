@@ -5,12 +5,12 @@ from django.http import FileResponse, HttpResponseNotFound
 
 from cert_observable_object_generator import CERTObservableObjectGenerator
 from indicator.indicator_builder import IndicatorBuilder
-from indicator.view_seed_data import IndicatorBuilderTemplateDataGenerator
+from view_seed_data import CERTIndicatorBuilderTemplateDataGenerator
 from indicator import views as original_views
 
 original_views.observable_object_generator = CERTObservableObjectGenerator()
 original_views.indicator_builder = IndicatorBuilder(original_views.observable_object_generator)
-original_views.view_data_generator = IndicatorBuilderTemplateDataGenerator('Indicator', 'cert-ind-build.html', original_views.indicator_builder)
+original_views.view_data_generator = CERTIndicatorBuilderTemplateDataGenerator('Indicator', 'cert-ind-build.html', original_views.indicator_builder)
 
 
 @login_required

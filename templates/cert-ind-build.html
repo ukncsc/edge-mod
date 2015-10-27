@@ -20,6 +20,7 @@
             },
             urlArgs: "{% spaceless %}{% include 'cert-ind-build-version.html' %}{% endspaceless %}"
         };
+        indicator_builder.kill_chain_phase_list = {{ kill_chain_phase_list|safe }};
     </script>
     <script src="/adapter/cert-ind-build{% static 'js/require.js'%}" data-main="cert-ind-build/cert-ind-build-ready"></script>
 {% endblock %}
