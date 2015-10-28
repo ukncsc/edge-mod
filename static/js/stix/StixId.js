@@ -22,7 +22,7 @@ define([
             "class": Indicator, "collection": "indicators", "label": "Indicator", "code": "ind"
         },
         "observable": {
-            "class": Observable, "collection": "observables.observables", "label": "Observable", "code": "obs"
+            "class": Observable, "collection": "observables.observables", "label": "Observable", "code": "obs", "cert_validation": "observables"
         }
     });
 

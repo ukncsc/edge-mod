@@ -3,7 +3,10 @@
     <!-- ko if: value().length > 0 -->
     <dl class="dl-horizontal" data-bind="foreach: value">
         <dt data-bind="text: label"></dt>
-        <dd data-bind="text: value"></dd>
+        <dd data-bind="text: value, css: {
+            'text-warning': validation && validation.status === ValidationStatus.WARN,
+            'text-danger': validation && validation.status === ValidationStatus.ERROR
+        }"></dd>
     </dl>
     <!-- /ko -->
 </td>

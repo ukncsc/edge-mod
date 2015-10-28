@@ -12,6 +12,7 @@ from package_publisher import Publisher
 from publisher_config import PublisherConfig
 from package_generator import PackageGenerator
 from publisher_edge_object import PublisherEdgeObject
+from validator import PackageValidationInfo
 from cert_observable_object_generator import CERTObservableObjectGenerator
 from indicator.indicator_builder import IndicatorBuilder
 from view_seed_data import CERTIndicatorBuilderTemplateDataGenerator
@@ -54,10 +55,12 @@ def discover(request):
 def review(request, id_):
     root_edge_object = PublisherEdgeObject.load(id_)
     package = PackageGenerator.build_package(root_edge_object)
+    validation_info = PackageValidationInfo.validate(package)
     request.breadcrumbs([("Publisher", "")])
     return render(request, "publisher_review.html", {
         "root_id": id_,
         "package": package,
+        "validation_info": validation_info
     })
 
 
