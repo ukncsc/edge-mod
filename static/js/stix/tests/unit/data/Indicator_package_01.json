@@ -148,6 +148,18 @@
             {
               "color": "RED",
               "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            },
+            {
+              "statement": "Unclassified",
+              "xsi:type": "simpleMarking:SimpleMarkingStructureType"
+            },
+            {
+              "statement": "Public",
+              "xsi:type": "simpleMarking:SimpleMarkingStructureType"
+            },
+            {
+              "terms_of_use": "Public Domain",
+              "xsi:type": "TOUMarking:TermsOfUseMarkingStructureType"
             }
           ]
         }

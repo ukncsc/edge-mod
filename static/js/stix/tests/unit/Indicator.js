@@ -54,6 +54,12 @@ define([
                 "has correct TLP": function () {
                     assert.equal(classUnderTest.tlp(), "RED");
                 },
+                "has correct Handling Caveats": function () {
+                    assert.equal(classUnderTest.handlingCaveats(), "Unclassified, Public");
+                },
+                "has correct Terms of Use": function () {
+                    assert.equal(classUnderTest.termsOfUse(), "Public Domain");
+                },
                 "has correct producer": function () {
                     assert.equal(classUnderTest.producer(), "Purple Secure Systems");
                 },
