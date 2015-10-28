@@ -49,8 +49,10 @@ class PackageValidationInfo(object):
 
     @staticmethod
     def __generate_validation_dict(package_dict):
-        return {}.update(PackageValidationInfo.__validate_observables(package_dict))
+        validation = {}
+        validation.update(PackageValidationInfo.__validate_observables(package_dict))
         # and other types...
+        return validation
 
 
     @staticmethod
