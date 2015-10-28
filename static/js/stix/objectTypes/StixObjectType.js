@@ -7,10 +7,9 @@ define([
 
     return declare(null, {
         declaredClass: "StixObjectType",
-        constructor: function (data, stixPackage, cert_validation) {
+        constructor: function (data, stixPackage) {
             this.data = data;
             this.stixPackage = stixPackage;
-            this.cert_validation = cert_validation;
         },
         properties: function () {
             var propertyList = [];
@@ -18,9 +17,8 @@ define([
                 if (name === "xsi:type") {
                     return;
                 }
-                var validationInfo = this.cert_validation[name];
-                NamedProperty.addToPropertyList(propertyList, name, value, validationInfo);
-            }.bind(this));
+                NamedProperty.addToPropertyList(propertyList, name, value);
+            });
             var customProperties = this.stixPackage.safeGet(this.data, "custom_properties");
             if (customProperties instanceof Array) {
                 ko.utils.arrayForEach(customProperties, function (property) {

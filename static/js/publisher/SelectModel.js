@@ -8,8 +8,8 @@ define([
     "use strict";
 
     return declare(null, {
-        constructor: function (rootId, stixPackage, validationInfo) {
-            this.stixPackage = ko.observable(new StixPackage(stixPackage, rootId, validationInfo));
+        constructor: function (rootId, stixPackage) {
+            this.stixPackage = ko.observable(new StixPackage(stixPackage, rootId));
 
             this.root = ko.computed(function () {
                 return this.stixPackage().root;

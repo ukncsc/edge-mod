@@ -2,13 +2,11 @@ require([
     "knockout",
     "common/modal/Modal",
     "publisher/SelectModel",
-    "common/ValidationStatus",
     "domReady!"
-], function (ko, Modal, SelectModel, ValidationStatus) {
+], function (ko, Modal, SelectModel) {
     try {
-        window.ValidationStatus = ValidationStatus;
         ko.applyBindings(
-            new SelectModel(rootId, stixPackage, validationInfo),
+            new SelectModel(rootId, stixPackage),
             document.getElementById("content")
         );
     } catch (e) {

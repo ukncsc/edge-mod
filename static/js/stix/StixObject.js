@@ -13,13 +13,10 @@ define([
     "use strict";
 
     return declare(null, {
-        constructor: function (data, stixPackage, cert_validation) {
+        constructor: function (data, stixPackage) {
             this.data = ko.observable(data);
             this.id = ko.computed(function () {
                 return stixPackage.safeGet(this.data(), "id");
-            }, this);
-            this.cert_validation = ko.computed(function () {
-                return stixPackage.safeGet(cert_validation, this.id()) || {};
             }, this);
             this.namespace = ko.computed(function () {
                 return this.id().split(":", 2)[0];

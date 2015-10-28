@@ -29,7 +29,7 @@ define([
             }, this);
             var objectType = ko.computed(function () {
                 var ctor = getObjectType(this.type());
-                return new ctor(stixPackage.safeGet(this.data(), "object.properties"), stixPackage, this.cert_validation());
+                return new ctor(stixPackage.safeGet(this.data(), "object.properties"), stixPackage);
             }, this);
             this.properties = ko.computed(function () {
                 return objectType().properties();

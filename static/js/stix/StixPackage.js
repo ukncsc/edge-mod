@@ -6,16 +6,12 @@ define([
     "use strict";
 
     return declare(null, {
-        constructor: function (stixPackage, rootId, validationInfo) {
+        constructor: function (stixPackage, rootId) {
             if (!(stixPackage instanceof Object)) {
                 throw new Error("STIX package cannot be null or undefined");
             }
-            if (!(stixPackage instanceof Object)) {
-                throw new Error("Validation info cannot be null or undefined");
-            }
             this._data = stixPackage;
             this._rootId = new StixId(rootId);
-            this._cert_validation = validationInfo;
             this.root = this.findById(this._rootId);
             this.type = this._rootId.type();
         },
@@ -36,8 +32,7 @@ define([
             if (!data) {
                 throw new Error("Object not found with id: " + id);
             }
-            var validationInfo = this.safeGet(this._cert_validation, type.cert_validation || "");
-            return new type.class(data, this, validationInfo);
+            return new type.class(data, this);
         },
 
         findByStringId: function (/*String*/ id) {
