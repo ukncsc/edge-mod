@@ -11,6 +11,8 @@ class ObservableValidationInfo(ObjectValidationInfo):
     @staticmethod
     def validate(**observable_data):
         observable_type = observable_data['object_type']
-        type_validation = FieldValidationInfo(ValidationStatus.WARN,
-                                              'Unrecognizable observable type of %s.' % observable_type)
+        type_validation = FieldValidationInfo(status=ValidationStatus.WARN,
+                                              message='Unrecognizable observable type of %s.' %
+                                                      observable_type.field_value,
+                                              field_path_name=observable_type.field_path_name)
         return ObservableValidationInfo(observable_type, object_type=type_validation)

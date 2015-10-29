@@ -1,6 +1,7 @@
 
 from observable import ObservableValidationInfo
 from address import AddressValidationInfo
+from .. import FieldAlias
 
 
 class ObservableValidator(object):
@@ -15,7 +16,8 @@ class ObservableValidator(object):
         handler_map = {
             'AddressObjectType': AddressValidationInfo.validate
         }
-        handler = handler_map.get(object_type)
+        actual_type = object_type.field_value if isinstance(object_type, FieldAlias) else object_type
+        handler = handler_map.get(actual_type)
         if handler is None:
             handler = ObservableValidationInfo.validate
         return handler

@@ -2,6 +2,7 @@
 from edge.combine import STIXPackage
 import json
 from ..observable.validator import ObservableValidator
+from .. import FieldAlias
 
 
 class PackageValidationInfo(object):
@@ -25,7 +26,8 @@ class PackageValidationInfo(object):
             if 'observable_composition' not in observable:
                 properties = observable['object']['properties']
                 id_ = observable['id']
-                validation_results = ObservableValidator.validate(object_type=properties['xsi:type'], **properties)
+                validation_results = ObservableValidator.validate(
+                    object_type=FieldAlias('xsi:type', properties['xsi:type']), **properties)
                 if validation_results and validation_results.validation_dict:
                     observable_validation.update({id_: validation_results.validation_dict})
         return observable_validation
