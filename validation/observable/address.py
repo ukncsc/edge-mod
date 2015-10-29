@@ -21,14 +21,20 @@ class AddressValidationInfo(ObservableValidationInfo):
 
     @staticmethod
     def validate(**field_values):
+        address_value = field_values['address_value']
+        if isinstance(address_value, dict):
+            address_value = address_value['value']
+
+        return AddressValidationInfo.__validate(address_value=address_value, category=field_values['category'])
+
+    @staticmethod
+    def __validate(address_value, category):
         category_validation = None
         address_validation = None
 
-        category = field_values['category']
-
         address_validator = AddressValidationInfo.__get_category_handler(category)
         if address_validator:
-            address_validation = address_validator(field_values['address_value'])
+            address_validation = address_validator(address_value)
         else:
             category_validation = FieldValidationInfo(ValidationStatus.ERROR,
                                                       'Unable to determine the address category (%s).' % category)
