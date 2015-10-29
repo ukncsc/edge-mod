@@ -12,7 +12,7 @@ from package_publisher import Publisher
 from publisher_config import PublisherConfig
 from package_generator import PackageGenerator
 from publisher_edge_object import PublisherEdgeObject
-from validator import PackageValidationInfo
+from validation.package.validator import PackageValidationInfo
 from cert_observable_object_generator import CERTObservableObjectGenerator
 from indicator.indicator_builder import IndicatorBuilder
 from view_seed_data import CERTIndicatorBuilderTemplateDataGenerator
