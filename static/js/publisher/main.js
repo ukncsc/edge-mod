@@ -6,10 +6,12 @@ require([
 ], function (ko, Modal, SelectModel) {
     try {
         ko.applyBindings(
-            new SelectModel(rootId, stixPackage),
+            new SelectModel(window["rootId"], window["stixPackage"], window["validationInfo"]),
             document.getElementById("content")
         );
     } catch (e) {
+console.error(e);
+/*
         var errorModal = new Modal({
             title: "Error",
             titleIcon: "glyphicon-warning-sign",
@@ -17,5 +19,6 @@ require([
         });
         errorModal.getButtonByLabel("OK").callback = history.back.bind(history);
         errorModal.show();
+*/
     }
 });

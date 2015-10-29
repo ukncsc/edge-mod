@@ -1,17 +1,27 @@
 define([
     "dcl/dcl",
     "knockout",
-    "./StixId"
-], function (declare, ko, StixId) {
+    "./StixId",
+    "./ReviewValue"
+], function (declare, ko, StixId, ReviewValue) {
     "use strict";
 
+    function getValidation(/*String*/ id, /*String*/ propertyPath) {
+        var val = (this._validationInfo[id] || {})[propertyPath];
+        return {
+            "state": val && ReviewValue.State.parse(val.status) || ReviewValue.State.OK,
+            "message": val && val.message || null
+        };
+    }
+
     return declare(null, {
-        constructor: function (stixPackage, rootId) {
+        constructor: function (stixPackage, rootId, validationInfo) {
             if (!(stixPackage instanceof Object)) {
                 throw new Error("STIX package cannot be null or undefined");
             }
             this._data = stixPackage;
             this._rootId = new StixId(rootId);
+            this._validationInfo = validationInfo || {};
             this.root = this.findById(this._rootId);
             this.type = this._rootId.type();
         },
@@ -56,6 +66,12 @@ define([
                 }
             }
             return current;
+        },
+
+        safeValueGet: function(/*String*/ id, /*Object*/ object, /*String*/ propertyPath) {
+            var simpleValue = this.safeGet(object, propertyPath);
+            var validation = getValidation.bind(this)(id, propertyPath);
+            return new ReviewValue(simpleValue, validation.state, validation.message);
         },
 
         safeArrayGet: function (/*Object*/ object, /*String*/ propertyPath,

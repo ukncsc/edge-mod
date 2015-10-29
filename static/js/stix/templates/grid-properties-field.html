@@ -2,8 +2,14 @@
     <em data-bind="if: value().length === 0">None</em>
     <!-- ko if: value().length > 0 -->
     <dl class="dl-horizontal" data-bind="foreach: value">
-        <dt data-bind="text: label"></dt>
-        <dd data-bind="text: value"></dd>
+        <dt data-bind="text: label, attr: { title: value.message }, css: {
+            'bg-danger text-danger': value.hasError,
+            'bg-warning text-warning': value.hasWarning
+        }"></dt>
+        <dd data-bind="text: value.value, attr: { title: value.message }, css: {
+            'bg-danger text-danger': value.hasError,
+            'bg-warning text-warning': value.hasWarning
+        }"></dd>
     </dl>
     <!-- /ko -->
 </td>
