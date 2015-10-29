@@ -38,9 +38,21 @@ class AddressValidationInfo(ObservableValidationInfo):
     @staticmethod
     def __get_category_handler(category):
         handlers = {
-            AddressValidationInfo.IPv4_CATEGORY: AddressValidationInfo.__validate_ipv4
+            AddressValidationInfo.IPv4_CATEGORY: AddressValidationInfo.__validate_ipv4,
+            AddressValidationInfo.IPv6_CATEGORY: AddressValidationInfo.__dummy_warn,
+            AddressValidationInfo.EMAIL_CATEGORY: AddressValidationInfo.__dummy_error,
+            AddressValidationInfo.MAC_CATEGORY: AddressValidationInfo.__dummy_warn,
+            AddressValidationInfo.CIDR_CATEGORY: AddressValidationInfo.__dummy_error
         }
         return handlers.get(category)
+
+    @staticmethod
+    def __dummy_error(address):
+        return FieldValidationInfo(ValidationStatus.ERROR, 'Computer says no.')
+
+    @staticmethod
+    def __dummy_warn(address):
+        return FieldValidationInfo(ValidationStatus.WARN, 'Computer says not sure.')
 
     @staticmethod
     def __validate_ipv4(address):

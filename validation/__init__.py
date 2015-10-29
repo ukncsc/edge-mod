@@ -19,7 +19,7 @@ class ObjectValidationInfo(object):
         super(ObjectValidationInfo, self).__init__()
         self.validation_dict = {}
         for field_name, field_results in field_validation.iteritems():
-            if field_results:
+            if field_results and field_results.status != ValidationStatus.OK:
                 self.validation_dict[field_name] = {
                     'status': field_results.status,
                     'message': field_results.message
