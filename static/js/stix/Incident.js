@@ -10,13 +10,13 @@ define([
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
             this.status = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "status.value");
+                return stixPackage.safeValueGet(this.id(), this.data(), "status.value");
             }, this);
             this.reporter = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "reporter.identity.name");
+                return stixPackage.safeValueGet(this.id(), this.data(), "reporter.identity.name");
             }, this);
             this.confidence = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "confidence.value.value");
+                return stixPackage.safeValueGet(this.id(), this.data(), "confidence.value.value");
             }, this);
             this.responders = ko.computed(function () {
                 return stixPackage.safeListGet(this.data(), "responders", "identity.name");

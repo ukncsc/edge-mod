@@ -10,16 +10,16 @@ define([
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
             this.producer = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "producer.identity.name");
+                return stixPackage.safeValueGet(this.id(), this.data(), "producer.identity.name");
             }, this);
             this.confidence = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "confidence.value.value");
+                return stixPackage.safeValueGet(this.id(), this.data(), "confidence.value.value");
             }, this);
             this.indicatorTypes = ko.computed(function () {
                 return stixPackage.safeListGet(this.data(), "indicator_types");
             }, this);
             this.compositeIndicatorComposition = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "composite_indicator_expression.operator");
+                return stixPackage.safeValueGet(this.id(), this.data(), "composite_indicator_expression.operator");
             }, this);
             this.compositeIndicators = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.data(), "composite_indicator_expression.indicators", "idref");
@@ -30,7 +30,7 @@ define([
             }, this);
             this.composition = ko.computed(function () {
                 var observable = this.observable();
-                return observable ? stixPackage.safeGet(observable.data(), "observable_composition.operator") : null;
+                return observable ? stixPackage.safeValueGet(this.id(), observable.data(), "observable_composition.operator") : null;
             }, this);
             this.observables = ko.computed(function () {
                 var observable = this.observable();

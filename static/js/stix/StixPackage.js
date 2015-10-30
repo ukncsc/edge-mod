@@ -58,7 +58,7 @@ define([
             var current = stixObject;
             for (var i = 0, len = propertyNames.length; current && i < len; i++) {
                 var p = propertyNames[i];
-                if (p in current) {
+                if (current.hasOwnProperty(p)) {
                     current = current[p];
                 } else {
                     current = null;
@@ -86,9 +86,13 @@ define([
         safeListGet: function (/*Object*/ object, /*String*/ propertyPath,
                                /*String?*/ valueKey, /*String?*/ delimiter) {
             var itemPropertyPath = valueKey || "value";
-            return (this.safeArrayGet(object, propertyPath, function (item) {
+            var listValue = (this.safeArrayGet(object, propertyPath, function (item) {
                 return this.safeGet(item, itemPropertyPath);
             }, this) || []).join(delimiter || ", ");
+            // TODO: add id to method signature (or change safeValueGet to work this way)
+            var id = typeof object.id === "function" ? object.id() : object.id;
+            var validation = getValidation.bind(this)(id, propertyPath);
+            return new ReviewValue(listValue, validation.state, validation.message);
         },
 
         safeReferenceArrayGet: function (/*Object*/ object, /*String*/ propertyPath,

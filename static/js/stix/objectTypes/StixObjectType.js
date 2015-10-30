@@ -1,8 +1,9 @@
 define([
     "dcl/dcl",
     "knockout",
+    "../ReviewValue",
     "./NamedProperty"
-], function (declare, ko, NamedProperty) {
+], function (declare, ko, ReviewValue, NamedProperty) {
     "use strict";
 
     return declare(null, {
@@ -16,7 +17,7 @@ define([
             var propertyList = [];
             if (this.data instanceof Object) {
                 Object.keys(this.data).forEach(function (name) {
-                    if (name === "xsi:type") {
+                    if (name === "xsi:type" || name === "custom_properties") {
                         return;
                     }
                     var reviewValue = this.stixPackage.safeValueGet(this.id, this.data, name);
@@ -28,7 +29,7 @@ define([
                         if (property.name === "xsi:type") {
                             return;
                         }
-                        NamedProperty.addToPropertyList(propertyList, property.name, property.value);
+                        NamedProperty.addToPropertyList(propertyList, property.name, new ReviewValue(property.value));
                     });
                 }
             }

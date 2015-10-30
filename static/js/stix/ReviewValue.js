@@ -22,7 +22,9 @@ define([
             return rawValue.length > 0 ? rawValue : null;
         },
         "Array" : function (rawValue) {
-            return rawValue.slice(0, -1).join(", ") + " and " + rawValue[rawValue.length - 1];
+            return rawValue.length > 0
+                ? rawValue.slice(0, -1).join(", ") + " and " + rawValue[rawValue.length - 1]
+                : null;
         },
         "Object" : function (rawValue) {
             var condition = rawValue["condition"] || "Equals";
@@ -67,6 +69,10 @@ define([
             });
             this.message = ko.computed(function () {
                 return this.state() === ReviewValue.State.OK ? null : message || null;
+            }.bind(this));
+
+            this.hasValue = ko.computed(function () {
+                return this.value() !== null;
             }.bind(this));
             this.hasError = ko.computed(function () {
                 return this.state() === ReviewValue.State.ERROR;

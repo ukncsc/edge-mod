@@ -25,7 +25,7 @@ define([
     return declare(StixObject, {
         constructor: function (data, stixPackage) {
             this.type = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "object.properties.xsi:type");
+                return stixPackage.safeValueGet(this.id(), this.data(), "object.properties.xsi:type");
             }, this);
             var objectType = ko.computed(function () {
                 var ctor = getObjectType(this.type());

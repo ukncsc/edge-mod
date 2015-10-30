@@ -10,7 +10,7 @@ define([
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
             this.target = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "victim_targeting.identity.name");
+                return stixPackage.safeValueGet(this.id(), this.data(), "victim_targeting.identity.name");
             }, this);
             this.attackPatterns = ko.computed(function () {
                 return stixPackage.safeListGet(this.data(), "behavior.attack_patterns", "title");
