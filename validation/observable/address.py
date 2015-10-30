@@ -82,3 +82,11 @@ class AddressValidationInfo(ObservableValidationInfo):
             message = 'Address is not a valid IPv4 address.'
 
         return FieldValidationInfo(status, message)
+
+    @staticmethod
+    def __validate_ipv6(address):
+        try:
+            socket.inet_pton(socket.AF_INET6, address)
+        except socket.error:  # not a valid address
+            return False
+        return True

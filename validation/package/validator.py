@@ -2,6 +2,7 @@
 from edge.combine import STIXPackage
 import json
 from ..observable.validator import ObservableValidator
+from ..indicator.validator import IndicatorValidator
 from .. import FieldAlias
 
 
@@ -15,6 +16,7 @@ class PackageValidationInfo(object):
     def __generate_validation_dict(package_dict):
         validation = {}
         validation.update(PackageValidationInfo.__validate_observables(package_dict))
+        validation.update(PackageValidationInfo.__validate_indicators(package_dict))
         # and other types...
         return validation
 
@@ -27,14 +29,22 @@ class PackageValidationInfo(object):
                 properties = observable['object']['properties']
                 id_ = observable['id']
                 validation_results = ObservableValidator.validate(
-                    object_type=FieldAlias('xsi:type', properties['xsi:type']), **properties)
+                    object_type=FieldAlias('xsi:type', properties.get('xsi:type')), **properties)
                 if validation_results and validation_results.validation_dict:
                     observable_validation.update({id_: validation_results.validation_dict})
         return observable_validation
 
     @staticmethod
     def __validate_indicators(package_dict):
-        pass
+        indicators = package_dict['indicators']
+        indicator_validation = {}
+        for indicator in indicators:
+            id_ = indicator['id']
+            validation_results = IndicatorValidator.validate(title=indicator.get('title'),
+                                                             indicator_types=indicator.get('indicator_types'))
+            if validation_results and validation_results.validation_dict:
+                indicator_validation.update({id_: validation_results.validation_dict})
+        return indicator_validation
 
     def to_json(self):
         return json.dumps(self.validation_dict)
