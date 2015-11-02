@@ -22,7 +22,7 @@ class PackageValidationInfo(object):
 
     @staticmethod
     def __validate_observables(package_dict):
-        observables = package_dict['observables']['observables']
+        observables = package_dict.get('observables', {}).get('observables', {})
         observable_validation = {}
         for observable in observables:
             if 'observable_composition' not in observable:
@@ -36,7 +36,7 @@ class PackageValidationInfo(object):
 
     @staticmethod
     def __validate_indicators(package_dict):
-        indicators = package_dict['indicators']
+        indicators = package_dict.get('indicators', {})
         indicator_validation = {}
         for indicator in indicators:
             id_ = indicator['id']
