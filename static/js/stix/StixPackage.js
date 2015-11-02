@@ -2,26 +2,20 @@ define([
     "dcl/dcl",
     "knockout",
     "./StixId",
-    "./ReviewValue"
-], function (declare, ko, StixId, ReviewValue) {
+    "./ReviewValue",
+    "./ValidationInfo"
+], function (declare, ko, StixId, ReviewValue, ValidationInfo) {
     "use strict";
 
-    function getValidation(/*String*/ id, /*String*/ propertyPath) {
-        var val = (this._validationInfo[id] || {})[propertyPath];
-        return {
-            "state": val && ReviewValue.State.parse(val.status) || ReviewValue.State.OK,
-            "message": val && val.message || null
-        };
-    }
-
     return declare(null, {
+        declaredClass: "StixPackage",
         constructor: function (stixPackage, rootId, validationInfo) {
             if (!(stixPackage instanceof Object)) {
                 throw new Error("STIX package cannot be null or undefined");
             }
             this._data = stixPackage;
             this._rootId = new StixId(rootId);
-            this._validationInfo = validationInfo || {};
+            this._validationInfo = new ValidationInfo(validationInfo || {});
             this.root = this.findById(this._rootId);
             this.type = this._rootId.type();
         },
@@ -70,7 +64,7 @@ define([
 
         safeValueGet: function(/*String*/ id, /*Object*/ object, /*String*/ propertyPath) {
             var simpleValue = this.safeGet(object, propertyPath);
-            var validation = getValidation.bind(this)(id, propertyPath);
+            var validation = this._validationInfo.findByProperty(id, propertyPath);
             return new ReviewValue(simpleValue, validation.state, validation.message);
         },
 
@@ -91,7 +85,7 @@ define([
             }, this) || []).join(delimiter || ", ");
             // TODO: add id to method signature (or change safeValueGet to work this way)
             var id = typeof object.id === "function" ? object.id() : object.id;
-            var validation = getValidation.bind(this)(id, propertyPath);
+            var validation = this._validationInfo.findByProperty(id, propertyPath);
             return new ReviewValue(listValue, validation.state, validation.message);
         },
 
