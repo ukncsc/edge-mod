@@ -10,8 +10,6 @@ require([
             document.getElementById("content")
         );
     } catch (e) {
-console.error(e);
-/*
         var errorModal = new Modal({
             title: "Error",
             titleIcon: "glyphicon-warning-sign",
@@ -19,6 +17,5 @@ console.error(e);
         });
         errorModal.getButtonByLabel("OK").callback = history.back.bind(history);
         errorModal.show();
-*/
     }
 });

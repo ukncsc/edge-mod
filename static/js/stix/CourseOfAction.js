@@ -1,10 +1,11 @@
 define([
     "dcl/dcl",
     "knockout",
+    "./ReviewValue",
     "./StixObjectTLP",
     "kotemplate!root-coa:./templates/root-COA.html",
     "kotemplate!list-coa:./templates/list-COAs.html"
-], function (declare, ko, StixObjectTLP) {
+], function (declare, ko, ReviewValue, StixObjectTLP) {
     "use strict";
 
     return declare(StixObjectTLP, {
@@ -29,14 +30,14 @@ define([
             }, this);
             this.properties = ko.computed(function () {
                 return ko.utils.arrayFilter([
-                    {label: "Stage", value: this.stage().value()},
-                    {label: "Type", value: this.type().value()},
-                    {label: "Objective", value: this.objective().value()},
-                    {label: "Impact", value: this.impact().value()},
-                    {label: "Efficacy", value: this.efficacy().value()},
-                    {label: "Cost", value: this.cost().value()}
+                    {label: "Stage", value: this.stage()},
+                    {label: "Type", value: this.type()},
+                    {label: "Objective", value: this.objective()},
+                    {label: "Impact", value: this.impact()},
+                    {label: "Efficacy", value: this.efficacy()},
+                    {label: "Cost", value: this.cost()}
                 ], function (property) {
-                    return typeof property.value === "string" && property.value.length > 0;
+                    return property.value instanceof ReviewValue && !(property.value.isEmpty());
                 });
             }, this);
             this.relatedCOAs = ko.computed(function () {

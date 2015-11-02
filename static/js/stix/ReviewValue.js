@@ -22,26 +22,32 @@ define([
             return rawValue.length > 0 ? rawValue : null;
         },
         "Array" : function (rawValue) {
-            return rawValue.length > 0
-                ? rawValue.slice(0, -1).join(", ") + " and " + rawValue[rawValue.length - 1]
-                : null;
+            var builtValue;
+            if (rawValue.length > 1) {
+                builtValue = rawValue.slice(0, -1).join(", ") + " and " + rawValue[rawValue.length - 1];
+            } else if (rawValue.length > 0) {
+                builtValue = rawValue[0];
+            } else {
+                builtValue = null;
+            }
+            return builtValue;
         },
         "Object" : function (rawValue) {
             var condition = rawValue["condition"] || "Equals";
             var applyCondition = rawValue["apply_condition"];
-            var value = buildValue(rawValue["value"]);
-            if (value != null) {
-                var builtValue = [];
+            var builtValue = buildValue(rawValue["value"]);
+            if (builtValue != null) {
+                var parts = [];
                 if (applyCondition) {
-                    builtValue.push(capitalise(applyCondition));
+                    parts.push(capitalise(applyCondition));
                 }
                 if (condition && condition !== "Equals") {
-                    builtValue.push(uncamel(condition));
+                    parts.push(uncamel(condition));
                 }
-                builtValue.push(value);
-                return builtValue.join(" ");
+                parts.push(builtValue);
+                builtValue = parts.join(" ");
             }
-            return null;
+            return builtValue;
         }
     });
 
@@ -71,8 +77,8 @@ define([
                 return this.state() === ReviewValue.State.OK ? null : message || null;
             }.bind(this));
 
-            this.hasValue = ko.computed(function () {
-                return this.value() !== null;
+            this.isEmpty = ko.computed(function () {
+                return this.value() === null;
             }.bind(this));
             this.hasError = ko.computed(function () {
                 return this.state() === ReviewValue.State.ERROR;
