@@ -18,8 +18,9 @@ define([
         "Number" : function (rawValue) {
             return isFinite(rawValue) ? rawValue : null;
         },
-        "String" : function (rawValue) {
-            return rawValue.length > 0 ? rawValue : null;
+        "String" : function (rawValue, rawDelimeter) {
+            var delimeter = rawDelimeter || "##comma##";
+            return rawValue.length > 0 ? rawValue.split(delimeter).join(",") : null;
         },
         "Array" : function (rawValue) {
             var builtValue;
@@ -35,7 +36,7 @@ define([
         "Object" : function (rawValue) {
             var condition = rawValue["condition"] || "Equals";
             var applyCondition = rawValue["apply_condition"];
-            var builtValue = buildValue(rawValue["value"]);
+            var builtValue = buildValue(rawValue["value"], rawValue["delimeter"]);
             if (builtValue != null) {
                 var parts = [];
                 if (applyCondition) {
