@@ -1,6 +1,7 @@
 
 class ValidationStatus(object):
     OK = "OK"
+    INFO = "INFO"
     WARN = "WARN"
     ERROR = "ERROR"
 

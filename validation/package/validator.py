@@ -40,8 +40,7 @@ class PackageValidationInfo(object):
         indicator_validation = {}
         for indicator in indicators:
             id_ = indicator['id']
-            validation_results = IndicatorValidator.validate(title=indicator.get('title'),
-                                                             indicator_types=indicator.get('indicator_types'))
+            validation_results = IndicatorValidator.validate(**indicator)
             if validation_results and validation_results.validation_dict:
                 indicator_validation.update({id_: validation_results.validation_dict})
         return indicator_validation
