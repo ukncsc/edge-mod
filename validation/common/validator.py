@@ -11,13 +11,13 @@ class CommonFieldValidator(object):
         description_validation = None
 
         if not object_data.get('title'):
-            title_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Title missing.')
+            title_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Title missing')
 
         if not object_data.get('short_description'):
-            short_description_validation = FieldValidationInfo(ValidationStatus.INFO, 'No short description.')
+            short_description_validation = FieldValidationInfo(ValidationStatus.INFO, 'No short description')
 
         if not object_data.get('description'):
-            description_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Description is missing.')
+            description_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Description is missing')
 
         return {
             'title': title_validation,

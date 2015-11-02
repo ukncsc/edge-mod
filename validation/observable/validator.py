@@ -1,6 +1,8 @@
 
 from observable import ObservableValidationInfo
 from address import AddressValidationInfo
+from hostname import HostnameValidationInfo
+from domain import DomainNameValidationInfo
 from .. import FieldAlias
 
 
@@ -14,7 +16,9 @@ class ObservableValidator(object):
     @staticmethod
     def __get_validation_handler(object_type):
         handler_map = {
-            'AddressObjectType': AddressValidationInfo.validate
+            AddressValidationInfo.TYPE: AddressValidationInfo.validate,
+            HostnameValidationInfo.TYPE: HostnameValidationInfo.validate,
+            DomainNameValidationInfo.TYPE: DomainNameValidationInfo.validate
         }
         actual_type = object_type.field_value if isinstance(object_type, FieldAlias) else object_type
         handler = handler_map.get(actual_type)

@@ -49,7 +49,7 @@ class AddressValidationInfo(ObservableValidationInfo):
             address_validation = address_validator(address_value)
         else:
             category_validation = FieldValidationInfo(ValidationStatus.ERROR,
-                                                      'Unable to determine the address category (%s).' % category)
+                                                      'Unable to determine the address category (%s)' % category)
 
         return AddressValidationInfo(address_value=address_validation, category=category_validation)
 
@@ -83,11 +83,11 @@ class AddressValidationInfo(ObservableValidationInfo):
             status = ValidationStatus.ERROR
 
         if status == ValidationStatus.ERROR:
-            message = 'Address is not a valid IPv4 address.'
+            message = 'Address is not a valid IPv4 address'
 
         if status == ValidationStatus.OK and AddressValidationInfo.__is_warning_ipv4(address):
             status = ValidationStatus.WARN
-            message = 'The IP address appears to be private.'
+            message = 'The IP address appears to be private'
 
         return FieldValidationInfo(status, message)
 
@@ -102,33 +102,33 @@ class AddressValidationInfo(ObservableValidationInfo):
     @staticmethod
     def __validate_ipv6(address):
         if not address:
-            return FieldValidationInfo(ValidationStatus.ERROR, 'IPv6 address value is missing.')
+            return FieldValidationInfo(ValidationStatus.ERROR, 'IPv6 address value is missing')
         try:
             socket.inet_pton(socket.AF_INET6, address)
         except socket.error:  # not a valid address
-            return FieldValidationInfo(ValidationStatus.WARN, 'IPv6 address appears invalid.')
+            return FieldValidationInfo(ValidationStatus.WARN, 'IPv6 address appears invalid')
         return FieldValidationInfo(ValidationStatus.OK, '')
 
     @staticmethod
     def __validate_email(address):
         if not address:
-            return FieldValidationInfo(ValidationStatus.ERROR, 'Email address is missing.')
+            return FieldValidationInfo(ValidationStatus.ERROR, 'Email address is missing')
         if AddressValidationInfo.EMAIL_MATCHER.match(address) is None:
-            return FieldValidationInfo(ValidationStatus.WARN, 'The email address may be invalid.')
+            return FieldValidationInfo(ValidationStatus.WARN, 'The email address may be invalid')
         return FieldValidationInfo(ValidationStatus.OK, '')
 
     @staticmethod
     def __validate_mac(address):
         if not address:
-            return FieldValidationInfo(ValidationStatus.ERROR, 'The MAC address is missing.')
+            return FieldValidationInfo(ValidationStatus.ERROR, 'The MAC address is missing')
         if AddressValidationInfo.MAC_MATCHER.match(address) is None:
-            return FieldValidationInfo(ValidationStatus.WARN, 'The MAC address may be invalid.')
+            return FieldValidationInfo(ValidationStatus.WARN, 'The MAC address may be invalid')
         return FieldValidationInfo(ValidationStatus.OK, '')
 
     @staticmethod
     def __validate_cidr(address):
         if not address:
-            return FieldValidationInfo(ValidationStatus.ERROR, 'The CIDR value is missing.')
+            return FieldValidationInfo(ValidationStatus.ERROR, 'The CIDR value is missing')
         address_parts = address.split('/')
         if len(address_parts) == 2:
             address_validation = AddressValidationInfo.__validate_ipv4(address_parts[0])
@@ -140,4 +140,4 @@ class AddressValidationInfo(ObservableValidationInfo):
                 except ValueError:
                     pass
 
-        return FieldValidationInfo(ValidationStatus.WARN, 'The CIDR value is invalid.')
+        return FieldValidationInfo(ValidationStatus.WARN, 'The CIDR value is invalid')

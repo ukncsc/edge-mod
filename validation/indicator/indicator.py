@@ -15,6 +15,6 @@ class IndicatorValidationInfo(ObjectValidationInfo):
         indicator_types_validation = None
 
         if not indicator_data.get('indicator_types'):
-            indicator_types_validation = FieldValidationInfo(ValidationStatus.ERROR, 'No indicator types.')
+            indicator_types_validation = FieldValidationInfo(ValidationStatus.ERROR, 'No indicator types')
 
         return IndicatorValidationInfo(indicator_types=indicator_types_validation, **common_field_validation)
