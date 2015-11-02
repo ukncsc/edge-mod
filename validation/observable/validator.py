@@ -3,6 +3,7 @@ from observable import ObservableValidationInfo
 from address import AddressValidationInfo
 from hostname import HostnameValidationInfo
 from domain import DomainNameValidationInfo
+from mutex import MutexValidationInfo
 from .. import FieldAlias
 
 
@@ -18,7 +19,8 @@ class ObservableValidator(object):
         handler_map = {
             AddressValidationInfo.TYPE: AddressValidationInfo.validate,
             HostnameValidationInfo.TYPE: HostnameValidationInfo.validate,
-            DomainNameValidationInfo.TYPE: DomainNameValidationInfo.validate
+            DomainNameValidationInfo.TYPE: DomainNameValidationInfo.validate,
+            MutexValidationInfo.TYPE: MutexValidationInfo.validate
         }
         actual_type = object_type.field_value if isinstance(object_type, FieldAlias) else object_type
         handler = handler_map.get(actual_type)
