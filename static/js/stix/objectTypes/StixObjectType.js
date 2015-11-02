@@ -21,7 +21,7 @@ define([
                         return;
                     }
                     var reviewValue = this.stixPackage.safeValueGet(this.id, this.data, name);
-                    NamedProperty.addToPropertyList(propertyList, name, reviewValue);
+                    NamedProperty.addToPropertyList(propertyList, name, ko.observable(reviewValue));
                 }.bind(this));
                 var customProperties = this.stixPackage.safeGet(this.data, "custom_properties");
                 if (customProperties instanceof Array) {
@@ -29,7 +29,7 @@ define([
                         if (property.name === "xsi:type") {
                             return;
                         }
-                        NamedProperty.addToPropertyList(propertyList, property.name, new ReviewValue(property.value));
+                        NamedProperty.addToPropertyList(propertyList, property.name, ko.observable(new ReviewValue(property.value)));
                     });
                 }
             }
