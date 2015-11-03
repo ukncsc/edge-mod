@@ -11,7 +11,7 @@ class DomainNameValidationInfo(ObservableValidationInfo):
     FQDN_TYPE = 'FQDN'
     TLD_TYPE = 'TLD'
 
-    FQDN_MATCHER = re.compile(r'^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}$', re.IGNORECASE)
+    FQDN_MATCHER = re.compile(r'(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)', re.IGNORECASE)
     TLD_MATCHER = re.compile(r'^\.?[a-z]{2,63}$', re.IGNORECASE)
 
     def __init__(self, **field_validation):

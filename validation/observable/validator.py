@@ -4,6 +4,7 @@ from address import AddressValidationInfo
 from hostname import HostnameValidationInfo
 from domain import DomainNameValidationInfo
 from mutex import MutexValidationInfo
+from socket_type import SocketValidationInfo
 from .. import FieldAlias
 
 
@@ -20,7 +21,8 @@ class ObservableValidator(object):
             AddressValidationInfo.TYPE: AddressValidationInfo.validate,
             HostnameValidationInfo.TYPE: HostnameValidationInfo.validate,
             DomainNameValidationInfo.TYPE: DomainNameValidationInfo.validate,
-            MutexValidationInfo.TYPE: MutexValidationInfo.validate
+            MutexValidationInfo.TYPE: MutexValidationInfo.validate,
+            SocketValidationInfo.TYPE: SocketValidationInfo.validate
         }
         actual_type = object_type.field_value if isinstance(object_type, FieldAlias) else object_type
         handler = handler_map.get(actual_type)

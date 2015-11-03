@@ -34,13 +34,8 @@ class AddressValidationInfo(ObservableValidationInfo):
     @staticmethod
     def validate(**field_values):
         address_value = field_values['address_value']
-        if isinstance(address_value, dict):
-            address_value = address_value['value']
+        category = field_values['category']
 
-        return AddressValidationInfo.__validate(address_value=address_value, category=field_values['category'])
-
-    @staticmethod
-    def __validate(address_value, category):
         category_validation = None
         address_validation = None
 
@@ -65,29 +60,36 @@ class AddressValidationInfo(ObservableValidationInfo):
         return handlers.get(category)
 
     @staticmethod
-    def __validate_ipv4(address):
-        status = ValidationStatus.OK
-        message = ''
-
+    def is_ipv4(address):
         try:
             socket.inet_pton(socket.AF_INET, address)
         except AttributeError:  # no inet_pton here, sorry
             try:
                 socket.inet_aton(address)
             except socket.error:
-                status = ValidationStatus.ERROR
-            else:
-                if address.count('.') != 3:
-                    status = ValidationStatus.ERROR
+                return False
+            if address.count('.') != 3:
+                return False
         except socket.error:  # not a valid address
+            return False
+
+        return True
+
+    @staticmethod
+    def __validate_ipv4(address):
+        status = ValidationStatus.OK
+        message = ''
+
+        if not address:
             status = ValidationStatus.ERROR
-
-        if status == ValidationStatus.ERROR:
+            message = 'IP address is missing'
+        elif AddressValidationInfo.is_ipv4(address):
+            if AddressValidationInfo.__is_warning_ipv4(address):
+                status = ValidationStatus.WARN
+                message = 'IP address appears to be private'
+        else:
+            status = ValidationStatus.ERROR
             message = 'Address is not a valid IPv4 address'
-
-        if status == ValidationStatus.OK and AddressValidationInfo.__is_warning_ipv4(address):
-            status = ValidationStatus.WARN
-            message = 'The IP address appears to be private'
 
         return FieldValidationInfo(status, message)
 
@@ -100,12 +102,18 @@ class AddressValidationInfo(ObservableValidationInfo):
         return False
 
     @staticmethod
-    def __validate_ipv6(address):
-        if not address:
-            return FieldValidationInfo(ValidationStatus.ERROR, 'IPv6 address value is missing')
+    def is_ipv6(address):
         try:
             socket.inet_pton(socket.AF_INET6, address)
         except socket.error:  # not a valid address
+            return False
+        return True
+
+    @staticmethod
+    def __validate_ipv6(address):
+        if not address:
+            return FieldValidationInfo(ValidationStatus.ERROR, 'IPv6 address value is missing')
+        if AddressValidationInfo.is_ipv6(address):
             return FieldValidationInfo(ValidationStatus.WARN, 'IPv6 address appears invalid')
         return FieldValidationInfo(ValidationStatus.OK, '')
 
