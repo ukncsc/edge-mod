@@ -3,6 +3,7 @@ from .. import ValidationStatus, FieldValidationInfo
 from .observable import ObservableValidationInfo
 import re
 import socket
+from email.utils import parseaddr
 
 
 class AddressValidationInfo(ObservableValidationInfo):
@@ -15,7 +16,10 @@ class AddressValidationInfo(ObservableValidationInfo):
 
     TYPE = 'AddressObjectType'
 
-    EMAIL_MATCHER = re.compile(r'^[a-z0-9]+@[a-z]+.[a-z]+$', re.IGNORECASE)
+    EMAIL_MATCHER = re.compile(
+        r'^[A-Z0-9][A-Z0-9._%+-]{0,63}@(?:(?=[A-Z0-9-]{1,63}\.)[A-Z0-9]+(?:-[A-Z0-9]+)*\.){1,8}[A-Z]{2,63}$',
+        re.IGNORECASE
+    )
     MAC_MATCHER = re.compile(r'^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$', re.IGNORECASE)
 
     WARN_IPv4_PREFIXES = [
@@ -121,7 +125,8 @@ class AddressValidationInfo(ObservableValidationInfo):
     def __validate_email(address):
         if not address:
             return FieldValidationInfo(ValidationStatus.ERROR, 'Email address is missing')
-        if AddressValidationInfo.EMAIL_MATCHER.match(address) is None:
+        _, email_address = parseaddr(address)
+        if AddressValidationInfo.EMAIL_MATCHER.match(email_address) is None:
             return FieldValidationInfo(ValidationStatus.WARN, 'The email address may be invalid')
         return FieldValidationInfo(ValidationStatus.OK, '')
 

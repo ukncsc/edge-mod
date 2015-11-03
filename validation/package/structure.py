@@ -8,7 +8,7 @@ class ObservableStructureConverter(object):
     @staticmethod
     def __get_conversion_handler(object_type):
         conversion_handlers = {
-            AddressValidationInfo.TYPE: None,
+            AddressValidationInfo.TYPE: ObservableStructureConverter.__address_package_to_simple,
             SocketValidationInfo.TYPE: ObservableStructureConverter.__socket_package_to_simple
         }
         return conversion_handlers.get(object_type)
