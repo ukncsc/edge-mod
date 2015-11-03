@@ -33,6 +33,6 @@ class HostnameValidationInfo(ObservableValidationInfo):
         else:
             is_valid = HostnameValidationInfo.HOSTNAME_MATCHER.match(value) is not None
 
-        error = 'Invalid %s value' % 'domain' if is_domain else 'hostname'
+        error = 'Invalid %s value' % ('domain' if is_domain else 'hostname')
 
         return None if is_valid else FieldValidationInfo(ValidationStatus.WARN, error)
