@@ -30,14 +30,15 @@ define([
             }, this);
             this.properties = ko.computed(function () {
                 return ko.utils.arrayFilter([
-                    {label: "Stage", value: this.stage()},
-                    {label: "Type", value: this.type()},
-                    {label: "Objective", value: this.objective()},
-                    {label: "Impact", value: this.impact()},
-                    {label: "Efficacy", value: this.efficacy()},
-                    {label: "Cost", value: this.cost()}
+                    {label: "Stage", value: ko.observable(this.stage())},
+                    {label: "Type", value: ko.observable(this.type())},
+                    {label: "Objective", value: ko.observable(this.objective())},
+                    {label: "Impact", value: ko.observable(this.impact())},
+                    {label: "Efficacy", value: ko.observable(this.efficacy())},
+                    {label: "Cost", value: ko.observable(this.cost())}
                 ], function (property) {
-                    return property.value instanceof ReviewValue && !(property.value.isEmpty());
+                    var value = property.value();
+                    return value instanceof ReviewValue && !(value.isEmpty());
                 });
             }, this);
             this.relatedCOAs = ko.computed(function () {
