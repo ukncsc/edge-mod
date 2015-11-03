@@ -62,14 +62,20 @@ define([
         },
 
         onPublish: function () {
+            var validations = this.stixPackage().validations();
             var contentData = {
                 message: ko.observable("Are you absolutely sure you want to publish this package?"),
+                messageWarning: "This package has warnings. If you wish to proceed, please describe below why you believe the warnings are not relevant in this case",
+                messageError: "This package has errors and cannot be published",
+                validations: validations,
+                publicationMessage: ko.observable(""),
                 waitingForResponse: ko.observable(false)
             };
 
+            var hasErrors = validations.hasErrors();
             var confirmModal = new Modal({
-                title: "Warning",
-                titleIcon: "glyphicon-exclamation-sign",
+                title: hasErrors ? "Error" : "Warning",
+                titleIcon: hasErrors ? "glyphicon-ban-circle" : "glyphicon-exclamation-sign",
                 contentData: contentData,
                 contentTemplate: publishModalTemplate.id,
                 buttonData: [
@@ -94,6 +100,18 @@ define([
                 ]
             });
 
+            if (hasErrors) {
+                confirmModal.getButtonByLabel("Yes").hide(true);
+                confirmModal.getButtonByLabel("No").hide(true);
+                confirmModal.getButtonByLabel("Close").hide(false);
+            } else if (validations.hasWarnings()) {
+                var publicationMessage = contentData.publicationMessage;
+                publicationMessage.subscribe(function (newValue) {
+                    var hasMessage = (typeof newValue === "string" && newValue.length > 0);
+                    confirmModal.getButtonByLabel("Yes").disabled(!hasMessage);
+                });
+                publicationMessage.valueHasMutated();
+            }
             confirmModal.show();
         },
 
