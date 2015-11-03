@@ -19,8 +19,8 @@ class DomainNameValidationInfo(ObservableValidationInfo):
         self.value = field_validation.get('value')
         self.type = field_validation.get('type')
 
-    @staticmethod
-    def validate(**observable_data):
+    @classmethod
+    def validate(cls, **observable_data):
         domain_type = observable_data.get('type')
         value = observable_data.get('value')
 
@@ -28,10 +28,10 @@ class DomainNameValidationInfo(ObservableValidationInfo):
         type_validation = None
 
         domain_matcher = None
-        if domain_type == DomainNameValidationInfo.FQDN_TYPE:
-            domain_matcher = DomainNameValidationInfo.FQDN_MATCHER
-        elif domain_type == DomainNameValidationInfo.TLD_TYPE:
-            domain_matcher = DomainNameValidationInfo.TLD_MATCHER
+        if domain_type == cls.FQDN_TYPE:
+            domain_matcher = cls.FQDN_MATCHER
+        elif domain_type == cls.TLD_TYPE:
+            domain_matcher = cls.TLD_MATCHER
 
         if domain_matcher:
             if value:
@@ -44,13 +44,13 @@ class DomainNameValidationInfo(ObservableValidationInfo):
             type_validation = FieldValidationInfo(
                 ValidationStatus.ERROR, 'Domain type is missing' if domain_type else 'Unrecognizable domain type')
 
-        return DomainNameValidationInfo(type=type_validation, value=value_validation)
+        return cls(type=type_validation, value=value_validation)
 
-    @staticmethod
-    def get_domain_type_from_value(value):
-        if DomainNameValidationInfo.FQDN_MATCHER.match(value):
-            return DomainNameValidationInfo.FQDN_MATCHER
-        if DomainNameValidationInfo.TLD_MATCHER.match(value):
-            return DomainNameValidationInfo.TLD_TYPE
+    @classmethod
+    def get_domain_type_from_value(cls, value):
+        if cls.FQDN_MATCHER.match(value):
+            return cls.FQDN_MATCHER
+        if cls.TLD_MATCHER.match(value):
+            return cls.TLD_TYPE
 
         return None

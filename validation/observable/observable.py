@@ -12,9 +12,9 @@ class ObservableValidationInfo(ObjectValidationInfo):
         field_validation.update(common_validation)
         super(ObservableValidationInfo, self).__init__(**field_validation)
 
-    @staticmethod
-    def validate(**observable_data):
-        return ObservableValidationInfo(**observable_data)
+    @classmethod
+    def validate(cls, **observable_data):
+        return cls(**observable_data)
 
     @staticmethod
     def __validate_common_fields(**observable_data):

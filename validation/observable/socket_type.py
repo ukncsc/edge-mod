@@ -46,15 +46,15 @@ class SocketValidationInfo(ObservableValidationInfo):
             return None
         return FieldValidationInfo(ValidationStatus.WARN, 'Socket IP address appears invalid')
 
-    @staticmethod
-    def validate(**observable_data):
+    @classmethod
+    def validate(cls, **observable_data):
         port = observable_data.get('port')
         protocol = observable_data.get('protocol')
         ip_address = observable_data.get('ip_address')
         hostname = observable_data.get('hostname')
 
-        port_validation = SocketValidationInfo.__validate_port(port)
-        protocol_validation = SocketValidationInfo.__validate_protocol(protocol)
+        port_validation = cls.__validate_port(port)
+        protocol_validation = cls.__validate_protocol(protocol)
         ip_address_validation = None
         hostname_validation = None
 
@@ -62,9 +62,9 @@ class SocketValidationInfo(ObservableValidationInfo):
             ip_address_validation = hostname_validation = \
                 FieldValidationInfo(ValidationStatus.ERROR, 'Only one of IP address or Hostname must be completed')
         elif ip_address:
-            ip_address_validation = SocketValidationInfo.__validate_ip_address(ip_address)
+            ip_address_validation = cls.__validate_ip_address(ip_address)
         elif hostname:
             hostname_validation = HostnameValidationInfo.validate_hostname_value(False, hostname)
 
-        return SocketValidationInfo(port=port_validation, protocol=protocol_validation,
-                                    ip_address=ip_address_validation, hostname=hostname_validation)
+        return cls(port=port_validation, protocol=protocol_validation, ip_address=ip_address_validation,
+                   hostname=hostname_validation)

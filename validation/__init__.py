@@ -35,3 +35,7 @@ class ObjectValidationInfo(object):
                     'status': field_results.status,
                     'message': field_results.message
                 }
+
+    @classmethod
+    def validate(cls, **object_data):
+        raise NotImplementedError('This method must be overridden.')

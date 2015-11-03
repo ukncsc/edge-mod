@@ -35,22 +35,22 @@ class AddressValidationInfo(ObservableValidationInfo):
         self.address_value = field_validation['address_value']
         self.category = field_validation['category']
 
-    @staticmethod
-    def validate(**field_values):
+    @classmethod
+    def validate(cls, **field_values):
         address_value = field_values['address_value']
         category = field_values['category']
 
         category_validation = None
         address_validation = None
 
-        address_validator = AddressValidationInfo.__get_category_handler(category)
+        address_validator = cls.__get_category_handler(category)
         if address_validator:
             address_validation = address_validator(address_value)
         else:
             category_validation = FieldValidationInfo(ValidationStatus.ERROR,
                                                       'Unable to determine the address category (%s)' % category)
 
-        return AddressValidationInfo(address_value=address_validation, category=category_validation)
+        return cls(address_value=address_validation, category=category_validation)
 
     @staticmethod
     def __get_category_handler(category):
@@ -133,15 +133,15 @@ class AddressValidationInfo(ObservableValidationInfo):
     @staticmethod
     def __validate_mac(address):
         if not address:
-            return FieldValidationInfo(ValidationStatus.ERROR, 'The MAC address is missing')
+            return FieldValidationInfo(ValidationStatus.ERROR, 'MAC address is missing')
         if AddressValidationInfo.MAC_MATCHER.match(address) is None:
-            return FieldValidationInfo(ValidationStatus.WARN, 'The MAC address may be invalid')
+            return FieldValidationInfo(ValidationStatus.WARN, 'MAC address may be invalid')
         return FieldValidationInfo(ValidationStatus.OK, '')
 
     @staticmethod
     def __validate_cidr(address):
         if not address:
-            return FieldValidationInfo(ValidationStatus.ERROR, 'The CIDR value is missing')
+            return FieldValidationInfo(ValidationStatus.ERROR, 'CIDR value is missing')
         address_parts = address.split('/')
         if len(address_parts) == 2:
             address_validation = AddressValidationInfo.__validate_ipv4(address_parts[0])
@@ -153,4 +153,4 @@ class AddressValidationInfo(ObservableValidationInfo):
                 except ValueError:
                     pass
 
-        return FieldValidationInfo(ValidationStatus.WARN, 'The CIDR value is invalid')
+        return FieldValidationInfo(ValidationStatus.WARN, 'CIDR value is invalid')

@@ -11,12 +11,12 @@ class MutexValidationInfo(ObservableValidationInfo):
         super(MutexValidationInfo, self).__init__(MutexValidationInfo.TYPE, **field_validation)
         self.name = field_validation.get('name')
 
-    @staticmethod
-    def validate(**observable_data):
+    @classmethod
+    def validate(cls, **observable_data):
         name = observable_data.get('name')
         if name:
             name_validation = None
         else:
             name_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Mutex name is missing')
 
-        return MutexValidationInfo(name=name_validation)
+        return cls(name=name_validation)

@@ -16,15 +16,14 @@ class HostnameValidationInfo(ObservableValidationInfo):
         super(HostnameValidationInfo, self).__init__(HostnameValidationInfo.TYPE, **field_validation)
         self.hostname_value = field_validation.get('hostname_value')
 
-    @staticmethod
-    def validate(**observable_data):
+    @classmethod
+    def validate(cls, **observable_data):
         value = observable_data.get('hostname_value')
         if value:
-            value_validation = HostnameValidationInfo.validate_hostname_value(observable_data.get('is_domain_name',
-                                                                                                  False), value)
+            value_validation = cls.validate_hostname_value(observable_data.get('is_domain_name', False), value)
         else:
             value_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Hostname value is missing')
-        return HostnameValidationInfo(value=value_validation)
+        return cls(hostname_value=value_validation)
 
     @staticmethod
     def validate_hostname_value(is_domain, value):
