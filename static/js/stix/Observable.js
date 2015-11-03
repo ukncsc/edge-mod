@@ -5,16 +5,18 @@ define([
     "./objectTypes/StixObjectType",
     "./objectTypes/EmailMessage",
     "./objectTypes/File",
+    "./objectTypes/SocketAddress",
     "./objectTypes/WindowsRegistryKey",
     "kotemplate!root-obs:./templates/root-Observable.html",
     "kotemplate!list-obs:./templates/list-Observables.html"
 ], function (declare, ko, StixObject, StixObjectType, EmailMessageObjectType,
-             FileObjectType, WindowsRegistryKeyObjectType) {
+             FileObjectType, SocketAddressObjectType, WindowsRegistryKeyObjectType) {
     "use strict";
 
     var OBJECT_TYPES = Object.freeze({
         "EmailMessageObjectType": EmailMessageObjectType,
         "FileObjectType": FileObjectType,
+        "SocketAddressObjectType": SocketAddressObjectType,
         "WindowsRegistryKeyObjectType": WindowsRegistryKeyObjectType
     });
 
@@ -28,7 +30,8 @@ define([
                 return stixPackage.safeValueGet(this.id(), this.data(), "object.properties.xsi:type");
             }, this);
             var objectType = ko.computed(function () {
-                var ctor = getObjectType(this.type());
+                var type = stixPackage.safeGet(this.data(), "object.properties.xsi:type");
+                var ctor = getObjectType(type);
                 return new ctor(this.id(), stixPackage.safeGet(this.data(), "object.properties"), stixPackage);
             }, this);
             this.properties = ko.computed(function () {

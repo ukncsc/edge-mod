@@ -1,6 +1,8 @@
 define([
-    "dcl/dcl"
-], function (declare) {
+    "dcl/dcl",
+    "knockout",
+    "../ReviewValue"
+], function (declare, ko, ReviewValue) {
     "use strict";
 
     function formatName(name) {
@@ -12,25 +14,29 @@ define([
     var NamedProperty = declare(null, {
         declaredClass: "NamedProperty",
         constructor: function (name, value) {
-            //var useName = findValue(name);
-            //if (typeof useName !== "string") {
-            //    throw new TypeError("name must be a string: " + name);
-            //}
-            this._name = formatName(name);
-            this._value = value;
-        },
-        name: function () {
-            return this._name;
-        },
-        value: function () {
-            return this._value;
+            this.name = ko.observable(formatName(name));
+            this.value = value instanceof ReviewValue ? ko.observable(value) : ko.observable(new ReviewValue(value));
         }
     });
     NamedProperty.addToPropertyList = function (aPropertyList, name, value) {
         var namedProperty = new NamedProperty(name, value);
         var realValue = namedProperty.value();
-        if (realValue) {
-            aPropertyList.push({label: namedProperty.name(), value: realValue});
+        if (!(realValue.isEmpty())) {
+            aPropertyList.push({label: namedProperty.name, value: namedProperty.value});
+        }
+    };
+    NamedProperty.removeFromPropertyList = function (aPropertyList, name) {
+        var nameIdx = -1;
+        var searchFor = formatName(name);
+        ko.utils.arrayForEach(aPropertyList, function (namedProperty, idx) {
+            if (nameIdx === -1 && namedProperty.label() === searchFor) {
+                nameIdx = idx;
+            }
+        });
+        if (nameIdx > 0) {
+            aPropertyList.splice(nameIdx, 1);
+        } else if (nameIdx === 0) {
+            aPropertyList.shift();
         }
     };
     return NamedProperty;

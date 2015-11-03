@@ -11,8 +11,6 @@ require([
             document.getElementById("content")
         );
     } catch (e) {
-        console.error(e);
-/*
         var errorModal = new Modal({
             title: "Error",
             titleIcon: "glyphicon-warning-sign",
@@ -22,6 +20,5 @@ require([
         });
         errorModal.getButtonByLabel("OK").callback = history.back.bind(history);
         errorModal.show();
-*/
     }
 });
