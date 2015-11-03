@@ -47,6 +47,10 @@ define([
             return this._data["stix_header"] || {};
         },
 
+        validations: function () {
+            return this._validationInfo;
+        },
+
         safeGet: function (/*Object*/ stixObject, /*String*/ propertyPath) {
             var propertyNames = propertyPath.split(".");
             var current = stixObject;
