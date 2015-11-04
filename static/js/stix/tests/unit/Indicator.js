@@ -1,6 +1,7 @@
 define([
     "intern!object",
     "intern/chai!assert",
+    "stix/ReviewValue",
     "stix/StixPackage",
     "stix/CourseOfAction",
     "stix/Indicator",
@@ -9,7 +10,7 @@ define([
     "intern/dojo/text!./data/Indicator_package_01.json",
     "intern/dojo/text!./data/Indicator_package_02.json",
     "intern/dojo/text!./data/Indicator_package_03.json"
-], function (registerSuite, assert, StixPackage, CourseOfAction, Indicator, Observable, TTP, package01, package02, package03) {
+], function (registerSuite, assert, ReviewValue, StixPackage, CourseOfAction, Indicator, Observable, TTP, package01, package02, package03) {
     "use strict";
 
     // statics go here
@@ -43,31 +44,58 @@ define([
                     assert.equal(classUnderTest.id(), "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3619");
                 },
                 "has correct title": function () {
-                    assert.equal(classUnderTest.title(), "Fully populated indicator");
+                    var actual = classUnderTest.title();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Fully populated indicator");
                 },
                 "has correct short description": function () {
-                    assert.equal(classUnderTest.shortDescription(), "Every field has a value");
+                    var actual = classUnderTest.shortDescription();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Every field has a value");
                 },
                 "has correct description": function () {
-                    assert.equal(classUnderTest.description(), "Every field, collection, etc has a value");
+                    var actual = classUnderTest.description();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Every field, collection, etc has a value");
                 },
                 "has correct TLP": function () {
-                    assert.equal(classUnderTest.tlp(), "RED");
+                    var actual = classUnderTest.tlp();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "RED");
                 },
                 "has correct Handling Caveats": function () {
-                    assert.equal(classUnderTest.handlingCaveats(), "Unclassified, Public");
+                    var actual = classUnderTest.handlingCaveats();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Unclassified, Public");
                 },
                 "has correct Terms of Use": function () {
-                    assert.equal(classUnderTest.termsOfUse(), "Public Domain");
+                    var actual = classUnderTest.termsOfUse();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Public Domain");
                 },
                 "has correct producer": function () {
-                    assert.equal(classUnderTest.producer(), "Purple Secure Systems");
+                    var actual = classUnderTest.producer();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Purple Secure Systems");
                 },
                 "has correct confidence": function () {
-                    assert.equal(classUnderTest.confidence(), "High");
+                    var actual = classUnderTest.confidence();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "High");
                 },
                 "has correct indicator types": function () {
-                    assert.equal(classUnderTest.indicatorTypes(), "Malware Artifacts");
+                    var actual = classUnderTest.indicatorTypes();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Malware Artifacts");
                 },
                 "has correct observable": function () {
                     var actual = classUnderTest.observable();
@@ -75,7 +103,10 @@ define([
                     assert.equal(actual.id(), "purple-secure-systems:observable-346b24fb-52a3-40b3-9e1c-c30985a1253a");
                 },
                 "has correct composition": function () {
-                    assert.equal(classUnderTest.composition(), "AND");
+                    var actual = classUnderTest.composition();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "AND");
                 },
                 "has correct observables": function () {
                     var actual = classUnderTest.observables();
@@ -122,7 +153,9 @@ define([
                 },
                 "has correct composite indicator expression": function () {
                     var actual = classUnderTest.compositeIndicatorComposition();
-                    assert.equal(actual, "OR");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "OR");
                 },
                 "has correct composite indicators": function () {
                     var actual = classUnderTest.compositeIndicators();

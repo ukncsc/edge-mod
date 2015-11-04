@@ -2,9 +2,10 @@ define([
     "intern!object",
     "intern/chai!assert",
     "stix/objectTypes/StixObjectType",
+    "stix/ReviewValue",
     "stix/StixPackage",
     "intern/dojo/text!./data/Observable_package_file.json"
-], function (registerSuite, assert, StixObjectType, StixPackage, package01) {
+], function (registerSuite, assert, StixObjectType, ReviewValue, StixPackage, package01) {
     "use strict";
 
     // statics go here
@@ -33,18 +34,29 @@ define([
                     assert.isNotNull(classUnderTest);
                 },
                 "has correct properties": function () {
-                    assert.deepEqual(classUnderTest.properties(), [
-                        { "label": "Device Path", "value": "Any device path" },
-                        { "label": "File Format", "value": "pdf + dll + pfm" },
-                        { "label": "File Name", "value": "pjb.pdf" },
-                        { "label": "Size In Bytes", "value": 73379 },
-                        { "label": "File Path", "value": "Any file path" },
-                        { "label": "File Extension", "value": "pdf" },
-                        { "label": "Full Path", "value": "Any full path" },
-                        { "label": "MD5", "value": "3dbf4fc0b508d8859f3e1d30651590bb" },
-                        { "label": "SHA256", "value": "625da05610003ff4d82bdfcb48bcfc84613a51156f83ea0c28fa52997b128935" },
-                        { "label": "SHA1", "value": "2f533cb43ec00fae6363fdc57359ee23deb8a915" }
-                    ]);
+                    var expectedProperties = [
+                        {"label": "Device Path", "value": "Any device path"},
+                        {"label": "File Format", "value": "pdf + dll + pfm"},
+                        {"label": "File Name", "value": "pjb.pdf"},
+                        {"label": "Size In Bytes", "value": 73379},
+                        {"label": "File Path", "value": "Any file path"},
+                        {"label": "File Extension", "value": "pdf"},
+                        {"label": "Full Path", "value": "Any full path"},
+                        {"label": "MD5", "value": "3dbf4fc0b508d8859f3e1d30651590bb"},
+                        {"label": "SHA256", "value": "625da05610003ff4d82bdfcb48bcfc84613a51156f83ea0c28fa52997b128935"},
+                        {"label": "SHA1", "value": "2f533cb43ec00fae6363fdc57359ee23deb8a915"}
+                    ];
+                    var actualProperties = classUnderTest.properties();
+                    assert.isArray(actualProperties);
+                    assert.lengthOf(actualProperties, expectedProperties.length);
+                    actualProperties.forEach(function (actualProperty, idx) {
+                        var expected = expectedProperties[idx];
+                        assert.equal(actualProperty.label(), expected.label);
+                        var actual = actualProperty.value();
+                        assert.instanceOf(actual, ReviewValue);
+                        assert.isFalse(actual.isEmpty());
+                        assert.equal(actual.value(), expected.value);
+                    });
                 }
             },
             "without hashes" : {
@@ -58,9 +70,20 @@ define([
                     assert.isNotNull(classUnderTest);
                 },
                 "has correct properties": function () {
-                    assert.deepEqual(classUnderTest.properties(), [
-                        { "label": "File Name", "value": "document_521789_pdf.exe" }
-                    ]);
+                    var expectedProperties = [
+                        {"label": "File Name", "value": "document_521789_pdf.exe"}
+                    ];
+                    var actualProperties = classUnderTest.properties();
+                    assert.isArray(actualProperties);
+                    assert.lengthOf(actualProperties, expectedProperties.length);
+                    actualProperties.forEach(function (actualProperty, idx) {
+                        var expected = expectedProperties[idx];
+                        assert.equal(actualProperty.label(), expected.label);
+                        var actual = actualProperty.value();
+                        assert.instanceOf(actual, ReviewValue);
+                        assert.isFalse(actual.isEmpty());
+                        assert.equal(actual.value(), expected.value);
+                    });
                 }
             }
         }

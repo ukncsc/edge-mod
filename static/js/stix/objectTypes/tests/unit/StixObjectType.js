@@ -2,9 +2,10 @@ define([
     "intern!object",
     "intern/chai!assert",
     "stix/objectTypes/StixObjectType",
+    "stix/ReviewValue",
     "stix/StixPackage",
     "intern/dojo/text!./data/Observable_package_01.json"
-], function (registerSuite, assert, StixObjectType, StixPackage, package01) {
+], function (registerSuite, assert, StixObjectType, ReviewValue, StixPackage, package01) {
     "use strict";
 
     // statics go here
@@ -32,13 +33,24 @@ define([
                 assert.isNotNull(classUnderTest);
             },
             "has correct properties": function () {
-                assert.deepEqual(classUnderTest.properties(), [
-                    { "label": "String Property", "value": "Hello, world" },
-                    { "label": "Number Property", "value": 42 },
-                    { "label": "Boolean Property", "value": true },
-                    { "label": "PIVY Password", "value": "pa55w0rd" },
-                    { "label": "PIVY Username", "value": "admin" }
-                ]);
+                var expectedProperties = [
+                    {"label": "String Property", "value": "Hello, world"},
+                    {"label": "Number Property", "value": 42},
+                    {"label": "Boolean Property", "value": true},
+                    {"label": "PIVY Password", "value": "pa55w0rd"},
+                    {"label": "PIVY Username", "value": "admin"}
+                ];
+                var actualProperties = classUnderTest.properties();
+                assert.isArray(actualProperties);
+                assert.lengthOf(actualProperties, expectedProperties.length);
+                actualProperties.forEach(function (actualProperty, idx) {
+                    var expected = expectedProperties[idx];
+                    assert.equal(actualProperty.label(), expected.label);
+                    var actual = actualProperty.value();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), expected.value);
+                });
             }
         }
     });

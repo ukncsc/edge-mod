@@ -1,13 +1,14 @@
 define([
     "intern!object",
     "intern/chai!assert",
+    "stix/ReviewValue",
     "stix/StixPackage",
     "stix/Incident",
     "stix/Indicator",
     "stix/Observable",
     "stix/TTP",
     "intern/dojo/text!./data/Incident_package_01.json"
-], function (registerSuite, assert, StixPackage, Incident, Indicator, Observable, TTP, package01) {
+], function (registerSuite, assert, ReviewValue, StixPackage, Incident, Indicator, Observable, TTP, package01) {
     "use strict";
 
     // statics go here
@@ -39,37 +40,70 @@ define([
                     assert.equal(classUnderTest.id(), "purple-secure-systems:incident-02468346-fdf2-4095-a905-f3731fccd58d");
                 },
                 "has correct title": function () {
-                    assert.equal(classUnderTest.title(), "Bot-net found on intranet");
+                    var actual = classUnderTest.title();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Bot-net found on intranet");
                 },
                 "has correct short description": function () {
-                    assert.equal(classUnderTest.shortDescription(), "Bottom bot-net running");
+                    var actual = classUnderTest.shortDescription();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Bottom bot-net running");
                 },
                 "has correct description": function () {
-                    assert.equal(classUnderTest.description(), "It appears that the 'Bottom' bot-net is running on our intranet");
+                    var actual = classUnderTest.description();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "It appears that the 'Bottom' bot-net is running on our intranet");
                 },
                 "has correct TLP": function () {
-                    assert.equal(classUnderTest.tlp(), "RED");
+                    var actual = classUnderTest.tlp();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "RED");
                 },
                 "has correct status": function () {
-                    assert.equal(classUnderTest.status(), "Incident Reported");
+                    var actual = classUnderTest.status();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Incident Reported");
                 },
                 "has correct reporter": function () {
-                    assert.equal(classUnderTest.reporter(), "Cynthia James");
+                    var actual = classUnderTest.reporter();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Cynthia James");
                 },
                 "has correct confidence": function () {
-                    assert.equal(classUnderTest.confidence(), "High");
+                    var actual = classUnderTest.confidence();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "High");
                 },
                 "has correct responders": function () {
-                    assert.equal(classUnderTest.responders(), "Responser 2, Responser 1");
+                    var actual = classUnderTest.responders();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Responser 2, Responser 1");
                 },
                 "has correct intended effects": function () {
-                    assert.equal(classUnderTest.intendedEffects(), "Unauthorized Access, Traffic Diversion, ICS Control, Harassment, Fraud, Extortion, Exposure, Embarrassment, Disruption, Destruction, Denial and Deception, Degradation of Service, Competitive Advantage, Brand Damage, Account Takeover, Theft - Theft of Proprietary Information, Theft - Identity Theft, Theft - Credential Theft, Theft - Intellectual Property, Theft - Intellectual Property, Theft, Advantage - Political, Advantage - Military, Advantage - Economic, Advantage");
+                    var actual = classUnderTest.intendedEffects();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Unauthorized Access, Traffic Diversion, ICS Control, Harassment, Fraud, Extortion, Exposure, Embarrassment, Disruption, Destruction, Denial and Deception, Degradation of Service, Competitive Advantage, Brand Damage, Account Takeover, Theft - Theft of Proprietary Information, Theft - Identity Theft, Theft - Credential Theft, Theft - Intellectual Property, Theft - Intellectual Property, Theft, Advantage - Political, Advantage - Military, Advantage - Economic, Advantage");
                 },
                 "has correct discovery methods": function () {
-                    assert.equal(classUnderTest.discoveryMethods(), "Unknown, User, Security Alarm, NIDS, Log Review, IT Audit, HIPS, Fraud Detection, Financial Audit, Incident Response, Antivirus, Audit, Unrelated Party, Customer, Law Enforcement, Monitoring Service, Fraud Detection, Agent Disclosure");
+                    var actual = classUnderTest.discoveryMethods();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Unknown, User, Security Alarm, NIDS, Log Review, IT Audit, HIPS, Fraud Detection, Financial Audit, Incident Response, Antivirus, Audit, Unrelated Party, Customer, Law Enforcement, Monitoring Service, Fraud Detection, Agent Disclosure");
                 },
                 "has correct impact assessment": function () {
-                    assert.equal(classUnderTest.impactAssessment(), "User Data Loss, Unintended Access, Regulatory, Compliance or Legal Impact, Loss of Confidential / Proprietary Information or Intellectual Property, Unintended Access, Disruption of Service / Operations, Destruction, Degradation of Service, Data Breach or Compromise, Loss of Competitive Advantage - Political, Loss of Competitive Advantage - Military, Loss of Competitive Advantage - Economic, Loss of Competitive Advantage, Brand or Image Degradation");
+                    var actual = classUnderTest.impactAssessment();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "User Data Loss, Unintended Access, Regulatory, Compliance or Legal Impact, Loss of Confidential / Proprietary Information or Intellectual Property, Unintended Access, Disruption of Service / Operations, Destruction, Degradation of Service, Data Breach or Compromise, Loss of Competitive Advantage - Political, Loss of Competitive Advantage - Military, Loss of Competitive Advantage - Economic, Loss of Competitive Advantage, Brand or Image Degradation");
                 },
                 "has correct leveraged TTPs": function () {
                     var actual = classUnderTest.leveragedTTPs();

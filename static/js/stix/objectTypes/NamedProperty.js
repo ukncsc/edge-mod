@@ -14,6 +14,9 @@ define([
     var NamedProperty = declare(null, {
         declaredClass: "NamedProperty",
         constructor: function (name, value) {
+            if (typeof name !== "string") {
+                throw new TypeError("name must be a string");
+            }
             this.name = ko.observable(formatName(name));
             this.value = value instanceof ReviewValue ? ko.observable(value) : ko.observable(new ReviewValue(value));
         }
