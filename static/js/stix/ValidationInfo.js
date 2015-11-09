@@ -41,7 +41,7 @@ define([
     return declare(null, {
         declaredClass: "ValidationInfo",
         constructor: function (validationInfo) {
-            this._data = validationInfo;
+            this._data = validationInfo || {};
             var flattened = flatten(this._data);
             this.hasMessages = ko.computed(function () {
                 return flattened().length > 0;

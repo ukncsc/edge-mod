@@ -5,7 +5,8 @@ define([
     "./Incident",
     "./Indicator",
     "./ReviewValue",
-    "./TTP"
+    "./TTP",
+    "./ValidationInfo"
 ], function () {
 
 });
