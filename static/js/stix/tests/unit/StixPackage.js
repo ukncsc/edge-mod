@@ -3,9 +3,10 @@ define([
     "intern/chai!assert",
     "stix/ReviewValue",
     "stix/StixPackage",
+    "stix/ValidationInfo",
     "intern/dojo/text!./data/COA_package_01.json",
     "intern/dojo/text!./data/TTP_package_01.json"
-], function (registerSuite, assert, ReviewValue, StixPackage, package01, package02) {
+], function (registerSuite, assert, ReviewValue, StixPackage, ValidationInfo, package01, package02) {
     "use strict";
 
     // statics go here
@@ -48,8 +49,8 @@ define([
         // suite variables go here
         var classUnderTest = null;
 
-        function loadPackage(/*String*/ packageId, /*String?*/ rootId) {
-            classUnderTest = new StixPackage(packageData[packageId], rootId || packageId);
+        function loadPackage(/*String*/ packageId, /*String?*/ rootId, /*Object?*/ validationInfo) {
+            classUnderTest = new StixPackage(packageData[packageId], rootId || packageId, validationInfo);
         }
 
         return {
@@ -139,13 +140,26 @@ define([
                     });
                 }
             },
-            "validations()": {
-                // TODO
+            "validations() no validations": {
+                setup: function () {
+                    loadPackage("purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59");
+                },
+                "ValidationInfo returned": function () {
+                    assert.instanceOf(classUnderTest.validations(), ValidationInfo);
+                }
+            },
+            "validations() has validations": {
+                setup: function () {
+                    loadPackage("purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59", null, {});
+                },
+                "ValidationInfo returned": function () {
+                    assert.instanceOf(classUnderTest.validations(), ValidationInfo);
+                }
             },
             "safeGet()": {
-                setup: function () {
-                    loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
-                },
+                //setup: function () {
+                //    loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
+                //},
                 "not found returns null": function () {
                     assert.isNull(classUnderTest.safeGet(simpleObject, "bad.property.name"));
                 },
@@ -157,7 +171,27 @@ define([
                 }
             },
             "safeValueGet()": {
-                // TODO
+                setup: function () {
+                    loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
+                },
+                "not found returns null": function () {
+                    var actual = classUnderTest.safeValueGet("", simpleObject, "bad.property.name");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isTrue(actual.isEmpty());
+                    assert.isNull(actual.value());
+                },
+                "simple property path returns value": function () {
+                    var actual = classUnderTest.safeValueGet("", simpleObject, "prop1");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "value1");
+                },
+                "compound property path returns value": function () {
+                    var actual = classUnderTest.safeValueGet("", simpleObject, "sub1.sub1sub.sub1subprop1");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "sub1subvalue1");
+                }
             },
             "safeArrayGet()": {
                 setup: function () {
