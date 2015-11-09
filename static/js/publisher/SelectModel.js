@@ -116,7 +116,7 @@ define([
         },
 
         publish: function(onPublishCallback) {
-            postJSON("/adapter/publisher/ajax/publish/", {
+            postJSON("../ajax/publish/", {
                 root_id: this.root().id()
             }, onPublishCallback);
         },

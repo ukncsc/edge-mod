@@ -2,7 +2,7 @@ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
-    "kotemplate!publish-modal:./templates/publish-modal-content.html"
+    "kotemplate!config-modal:./templates/config-modal-content.html"
 ], function (declare, ko, Modal, publishModalTemplate) {
     "use strict";
 
@@ -23,7 +23,7 @@ define([
         },
 
         getSites: function () {
-            postJSON("/adapter/publisher/ajax/get_sites/", { }, this._onSitesRetrieved.bind(this));
+            postJSON("../ajax/get_sites/", { }, this._onSitesRetrieved.bind(this));
         },
 
         _onSitesRetrieved: function (response) {
@@ -160,7 +160,7 @@ define([
         },
 
         savePublishSite: function (onSavePublishSiteCallback) {
-            postJSON("/adapter/publisher/ajax/set_publish_site/", {
+            postJSON("../ajax/set_publish_site/", {
                 site_id: this.selectedSite() ? this.selectedSite().site_id : ""
             }, onSavePublishSiteCallback.bind(this));
         }

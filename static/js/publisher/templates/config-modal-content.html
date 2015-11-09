@@ -1,0 +1,13 @@
+<div>
+    <div data-bind="if: waitingForResponse">
+        <div class="row">
+            <img class="center-block" src="/static/img/soltra_flame_anim.gif"/>
+        </div>
+        <div class="row text-center">
+            <span data-bind="text: message"></span>
+        </div>
+    </div>
+    <div data-bind="ifnot: waitingForResponse">
+        <span data-bind="text: message"></span>
+    </div>
+</div>
