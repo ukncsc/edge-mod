@@ -1,4 +1,4 @@
-
+from libtaxii.taxii_default_query import package_dir
 from ..observable.address import AddressValidationInfo
 from ..observable.socket_type import SocketValidationInfo
 
@@ -48,12 +48,27 @@ class IndicatorStructureConverter(object):
     @staticmethod
     def package_to_simple(package_dict):
         simple = package_dict.copy()
-        simple['confidence'] = package_dict['confidence']['value']['value']
+        try:
+            simple['confidence'] = package_dict['confidence']['value']['value']
+        except KeyError:
+            simple['confidence'] = None
+
+        try:
+            kill_chain_phases = simple.pop('kill_chain_phases', {})
+            simple['phase_id'] = kill_chain_phases['kill_chain_phases'][0]['phase_id']
+        except LookupError:
+            simple['phase_id'] = None
+
         try:
             handling_structures = package_dict['handling']
             marking_structure = handling_structures[0]['marking_structures'][0]
             simple['tlp'] = marking_structure['color']
         except LookupError:
             simple['tlp'] = None
+
+        try:
+            simple['suggested_coas'] = simple['suggested_coas']['suggested_coas']
+        except KeyError:
+            simple['suggested_coas'] = None
 
         return simple
