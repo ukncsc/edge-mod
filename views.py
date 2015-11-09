@@ -23,6 +23,14 @@ from indicator import views as original_views
 from kill_chain_definition import KILL_CHAIN_PHASES
 from crashlog.models import save as save_crash
 
+from audit import setup, status
+from audit.event import Event
+from audit.handlers import log_activity
+from audit.message import format_audit_message
+
+
+setup.configure_publisher_actions()
+
 
 objectid_matcher = re.compile(
     # {STIX/ID Alias}:{type}-{GUID}
@@ -129,11 +137,16 @@ def ajax_set_publish_site(request, data):
     }
 
 
+OnPublish = Event()
+OnPublish.set_handler("Write to log", log_activity)
+
+
 @login_required
 @json_body
 def ajax_publish(request, data):
     success = True
     error_message = ""
+    root_id = None
 
     try:
         root_id = data['root_id']
@@ -150,6 +163,10 @@ def ajax_publish(request, data):
                        stack_trace)
         success = False
         error_message = e.message
+
+    OnPublish.raise_event(ajax_publish, publish_status=status.PUBLISH_SUCCESS if success else status.PUBLISH_FAIL,
+                          stix_id=root_id, user=request.user,
+                          message=format_audit_message(error_message, data.get('publicationMessage')))
 
     # The whole try/except... return { success.. } thing seems repeated quite a bit for
     # our ajax handlers (and also in the core code)...

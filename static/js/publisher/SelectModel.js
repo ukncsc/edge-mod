@@ -30,7 +30,9 @@ define([
             modal.contentData.waitingForResponse(true);
             modal.contentData.message("Publishing...");
 
-            this.publish(function(response) {
+            this.publish({
+                'publicationMessage': modal.contentData.publicationMessage()
+            }, function(response) {
                 modal.contentData.waitingForResponse(false);
 
                 var success = !!(response["success"]);
@@ -115,10 +117,10 @@ define([
             confirmModal.show();
         },
 
-        publish: function(onPublishCallback) {
-            postJSON("../ajax/publish/", {
+        publish: function(onConfirmData, onPublishCallback) {
+            postJSON("../ajax/publish/", ko.utils.extend(onConfirmData, {
                 root_id: this.root().id()
-            }, onPublishCallback);
+            }), onPublishCallback);
         },
 
         onRowClicked: function (item) {
