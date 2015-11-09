@@ -1,7 +1,7 @@
 
 from edge.combine import STIXPackage
 import json
-from structure import ObservableStructureConverter
+from structure import ObservableStructureConverter, IndicatorStructureConverter
 from ..observable.validator import ObservableValidator
 from ..indicator.validator import IndicatorValidator
 from .. import FieldAlias
@@ -42,7 +42,8 @@ class PackageValidationInfo(object):
         indicator_validation = {}
         for indicator in indicators:
             id_ = indicator['id']
-            validation_results = IndicatorValidator.validate(**indicator)
+            indicator_properties = IndicatorStructureConverter.package_to_simple(indicator)
+            validation_results = IndicatorValidator.validate(**indicator_properties)
             if validation_results and validation_results.validation_dict:
                 indicator_validation.update({id_: validation_results.validation_dict})
         return indicator_validation

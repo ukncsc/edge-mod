@@ -41,3 +41,19 @@ class ObservableStructureConverter(object):
             simple['hostname'] = package_dict['hostname']['hostname_value']
 
         return simple
+
+
+class IndicatorStructureConverter(object):
+
+    @staticmethod
+    def package_to_simple(package_dict):
+        simple = package_dict.copy()
+        simple['confidence'] = package_dict['confidence']['value']['value']
+        try:
+            handling_structures = package_dict['handling']
+            marking_structure = handling_structures[0]['marking_structures'][0]
+            simple['tlp'] = marking_structure['color']
+        except LookupError:
+            simple['tlp'] = None
+
+        return simple
