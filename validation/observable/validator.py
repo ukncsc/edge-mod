@@ -6,6 +6,7 @@ from domain import DomainNameValidationInfo
 from mutex import MutexValidationInfo
 from socket_type import SocketValidationInfo
 from http_session import HTTPSessionValidationInfo
+from artifact import ArtifactValidationInfo
 from .. import FieldAlias
 
 
@@ -24,7 +25,8 @@ class ObservableValidator(object):
             DomainNameValidationInfo.TYPE: DomainNameValidationInfo.validate,
             MutexValidationInfo.TYPE: MutexValidationInfo.validate,
             SocketValidationInfo.TYPE: SocketValidationInfo.validate,
-            HTTPSessionValidationInfo.TYPE: HTTPSessionValidationInfo.validate
+            HTTPSessionValidationInfo.TYPE: HTTPSessionValidationInfo.validate,
+            ArtifactValidationInfo.TYPE: ArtifactValidationInfo.validate
         }
         actual_type = object_type.field_value if isinstance(object_type, FieldAlias) else object_type
         handler = handler_map.get(actual_type)
