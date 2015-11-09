@@ -7,8 +7,14 @@ define([
     function capitalise(str) {
         return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
-    function uncamel(str) {
-        return str.replace(/(^|[A-Z])/g, " $1");
+
+    function unCamel(str) {
+        return str
+            .replace(/([a-z])([A-Z])/g, '$1 $2')
+            .replace(/\b([A-Z]+)([A-Z])([a-z])/, '$1 $2$3')
+            .replace(/^[a-z]/, function (lc) {
+                return lc.toUpperCase();
+            });
     }
 
     var valueBuilders = Object.freeze({
@@ -18,9 +24,9 @@ define([
         "Number" : function (rawValue) {
             return isFinite(rawValue) ? rawValue : null;
         },
-        "String" : function (rawValue, rawDelimeter) {
-            var delimeter = rawDelimeter || "##comma##";
-            return rawValue.length > 0 ? rawValue.split(delimeter).join(",") : null;
+        "String" : function (rawValue, rawDelimiter) {
+            var delimiter = rawDelimiter || "##comma##";
+            return rawValue.length > 0 ? rawValue.split(delimiter).join(",") : null;
         },
         "Array" : function (rawValue) {
             var builtValue;
@@ -36,14 +42,14 @@ define([
         "Object" : function (rawValue) {
             var condition = rawValue["condition"] || "Equals";
             var applyCondition = rawValue["apply_condition"];
-            var builtValue = buildValue(rawValue["value"], rawValue["delimeter"]);
+            var builtValue = buildValue(rawValue["value"], rawValue["delimiter"]);
             if (builtValue != null) {
                 var parts = [];
                 if (applyCondition) {
                     parts.push(capitalise(applyCondition));
                 }
                 if (condition && condition !== "Equals") {
-                    parts.push(uncamel(condition));
+                    parts.push(unCamel(condition));
                 }
                 parts.push(builtValue);
                 builtValue = parts.join(" ");

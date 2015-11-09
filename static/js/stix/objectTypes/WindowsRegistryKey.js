@@ -17,7 +17,7 @@ define([
                     ko.utils.arrayForEach(values, function (value) {
                         NamedProperty.addToPropertyList(
                             propertyList,
-                            this.stixPackage.safeValueGet(this.id, value, "name").value(),
+                            this.stixPackage.safeValueGet(this.id, value, "name"),
                             this.stixPackage.safeValueGet(this.id, value, "data")
                         );
                     }.bind(this));
