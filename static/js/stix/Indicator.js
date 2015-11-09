@@ -25,13 +25,13 @@ define([
                 return stixPackage.safeValueGet(this.id(), this.data(), "producer.identity.name");
             }, this);
             this.confidence = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), this.data(), "confidence.value.value");
+                return stixPackage.safeValueGet(this.id(), this.data(), "confidence.value.value", "confidence");
             }, this);
             this.indicatorTypes = ko.computed(function () {
                 return stixPackage.safeListGet(this.data(), "indicator_types");
             }, this);
             this.killChainPhase = ko.computed(function () {
-                var killChainPhase = stixPackage.safeValueGet(this.id(), this.data(), "kill_chain_phases.kill_chain_phases.0.phase_id");
+                var killChainPhase = stixPackage.safeValueGet(this.id(), this.data(), "kill_chain_phases.kill_chain_phases.0.phase_id", "phase_id");
                 if (!(killChainPhase.isEmpty())) {
                     // create a new ReviewValue with the name rather than the id
                     var phaseId = killChainPhase.value();
