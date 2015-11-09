@@ -97,6 +97,12 @@ define([
                     assert.isFalse(actual.isEmpty());
                     assert.equal(actual.value(), "Malware Artifacts");
                 },
+                "has correct kill chain phase": function () {
+                    var actual = classUnderTest.killChainPhase();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Reconnaissance");
+                },
                 "has correct observable": function () {
                     var actual = classUnderTest.observable();
                     assert.instanceOf(actual, Observable);
