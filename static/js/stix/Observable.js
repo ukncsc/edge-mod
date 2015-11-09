@@ -5,17 +5,19 @@ define([
     "./objectTypes/StixObjectType",
     "./objectTypes/EmailMessage",
     "./objectTypes/File",
+    "./objectTypes/HttpSession",
     "./objectTypes/SocketAddress",
     "./objectTypes/WindowsRegistryKey",
     "kotemplate!root-obs:./templates/root-Observable.html",
     "kotemplate!list-obs:./templates/list-Observables.html"
-], function (declare, ko, StixObject, StixObjectType, EmailMessageObjectType,
-             FileObjectType, SocketAddressObjectType, WindowsRegistryKeyObjectType) {
+], function (declare, ko, StixObject, StixObjectType, EmailMessageObjectType, FileObjectType, HTTPSessionObjectType,
+             SocketAddressObjectType, WindowsRegistryKeyObjectType) {
     "use strict";
 
     var OBJECT_TYPES = Object.freeze({
         "EmailMessageObjectType": EmailMessageObjectType,
         "FileObjectType": FileObjectType,
+        "HTTPSessionObjectType": HTTPSessionObjectType,
         "SocketAddressObjectType": SocketAddressObjectType,
         "WindowsRegistryKeyObjectType": WindowsRegistryKeyObjectType
     });
