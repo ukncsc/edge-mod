@@ -1,10 +1,11 @@
 define([
     "intern!object",
     "intern/chai!assert",
+    "stix/ReviewValue",
     "stix/StixPackage",
     "stix/CourseOfAction",
     "intern/dojo/text!./data/COA_package_01.json"
-], function (registerSuite, assert, StixPackage, CourseOfAction, package01) {
+], function (registerSuite, assert, ReviewValue, StixPackage, CourseOfAction, package01) {
     "use strict";
 
     // statics go here
@@ -36,44 +37,85 @@ define([
                     assert.equal(classUnderTest.id(), "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
                 },
                 "has correct title": function () {
-                    assert.equal(classUnderTest.title(), "Suspension");
+                    var actual = classUnderTest.title();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Suspension");
                 },
                 "has correct short description": function () {
-                    assert.equal(classUnderTest.shortDescription(), "Suspend the employee");
+                    var actual = classUnderTest.shortDescription();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Suspend the employee");
                 },
                 "has correct description": function () {
-                    assert.equal(classUnderTest.description(), "Suspend the employee for up to 48 hours while a full investigation is carried out");
+                    var actual = classUnderTest.description();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Suspend the employee for up to 48 hours while a full investigation is carried out");
                 },
                 "has correct TLP": function () {
-                    assert.equal(classUnderTest.tlp(), "AMBER");
+                    var actual = classUnderTest.tlp();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "AMBER");
                 },
                 "has correct stage": function () {
-                    assert.equal(classUnderTest.stage(), "Response");
+                    var actual = classUnderTest.stage();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Response");
                 },
                 "has correct type": function () {
-                    assert.equal(classUnderTest.type(), "Policy Actions");
+                    var actual = classUnderTest.type();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Policy Actions");
                 },
                 "has correct objective": function () {
-                    assert.equal(classUnderTest.objective(), "Prevent hiding of evidence by perpetrator");
+                    var actual = classUnderTest.objective();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Prevent hiding of evidence by perpetrator");
                 },
                 "has correct impact": function () {
-                    assert.equal(classUnderTest.impact(), "Loss of productivity");
+                    var actual = classUnderTest.impact();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Loss of productivity");
                 },
                 "has correct efficacy": function () {
-                    assert.equal(classUnderTest.efficacy(), "No access to affected systems");
+                    var actual = classUnderTest.efficacy();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "No access to affected systems");
                 },
                 "has correct cost": function () {
-                    assert.equal(classUnderTest.cost(), "Up to 2 days pay");
+                    var actual = classUnderTest.cost();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Up to 2 days pay");
                 },
                 "has correct properties": function () {
-                    assert.deepEqual(classUnderTest.properties(), [
+                    var expectedProperties = [
                         {label: "Stage", value: "Response"},
                         {label: "Type", value: "Policy Actions"},
                         {label: "Objective", value: "Prevent hiding of evidence by perpetrator"},
                         {label: "Impact", value: "Loss of productivity"},
                         {label: "Efficacy", value: "No access to affected systems"},
                         {label: "Cost", value: "Up to 2 days pay"}
-                    ]);
+                    ];
+                    var actualProperties = classUnderTest.properties();
+                    assert.isArray(actualProperties);
+                    assert.lengthOf(actualProperties, expectedProperties.length);
+                    actualProperties.forEach(function (actualProperty, idx) {
+                        var expected = expectedProperties[idx];
+                        assert.equal(actualProperty.label, expected.label);
+                        var actual = actualProperty.value();
+                        assert.instanceOf(actual, ReviewValue);
+                        assert.isFalse(actual.isEmpty());
+                        assert.equal(actual.value(), expected.value);
+                    });
                 },
                 "has correct related COAs": function () {
                     var actual = classUnderTest.relatedCOAs();

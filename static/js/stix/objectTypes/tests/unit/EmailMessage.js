@@ -2,9 +2,10 @@ define([
     "intern!object",
     "intern/chai!assert",
     "stix/objectTypes/StixObjectType",
+    "stix/ReviewValue",
     "stix/StixPackage",
     "intern/dojo/text!./data/Observable_package_email.json"
-], function (registerSuite, assert, StixObjectType, StixPackage, package01) {
+], function (registerSuite, assert, StixObjectType, ReviewValue, StixPackage, package01) {
     "use strict";
 
     // statics go here
@@ -32,15 +33,26 @@ define([
                 assert.isNotNull(classUnderTest);
             },
             "has correct properties": function () {
-                assert.deepEqual(classUnderTest.properties(), [
-                    { "label": "From", "value": "\"Lloyds Bank\" <online@lloydsbankv.com>" },
-                    { "label": "To", "value": "me@home" },
-                    { "label": "Cc", "value": "customers@lloyds.bank" },
-                    { "label": "Bcc", "value": "not specified" },
-                    { "label": "Subject", "value": "Important Security Alert" },
-                    { "label": "Date", "value": "2015-04-21T00:04:25+00:00" },
-                    { "label": "Raw Body", "value": "Dear Customer..." }
-                ]);
+                var expectedProperties = [
+                    {"label": "From", "value": "\"Lloyds Bank\" <online@lloydsbankv.com>"},
+                    {"label": "To", "value": "me@home"},
+                    {"label": "Cc", "value": "customers@lloyds.bank"},
+                    {"label": "Bcc", "value": "not specified"},
+                    {"label": "Subject", "value": "Important Security Alert"},
+                    {"label": "Date", "value": "2015-04-21T00:04:25+00:00"},
+                    {"label": "Raw Body", "value": "Dear Customer..."}
+                ];
+                var actualProperties = classUnderTest.properties();
+                assert.isArray(actualProperties);
+                assert.lengthOf(actualProperties, expectedProperties.length);
+                actualProperties.forEach(function (actualProperty, idx) {
+                    var expected = expectedProperties[idx];
+                    assert.equal(actualProperty.label(), expected.label);
+                    var actual = actualProperty.value();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), expected.value);
+                });
             }
         }
     });

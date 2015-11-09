@@ -1,10 +1,11 @@
 define([
     "intern!object",
     "intern/chai!assert",
+    "stix/ReviewValue",
     "stix/StixPackage",
     "intern/dojo/text!./data/COA_package_01.json",
     "intern/dojo/text!./data/TTP_package_01.json"
-], function (registerSuite, assert, StixPackage, package01, package02) {
+], function (registerSuite, assert, ReviewValue, StixPackage, package01, package02) {
     "use strict";
 
     // statics go here
@@ -138,6 +139,9 @@ define([
                     });
                 }
             },
+            "validations()": {
+                // TODO
+            },
             "safeGet()": {
                 setup: function () {
                     loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
@@ -151,6 +155,9 @@ define([
                 "compound property path returns value": function () {
                     assert.equal(classUnderTest.safeGet(simpleObject, "sub1.sub1sub.sub1subprop1"), "sub1subvalue1");
                 }
+            },
+            "safeValueGet()": {
+                // TODO
             },
             "safeArrayGet()": {
                 setup: function () {
@@ -179,20 +186,33 @@ define([
                 setup: function () {
                     loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
                 },
-                "not found returns empty string": function () {
-                    assert.equal(classUnderTest.safeListGet(simpleObject, "bad.property.name", "value.key"), "");
+                "not found returns empty ReviewValue": function () {
+                    var actual = classUnderTest.safeListGet(simpleObject, "bad.property.name", "value.key");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isTrue(actual.isEmpty());
                 },
-                "not an array returns empty string": function () {
-                    assert.equal(classUnderTest.safeListGet(simpleObject, "prop1", "value.key"), "");
+                "not an array returns empty ReviewValue": function () {
+                    var actual = classUnderTest.safeListGet(simpleObject, "prop1", "value.key");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isTrue(actual.isEmpty());
                 },
                 "simple property path returns value": function () {
-                    assert.equal(classUnderTest.safeListGet(simpleObject, "sub2", "value"), "Hello, World");
+                    var actual = classUnderTest.safeListGet(simpleObject, "sub2", "value");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "Hello, World");
                 },
                 "compound property path returns value": function () {
-                    assert.equal(classUnderTest.safeListGet(simpleObject, "sub1.sub1prop2", "value"), "One, Two");
+                    var actual = classUnderTest.safeListGet(simpleObject, "sub1.sub1prop2", "value");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "One, Two");
                 },
                 "compound property path returns value - custom separator": function () {
-                    assert.equal(classUnderTest.safeListGet(simpleObject, "sub2", "name", ".."), "alpha..beta");
+                    var actual = classUnderTest.safeListGet(simpleObject, "sub2", "name", "..");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "alpha..beta");
                 }
             },
             "safeReferenceArrayGet()": {

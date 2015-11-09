@@ -1,8 +1,9 @@
 define([
     "intern!object",
     "intern/chai!assert",
+    "stix/ReviewValue",
     "../../NamedProperty"
-], function (registerSuite, assert, NamedProperty) {
+], function (registerSuite, assert, ReviewValue, NamedProperty) {
     "use strict";
 
     // statics go here
@@ -31,9 +32,11 @@ define([
                     assert.equal(classUnderTest.name(), "Simple Name");
                 },
                 "value()": function () {
-                    assert.equal(classUnderTest.value(), "simple value");
+                    var actual = classUnderTest.value();
+                    assert.equal(actual.value(), "simple value");
                 }
             },
+/* TODO: work out what's still needed here
             "constructor: valid (embedded name, simple value)": {
                 setup: function () {
                     classUnderTest = new NamedProperty({ value: "embedded_name" }, "simple value");
@@ -67,6 +70,7 @@ define([
                     assert.equal(classUnderTest.value(), "embedded value");
                 }
             },
+*/
             "addToPropertyList()": {
                 setup: function () {
                     propertyList = [];
@@ -78,7 +82,12 @@ define([
                 "with value": function () {
                     NamedProperty.addToPropertyList(propertyList, "name", "value");
                     assert.lengthOf(propertyList, 1);
-                    assert.deepEqual(propertyList[0], {label:"Name", value:"value"});
+                    var actualProperty = propertyList[0];
+                    assert.equal(actualProperty.label(), "Name");
+                    var actual = actualProperty.value();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "value");
                 }
             }
         }
