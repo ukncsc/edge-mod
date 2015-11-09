@@ -1,6 +1,7 @@
 from libtaxii.taxii_default_query import package_dir
 from ..observable.address import AddressValidationInfo
 from ..observable.socket_type import SocketValidationInfo
+from ..observable.http_session import HTTPSessionValidationInfo
 
 
 class ObservableStructureConverter(object):
@@ -9,7 +10,8 @@ class ObservableStructureConverter(object):
     def __get_conversion_handler(object_type):
         conversion_handlers = {
             AddressValidationInfo.TYPE: ObservableStructureConverter.__address_package_to_simple,
-            SocketValidationInfo.TYPE: ObservableStructureConverter.__socket_package_to_simple
+            SocketValidationInfo.TYPE: ObservableStructureConverter.__socket_package_to_simple,
+            HTTPSessionValidationInfo.TYPE: ObservableStructureConverter.__https_session_package_to_simple
         }
         return conversion_handlers.get(object_type)
 
@@ -39,6 +41,18 @@ class ObservableStructureConverter(object):
             simple['ip_address'] = package_dict['ip_address']['address_value']
         if package_dict.get('hostname'):
             simple['hostname'] = package_dict['hostname']['hostname_value']
+
+        return simple
+
+    @staticmethod
+    def __https_session_package_to_simple(package_dict):
+        simple = package_dict.copy()
+        try:
+            http_request_response = simple.pop('http_request_response', {})
+            simple['user_agent'] = \
+                http_request_response[0]['http_client_request']['http_request_header']['parsed_header']['user_agent']
+        except LookupError:
+            simple['user_agent'] = None
 
         return simple
 
