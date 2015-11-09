@@ -127,8 +127,9 @@
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
         var rootId = "{{ root_id }}";
-        var stixPackage = {{ package.to_json|safe }};
-        var validationInfo = {{ validation_info.to_json|safe }};
+        var stixPackage = Object.freeze({{ package.to_json|safe }});
+        var validationInfo = Object.freeze({{ validation_info.to_json|safe }});
+        var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
     </script>
     <script src="/adapter/certuk-mod{% static 'js/require.js'%}" data-main="publisher/main"></script>
 {% endblock %}

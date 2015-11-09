@@ -1,11 +1,14 @@
 define([
     "dcl/dcl",
     "knockout",
+    "./ReviewValue",
     "./StixObjectTLP",
     "kotemplate!root-ind:./templates/root-Indicator.html",
     "kotemplate!list-ind:./templates/list-Indicators.html"
-], function (declare, ko, StixObjectTLP) {
+], function (declare, ko, ReviewValue, StixObjectTLP) {
     "use strict";
+
+    var KILL_CHAIN_PHASES = ((!(typeof window === "undefined") && window) || {})["killChainPhases"] || {};
 
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
@@ -17,6 +20,21 @@ define([
             }, this);
             this.indicatorTypes = ko.computed(function () {
                 return stixPackage.safeListGet(this.data(), "indicator_types");
+            }, this);
+            this.killChainPhase = ko.computed(function () {
+                var killChainPhase = stixPackage.safeValueGet(this.id(), this.data(), "kill_chain_phases.kill_chain_phases.0.phase_id");
+                if (!(killChainPhase.isEmpty())) {
+                    // create a new ReviewValue with the name rather than the id
+                    var phaseId = killChainPhase.value();
+                    if (KILL_CHAIN_PHASES.hasOwnProperty(phaseId)) {
+                        killChainPhase = new ReviewValue(
+                            KILL_CHAIN_PHASES[phaseId],
+                            killChainPhase.state(),
+                            killChainPhase.message()
+                        );
+                    }
+                }
+                return killChainPhase;
             }, this);
             this.compositeIndicatorComposition = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "composite_indicator_expression.operator");

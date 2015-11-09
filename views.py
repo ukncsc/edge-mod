@@ -20,7 +20,7 @@ from cert_observable_object_generator import CERTObservableObjectGenerator
 from indicator.indicator_builder import IndicatorBuilder
 from view_seed_data import CERTIndicatorBuilderTemplateDataGenerator
 from indicator import views as original_views
-
+from kill_chain_definition import KILL_CHAIN_PHASES
 from crashlog.models import save as save_crash
 
 
@@ -66,7 +66,8 @@ def review(request, id_):
     return render(request, "publisher_review.html", {
         "root_id": id_,
         "package": package,
-        "validation_info": validation_info
+        "validation_info": validation_info,
+        "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES}
     })
 
 

@@ -66,9 +66,9 @@ define([
             return current;
         },
 
-        safeValueGet: function(/*String*/ id, /*Object*/ object, /*String*/ propertyPath) {
+        safeValueGet: function(/*String*/ id, /*Object*/ object, /*String*/ propertyPath, /*String?*/ validationPath) {
             var simpleValue = this.safeGet(object, propertyPath);
-            var validation = this._validationInfo.findByProperty(id, propertyPath);
+            var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
             return new ReviewValue(simpleValue, validation.state, validation.message);
         },
 
