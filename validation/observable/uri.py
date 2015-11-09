@@ -1,6 +1,8 @@
 
 from .. import ValidationStatus, FieldValidationInfo
 from .observable import ObservableValidationInfo
+from .domain import DomainNameValidationInfo
+from cybox.objects.uri_object import URI
 import re
 from urlparse import urlparse
 
@@ -11,8 +13,9 @@ class URIValidationInfo(ObservableValidationInfo):
 
     URN_MATCHER = re.compile(r"^urn:[a-z0-9][a-z0-9-]{0,31}:[a-z0-9()+,\-.:=@;$_!*'%/?#]+$", re.IGNORECASE)
 
-    URN_TYPE = 'URN'
-    URL_TYPE = 'URL'
+    URN_TYPE = URI.TYPE_GENERAL
+    URL_TYPE = URI.TYPE_URL
+    DOMAIN_TYPE = URI.TYPE_DOMAIN
 
     def __init__(self, **field_validation):
         super(URIValidationInfo, self).__init__(URIValidationInfo.TYPE, **field_validation)
@@ -31,6 +34,8 @@ class URIValidationInfo(ObservableValidationInfo):
             url_parse_result = urlparse(uri_value)
             if not url_parse_result.scheme or not url_parse_result.netloc:
                 value_validation = FieldValidationInfo(ValidationStatus.WARN, 'URL value may be invalid')
+        elif uri_type == cls.DOMAIN_TYPE and not DomainNameValidationInfo.get_domain_type_from_value(uri_value):
+            value_validation = FieldValidationInfo(ValidationStatus.WARN, 'URI domain name value may be invalid')
         elif uri_type:
             type_validation = FieldValidationInfo(ValidationStatus.ERROR,
                                                   'Unable to determine URI type (%s)' % uri_type)
