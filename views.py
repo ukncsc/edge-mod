@@ -1,6 +1,9 @@
 import os
 import re
 import urllib2
+import inspect
+import traceback
+import json
 
 from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
@@ -17,6 +20,9 @@ from cert_observable_object_generator import CERTObservableObjectGenerator
 from indicator.indicator_builder import IndicatorBuilder
 from view_seed_data import CERTIndicatorBuilderTemplateDataGenerator
 from indicator import views as original_views
+
+from crashlog.models import save as save_crash
+
 
 objectid_matcher = re.compile(
     # {STIX/ID Alias}:{type}-{GUID}
@@ -136,6 +142,11 @@ def ajax_publish(request, data):
         Publisher.push_package(package, namespace_info)
     # Narrow down which exceptions we catch...?
     except Exception, e:
+        local_vars = inspect.trace()[-1][0].f_locals
+        if local_vars.get('tr'):
+            stack_trace = traceback.format_exc()
+            save_crash('Publisher', e.message + '\nTAXII Staus Message:\n' + json.dumps(local_vars['tr'].to_dict()),
+                       stack_trace)
         success = False
         error_message = e.message
 
