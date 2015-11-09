@@ -62,9 +62,9 @@ define([
         return rawValue ? String(rawValue) : null;
     }
 
-    function buildValue(rawValue) {
+    function buildValue(rawValue, delimiter) {
         var valueType = Object.prototype.toString.call(rawValue).slice(8, -1);
-        return (valueBuilders[valueType] || defaultValueBuilder)(rawValue);
+        return (valueBuilders[valueType] || defaultValueBuilder)(rawValue, delimiter);
     }
 
     function isValidState(state) {
