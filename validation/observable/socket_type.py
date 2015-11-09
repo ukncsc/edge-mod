@@ -67,4 +67,4 @@ class SocketValidationInfo(ObservableValidationInfo):
             hostname_validation = HostnameValidationInfo.validate_hostname_value(False, hostname)
 
         return cls(port=port_validation, protocol=protocol_validation, ip_address=ip_address_validation,
-                   hostname=hostname_validation)
+                   hostname=hostname_validation, description=observable_data.get('description'))

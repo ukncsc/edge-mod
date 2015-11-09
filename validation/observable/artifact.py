@@ -21,4 +21,5 @@ class ArtifactValidationInfo(ObservableValidationInfo):
         if not observable_data.get('raw_artifact'):
             raw_artifact_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Artifact data is missing')
 
-        return cls(type=type_validation, raw_artifact=raw_artifact_validation)
+        return cls(type=type_validation, raw_artifact=raw_artifact_validation,
+                   description=observable_data.get('description'))

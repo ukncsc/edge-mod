@@ -12,6 +12,7 @@ class HTTPSessionValidationInfo(ObservableValidationInfo):
 
     def __init__(self, **field_validation):
         super(HTTPSessionValidationInfo, self).__init__(HTTPSessionValidationInfo.TYPE, **field_validation)
+        self.user_agent = field_validation['user_agent']
 
     @classmethod
     def validate(cls, **observable_data):

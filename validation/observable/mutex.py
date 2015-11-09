@@ -19,4 +19,4 @@ class MutexValidationInfo(ObservableValidationInfo):
         else:
             name_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Mutex name is missing')
 
-        return cls(name=name_validation)
+        return cls(name=name_validation, description=observable_data.get('description'))

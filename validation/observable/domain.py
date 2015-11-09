@@ -44,7 +44,7 @@ class DomainNameValidationInfo(ObservableValidationInfo):
             type_validation = FieldValidationInfo(
                 ValidationStatus.ERROR, 'Domain type is missing' if domain_type else 'Unrecognizable domain type')
 
-        return cls(type=type_validation, value=value_validation)
+        return cls(type=type_validation, value=value_validation, description=observable_data.get('description'))
 
     @classmethod
     def get_domain_type_from_value(cls, value):

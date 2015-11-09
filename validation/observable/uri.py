@@ -40,4 +40,4 @@ class URIValidationInfo(ObservableValidationInfo):
         if not uri_value:
             value_validation = FieldValidationInfo(ValidationStatus.ERROR, 'URI value is missing')
 
-        return cls(value=value_validation, type=type_validation)
+        return cls(value=value_validation, type=type_validation, description=observable_data.get('description'))

@@ -31,7 +31,8 @@ class PackageValidationInfo(object):
                 properties = ObservableStructureConverter.package_to_simple(properties.get('xsi:type'), properties)
                 id_ = observable['id']
                 validation_results = ObservableValidator.validate(
-                    object_type=FieldAlias('xsi:type', properties.get('xsi:type')), **properties)
+                    object_type=FieldAlias('xsi:type', properties.get('xsi:type')),
+                    description=observable.get('description'), **properties)
                 if validation_results and validation_results.validation_dict:
                     observable_validation.update({id_: validation_results.validation_dict})
         return observable_validation

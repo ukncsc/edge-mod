@@ -50,7 +50,8 @@ class AddressValidationInfo(ObservableValidationInfo):
             category_validation = FieldValidationInfo(ValidationStatus.ERROR,
                                                       'Unable to determine the address category (%s)' % category)
 
-        return cls(address_value=address_validation, category=category_validation)
+        return cls(address_value=address_validation, category=category_validation,
+                   description=field_values.get('description'))
 
     @staticmethod
     def __get_category_handler(category):
