@@ -23,4 +23,4 @@ class HTTPSessionValidationInfo(ObservableValidationInfo):
         elif not cls.USER_AGENT_MATCHER.match(user_agent):
             user_agent_validation = FieldValidationInfo(ValidationStatus.WARN, 'User Agent value may be invalid')
 
-        return cls(user_agent=user_agent_validation)
+        return cls(user_agent=user_agent_validation, description=observable_data.get('description'))

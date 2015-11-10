@@ -13,4 +13,4 @@ class EmailValidationInfo(ObservableValidationInfo):
 
     @classmethod
     def validate(cls, **observable_data):
-        pass
+        return cls(description=observable_data.get('description'))
