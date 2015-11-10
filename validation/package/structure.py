@@ -34,6 +34,7 @@ class ObservableStructureConverter(object):
     @staticmethod
     def __socket_package_to_simple(package_dict):
         simple = {
+            'xsi:type': package_dict['xsi:type'],
             'port': package_dict['port']['port_value'],
             'protocol': package_dict['port']['layer4_protocol']
         }
