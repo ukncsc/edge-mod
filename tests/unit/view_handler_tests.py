@@ -3,6 +3,7 @@ import mock
 import unittest
 from import_helper import EdgeObject
 from view_loader import get_views_module
+from kill_chain_definition import KILL_CHAIN_PHASES
 
 # Good luck trying to patch decorators in a nice way... decorators are applied at class definition time, so we need to
 # monkey-patch them before we import any modules that use them (in this case, our own 'views' module).
@@ -52,11 +53,12 @@ class ViewHandlerTests(unittest.TestCase):
         self.assertEqual(response, mock_redirect.return_value)
 
     @mock.patch.object(views, 'render')
+    @mock.patch('validation.package.validator.PackageValidationInfo.validate')
     @mock.patch('package_generator.PackageGenerator.build_package')
     @mock.patch(EdgeObject.__module__ + '.' + EdgeObject.__name__ + '.load', new=mock.Mock())
     @mock.patch.object(views, 'objectid_matcher')
     @mock.patch('django.http.request.HttpRequest')
-    def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_regex, mock_package_builder, mock_render):
+    def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_regex, mock_package_builder, mock_validate, mock_render):
         mock_id = 'Dummy ID'
         mock_regex.match.return_value = mock.MagicMock(
             group=mock.Mock(return_value=mock_id),
@@ -70,7 +72,9 @@ class ViewHandlerTests(unittest.TestCase):
 
         mock_render.assert_called_with(mock_request, 'publisher_review.html', {
             'root_id': mock_id,
-            'package': mock_package_builder.return_value
+            'validation_info': mock_validate.return_value,
+            'package': mock_package_builder.return_value,
+            'kill_chain_phases': {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES}
         })
 
         self.assertEqual(response, mock_render.return_value)
@@ -136,7 +140,7 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch.object(views, 'PublisherEdgeObject', mock.Mock())
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
     def test_AJAXPublish_IfPublishOK_ReturnOK(self):
-        response = views.ajax_publish(None, {'root_id': ''})
+        response = views.ajax_publish(mock.Mock(), {'root_id': ''})
 
         self.assertEqual(response, {
             'success': True,
@@ -148,7 +152,7 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch.object(views, 'PublisherEdgeObject', mock.Mock())
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
     def test_AJAXPublish_IfNoRootId_ReturnError(self):
-        response = views.ajax_publish(None, {})
+        response = views.ajax_publish(mock.Mock(), {})
 
         self.assertEqual(response, {
             'success': False,
@@ -163,7 +167,7 @@ class ViewHandlerTests(unittest.TestCase):
         mock_error = 'Mock error'
         mock_edge_object.load.side_effect = Exception(mock_error)
 
-        response = views.ajax_publish(None, {'root_id': ''})
+        response = views.ajax_publish(mock.Mock(), {'root_id': ''})
 
         self.assertEqual(response, {
             'success': False,
@@ -174,11 +178,12 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch.object(views, 'PackageGenerator')
     @mock.patch.object(views, 'PublisherEdgeObject', mock.Mock())
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
+    @mock.patch.object(views, 'OnPublish', mock.Mock())
     def test_AJAXPublish_IfBuildPackageFails_ReturnError(self, mock_package_generator):
         mock_error = 'Mock error'
         mock_package_generator.build_package.side_effect = Exception(mock_error)
 
-        response = views.ajax_publish(None, {'root_id': ''})
+        response = views.ajax_publish(mock.Mock(), {'root_id': ''})
 
         self.assertEqual(response, {
             'success': False,
@@ -193,7 +198,7 @@ class ViewHandlerTests(unittest.TestCase):
         mock_error = 'Mock error'
         mock_edge_object.load.return_value.ns_dict.side_effect = Exception(mock_error)
 
-        response = views.ajax_publish(None, {'root_id': ''})
+        response = views.ajax_publish(mock.Mock(), {'root_id': ''})
 
         self.assertEqual(response, {
             'success': False,
@@ -208,7 +213,7 @@ class ViewHandlerTests(unittest.TestCase):
         mock_error = 'Mock error'
         mock_publisher.push_package.side_effect = Exception(mock_error)
 
-        response = views.ajax_publish(None, {'root_id': ''})
+        response = views.ajax_publish(mock.Mock(), {'root_id': ''})
 
         self.assertEqual(response, {
             'success': False,

@@ -29,5 +29,8 @@ def REPOCONFIG():
     return ACTIVE_CONFIG
 
 mock.patch('mongoengine.connection.get_db', autospec=True).start()
+mock.patch('mongoengine.connect').start()
 
 RUNNING_ADAPTERS = ()
+
+TEMPLATE_DIRS = ()

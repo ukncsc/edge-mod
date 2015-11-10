@@ -2,7 +2,7 @@
 from .. import FieldValidationInfo, ValidationStatus, ObjectValidationInfo
 from ..common.validator import CommonFieldValidator
 from stix.common.vocabs import HighMediumLow
-from ...kill_chain_definition import KILL_CHAIN_PHASES
+from kill_chain_definition import KILL_CHAIN_PHASES
 
 
 class IndicatorValidationInfo(ObjectValidationInfo):
