@@ -1,0 +1,47 @@
+{
+  "timestamp": "2015-11-10T09:14:27.285818+00:00",
+  "version": "1.1.1",
+  "id": "pss:Package-22d057df-d195-41f7-8575-01f73d396f5f",
+  "observables": {
+    "observables": [
+      {
+        "description": "PSS enhanced curl",
+        "object": {
+          "id": "pss:http_session-0df3fb2a-2ecf-4ca7-b904-621041740cb9",
+          "properties": {
+            "http_request_response": [
+              {
+                "http_client_request": {
+                  "http_request_header": {
+                    "parsed_header": {
+                      "user_agent": "MSIE/6.0"
+                    }
+                  }
+                }
+              }
+            ],
+            "xsi:type": "HTTPSessionObjectType"
+          }
+        },
+        "id": "pss:observable-07130bf0-3aca-4c20-8dec-d6f3ac858bb4",
+        "title": "HTTP Session : MSIE/6.0"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "stix_header": {
+    "handling": [
+      {
+        "controlled_structure": "../../../../descendant-or-self::node() | ../../../../descendant-or-self::node()/@*",
+        "marking_structures": [
+          {
+            "color": "AMBER",
+            "xsi:type": "tlpMarking:TLPMarkingStructureType"
+          }
+        ]
+      }
+    ]
+  }
+}

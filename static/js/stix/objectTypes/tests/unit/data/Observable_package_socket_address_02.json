@@ -1,0 +1,49 @@
+{
+  "timestamp": "2015-11-10T09:53:54.817977+00:00",
+  "version": "1.1.1",
+  "id": "pss:Package-2a9a0486-1346-430d-8d71-a2da776a32ef",
+  "observables": {
+    "observables": [
+      {
+        "description": "Socket Description",
+        "object": {
+          "id": "pss:socket-e82f89a7-3747-4a5e-9dec-a5d614e85d45",
+          "properties": {
+            "xsi:type": "SocketAddressObjectType",
+            "hostname": {
+              "xsi:type": "HostnameObjectType",
+              "hostname_value": "myserver.localdomain"
+            },
+            "port": {
+              "xsi:type": "PortObjectType",
+              "port_value": 8080,
+              "layer4_protocol": "http"
+            }
+          }
+        },
+        "id": "pss:observable-4daef1c0-f814-4d50-a500-f0db3a5f8535",
+        "title": "Socket : myserver.localdomain:8080 (http)"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "stix_header": {
+    "handling": [
+      {
+        "controlled_structure": "../../../../descendant-or-self::node() | ../../../../descendant-or-self::node()/@*",
+        "marking_structures": [
+          {
+            "color": "GREEN",
+            "xsi:type": "tlpMarking:TLPMarkingStructureType"
+          },
+          {
+            "xsi:type": "simpleMarking:SimpleMarkingStructureType",
+            "statement": "None"
+          }
+        ]
+      }
+    ]
+  }
+}
