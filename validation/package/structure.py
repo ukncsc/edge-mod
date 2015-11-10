@@ -1,4 +1,4 @@
-from libtaxii.taxii_default_query import package_dir
+
 from ..observable.address import AddressValidationInfo
 from ..observable.socket_type import SocketValidationInfo
 from ..observable.http_session import HTTPSessionValidationInfo
