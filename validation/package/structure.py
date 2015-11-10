@@ -2,6 +2,7 @@
 from ..observable.address import AddressValidationInfo
 from ..observable.socket_type import SocketValidationInfo
 from ..observable.http_session import HTTPSessionValidationInfo
+from ..observable.email_type import EmailValidationInfo
 
 
 class ObservableStructureConverter(object):
@@ -11,7 +12,8 @@ class ObservableStructureConverter(object):
         conversion_handlers = {
             AddressValidationInfo.TYPE: ObservableStructureConverter.__address_package_to_simple,
             SocketValidationInfo.TYPE: ObservableStructureConverter.__socket_package_to_simple,
-            HTTPSessionValidationInfo.TYPE: ObservableStructureConverter.__https_session_package_to_simple
+            HTTPSessionValidationInfo.TYPE: ObservableStructureConverter.__https_session_package_to_simple,
+            EmailValidationInfo.TYPE: ObservableStructureConverter.__email_message_package_to_simple
         }
         return conversion_handlers.get(object_type)
 
@@ -54,6 +56,28 @@ class ObservableStructureConverter(object):
                 http_request_response[0]['http_client_request']['http_request_header']['parsed_header']['user_agent']
         except LookupError:
             simple['user_agent'] = None
+
+        return simple
+
+    @staticmethod
+    def __email_message_package_to_simple(package_dict):
+        simple = package_dict.copy()
+
+        header = simple.pop('header', {})
+
+        simple['subject'] = header.get('subject')
+        if header.get('from'):
+            simple['from'] = header['from'].get('address_value')
+        simple['date'] = header.get('date')
+
+        def flatten_address_list(address_list):
+            if isinstance(address_list, list):
+                return [address['address_value'] for address in address_list]
+            return None
+
+        simple['to'] = flatten_address_list(header.get('to'))
+        simple['cc'] = flatten_address_list(header.get('cc'))
+        simple['bcc'] = flatten_address_list(header.get('bcc'))
 
         return simple
 
