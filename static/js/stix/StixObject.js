@@ -5,6 +5,7 @@ define([
     "kotemplate!labelled-field:./templates/labelled-field.html",
     "kotemplate!labelled-list-field:./templates/labelled-list-field.html",
     "kotemplate!optional-labelled-field:./templates/optional-labelled-field.html",
+    "kotemplate!optional-labelled-list-field:./templates/optional-labelled-list-field.html",
     "kotemplate!grid-field:./templates/grid-field.html",
     "kotemplate!grid-properties-field:./templates/grid-properties-field.html",
     "kotemplate!common-fields:./templates/common.html"

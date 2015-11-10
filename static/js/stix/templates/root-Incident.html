@@ -22,15 +22,15 @@
         name: "optional-labelled-field", data: { label: "Impact Assessment", value: impactAssessment }
     } --><!-- /ko -->
     <!-- ko template: {
-        name: "list-ttp", data: { label: "Leveraged TTPs", value: leveragedTTPs }
+        name: "list-ttp", data: { label: "Leveraged TTPs", value: leveragedTTPs, template: "labelled-list-field" }
     } --><!-- /ko -->
     <!-- ko template: {
-        name: "list-inc", data: { label: "Related Incidents", value: relatedIncidents }
+        name: "list-inc", data: { label: "Related Incidents", value: relatedIncidents, template: "optional-labelled-list-field" }
     } --><!-- /ko -->
     <!-- ko template: {
-        name: "list-ind", data: { label: "Related Indicators", value: relatedIndicators }
+        name: "list-ind", data: { label: "Related Indicators", value: relatedIndicators, template: "optional-labelled-list-field" }
     } --><!-- /ko -->
     <!-- ko template: {
-        name: "list-obs", data: { label: "Related Observables", value: relatedObservables }
+        name: "list-obs", data: { label: "Related Observables", value: relatedObservables, template: "optional-labelled-list-field" }
     } --><!-- /ko -->
 </dl>

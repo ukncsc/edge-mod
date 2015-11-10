@@ -22,7 +22,7 @@ define([
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
             this.producer = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), this.data(), "producer.identity.name");
+                return stixPackage.safeValueGet(this.id(), this.data(), "producer.identity.name", "producer");
             }, this);
             this.confidence = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "confidence.value.value", "confidence");
@@ -63,7 +63,7 @@ define([
                 var observable = this.observable();
                 var observableList = null;
                 if (observable) {
-                    observableList = stixPackage.safeReferenceArrayGet(observable.data(), "observable_composition.observables", "idref");
+                    observableList = stixPackage.safeReferenceArrayGet(observable.data(), "observable_composition.observables", "idref", "observables");
                     if (!observableList) {
                         observableList = [observable];
                     }
@@ -71,13 +71,13 @@ define([
                 return observableList;
             }, this);
             this.relatedIndicators = ko.computed(function () {
-                return stixPackage.safeReferenceArrayGet(this.data(), "related_indicators.related_indicators", "indicator.idref");
+                return stixPackage.safeReferenceArrayGet(this.data(), "related_indicators.related_indicators", "indicator.idref", "related_indicators");
             }, this);
             this.indicatedTTPs = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.data(), "indicated_ttps", "ttp.idref");
             }, this);
             this.suggestedCOAs = ko.computed(function () {
-                return stixPackage.safeReferenceArrayGet(this.data(), "suggested_coas.suggested_coas", "course_of_action.idref");
+                return stixPackage.safeReferenceArrayGet(this.data(), "suggested_coas.suggested_coas", "course_of_action.idref", "suggested_coas");
             }, this);
         }
     });
