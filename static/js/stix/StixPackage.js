@@ -7,10 +7,6 @@ define([
 ], function (declare, ko, StixId, ReviewValue, ValidationInfo) {
     "use strict";
 
-    function findId(object) {
-        return typeof object.id === "function" ? object.id() : object.id;
-    }
-
     return declare(null, {
         declaredClass: "StixPackage",
         constructor: function (stixPackage, rootId, validationInfo) {
@@ -85,24 +81,22 @@ define([
                 : null;
         },
 
-        safeListGet: function (/*Object*/ object, /*String*/ propertyPath,
+        safeListGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
                                /*String?*/ valueKey, /*String?*/ validationPath, /*String?*/ delimiter) {
             var itemPropertyPath = valueKey || "value";
             var listValue = (this.safeArrayGet(object, propertyPath, function (item) {
                 return this.safeGet(item, itemPropertyPath);
             }, this) || []).join(delimiter || ", ");
-            // TODO: add id to method signature (or change safeValueGet to work this way)
-            var validation = this._validationInfo.findByProperty(findId(object), validationPath || propertyPath);
+            var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
             return new ReviewValue(listValue, validation.state, validation.message);
         },
 
-        safeReferenceArrayGet: function (/*Object*/ object, /*String*/ propertyPath,
+        safeReferenceArrayGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
                                          /*String*/ idrefKey, /*String?*/ validationPath) {
             var values = this.safeArrayGet(object, propertyPath, function (item) {
                 return this.findById(new StixId(this.safeGet(item, idrefKey)));
             }, this);
-            // TODO: add id to method signature (or change safeValueGet to work this way)
-            var validation = this._validationInfo.findByProperty(findId(object), validationPath || propertyPath);
+            var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
             return new ReviewValue(values, validation.state, validation.message);
         }
 

@@ -221,29 +221,29 @@ define([
                     loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
                 },
                 "not found returns empty ReviewValue": function () {
-                    var actual = classUnderTest.safeListGet(simpleObject, "bad.property.name", "value.key");
+                    var actual = classUnderTest.safeListGet("", simpleObject, "bad.property.name", "value.key");
                     assert.instanceOf(actual, ReviewValue);
                     assert.isTrue(actual.isEmpty());
                 },
                 "not an array returns empty ReviewValue": function () {
-                    var actual = classUnderTest.safeListGet(simpleObject, "prop1", "value.key");
+                    var actual = classUnderTest.safeListGet("", simpleObject, "prop1", "value.key");
                     assert.instanceOf(actual, ReviewValue);
                     assert.isTrue(actual.isEmpty());
                 },
                 "simple property path returns value": function () {
-                    var actual = classUnderTest.safeListGet(simpleObject, "sub2", "value");
+                    var actual = classUnderTest.safeListGet("", simpleObject, "sub2", "value");
                     assert.instanceOf(actual, ReviewValue);
                     assert.isFalse(actual.isEmpty());
                     assert.equal(actual.value(), "Hello, World");
                 },
                 "compound property path returns value": function () {
-                    var actual = classUnderTest.safeListGet(simpleObject, "sub1.sub1prop2", "value");
+                    var actual = classUnderTest.safeListGet("", simpleObject, "sub1.sub1prop2", "value");
                     assert.instanceOf(actual, ReviewValue);
                     assert.isFalse(actual.isEmpty());
                     assert.equal(actual.value(), "One, Two");
                 },
                 "compound property path returns value - custom separator": function () {
-                    var actual = classUnderTest.safeListGet(simpleObject, "sub2", "name", "..");
+                    var actual = classUnderTest.safeListGet("", simpleObject, "sub2", "name", null, "..");
                     assert.instanceOf(actual, ReviewValue);
                     assert.isFalse(actual.isEmpty());
                     assert.equal(actual.value(), "alpha..beta");
@@ -254,10 +254,10 @@ define([
                     loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
                 },
                 "not found returns null": function () {
-                    assert.isNull(classUnderTest.safeReferenceArrayGet(classUnderTest.root, "abc", "123"));
+                    assert.isNull(classUnderTest.safeReferenceArrayGet("", classUnderTest.root, "abc", "123"));
                 },
                 "found returns array of STIX objects": function () {
-                    var actual = classUnderTest.safeReferenceArrayGet(classUnderTest._data.courses_of_action[0], "related_coas.coas", "course_of_action.idref");
+                    var actual = classUnderTest.safeReferenceArrayGet("", classUnderTest._data.courses_of_action[0], "related_coas.coas", "course_of_action.idref");
                     assert.isArray(actual);
                     assert.lengthOf(actual, 1);
                     assert.equal(actual[0].id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");

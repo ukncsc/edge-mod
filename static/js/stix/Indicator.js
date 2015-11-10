@@ -28,7 +28,7 @@ define([
                 return stixPackage.safeValueGet(this.id(), this.data(), "confidence.value.value", "confidence");
             }, this);
             this.indicatorTypes = ko.computed(function () {
-                return stixPackage.safeListGet(this.data(), "indicator_types");
+                return stixPackage.safeListGet(this.id(), this.data(), "indicator_types");
             }, this);
             this.killChainPhase = ko.computed(function () {
                 var killChainPhase = stixPackage.safeValueGet(this.id(), this.data(), "kill_chain_phases.kill_chain_phases.0.phase_id", "phase_id");
@@ -49,7 +49,7 @@ define([
                 return stixPackage.safeValueGet(this.id(), this.data(), "composite_indicator_expression.operator");
             }, this);
             this.compositeIndicators = ko.computed(function () {
-                return stixPackage.safeReferenceArrayGet(this.data(), "composite_indicator_expression.indicators", "idref");
+                return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "composite_indicator_expression.indicators", "idref");
             }, this);
             this.observable = ko.computed(function () {
                 var id = stixPackage.safeGet(this.data(), "observable.idref");
@@ -63,7 +63,7 @@ define([
                 var observable = this.observable();
                 var observableList = null;
                 if (observable) {
-                    observableList = stixPackage.safeReferenceArrayGet(observable.data(), "observable_composition.observables", "idref", "observables");
+                    observableList = stixPackage.safeReferenceArrayGet(this.id(), observable.data(), "observable_composition.observables", "idref", "observables");
                     if (!observableList) {
                         observableList = [observable];
                     }
@@ -71,13 +71,13 @@ define([
                 return observableList;
             }, this);
             this.relatedIndicators = ko.computed(function () {
-                return stixPackage.safeReferenceArrayGet(this.data(), "related_indicators.related_indicators", "indicator.idref", "related_indicators");
+                return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_indicators.related_indicators", "indicator.idref", "related_indicators");
             }, this);
             this.indicatedTTPs = ko.computed(function () {
-                return stixPackage.safeReferenceArrayGet(this.data(), "indicated_ttps", "ttp.idref");
+                return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "indicated_ttps", "ttp.idref");
             }, this);
             this.suggestedCOAs = ko.computed(function () {
-                return stixPackage.safeReferenceArrayGet(this.data(), "suggested_coas.suggested_coas", "course_of_action.idref", "suggested_coas");
+                return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "suggested_coas.suggested_coas", "course_of_action.idref", "suggested_coas");
             }, this);
         }
     });
