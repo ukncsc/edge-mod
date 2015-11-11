@@ -17,6 +17,12 @@ class IndicatorValidationInfo(ObjectValidationInfo):
 
     def __init__(self, **field_validation):
         super(IndicatorValidationInfo, self).__init__(**field_validation)
+        self.indicator_types = field_validation.get('indicator_types')
+        self.phase_id = field_validation.get('phase_id')
+        self.confidence = field_validation.get('confidence')
+        self.indicated_ttps = field_validation.get('indicated_ttps')
+        self.suggested_coas = field_validation.get('suggested_coas')
+        self.observables = field_validation.get('observables')
 
     @staticmethod
     def __validate_kill_chain_phase_id(phase_id):
@@ -34,8 +40,8 @@ class IndicatorValidationInfo(ObjectValidationInfo):
         if not kill_chain_phase:
             common_field_validation['phase_id'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Kill Chain Phase')
         elif not IndicatorValidationInfo.__validate_kill_chain_phase_id(kill_chain_phase):
-            common_field_validation['phase_id'] = FieldValidationInfo(ValidationStatus.ERROR,
-                                                                      'The supplied Kill Chain Phase is not recognized internally')
+            common_field_validation['phase_id'] = FieldValidationInfo(
+                ValidationStatus.ERROR, 'The supplied Kill Chain Phase is not recognized internally')
 
         confidence = indicator_data.get('confidence')
         if confidence not in cls.CONFIDENCE_VALUES:
@@ -50,5 +56,9 @@ class IndicatorValidationInfo(ObjectValidationInfo):
 
         if not indicator_data.get('suggested_coas'):
             common_field_validation['suggested_coas'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Suggested COAs')
+
+        if not indicator_data.get('observable'):
+            common_field_validation['observables'] = FieldValidationInfo(ValidationStatus.ERROR,
+                                                                         'No Indicator Observables')
 
         return cls(**common_field_validation)
