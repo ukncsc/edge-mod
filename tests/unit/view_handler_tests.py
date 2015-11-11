@@ -1,9 +1,11 @@
 
 import mock
 import unittest
-from import_helper import EdgeObject
+from edge.generic import EdgeObject
 from view_loader import get_views_module
-from kill_chain_definition import KILL_CHAIN_PHASES
+import importlib
+kill_chain_definition = importlib.import_module('kill_chain_definition', 'certuk-mod')
+KILL_CHAIN_PHASES = kill_chain_definition.KILL_CHAIN_PHASES
 
 # Good luck trying to patch decorators in a nice way... decorators are applied at class definition time, so we need to
 # monkey-patch them before we import any modules that use them (in this case, our own 'views' module).

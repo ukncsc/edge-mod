@@ -2,7 +2,9 @@
 from .. import FieldValidationInfo, ValidationStatus, ObjectValidationInfo
 from ..common.validator import CommonFieldValidator
 from stix.common.vocabs import HighMediumLow
-from ...kill_chain_definition import KILL_CHAIN_PHASES
+import importlib
+kill_chain_definition = importlib.import_module('kill_chain_definition', 'certuk-mod')
+KILL_CHAIN_PHASES = kill_chain_definition.KILL_CHAIN_PHASES
 
 
 class IndicatorValidationInfo(ObjectValidationInfo):

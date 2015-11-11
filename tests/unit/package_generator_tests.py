@@ -1,7 +1,7 @@
 
 import unittest
 import mock
-from import_helper import EdgeObject
+from edge.generic import EdgeObject
 from package_generator import PackageGenerator
 
 
