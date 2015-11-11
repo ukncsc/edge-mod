@@ -15,10 +15,11 @@ define([
                 var hashes = this.stixPackage.safeGet(this.data, "hashes");
                 if (hashes instanceof Array) {
                     ko.utils.arrayForEach(hashes, function (hash) {
+                        var hashType = this.stixPackage.safeValueGet(this.id, hash, "type");
                         NamedProperty.addToPropertyList(
                             propertyList,
-                            this.stixPackage.safeValueGet(this.id, hash, "type"),
-                            this.stixPackage.safeValueGet(this.id, hash, "simple_hash_value")
+                            hashType,
+                            this.stixPackage.safeValueGet(this.id, hash, "simple_hash_value", hashType.value())
                         );
                     }.bind(this));
                 }
