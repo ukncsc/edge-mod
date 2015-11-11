@@ -31,7 +31,11 @@ define([
         "Array" : function (rawValue) {
             var builtValue;
             if (rawValue.length > 1) {
-                builtValue = rawValue.slice(0, -1).join(", ") + " and " + rawValue[rawValue.length - 1];
+                if (typeof rawValue[0] === "object") {
+                    builtValue = rawValue;
+                } else {
+                    builtValue = rawValue.slice(0, -1).join(", ") + " and " + rawValue[rawValue.length - 1];
+                }
             } else if (rawValue.length > 0) {
                 builtValue = rawValue[0];
             } else {
