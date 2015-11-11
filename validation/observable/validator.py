@@ -10,6 +10,7 @@ from artifact import ArtifactValidationInfo
 from uri import URIValidationInfo
 from email_type import EmailValidationInfo
 from file import FileValidationInfo
+from registry_key import RegistryKeyValidationInfo
 from .. import FieldAlias
 
 
@@ -32,7 +33,8 @@ class ObservableValidator(object):
             ArtifactValidationInfo.TYPE: ArtifactValidationInfo.validate,
             URIValidationInfo.TYPE: URIValidationInfo.validate,
             EmailValidationInfo.TYPE: EmailValidationInfo.validate,
-            FileValidationInfo.TYPE: FileValidationInfo.validate
+            FileValidationInfo.TYPE: FileValidationInfo.validate,
+            RegistryKeyValidationInfo.TYPE: RegistryKeyValidationInfo.validate
         }
         actual_type = object_type.field_value if isinstance(object_type, FieldAlias) else object_type
         handler = handler_map.get(actual_type)
