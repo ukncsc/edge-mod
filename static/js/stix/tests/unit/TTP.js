@@ -86,9 +86,12 @@ define([
                 },
                 "has correct related TTPs": function () {
                     var actual = classUnderTest.relatedTTPs();
-                    assert.isArray(actual);
-                    assert.lengthOf(actual, 1);
-                    var actualRelatedTTP = actual[0];
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    var actualTTPs = actual.value();
+                    assert.isArray(actualTTPs);
+                    assert.lengthOf(actualTTPs, 1);
+                    var actualRelatedTTP = actualTTPs[0];
                     assert.instanceOf(actualRelatedTTP, TTP);
                     assert.equal(actualRelatedTTP.id(), "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32");
                 }

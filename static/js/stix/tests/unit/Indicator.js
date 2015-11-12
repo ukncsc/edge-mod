@@ -116,39 +116,51 @@ define([
                 },
                 "has correct observables": function () {
                     var actual = classUnderTest.observables();
-                    assert.isArray(actual);
-                    assert.lengthOf(actual, 3);
-                    var actualRelatedIndicator1 = actual[0];
-                    assert.instanceOf(actualRelatedIndicator1, Observable);
-                    assert.equal(actualRelatedIndicator1.id(), "purple-secure-systems:observable-4a7c90a4-7735-440b-a6d9-d81ee0632449");
-                    var actualRelatedIndicator2 = actual[1];
-                    assert.instanceOf(actualRelatedIndicator2, Observable);
-                    assert.equal(actualRelatedIndicator2.id(), "purple-secure-systems:Observable-9e96c799-7710-425f-a308-d4b6716f930c");
-                    var actualRelatedIndicator3 = actual[2];
-                    assert.instanceOf(actualRelatedIndicator3, Observable);
-                    assert.equal(actualRelatedIndicator3.id(), "purple-secure-systems:Observable-043c5263-c43a-4e7a-adff-553a04e4cc34");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    var actualObservables = actual.value();
+                    assert.isArray(actualObservables);
+                    assert.lengthOf(actualObservables, 3);
+                    var actualObservable1 = actualObservables[0];
+                    assert.instanceOf(actualObservable1, Observable);
+                    assert.equal(actualObservable1.id(), "purple-secure-systems:observable-4a7c90a4-7735-440b-a6d9-d81ee0632449");
+                    var actualObservable2 = actualObservables[1];
+                    assert.instanceOf(actualObservable2, Observable);
+                    assert.equal(actualObservable2.id(), "purple-secure-systems:Observable-9e96c799-7710-425f-a308-d4b6716f930c");
+                    var actualObservable3 = actualObservables[2];
+                    assert.instanceOf(actualObservable3, Observable);
+                    assert.equal(actualObservable3.id(), "purple-secure-systems:Observable-043c5263-c43a-4e7a-adff-553a04e4cc34");
                 },
                 "has correct related indicators": function () {
                     var actual = classUnderTest.relatedIndicators();
-                    assert.isArray(actual);
-                    assert.lengthOf(actual, 1);
-                    var actualRelatedIndicator = actual[0];
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    var actualRelatedIndicators = actual.value();
+                    assert.isArray(actualRelatedIndicators);
+                    assert.lengthOf(actualRelatedIndicators, 1);
+                    var actualRelatedIndicator = actualRelatedIndicators[0];
                     assert.instanceOf(actualRelatedIndicator, Indicator);
                     assert.equal(actualRelatedIndicator.id(), "purple-secure-systems:Indicator-7fc78054-e6f4-4b13-b3fc-44b1f4e2d9b8");
                 },
                 "has correct indicated TTPs" : function () {
                     var actual = classUnderTest.indicatedTTPs();
-                    assert.isArray(actual);
-                    assert.lengthOf(actual, 1);
-                    var actualIndicatedTTP = actual[0];
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    var actualIndicatedTTPs = actual.value();
+                    assert.isArray(actualIndicatedTTPs);
+                    assert.lengthOf(actualIndicatedTTPs, 1);
+                    var actualIndicatedTTP = actualIndicatedTTPs[0];
                     assert.instanceOf(actualIndicatedTTP, TTP);
                     assert.equal(actualIndicatedTTP.id(), "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32");
                 },
                 "has correct suggested COAs": function () {
                     var actual = classUnderTest.suggestedCOAs();
-                    assert.isArray(actual);
-                    assert.lengthOf(actual, 1);
-                    var actualSuggestedCOA = actual[0];
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    var actualSuggestedCOAs = actual.value();
+                    assert.isArray(actualSuggestedCOAs);
+                    assert.lengthOf(actualSuggestedCOAs, 1);
+                    var actualSuggestedCOA = actualSuggestedCOAs[0];
                     assert.instanceOf(actualSuggestedCOA, CourseOfAction);
                     assert.equal(actualSuggestedCOA.id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
                 }
@@ -165,7 +177,10 @@ define([
                 },
                 "has correct composite indicators": function () {
                     var actual = classUnderTest.compositeIndicators();
-                    assert.deepEqual(actual.map(function(item) {
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    var actualCompositeIndicators = actual.value();
+                    assert.deepEqual(actualCompositeIndicators.map(function(item) {
                         return item.id();
                     }), [
                         "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d",

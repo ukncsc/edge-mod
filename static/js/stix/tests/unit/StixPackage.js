@@ -254,13 +254,19 @@ define([
                     loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
                 },
                 "not found returns null": function () {
-                    assert.isNull(classUnderTest.safeReferenceArrayGet("", classUnderTest.root, "abc", "123"));
+                    var actual = classUnderTest.safeReferenceArrayGet("", classUnderTest.root, "abc", "123");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isTrue(actual.isEmpty());
+                    assert.isNull(actual.value());
                 },
                 "found returns array of STIX objects": function () {
                     var actual = classUnderTest.safeReferenceArrayGet("", classUnderTest._data.courses_of_action[0], "related_coas.coas", "course_of_action.idref");
-                    assert.isArray(actual);
-                    assert.lengthOf(actual, 1);
-                    assert.equal(actual[0].id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    var actualSTIXObjects = actual.value();
+                    assert.isArray(actualSTIXObjects);
+                    assert.lengthOf(actualSTIXObjects, 1);
+                    assert.equal(actualSTIXObjects[0].id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
                 }
             }
         }

@@ -119,9 +119,12 @@ define([
                 },
                 "has correct related COAs": function () {
                     var actual = classUnderTest.relatedCOAs();
-                    assert.isArray(actual);
-                    assert.lengthOf(actual, 1);
-                    var actualRelatedCOA = actual[0];
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    var actualRelatedCOAs = actual.value();
+                    assert.isArray(actualRelatedCOAs);
+                    assert.lengthOf(actualRelatedCOAs, 1);
+                    var actualRelatedCOA = actualRelatedCOAs[0];
                     assert.instanceOf(actualRelatedCOA, CourseOfAction);
                     assert.equal(actualRelatedCOA.id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
                 }
