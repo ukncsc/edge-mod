@@ -10,5 +10,6 @@ def get_views_module(requesting_module):
     # So why not use classes instead of functional views (so we can have multiple instances in a sane way)? Because the
     # decorators are applied at class definition time, so all class instances will be affected by patching anyway!
     # Aaarrgghh!
-    views = imp.load_module('views_' + requesting_module, *imp.find_module('views'))
+    views_package_path = imp.load_module('views', *imp.find_module('views')).__path__
+    views = imp.load_module('views_' + requesting_module, *imp.find_module('views', views_package_path))
     return views

@@ -1,9 +1,8 @@
-
 import os
 import subprocess
-import repository.test as edge_test
-from adapters.certuk_mod.publisher_edge_object import PublisherEdgeObject
 
+import repository.test as edge_test
+from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'repository.settings'
 

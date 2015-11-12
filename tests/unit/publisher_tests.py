@@ -1,13 +1,14 @@
-
 import unittest
-import mock
+
 import libtaxii
-from adapters.certuk_mod.package_publisher import Publisher
+import mock
+
+from adapters.certuk_mod.publisher.package_publisher import Publisher
 
 
 class PublisherTests(unittest.TestCase):
 
-    @mock.patch('adapters.certuk_mod.package_publisher.PublisherConfig', autospec=True)
+    @mock.patch('adapters.certuk_mod.publisher.package_publisher.PublisherConfig', autospec=True)
     def test_PushPackage_IfNoSiteId_RaisesWarning(self, mock_config):
         configs = [{'site_id': None}, {}]
         for config in configs:
@@ -15,11 +16,11 @@ class PublisherTests(unittest.TestCase):
                 mock_config.get_config.return_value = config
                 Publisher.push_package(None, None)
 
-    @mock.patch('adapters.certuk_mod.package_publisher.send_message')
-    @mock.patch('adapters.certuk_mod.package_publisher.discover_inbox_url')
-    @mock.patch('adapters.certuk_mod.package_publisher.PeerSite')
+    @mock.patch('adapters.certuk_mod.publisher.package_publisher.send_message')
+    @mock.patch('adapters.certuk_mod.publisher.package_publisher.discover_inbox_url')
+    @mock.patch('adapters.certuk_mod.publisher.package_publisher.PeerSite')
     @mock.patch('stix.core.stix_package.STIXPackage', autospec=True)
-    @mock.patch('adapters.certuk_mod.package_publisher.PublisherConfig', autospec=True)
+    @mock.patch('adapters.certuk_mod.publisher.package_publisher.PublisherConfig', autospec=True)
     def test_PushPackage_IfSiteDetailsFound_SendsMessage(self, mock_config, mock_package, mock_peer_site,
                                                          mock_discover_inbox, mock_send_message):
         mock_config.get_config.return_value = {

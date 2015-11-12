@@ -1,7 +1,8 @@
-
 import unittest
+
 import mock
-from adapters.certuk_mod.publisher_edge_object import PublisherEdgeObject
+
+from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 
 
 class PublisherEdgeObjectTests(unittest.TestCase):
@@ -26,9 +27,9 @@ class PublisherEdgeObjectTests(unittest.TestCase):
                 yield mock.Mock(id_=edge_id, id_ns=edge_namespace)
         return mock_scanner
 
-    @mock.patch('adapters.certuk_mod.publisher_edge_object.STIXScanner')
+    @mock.patch('adapters.certuk_mod.publisher.publisher_edge_object.STIXScanner')
     def test_GetNamespaces_NamespacesOK_ReturnsCorrectValues(self, mock_stix_scanner):
-        patcher = mock.patch('adapters.certuk_mod.publisher_edge_object.PublisherEdgeObject.__bases__', (mock.MagicMock,))
+        patcher = mock.patch('adapters.certuk_mod.publisher.publisher_edge_object.PublisherEdgeObject.__bases__', (mock.MagicMock,))
         with patcher:
             patcher.is_local = True
             mock_stix_scanner.side_effect = PublisherEdgeObjectTests.stix_scanner_setup(PublisherEdgeObjectTests.ok_ids)
@@ -41,9 +42,9 @@ class PublisherEdgeObjectTests(unittest.TestCase):
                 'http://www.namespace-2.com': 'Alias_2'
             })
 
-    @mock.patch('adapters.certuk_mod.publisher_edge_object.STIXScanner')
+    @mock.patch('adapters.certuk_mod.publisher.publisher_edge_object.STIXScanner')
     def test_GetNamespaces_NoAlias_ReturnsNothing(self, mock_stix_scanner):
-        patcher = mock.patch('adapters.certuk_mod.publisher_edge_object.PublisherEdgeObject.__bases__', (mock.MagicMock,))
+        patcher = mock.patch('adapters.certuk_mod.publisher.publisher_edge_object.PublisherEdgeObject.__bases__', (mock.MagicMock,))
         with patcher:
             patcher.is_local = True
             mock_stix_scanner.side_effect = PublisherEdgeObjectTests.stix_scanner_setup(
@@ -54,9 +55,9 @@ class PublisherEdgeObjectTests(unittest.TestCase):
             namespaces = edge_object_under_test.ns_dict()
             self.assertEqual(namespaces, {})
 
-    @mock.patch('adapters.certuk_mod.publisher_edge_object.STIXScanner')
+    @mock.patch('adapters.certuk_mod.publisher.publisher_edge_object.STIXScanner')
     def test_GetNamespaces_MalformedID_ThrowsException(self, mock_stix_scanner):
-        patcher = mock.patch('adapters.certuk_mod.publisher_edge_object.PublisherEdgeObject.__bases__', (mock.MagicMock,))
+        patcher = mock.patch('adapters.certuk_mod.publisher.publisher_edge_object.PublisherEdgeObject.__bases__', (mock.MagicMock,))
         with patcher:
             patcher.is_local = True
             mock_stix_scanner.side_effect = PublisherEdgeObjectTests.stix_scanner_setup(
@@ -66,9 +67,9 @@ class PublisherEdgeObjectTests(unittest.TestCase):
             edge_object_under_test.filters = None
             self.assertRaises(Exception, edge_object_under_test.ns_dict)
 
-    @mock.patch('adapters.certuk_mod.publisher_edge_object.STIXScanner')
+    @mock.patch('adapters.certuk_mod.publisher.publisher_edge_object.STIXScanner')
     def test_STIXScanner_AnyEdgeObject_CalledWithCorrectArguments(self, mock_stix_scanner):
-        patcher = mock.patch('adapters.certuk_mod.publisher_edge_object.PublisherEdgeObject.__bases__', (mock.MagicMock,))
+        patcher = mock.patch('adapters.certuk_mod.publisher.publisher_edge_object.PublisherEdgeObject.__bases__', (mock.MagicMock,))
         with patcher:
             patcher.is_local = True
             mock_stix_scanner.side_effect = PublisherEdgeObjectTests.stix_scanner_setup(

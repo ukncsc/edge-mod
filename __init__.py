@@ -1,4 +1,2 @@
 
-import observable_patch
-import inbox_patch
-import indicator_patch
+from patch import observable_patch, inbox_patch, indicator_patch

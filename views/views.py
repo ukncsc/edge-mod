@@ -11,22 +11,22 @@ from django.contrib.auth.decorators import login_required
 
 from users.decorators import superuser_or_staff_role, json_body
 
-from package_publisher import Publisher
-from publisher_config import PublisherConfig
-from package_generator import PackageGenerator
-from publisher_edge_object import PublisherEdgeObject
-from validation.package.validator import PackageValidationInfo
-from cert_observable_object_generator import CERTObservableObjectGenerator
+from adapters.certuk_mod.publisher.package_publisher import Publisher
+from adapters.certuk_mod.publisher.publisher_config import PublisherConfig
+from adapters.certuk_mod.publisher.package_generator import PackageGenerator
+from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
+from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
+from adapters.certuk_mod.builder.cert_observable_object_generator import CERTObservableObjectGenerator
 from indicator.indicator_builder import IndicatorBuilder
-from view_seed_data import CERTIndicatorBuilderTemplateDataGenerator
+from adapters.certuk_mod.builder.view_seed_data import CERTIndicatorBuilderTemplateDataGenerator
 from indicator import views as original_views
-from kill_chain_definition import KILL_CHAIN_PHASES
+from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from crashlog.models import save as save_crash
 
-from audit import setup, status
-from audit.event import Event
-from audit.handlers import log_activity
-from audit.message import format_audit_message
+from adapters.certuk_mod.audit import setup, status
+from adapters.certuk_mod.audit.event import Event
+from adapters.certuk_mod.audit.handlers import log_activity
+from adapters.certuk_mod.audit.message import format_audit_message
 
 
 setup.configure_publisher_actions()
@@ -48,7 +48,7 @@ def static(request, path):
     clean_path = urllib2.unquote(path)
     if "../" not in clean_path:
         return FileResponse(
-            open(os.path.dirname(__file__) + "/static/" + clean_path, mode="rb")
+            open(os.path.dirname(__file__) + "/../static/" + clean_path, mode="rb")
         )
     else:
         return HttpResponseNotFound()

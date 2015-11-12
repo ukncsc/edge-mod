@@ -2,11 +2,11 @@
 import unittest
 from django.core.urlresolvers import reverse, resolve
 from django.conf.urls import patterns, url
-from adapters.certuk_mod.urls import publisher_urls
-from adapters.certuk_mod import views
+from adapters.certuk_mod.views.urls import publisher_urls
+from adapters.certuk_mod.views import views
 
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]
-urlpatterns = patterns('adapters.certuk_mod', *publisher_url_patterns)
+urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
 
 class URLConfTests(unittest.TestCase):

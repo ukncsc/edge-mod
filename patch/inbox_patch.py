@@ -1,8 +1,8 @@
+import inspect
 
+from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_ID
 from edge.inbox import InboxProcessorForBuilders
 from stix.common.kill_chains import KillChainPhaseReference, KillChainPhasesReference
-from kill_chain_definition import KILL_CHAIN_ID
-import inspect
 
 
 def get_previous_frame():
