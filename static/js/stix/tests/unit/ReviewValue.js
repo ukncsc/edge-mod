@@ -118,6 +118,32 @@ define([
                     assert.isTrue(classUnderTest.hasInfo());
                 }
             },
+            "constructor: missing message": {
+                setup: function () {
+                    classUnderTest = new ReviewValue("aValue", ReviewValue.State.INFO);
+                },
+                "value is 'aValue'": function () {
+                    assert.equal(classUnderTest.value(), "aValue");
+                },
+                "state is INFO": function () {
+                    assert.equal(classUnderTest.state(), ReviewValue.State.INFO);
+                },
+                "message is null": function () {
+                    assert.isNull(classUnderTest.message());
+                },
+                "isEmpty is false": function () {
+                    assert.isFalse(classUnderTest.isEmpty());
+                },
+                "hasError is false": function () {
+                    assert.isFalse(classUnderTest.hasError());
+                },
+                "hasWarning is false": function () {
+                    assert.isFalse(classUnderTest.hasWarning());
+                },
+                "hasInfo is true": function () {
+                    assert.isTrue(classUnderTest.hasInfo());
+                }
+            },
             "constructor: invalid state (out of range)": {
                 setup: function () {
                     classUnderTest = new ReviewValue("aValue", 42, "a message");
@@ -236,7 +262,18 @@ define([
                     assert.isTrue(classUnderTest.isEmpty());
                 }
             },
-            "constructor: single array value": {
+            "constructor: single array value (object)": {
+                setup: function () {
+                    classUnderTest = new ReviewValue([{ "a": "Curly" }]);
+                },
+                "value is [{\"a\": \"Curly\"}]": function () {
+                    assert.deepEqual(classUnderTest.value(), [{"a": "Curly"}]);
+                },
+                "isEmpty is false": function () {
+                    assert.isFalse(classUnderTest.isEmpty());
+                }
+            },
+            "constructor: single array value, (non-object)": {
                 setup: function () {
                     classUnderTest = new ReviewValue(["Curly"]);
                 },
@@ -247,7 +284,18 @@ define([
                     assert.isFalse(classUnderTest.isEmpty());
                 }
             },
-            "constructor: multiple array value": {
+            "constructor: multiple array value (object)": {
+                setup: function () {
+                    classUnderTest = new ReviewValue([{"a": "Curly"}, {"b": "Larry"}, {"c": "Mo"}]);
+                },
+                "value is [{\"a\": \"Curly\"}, {\"b\": \"Larry\"}, {\"c\": \"Mo\"}]": function () {
+                    assert.deepEqual(classUnderTest.value(), [{"a": "Curly"}, {"b": "Larry"}, {"c": "Mo"}]);
+                },
+                "isEmpty is false": function () {
+                    assert.isFalse(classUnderTest.isEmpty());
+                }
+            },
+            "constructor: multiple array value (non-object)": {
                 setup: function () {
                     classUnderTest = new ReviewValue(["Curly", "Larry", "Mo"]);
                 },
