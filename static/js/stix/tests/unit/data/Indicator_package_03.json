@@ -160,6 +160,13 @@
           }
         }
       ],
+      "kill_chain_phases": {
+        "kill_chain_phases": [
+          {
+            "phase_id": "pss:TTP-f5ddf190-b7b0-4c33-a9f4-f2beb6453d04"
+          }
+        ]
+      },
       "id": "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d"
     }
   ],
