@@ -64,8 +64,8 @@ define([
                 var observableList = null;
                 if (observable) {
                     observableList = stixPackage.safeReferenceArrayGet(this.id(), observable.data(), "observable_composition.observables", "idref", "observables");
-                    if (!observableList) {
-                        observableList = [observable];
+                    if (observableList.isEmpty()) {
+                        observableList = new ReviewValue([observable], observableList.state(), observableList.message());
                     }
                 }
                 return observableList;

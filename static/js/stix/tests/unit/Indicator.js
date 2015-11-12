@@ -195,7 +195,7 @@ define([
                     ]);
                 }
             },
-            "valid non-composition observables": {
+            "valid non-composition observable": {
                 setup: function () {
                     loadPackage("fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d");
                 },
@@ -203,6 +203,17 @@ define([
                     var actual = classUnderTest.observable();
                     assert.instanceOf(actual, Observable);
                     assert.equal(actual.id(), "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928");
+                },
+                "has correct observables": function () {
+                    var actual = classUnderTest.observables();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    var actualObservables = actual.value();
+                    assert.isArray(actualObservables);
+                    assert.lengthOf(actualObservables, 1);
+                    var actualObservable = actualObservables[0];
+                    assert.instanceOf(actualObservable, Observable);
+                    assert.equal(actualObservable.id(), "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928");
                 }
             }
         }
