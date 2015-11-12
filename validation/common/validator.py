@@ -1,5 +1,5 @@
 
-from .. import FieldValidationInfo, ValidationStatus
+from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus
 
 
 class CommonFieldValidator(object):

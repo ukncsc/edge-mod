@@ -1,12 +1,11 @@
 
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'repository.settings'
-
 import subprocess
 import repository.test as edge_test
-import importlib
-publisher_edge_object = importlib.import_module('publisher_edge_object', 'certuk-mod')
-PublisherEdgeObject = publisher_edge_object.PublisherEdgeObject
+from adapters.certuk_mod.publisher_edge_object import PublisherEdgeObject
+
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'repository.settings'
 
 
 class PublisherIntegrationTests(edge_test.TestCase):

@@ -1,5 +1,5 @@
 
-from .indicator import IndicatorValidationInfo
+from indicator import IndicatorValidationInfo
 
 
 class IndicatorValidator(object):

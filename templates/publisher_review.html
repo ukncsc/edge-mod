@@ -120,7 +120,7 @@
     <script src="{% static 'js/stickytape.js' %}"></script>
     <script>
         var require = {
-            baseUrl: "/adapter/certuk-mod{% static 'js' %}",
+            baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
                 knockout: "common/knockout-shim"
             },
@@ -131,5 +131,5 @@
         var validationInfo = Object.freeze({{ validation_info.to_json|safe }});
         var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
     </script>
-    <script src="/adapter/certuk-mod{% static 'js/require.js'%}" data-main="publisher/main"></script>
+    <script src="/adapter/certuk_mod{% static 'js/require.js'%}" data-main="publisher/main"></script>
 {% endblock %}

@@ -2,9 +2,9 @@
 from edge.combine import STIXPackage
 import json
 from structure import ObservableStructureConverter, IndicatorStructureConverter
-from ..observable.validator import ObservableValidator
-from ..indicator.validator import IndicatorValidator
-from .. import FieldAlias
+from adapters.certuk_mod.validation.observable.validator import ObservableValidator
+from adapters.certuk_mod.validation.indicator.validator import IndicatorValidator
+from adapters.certuk_mod.validation import FieldAlias
 
 
 class PackageValidationInfo(object):

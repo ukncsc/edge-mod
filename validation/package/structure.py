@@ -1,8 +1,8 @@
 
-from ..observable.address import AddressValidationInfo
-from ..observable.socket_type import SocketValidationInfo
-from ..observable.http_session import HTTPSessionValidationInfo
-from ..observable.email_type import EmailValidationInfo
+from adapters.certuk_mod.validation.observable.address import AddressValidationInfo
+from adapters.certuk_mod.validation.observable.socket_type import SocketValidationInfo
+from adapters.certuk_mod.validation.observable.http_session import HTTPSessionValidationInfo
+from adapters.certuk_mod.validation.observable.email_type import EmailValidationInfo
 
 
 class ObservableStructureConverter(object):

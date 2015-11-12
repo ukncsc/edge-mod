@@ -1,5 +1,5 @@
 
-from .. import FieldValidationInfo, ObjectValidationInfo, ValidationStatus, FieldAlias
+from adapters.certuk_mod.validation import FieldValidationInfo, ObjectValidationInfo, ValidationStatus, FieldAlias
 
 
 class ObservableValidationInfo(ObjectValidationInfo):

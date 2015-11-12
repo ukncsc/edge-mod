@@ -1,7 +1,7 @@
 
-from .. import ValidationStatus, FieldValidationInfo
-from .observable import ObservableValidationInfo
-from .address import AddressValidationInfo
+from adapters.certuk_mod.validation import ValidationStatus, FieldValidationInfo
+from observable import ObservableValidationInfo
+from address import AddressValidationInfo
 from dateutil.parser import parse as parse_date
 
 

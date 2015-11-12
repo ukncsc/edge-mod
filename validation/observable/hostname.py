@@ -1,7 +1,7 @@
 
-from .. import ValidationStatus, FieldValidationInfo
-from .observable import ObservableValidationInfo
-from .domain import DomainNameValidationInfo
+from adapters.certuk_mod.validation import ValidationStatus, FieldValidationInfo
+from observable import ObservableValidationInfo
+from domain import DomainNameValidationInfo
 import re
 
 

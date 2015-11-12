@@ -1,6 +1,6 @@
 
-from .. import ValidationStatus, FieldValidationInfo
-from .observable import ObservableValidationInfo
+from adapters.certuk_mod.validation import ValidationStatus, FieldValidationInfo
+from observable import ObservableValidationInfo
 
 
 class ArtifactValidationInfo(ObservableValidationInfo):

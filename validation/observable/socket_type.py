@@ -1,5 +1,5 @@
 
-from .. import ValidationStatus, FieldValidationInfo
+from adapters.certuk_mod.validation import ValidationStatus, FieldValidationInfo
 from observable import ObservableValidationInfo
 from address import AddressValidationInfo
 from hostname import HostnameValidationInfo

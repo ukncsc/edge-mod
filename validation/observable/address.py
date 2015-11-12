@@ -1,6 +1,6 @@
 
-from .. import ValidationStatus, FieldValidationInfo
-from .observable import ObservableValidationInfo
+from adapters.certuk_mod.validation import ValidationStatus, FieldValidationInfo
+from observable import ObservableValidationInfo
 import re
 import socket
 from email.utils import parseaddr

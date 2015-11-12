@@ -1,7 +1,7 @@
 
 import re
-from .. import ValidationStatus, FieldValidationInfo
-from .observable import ObservableValidationInfo
+from adapters.certuk_mod.validation import ValidationStatus, FieldValidationInfo
+from observable import ObservableValidationInfo
 
 POSITIVE_INTEGER = re.compile(r'^\d+$')
 FILE_EXTENSION = re.compile(r'^\.[^\.]+$')

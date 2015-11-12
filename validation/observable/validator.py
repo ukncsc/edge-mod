@@ -11,7 +11,7 @@ from uri import URIValidationInfo
 from email_type import EmailValidationInfo
 from file import FileValidationInfo
 from registry_key import RegistryKeyValidationInfo
-from .. import FieldAlias
+from adapters.certuk_mod.validation import FieldAlias
 
 
 class ObservableValidator(object):
