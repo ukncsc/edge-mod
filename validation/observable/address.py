@@ -82,21 +82,17 @@ class AddressValidationInfo(ObservableValidationInfo):
 
     @staticmethod
     def __validate_ipv4(address):
-        status = ValidationStatus.OK
-        message = ''
+        status = None
 
         if not address:
-            status = ValidationStatus.ERROR
-            message = 'IP address is missing'
+            status = FieldValidationInfo(ValidationStatus.ERROR, 'IP address is missing')
         elif AddressValidationInfo.is_ipv4(address):
             if AddressValidationInfo.__is_warning_ipv4(address):
-                status = ValidationStatus.WARN
-                message = 'IP address appears to be private'
+                status = FieldValidationInfo(ValidationStatus.WARN, 'IP address appears to be private')
         else:
-            status = ValidationStatus.ERROR
-            message = 'Address is not a valid IPv4 address'
+            status = FieldValidationInfo(ValidationStatus.WARN, 'IPv4 address appears invalid')
 
-        return FieldValidationInfo(status, message)
+        return status
 
     @staticmethod
     def __is_warning_ipv4(valid_address):
@@ -118,9 +114,9 @@ class AddressValidationInfo(ObservableValidationInfo):
     def __validate_ipv6(address):
         if not address:
             return FieldValidationInfo(ValidationStatus.ERROR, 'IPv6 address value is missing')
-        if AddressValidationInfo.is_ipv6(address):
+        if not AddressValidationInfo.is_ipv6(address):
             return FieldValidationInfo(ValidationStatus.WARN, 'IPv6 address appears invalid')
-        return FieldValidationInfo(ValidationStatus.OK, '')
+        return None
 
     @staticmethod
     def __validate_email(address):
@@ -129,7 +125,7 @@ class AddressValidationInfo(ObservableValidationInfo):
         _, email_address = parseaddr(address)
         if AddressValidationInfo.EMAIL_MATCHER.match(email_address) is None:
             return FieldValidationInfo(ValidationStatus.WARN, 'The email address may be invalid')
-        return FieldValidationInfo(ValidationStatus.OK, '')
+        return None
 
     @staticmethod
     def __validate_mac(address):
@@ -137,7 +133,7 @@ class AddressValidationInfo(ObservableValidationInfo):
             return FieldValidationInfo(ValidationStatus.ERROR, 'MAC address is missing')
         if AddressValidationInfo.MAC_MATCHER.match(address) is None:
             return FieldValidationInfo(ValidationStatus.WARN, 'MAC address may be invalid')
-        return FieldValidationInfo(ValidationStatus.OK, '')
+        return None
 
     @staticmethod
     def __validate_cidr(address):
@@ -146,12 +142,12 @@ class AddressValidationInfo(ObservableValidationInfo):
         address_parts = address.split('/')
         if len(address_parts) == 2:
             address_validation = AddressValidationInfo.__validate_ipv4(address_parts[0])
-            if address_validation.status != ValidationStatus.ERROR:
+            if address_validation is None:
                 try:
                     range_bits = int(address_parts[1])
                     if 0 <= range_bits <= 32:
-                        return FieldValidationInfo(address_validation.status, address_validation.message)
+                        return None
                 except ValueError:
                     pass
 
-        return FieldValidationInfo(ValidationStatus.WARN, 'CIDR value is invalid')
+        return FieldValidationInfo(ValidationStatus.WARN, 'CIDR value appears invalid')

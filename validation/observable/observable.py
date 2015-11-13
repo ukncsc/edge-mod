@@ -21,19 +21,15 @@ class ObservableValidationInfo(ObjectValidationInfo):
         observable_type = observable_data['object_type']
         actual_type = observable_type.field_value if isinstance(observable_type, FieldAlias) else observable_type
 
-        type_status = ValidationStatus.OK
-        type_message = ''
+        type_validation = None
 
         if observable_data.get('unknown_type', False):
-            type_status = ValidationStatus.WARN
-            type_message = 'Unrecognizable observable type of %s' % actual_type
+            type_validation = FieldValidationInfo(ValidationStatus.WARN,
+                                                  'Unrecognizable observable type of %s' % actual_type,
+                                                  getattr(observable_type, 'field_path_name', None))
         elif not actual_type:
-            type_status = ValidationStatus.ERROR
-            type_message = 'Missing observable type'
-
-        type_validation = FieldValidationInfo(status=type_status,
-                                              message=type_message,
-                                              field_path_name=getattr(observable_type, 'field_path_name', None))
+            type_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Missing observable type',
+                                                  getattr(observable_type, 'field_path_name', None))
 
         description_validation = None
         if not observable_data.get('description'):

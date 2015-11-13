@@ -1,6 +1,5 @@
 
 class ValidationStatus(object):
-    OK = "OK"
     INFO = "INFO"
     WARN = "WARN"
     ERROR = "ERROR"
@@ -29,7 +28,7 @@ class ObjectValidationInfo(object):
         super(ObjectValidationInfo, self).__init__()
         self.validation_dict = {}
         for field_name, field_results in field_validation.iteritems():
-            if field_results and field_results.status != ValidationStatus.OK:
+            if field_results:
                 actual_field_name = field_results.field_path_name if field_results.field_path_name else field_name
                 self.validation_dict[actual_field_name] = {
                     'status': field_results.status,
