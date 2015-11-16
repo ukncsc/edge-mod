@@ -1,4 +1,5 @@
 import unittest
+import mock
 from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.observable.domain import DomainNameValidationInfo
 
@@ -59,3 +60,24 @@ class DomainValidationTests(unittest.TestCase):
                 self.assertIsNone(domain_validation.type,
                                   'Expected no value validation info, got %s with type/value %s/%s'
                                   % (domain_validation.type, domain_type, domain_value))
+
+    @mock.patch('adapters.certuk_mod.validation.observable.domain.DomainNameValidationInfo.FQDN_MATCHER')
+    @mock.patch('adapters.certuk_mod.validation.observable.domain.DomainNameValidationInfo.TLD_MATCHER')
+    def test_Get_domain_type_from_value_IfValidTLD_ReturnTrue(self, mock_tld_matcher, mock_fqdn_matcher):
+        mock_tld_matcher.match.return_value = True
+        mock_fqdn_matcher.match.return_value = False
+        self.assertEqual(DomainNameValidationInfo.get_domain_type_from_value('Dummy value'), 'TLD')
+
+    @mock.patch('adapters.certuk_mod.validation.observable.domain.DomainNameValidationInfo.FQDN_MATCHER')
+    @mock.patch('adapters.certuk_mod.validation.observable.domain.DomainNameValidationInfo.TLD_MATCHER')
+    def test_Get_domain_type_from_value_IfValidFQDN_ReturnTrue(self, mock_tld_matcher, mock_fqdn_matcher):
+        mock_tld_matcher.match.return_value = False
+        mock_fqdn_matcher.match.return_value = True
+        self.assertEqual(DomainNameValidationInfo.get_domain_type_from_value('Dummy value'), 'FQDN')
+
+    @mock.patch('adapters.certuk_mod.validation.observable.domain.DomainNameValidationInfo.FQDN_MATCHER')
+    @mock.patch('adapters.certuk_mod.validation.observable.domain.DomainNameValidationInfo.TLD_MATCHER')
+    def test_Get_domain_type_from_value_IfInvalidDomain_ReturnFalse(self, mock_tld_matcher, mock_fqdn_matcher):
+        mock_tld_matcher.match.return_value = False
+        mock_fqdn_matcher.match.return_value = False
+        self.assertEqual(DomainNameValidationInfo.get_domain_type_from_value('Dummy value'), None)

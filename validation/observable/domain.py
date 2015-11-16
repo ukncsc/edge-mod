@@ -49,7 +49,7 @@ class DomainNameValidationInfo(ObservableValidationInfo):
     @classmethod
     def get_domain_type_from_value(cls, value):
         if cls.FQDN_MATCHER.match(value):
-            return cls.FQDN_MATCHER
+            return cls.FQDN_TYPE
         if cls.TLD_MATCHER.match(value):
             return cls.TLD_TYPE
 
