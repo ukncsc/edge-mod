@@ -23,9 +23,6 @@ class EmailValidationInfo(ObservableValidationInfo):
         subject_validation = None
         from_validation = None
         date_validation = None
-        to_validation = None
-        cc_validation = None
-        bcc_validation = None
 
         if not (observable_data.get('subject') or observable_data.get('from') or observable_data.get('date')):
             subject_validation = from_validation = date_validation = \
@@ -36,9 +33,10 @@ class EmailValidationInfo(ObservableValidationInfo):
                 from_validation = FieldValidationInfo(ValidationStatus.WARN, 'Email From address may be invalid')
             if not cls.__validate_date(observable_data.get('date')):
                 date_validation = FieldValidationInfo(ValidationStatus.WARN, 'Email Date may be invalid')
-            to_validation = cls.__validate_address_list(observable_data.get('to'), 'To')
-            cc_validation = cls.__validate_address_list(observable_data.get('cc'), 'Cc')
-            bcc_validation = cls.__validate_address_list(observable_data.get('bcc'), 'Bcc')
+
+        to_validation = cls.__validate_address_list(observable_data.get('to'), 'To')
+        cc_validation = cls.__validate_address_list(observable_data.get('cc'), 'Cc')
+        bcc_validation = cls.__validate_address_list(observable_data.get('bcc'), 'Bcc')
 
         return cls(description=observable_data.get('description'), subject=subject_validation,
                    from_address=from_validation, date=date_validation, to=to_validation, cc=cc_validation,

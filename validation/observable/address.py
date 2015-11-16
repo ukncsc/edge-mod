@@ -68,13 +68,6 @@ class AddressValidationInfo(ObservableValidationInfo):
     def is_ipv4(address):
         try:
             socket.inet_pton(socket.AF_INET, address)
-        except AttributeError:  # no inet_pton here, sorry
-            try:
-                socket.inet_aton(address)
-            except socket.error:
-                return False
-            if address.count('.') != 3:
-                return False
         except socket.error:  # not a valid address
             return False
 
