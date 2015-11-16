@@ -13,6 +13,9 @@ class FieldValidationInfo(object):
         self.message = message
         self.field_path_name = field_path_name
 
+    def __str__(self):
+        return 'Status/message: %s/"%s"' % (self.status, self.message)
+
 
 class FieldAlias(object):
 

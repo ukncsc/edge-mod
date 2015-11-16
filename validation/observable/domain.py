@@ -33,13 +33,13 @@ class DomainNameValidationInfo(ObservableValidationInfo):
         elif domain_type == cls.TLD_TYPE:
             domain_matcher = cls.TLD_MATCHER
 
+        if not value:
+            value_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Domain value is missing')
+
         if domain_matcher:
-            if value:
-                if not domain_matcher.match(value):
-                    value_validation = FieldValidationInfo(ValidationStatus.WARN,
-                                                           'Domain value is invalid %s' % domain_type)
-            else:
-                value_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Domain value is missing')
+            if value and not domain_matcher.match(value):
+                value_validation = FieldValidationInfo(ValidationStatus.WARN,
+                                                       'Domain value is invalid %s' % domain_type)
         else:
             type_validation = FieldValidationInfo(
                 ValidationStatus.ERROR, 'Domain type is missing' if domain_type else 'Unrecognizable domain type')

@@ -9,6 +9,8 @@ class ArtifactValidationInfo(ObservableValidationInfo):
 
     def __init__(self, **field_validation):
         super(ArtifactValidationInfo, self).__init__(ArtifactValidationInfo.TYPE, **field_validation)
+        self.type = field_validation.get('type')
+        self.raw_artifact = field_validation.get('raw_artifact')
 
     @classmethod
     def validate(cls, **observable_data):
