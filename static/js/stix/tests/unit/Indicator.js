@@ -1,16 +1,15 @@
 if (typeof window === "undefined") {
-    window = {
-        killChainPhases: {
-            "stix:TTP-79a0e041-9d5f-49bb-ada4-8322622b162d": "Delivery",
-            "stix:TTP-af1016d6-a744-4ed7-ac91-00fe2272185a": "Reconnaissance",
-            "stix:TTP-786ca8f9-2d9a-4213-b38e-399af4a2e5d6": "Actions on Objectives",
-            "stix:TTP-445b4827-3cca-42bd-8421-f2e947133c16": "Weaponization",
-            "stix:TTP-d6dc32b9-2538-4951-8733-3cb9ef1daae2": "Command and Control",
-            "stix:TTP-f706e4e7-53d8-44ef-967f-81535c9db7d0": "Exploitation",
-            "stix:TTP-e1e4e3f7-be3b-4b39-b80a-a593cfd99a4f": "Installation"
-        }
-    };
+    window = {};
 }
+window["killChainPhases"] = {
+    "stix:TTP-79a0e041-9d5f-49bb-ada4-8322622b162d": "Delivery",
+    "stix:TTP-af1016d6-a744-4ed7-ac91-00fe2272185a": "Reconnaissance",
+    "stix:TTP-786ca8f9-2d9a-4213-b38e-399af4a2e5d6": "Actions on Objectives",
+    "stix:TTP-445b4827-3cca-42bd-8421-f2e947133c16": "Weaponization",
+    "stix:TTP-d6dc32b9-2538-4951-8733-3cb9ef1daae2": "Command and Control",
+    "stix:TTP-f706e4e7-53d8-44ef-967f-81535c9db7d0": "Exploitation",
+    "stix:TTP-e1e4e3f7-be3b-4b39-b80a-a593cfd99a4f": "Installation"
+};
 define([
     "intern!object",
     "intern/chai!assert",
