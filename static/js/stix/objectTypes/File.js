@@ -11,13 +11,15 @@ define([
         properties: declare.superCall(function (sup) {
             return function () {
                 var propertyList = sup.apply(this, arguments);
+                NamedProperty.removeFromPropertyList(propertyList, "hashes");
                 var hashes = this.stixPackage.safeGet(this.data, "hashes");
                 if (hashes instanceof Array) {
                     ko.utils.arrayForEach(hashes, function (hash) {
+                        var hashType = this.stixPackage.safeValueGet(this.id, hash, "type");
                         NamedProperty.addToPropertyList(
                             propertyList,
-                            this.stixPackage.safeGet(hash, "type"),
-                            this.stixPackage.safeGet(hash, "simple_hash_value")
+                            hashType,
+                            this.stixPackage.safeValueGet(this.id, hash, "simple_hash_value", hashType.value())
                         );
                     }.bind(this));
                 }

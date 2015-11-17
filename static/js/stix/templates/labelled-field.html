@@ -1,7 +1,11 @@
-<dt data-bind="text: label"></dt>
-<dd data-bind="text: value, css: {
-    'bg-danger': typeof state === 'string' && state === 'error',
-    'text-danger': typeof state === 'string' && state === 'error',
-    'bg-warning': typeof state === 'string' && state === 'warn',
-    'text-warning': typeof state === 'string' && state === 'warn'
+<dt data-bind="text: label, attr: { title: value().message }, css: {
+    'bg-danger text-danger': value().hasError,
+    'bg-warning text-warning': value().hasWarning,
+    'text-info': value().hasInfo
+}"></dt>
+<dd data-bind="text: value().value, attr: { title: value().message }, css: {
+    'bg-danger text-danger': value().hasError,
+    'bg-warning text-warning': value().hasWarning,
+    'text-info': value().hasInfo,
+    'value-missing': value().isEmpty
 }"></dd>

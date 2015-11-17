@@ -4,7 +4,9 @@ define([
     "./CourseOfAction",
     "./Incident",
     "./Indicator",
-    "./TTP"
+    "./ReviewValue",
+    "./TTP",
+    "./ValidationInfo"
 ], function () {
 
 });

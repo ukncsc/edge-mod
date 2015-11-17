@@ -1,46 +1,48 @@
 define([
     "dcl/dcl",
     "knockout",
+    "./ReviewValue",
     "./StixObjectTLP",
     "kotemplate!root-coa:./templates/root-COA.html",
     "kotemplate!list-coa:./templates/list-COAs.html"
-], function (declare, ko, StixObjectTLP) {
+], function (declare, ko, ReviewValue, StixObjectTLP) {
     "use strict";
 
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
             this.stage = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "stage.value");
+                return stixPackage.safeValueGet(this.id(), this.data(), "stage.value");
             }, this);
             this.type = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "type.value");
+                return stixPackage.safeValueGet(this.id(), this.data(), "type.value");
             }, this);
             this.objective = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "objective.description");
+                return stixPackage.safeValueGet(this.id(), this.data(), "objective.description");
             }, this);
             this.impact = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "impact.description");
+                return stixPackage.safeValueGet(this.id(), this.data(), "impact.description");
             }, this);
             this.efficacy = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "efficacy.description");
+                return stixPackage.safeValueGet(this.id(), this.data(), "efficacy.description");
             }, this);
             this.cost = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "cost.description");
+                return stixPackage.safeValueGet(this.id(), this.data(), "cost.description");
             }, this);
             this.properties = ko.computed(function () {
                 return ko.utils.arrayFilter([
-                    {label: "Stage", value: this.stage()},
-                    {label: "Type", value: this.type()},
-                    {label: "Objective", value: this.objective()},
-                    {label: "Impact", value: this.impact()},
-                    {label: "Efficacy", value: this.efficacy()},
-                    {label: "Cost", value: this.cost()}
+                    {label: "Stage", value: ko.observable(this.stage())},
+                    {label: "Type", value: ko.observable(this.type())},
+                    {label: "Objective", value: ko.observable(this.objective())},
+                    {label: "Impact", value: ko.observable(this.impact())},
+                    {label: "Efficacy", value: ko.observable(this.efficacy())},
+                    {label: "Cost", value: ko.observable(this.cost())}
                 ], function (property) {
-                    return typeof property.value === "string" && property.value.length > 0;
+                    var value = property.value();
+                    return value instanceof ReviewValue && !(value.isEmpty());
                 });
             }, this);
             this.relatedCOAs = ko.computed(function () {
-                return stixPackage.safeReferenceArrayGet(this.data(), "related_coas.coas", "course_of_action.idref");
+                return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_coas.coas", "course_of_action.idref");
             }, this);
         }
     });

@@ -1,15 +1,15 @@
 define([
     "dcl/dcl",
     "knockout",
+    "./ReviewValue",
     "kotemplate!labelled-field:./templates/labelled-field.html",
     "kotemplate!labelled-list-field:./templates/labelled-list-field.html",
-    "kotemplate!mandatory-labelled-field:./templates/mandatory-labelled-field.html",
     "kotemplate!optional-labelled-field:./templates/optional-labelled-field.html",
+    "kotemplate!optional-labelled-list-field:./templates/optional-labelled-list-field.html",
     "kotemplate!grid-field:./templates/grid-field.html",
-    "kotemplate!mandatory-grid-field:./templates/mandatory-grid-field.html",
     "kotemplate!grid-properties-field:./templates/grid-properties-field.html",
     "kotemplate!common-fields:./templates/common.html"
-], function (declare, ko) {
+], function (declare, ko, ReviewValue) {
     "use strict";
 
     return declare(null, {
@@ -19,16 +19,16 @@ define([
                 return stixPackage.safeGet(this.data(), "id");
             }, this);
             this.namespace = ko.computed(function () {
-                return this.id().split(":", 2)[0];
+                return new ReviewValue(this.id().split(":", 2)[0]);
             }, this);
             this.title = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "title");
+                return stixPackage.safeValueGet(this.id(), this.data(), "title");
             }, this);
             this.shortDescription = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "short_description");
+                return stixPackage.safeValueGet(this.id(), this.data(), "short_description");
             }, this);
             this.description = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "description");
+                return stixPackage.safeValueGet(this.id(), this.data(), "description");
             }, this);
         }
     });

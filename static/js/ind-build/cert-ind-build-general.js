@@ -7,6 +7,7 @@ define([
 
     var CERTGeneral = declare(indicator_builder.General, {
         constructor: function () {
+            this.description.extend({ required: true });
             this.indicatorType.extend({ required: true });
             this.tlp.extend({ required: true });
             this.killChainPhase = ko.observable("").extend({ required: true });
@@ -24,6 +25,9 @@ define([
         doValidation: declare.superCall(function (sup) {
             return function () {
                 var msgs = sup.call(this);
+                if (this.description.hasError()) {
+                    msgs.addError("You need to enter a description for your indicator");
+                }
                 if (!this.indicatorType()) {
                     msgs.addError("You need to select a type for your indicator");
                 }

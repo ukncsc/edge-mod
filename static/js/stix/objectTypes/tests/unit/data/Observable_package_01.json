@@ -13,6 +13,10 @@
             "boolean_property": true,
             "custom_properties": [
               {
+                "value": "ACustomObjectType",
+                "name": "xsi:type"
+              },
+              {
                 "condition": "Equals",
                 "value": "pa55w0rd",
                 "name": "PIVY Password"

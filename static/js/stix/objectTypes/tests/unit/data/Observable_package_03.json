@@ -1,0 +1,20 @@
+{
+  "timestamp": "2015-09-02T15:42:27.255902+00:00",
+  "version": "1.1.1",
+  "id": "purple-secure-systems:Package-a730327e-4a4c-48de-8a55-6e2f8e219ef2",
+  "observables": {
+    "observables": [
+      {
+        "object": {
+          "id": "fireeye:object-e2c54afa-95c4-4865-b1ce-3859f53f26ad"
+        },
+        "id": "fireeye:observable-b850c92f-fb54-441f-b0e8-45ff7a897b87",
+        "title": "Password: admin"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "stix_header": {}
+}

@@ -1,14 +1,15 @@
-
 import unittest
+
 import mock
-from import_helper import EdgeObject
-from package_generator import PackageGenerator
+
+from adapters.certuk_mod.publisher.package_generator import PackageGenerator
+from edge.generic import EdgeObject
 
 
 class PackageGeneratorTests(unittest.TestCase):
 
     @mock.patch('stix.core.STIXPackage', autospec=True)
-    @mock.patch('package_generator.IDManager')
+    @mock.patch('adapters.certuk_mod.publisher.package_generator.IDManager')
     @mock.patch(EdgeObject.__module__ + '.' + EdgeObject.__name__, autospec=True)
     def test_BuildPackage_WhenCalled_SetCorrectPackageProperties(self, mock_edge_object, mock_id_generator,
                                                                  mock_package):

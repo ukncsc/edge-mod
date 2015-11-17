@@ -1,21 +1,38 @@
 define([
     "dcl/dcl",
     "knockout",
+    "./ReviewValue",
     "./StixObject",
     "kotemplate!common-fields-TLP:./templates/commonTLP.html"
-], function (declare, ko, StixObject) {
+], function (declare, ko, ReviewValue, StixObject) {
     "use strict";
 
     function simpleItem (item) {
         return item;
     }
 
+    function isBlankString(value) {
+        return !(typeof value === "string" && value.length > 0);
+    }
+
+    function validate (xsiType, value) {
+        var validation = { state: ReviewValue.State.OK, message: null };
+        if (xsiType === "TLPMarkingStructureType" && isBlankString(value)) {
+            validation.state = ReviewValue.State.ERROR;
+            validation.message = "TLP missing";
+        }
+        return validation;
+    }
+
     function findByXsiType (markingStructures, xsiType, valueKey) {
-        return (ko.utils.arrayMap(ko.utils.arrayFilter(markingStructures, function (item) {
+        var value = (ko.utils.arrayMap(ko.utils.arrayFilter(markingStructures, function (item) {
             return item["xsi:type"].split(":", 2)[1] === xsiType;
         }), function (item) {
             return item[valueKey];
         })).join(", ");
+        // TODO: pull validation messages from the server (somehow!)
+        var validation = validate(xsiType, value);
+        return new ReviewValue(value, validation.state, validation.message);
     }
 
     return declare(StixObject, {

@@ -2,9 +2,10 @@ define([
     "intern!object",
     "intern/chai!assert",
     "stix/objectTypes/StixObjectType",
+    "stix/ReviewValue",
     "stix/StixPackage",
     "intern/dojo/text!./data/Observable_package_registry.json"
-], function (registerSuite, assert, StixObjectType, StixPackage, package01) {
+], function (registerSuite, assert, StixObjectType, ReviewValue, StixPackage, package01) {
     "use strict";
 
     // statics go here
@@ -36,12 +37,23 @@ define([
                     assert.isNotNull(classUnderTest);
                 },
                 "has correct properties": function () {
-                    assert.deepEqual(classUnderTest.properties(), [
-                        { "label": "Hive", "value": "HKEY_LOCAL_MACHINE\\Software" },
-                        { "label": "Key", "value": "\\Microsoft\\Windows\\CurrentVersion\\Run" },
-                        { "label": "BOTNET", "value": "C:\\BotNet.exe -serve C:\\" },
-                        { "label": "KEYLOGGER", "value": "C:\\KeyLogger.exe" }
-                    ]);
+                    var expectedProperties = [
+                        {"label": "Hive", "value": "HKEY_LOCAL_MACHINE\\Software"},
+                        {"label": "Key", "value": "\\Microsoft\\Windows\\CurrentVersion\\Run"},
+                        {"label": "BOTNET", "value": "C:\\BotNet.exe -serve C:\\"},
+                        {"label": "KEYLOGGER", "value": "C:\\KeyLogger.exe"}
+                    ];
+                    var actualProperties = classUnderTest.properties();
+                    assert.isArray(actualProperties);
+                    assert.lengthOf(actualProperties, expectedProperties.length);
+                    actualProperties.forEach(function (actualProperty, idx) {
+                        var expected = expectedProperties[idx];
+                        assert.equal(actualProperty.label(), expected.label);
+                        var actual = actualProperty.value();
+                        assert.instanceOf(actual, ReviewValue);
+                        assert.isFalse(actual.isEmpty());
+                        assert.equal(actual.value(), expected.value);
+                    });
                 }
             },
             "without key values" : {
@@ -55,10 +67,21 @@ define([
                     assert.isNotNull(classUnderTest);
                 },
                 "has correct properties": function () {
-                    assert.deepEqual(classUnderTest.properties(), [
-                        { "label": "Hive", "value": "HKEY_LOCAL_MACHINE\\Software" },
-                        { "label": "Key", "value": "\\Microsoft\\Windows\\CurrentVersion\\RunOnce" }
-                    ]);
+                    var expectedProperties = [
+                        {"label": "Hive", "value": "HKEY_LOCAL_MACHINE\\Software"},
+                        {"label": "Key", "value": "\\Microsoft\\Windows\\CurrentVersion\\RunOnce"}
+                    ];
+                    var actualProperties = classUnderTest.properties();
+                    assert.isArray(actualProperties);
+                    assert.lengthOf(actualProperties, expectedProperties.length);
+                    actualProperties.forEach(function (actualProperty, idx) {
+                        var expected = expectedProperties[idx];
+                        assert.equal(actualProperty.label(), expected.label);
+                        var actual = actualProperty.value();
+                        assert.instanceOf(actual, ReviewValue);
+                        assert.isFalse(actual.isEmpty());
+                        assert.equal(actual.value(), expected.value);
+                    });
                 }
             }
         }

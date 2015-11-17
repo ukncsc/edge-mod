@@ -1,5 +1,4 @@
 
-from stix.core import STIXHeader
 from edge import IDManager
 
 

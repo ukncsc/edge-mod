@@ -1,17 +1,21 @@
 define([
     "dcl/dcl",
     "knockout",
-    "./StixId"
-], function (declare, ko, StixId) {
+    "./StixId",
+    "./ReviewValue",
+    "./ValidationInfo"
+], function (declare, ko, StixId, ReviewValue, ValidationInfo) {
     "use strict";
 
     return declare(null, {
-        constructor: function (stixPackage, rootId) {
+        declaredClass: "StixPackage",
+        constructor: function (stixPackage, rootId, validationInfo) {
             if (!(stixPackage instanceof Object)) {
                 throw new Error("STIX package cannot be null or undefined");
             }
             this._data = stixPackage;
             this._rootId = new StixId(rootId);
+            this._validationInfo = new ValidationInfo(validationInfo || {});
             this.root = this.findById(this._rootId);
             this.type = this._rootId.type();
         },
@@ -43,12 +47,16 @@ define([
             return this._data["stix_header"] || {};
         },
 
+        validations: function () {
+            return this._validationInfo;
+        },
+
         safeGet: function (/*Object*/ stixObject, /*String*/ propertyPath) {
             var propertyNames = propertyPath.split(".");
             var current = stixObject;
             for (var i = 0, len = propertyNames.length; current && i < len; i++) {
                 var p = propertyNames[i];
-                if (p in current) {
+                if (current.hasOwnProperty(p)) {
                     current = current[p];
                 } else {
                     current = null;
@@ -56,6 +64,12 @@ define([
                 }
             }
             return current;
+        },
+
+        safeValueGet: function(/*String*/ id, /*Object*/ object, /*String*/ propertyPath, /*String?*/ validationPath) {
+            var simpleValue = this.safeGet(object, propertyPath);
+            var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
+            return new ReviewValue(simpleValue, validation.state, validation.message);
         },
 
         safeArrayGet: function (/*Object*/ object, /*String*/ propertyPath,
@@ -67,19 +81,23 @@ define([
                 : null;
         },
 
-        safeListGet: function (/*Object*/ object, /*String*/ propertyPath,
-                               /*String?*/ valueKey, /*String?*/ delimiter) {
+        safeListGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
+                               /*String?*/ valueKey, /*String?*/ validationPath, /*String?*/ delimiter) {
             var itemPropertyPath = valueKey || "value";
-            return (this.safeArrayGet(object, propertyPath, function (item) {
+            var listValue = (this.safeArrayGet(object, propertyPath, function (item) {
                 return this.safeGet(item, itemPropertyPath);
             }, this) || []).join(delimiter || ", ");
+            var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
+            return new ReviewValue(listValue, validation.state, validation.message);
         },
 
-        safeReferenceArrayGet: function (/*Object*/ object, /*String*/ propertyPath,
-                                         /*String*/ idrefKey) {
-            return this.safeArrayGet(object, propertyPath, function (item) {
+        safeReferenceArrayGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
+                                         /*String*/ idrefKey, /*String?*/ validationPath) {
+            var values = this.safeArrayGet(object, propertyPath, function (item) {
                 return this.findById(new StixId(this.safeGet(item, idrefKey)));
             }, this);
+            var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
+            return new ReviewValue(values, validation.state, validation.message);
         }
 
     });

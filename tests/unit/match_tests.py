@@ -1,6 +1,6 @@
 
 import unittest
-from views import objectid_matcher
+from adapters.certuk_mod.views.views import objectid_matcher
 
 
 class MatchTests(unittest.TestCase):

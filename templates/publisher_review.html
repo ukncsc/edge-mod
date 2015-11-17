@@ -14,6 +14,10 @@
     }
 
     dl.dl-horizontal dd {
+        margin-left: 160px;
+        padding-left: 20px;
+        padding-right: 1px;
+        margin-right: 20px;
         overflow-x: hidden;
         text-overflow: ellipsis;
     }
@@ -43,7 +47,8 @@
     }
 
     dl.dl-horizontal dd dl.dl-horizontal dd {
-        margin-left: 120px;
+        margin-left: 110px;
+        padding-left: 10px;
     }
 
     dd.text-danger, dd.text-warning, td.text-danger, td.text-warning {
@@ -115,14 +120,16 @@
     <script src="{% static 'js/stickytape.js' %}"></script>
     <script>
         var require = {
-            baseUrl: "/adapter/certuk-mod{% static 'js' %}",
+            baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
                 knockout: "common/knockout-shim"
             },
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
         var rootId = "{{ root_id }}";
-        var stixPackage = {{ package.to_json|safe }};
+        var stixPackage = Object.freeze({{ package.to_json|safe }});
+        var validationInfo = Object.freeze({{ validation_info.to_json|safe }});
+        var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
     </script>
-    <script src="/adapter/certuk-mod{% static 'js/require.js'%}" data-main="publisher/main"></script>
+    <script src="/adapter/certuk_mod{% static 'js/require.js'%}" data-main="publisher/main"></script>
 {% endblock %}

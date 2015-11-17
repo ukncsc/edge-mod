@@ -1,5 +1,5 @@
 
-from import_helper import EdgeObject
+from edge.generic import EdgeObject
 from edge.scanner import STIXScanner
 
 

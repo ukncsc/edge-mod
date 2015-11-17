@@ -1,5 +1,5 @@
-<div style="height: 80px;">
-    <div data-bind="visible: waitingForResponse">
+<div>
+    <div data-bind="if: waitingForResponse">
         <div class="row">
             <img class="center-block" src="/static/img/soltra_flame_anim.gif"/>
         </div>
@@ -7,7 +7,42 @@
             <span data-bind="text: message"></span>
         </div>
     </div>
-    <div data-bind="visible: !waitingForResponse()">
-        <span data-bind="text: message"></span>
+    <div data-bind="ifnot: waitingForResponse">
+        <!-- ko if: validations.hasMessages -->
+            <div data-bind="if: validations.hasErrors" class="bg-danger text-danger">
+                <h4 class="text-danger">Errors</h4>
+                <ul data-bind="foreach: validations.errors">
+                    <li data-bind="text: message, attr: { title: fields.join('\n') }"></li>
+                </ul>
+            </div>
+            <div data-bind="if: validations.hasWarnings" class="bg-warning text-warning">
+                <h4 class="text-warning">Warnings</h4>
+                <ul data-bind="foreach: validations.warnings">
+                    <li data-bind="text: message, attr: { title: fields.join('\n') }"></li>
+                </ul>
+            </div>
+            <div data-bind="if: validations.hasInfos" class="bg-info text-info">
+                <h4 class="text-info">Informational</h4>
+                <ul data-bind="foreach: validations.infos">
+                    <li data-bind="text: message, attr: { title: fields.join('\n') }"></li>
+                </ul>
+            </div>
+            <hr>
+        <!-- /ko -->
+        <!-- ko if: validations.hasErrors -->
+            <div data-bind="text: messageError" class="bg-danger text-danger text-center"></div>
+        <!-- /ko -->
+        <!-- ko ifnot: validations.hasErrors -->
+            <!-- ko if: validations.hasWarnings -->
+                <div data-bind="text: messageWarning" class="bg-warning text-warning text-center"></div>
+            <!-- /ko -->
+            <textarea data-bind="value: publicationMessage, valueUpdate: ['input','keyup']"
+                      placeholder="Reason for publication"
+                      class="form-control"
+                      rows="4"
+                      style="resize:none"></textarea>
+            <br>
+            <div class="text-center" data-bind="text: message"></div>
+        <!-- /ko -->
     </div>
 </div>

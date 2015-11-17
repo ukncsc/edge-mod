@@ -8,8 +8,8 @@ define([
     "use strict";
 
     return declare(null, {
-        constructor: function (rootId, stixPackage) {
-            this.stixPackage = ko.observable(new StixPackage(stixPackage, rootId));
+        constructor: function (rootId, stixPackage, validationInfo) {
+            this.stixPackage = ko.observable(new StixPackage(stixPackage, rootId, validationInfo));
 
             this.root = ko.computed(function () {
                 return this.stixPackage().root;
@@ -30,7 +30,9 @@ define([
             modal.contentData.waitingForResponse(true);
             modal.contentData.message("Publishing...");
 
-            this.publish(function(response) {
+            this.publish({
+                'publicationMessage': modal.contentData.publicationMessage()
+            }, function(response) {
                 modal.contentData.waitingForResponse(false);
 
                 var success = !!(response["success"]);
@@ -62,14 +64,20 @@ define([
         },
 
         onPublish: function () {
+            var validations = this.stixPackage().validations();
             var contentData = {
                 message: ko.observable("Are you absolutely sure you want to publish this package?"),
+                messageWarning: "This package has warnings. If you wish to proceed, please describe below why you believe the warnings are not relevant in this case",
+                messageError: "This package has errors and cannot be published",
+                validations: validations,
+                publicationMessage: ko.observable(""),
                 waitingForResponse: ko.observable(false)
             };
 
+            var hasErrors = validations.hasErrors();
             var confirmModal = new Modal({
-                title: "Warning",
-                titleIcon: "glyphicon-exclamation-sign",
+                title: hasErrors ? "Error" : "Warning",
+                titleIcon: hasErrors ? "glyphicon-ban-circle" : "glyphicon-exclamation-sign",
                 contentData: contentData,
                 contentTemplate: publishModalTemplate.id,
                 buttonData: [
@@ -94,13 +102,25 @@ define([
                 ]
             });
 
+            if (hasErrors) {
+                confirmModal.getButtonByLabel("Yes").hide(true);
+                confirmModal.getButtonByLabel("No").hide(true);
+                confirmModal.getButtonByLabel("Close").hide(false);
+            } else if (validations.hasWarnings()) {
+                var publicationMessage = contentData.publicationMessage;
+                publicationMessage.subscribe(function (newValue) {
+                    var hasMessage = (typeof newValue === "string" && newValue.length > 0);
+                    confirmModal.getButtonByLabel("Yes").disabled(!hasMessage);
+                });
+                publicationMessage.valueHasMutated();
+            }
             confirmModal.show();
         },
 
-        publish: function(onPublishCallback) {
-            postJSON("/adapter/publisher/ajax/publish/", {
+        publish: function(onConfirmData, onPublishCallback) {
+            postJSON("../ajax/publish/", ko.utils.extend(onConfirmData, {
                 root_id: this.root().id()
-            }, onPublishCallback);
+            }), onPublishCallback);
         },
 
         onRowClicked: function (item) {

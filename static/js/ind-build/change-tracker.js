@@ -37,7 +37,7 @@ define([
                 }
 
                 function generateElementHash(element) {
-                    return ko.hashCode(element);
+                    return ChangeTracker.hashCode(element);
                 }
 
                 if (underlyingHashResults.length === 0 || allChangesAreAdd(changes)) {
@@ -50,7 +50,7 @@ define([
                         var element = changeInfo["value"];
                         if (changeInfo["status"] === "added") {
                             underlyingHashResults.splice(changeInfo["index"], 0, generateElementHash(element));
-                        } else if (changeInfo["status"] === "deleted") {
+                        } else { // if (changeInfo["status"] === "deleted") {
                             underlyingHashResults.splice(changeInfo["index"], 1);
                         }
                     }
@@ -62,7 +62,7 @@ define([
 
             return ko.extenders.customHash(target, {
                 "computeHashCallback": function () {
-                    return ko.hashCode(target._hashResults());
+                    return ChangeTracker.hashCode(target._hashResults());
                 }
             });
         }
@@ -93,10 +93,10 @@ define([
             return obj ? 1 : 0;
         },
         "Date": function (obj) {
-            return obj.getTime() | 0;
+            return obj.getTime() || 0;
         },
         "Number": function (obj) {
-            return isFinite(obj) ? (obj | 0) : 0;
+            return isFinite(obj) ? obj : 0;
         },
         "String": function (obj) {
             var h = 0;
@@ -121,10 +121,8 @@ define([
             var h = 0;
             Object.keys(obj).sort().forEach(function (key) {
                 var hc = ChangeTracker.hashCode([key, obj[key]]);
-                if (typeof hc === "number") {
-                    h = ((h << 5) - h) + hc;
-                    h |= 0;
-                }
+                h = ((h << 5) - h) + hc;
+                h |= 0;
             });
             return h;
         }

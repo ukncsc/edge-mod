@@ -1,5 +1,5 @@
 <!-- ko template {
-    name: "labelled-list-field",
+    name: template,
     data: {
         label: label,
         value: value,
@@ -7,10 +7,10 @@
             tooltip: "id"
         },
         columns: [
-            { heading: "Title", propertyName: "title", templateName: "mandatory-grid-field" },
-            { heading: "Namespace", propertyName: "namespace", templateName: "mandatory-grid-field" },
-            { heading: "TLP", propertyName: "tlp", templateName: "mandatory-grid-field" },
-            { heading: "Types", propertyName: "indicatorTypes", templateName: "mandatory-grid-field" }
+            { heading: "Title", propertyName: "title", templateName: "grid-field" },
+            { heading: "Namespace", propertyName: "namespace", templateName: "grid-field" },
+            { heading: "TLP", propertyName: "tlp", templateName: "grid-field" },
+            { heading: "Types", propertyName: "indicatorTypes", templateName: "grid-field" }
         ]
     }
 } --><!-- /ko -->

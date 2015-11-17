@@ -1,8 +1,9 @@
 define([
     "intern!object",
     "intern/chai!assert",
+    "stix/ReviewValue",
     "../../NamedProperty"
-], function (registerSuite, assert, NamedProperty) {
+], function (registerSuite, assert, ReviewValue, NamedProperty) {
     "use strict";
 
     // statics go here
@@ -31,7 +32,8 @@ define([
                     assert.equal(classUnderTest.name(), "Simple Name");
                 },
                 "value()": function () {
-                    assert.equal(classUnderTest.value(), "simple value");
+                    var actual = classUnderTest.value();
+                    assert.equal(actual.value(), "simple value");
                 }
             },
             "constructor: valid (embedded name, simple value)": {
@@ -42,7 +44,8 @@ define([
                     assert.equal(classUnderTest.name(), "Embedded Name");
                 },
                 "value()": function () {
-                    assert.equal(classUnderTest.value(), "simple value");
+                    var actual = classUnderTest.value();
+                    assert.equal(actual.value(), "simple value");
                 }
             },
             "constructor: valid (simple name, embedded value)": {
@@ -53,7 +56,8 @@ define([
                     assert.equal(classUnderTest.name(), "Simple Name");
                 },
                 "value()": function () {
-                    assert.equal(classUnderTest.value(), "embedded value");
+                    var actual = classUnderTest.value();
+                    assert.equal(actual.value(), "embedded value");
                 }
             },
             "constructor: valid (embedded name and value)": {
@@ -64,12 +68,29 @@ define([
                     assert.equal(classUnderTest.name(), "Embedded Name");
                 },
                 "value()": function () {
-                    assert.equal(classUnderTest.value(), "embedded value");
+                    var actual = classUnderTest.value();
+                    assert.equal(actual.value(), "embedded value");
                 }
             },
             "addToPropertyList()": {
                 setup: function () {
                     propertyList = [];
+                },
+                "no property list": function () {
+                    assert.throws(
+                        function () {
+                            NamedProperty.addToPropertyList(null, "name", "value");
+                        },
+                        "aPropertyList must be an array"
+                    );
+                },
+                "no name": function () {
+                    assert.throws(
+                        function () {
+                            NamedProperty.addToPropertyList(propertyList, null, "value");
+                        },
+                        "name must be a string"
+                    );
                 },
                 "no value": function () {
                     NamedProperty.addToPropertyList(propertyList, "name", null);
@@ -78,7 +99,53 @@ define([
                 "with value": function () {
                     NamedProperty.addToPropertyList(propertyList, "name", "value");
                     assert.lengthOf(propertyList, 1);
-                    assert.deepEqual(propertyList[0], {label:"Name", value:"value"});
+                    var actualProperty = propertyList[0];
+                    assert.equal(actualProperty.label(), "Name");
+                    var actual = actualProperty.value();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isFalse(actual.isEmpty());
+                    assert.equal(actual.value(), "value");
+                }
+            },
+            "removeFromPropertyList()": {
+                beforeEach: function () {
+                    propertyList = [];
+                    NamedProperty.addToPropertyList(propertyList, "label0", "value0");
+                    NamedProperty.addToPropertyList(propertyList, "label1", "value1");
+                    NamedProperty.addToPropertyList(propertyList, "label2", "value2");
+                    assert.lengthOf(propertyList, 3);
+                },
+                "no property list": function () {
+                    assert.throws(
+                        function () {
+                            NamedProperty.removeFromPropertyList(null, "name");
+                        },
+                        "aPropertyList must be an array"
+                    );
+                },
+                "no name": function () {
+                    assert.throws(
+                        function () {
+                            NamedProperty.removeFromPropertyList(propertyList, null);
+                        },
+                        "name must be a string"
+                    );
+                },
+                "name not found": function () {
+                    NamedProperty.removeFromPropertyList(propertyList, "not there");
+                    assert.lengthOf(propertyList, 3);
+                },
+                "name found idx=0, match case": function () {
+                    NamedProperty.removeFromPropertyList(propertyList, "Label0");
+                    assert.lengthOf(propertyList, 2);
+                    assert.equal(propertyList[0].label(), "Label1");
+                    assert.equal(propertyList[1].label(), "Label2");
+                },
+                "name found idx=1, case insensitive": function () {
+                    NamedProperty.removeFromPropertyList(propertyList, "label1");
+                    assert.lengthOf(propertyList, 2);
+                    assert.equal(propertyList[0].label(), "Label0");
+                    assert.equal(propertyList[1].label(), "Label2");
                 }
             }
         }

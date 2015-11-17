@@ -1,0 +1,26 @@
+{
+  "timestamp": "2015-09-02T15:42:27.255902+00:00",
+  "version": "1.1.1",
+  "id": "purple-secure-systems:Package-5f1db154-554a-4022-a132-ed91bde3e308",
+  "observables": {
+    "observables": [
+      {
+        "object": {
+          "id": "fireeye:object-4cc12eb0-b8b0-4598-850b-1343d87014fa",
+          "properties": {
+            "string_property": "Curly, Larry and Moe",
+            "number_property": 4242,
+            "boolean_property": false,
+            "xsi:type": "SomeGenericObjectType"
+          }
+        },
+        "id": "fireeye:observable-fa0607af-d668-4274-8010-dd70b025c4bd",
+        "title": "Password: admin"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "stix_header": {}
+}

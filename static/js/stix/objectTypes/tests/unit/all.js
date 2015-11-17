@@ -3,6 +3,8 @@ define([
     "./StixObjectType",
     "./EmailMessage",
     "./File",
+    "./HttpSession",
+    "./SocketAddress",
     "./WindowsRegistryKey"
 ], function () {
 

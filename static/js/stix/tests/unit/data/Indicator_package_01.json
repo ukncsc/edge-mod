@@ -206,6 +206,13 @@
           }
         ]
       },
+      "kill_chain_phases": {
+        "kill_chain_phases": [
+          {
+            "phase_id": "stix:TTP-af1016d6-a744-4ed7-ac91-00fe2272185a"
+          }
+        ]
+      },
       "short_description": "Every field has a value",
       "id": "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3619"
     },

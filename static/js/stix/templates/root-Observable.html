@@ -1,6 +1,6 @@
 <dl class="dl-horizontal">
     <!-- ko template: {
-        name: "mandatory-labelled-field", data: { label: "Namespace", value: namespace }
+        name: "labelled-field", data: { label: "Namespace", value: namespace }
     } --><!-- /ko -->
     <!-- ko template: {
         name: "optional-labelled-field", data: { label: "Title", value: title }
@@ -12,7 +12,7 @@
         name: "optional-labelled-field", data: { label: "Description", value: description }
     } --><!-- /ko -->
     <!-- ko template: {
-        name: "mandatory-labelled-field", data: { label: "Type", value: type }
+        name: "labelled-field", data: { label: "Type", value: type }
     } --><!-- /ko -->
     <!-- ko if: properties().length -->
         <!-- ko foreach: properties -->
