@@ -11,6 +11,10 @@ class SocketValidationInfo(ObservableValidationInfo):
 
     def __init__(self, **field_validation):
         super(SocketValidationInfo, self).__init__(SocketValidationInfo.TYPE, **field_validation)
+        self.port = field_validation.get('port')
+        self.protocol = field_validation.get('protocol')
+        self.hostname = field_validation.get('hostname')
+        self.ip_address = field_validation.get('ip_address')
 
     @staticmethod
     def __validate_port(port):
@@ -24,7 +28,7 @@ class SocketValidationInfo(ObservableValidationInfo):
             except ValueError:
                 port_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Invalid port value')
             else:
-                if not (0 < port_value <= 65535):
+                if not (0 <= port_value <= 65535):
                     port_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Port value outside valid range')
                 elif port_value == 0:
                     port_validation = FieldValidationInfo(ValidationStatus.WARN, 'Port value is zero')
