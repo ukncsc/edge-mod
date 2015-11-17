@@ -64,7 +64,7 @@ class URIValidationTests(unittest.TestCase):
 
     def test_Validate_ValidURN_Pass(self):
         for urn in self.VALID_URNS:
-            uri_validation = URIValidationInfo.validate(type='General URn', value=urn)
+            uri_validation = URIValidationInfo.validate(type='General URN', value=urn)
             self.assertIsNone(uri_validation.value)
 
     @mock.patch('adapters.certuk_mod.validation.observable.domain.DomainNameValidationInfo.get_domain_type_from_value')
