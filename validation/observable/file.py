@@ -25,8 +25,16 @@ class FileValidationInfo(ObservableValidationInfo):
     def __init__(self, **field_validation):
         super(FileValidationInfo, self).__init__(FileValidationInfo.TYPE, **field_validation)
         self.size_in_bytes = field_validation.get(r'size_in_bytes')
-        self.hashes = field_validation.get(r'hashes')
         self.file_extension = field_validation.get(r'file_extension')
+        self.MD5 = field_validation.get(r'MD5')
+        self.MD6 = field_validation.get(r'MD6')
+        self.SHA1 = field_validation.get(r'SHA1')
+        self.SHA224 = field_validation.get(r'SHA224')
+        self.SHA256 = field_validation.get(r'SHA256')
+        self.SHA384 = field_validation.get(r'SHA384')
+        self.SHA512 = field_validation.get(r'SHA512')
+        self.SSDeep = field_validation.get(r'SSDeep')
+        self.Other = field_validation.get(r'Other')
 
     @classmethod
     def validate(cls, **observable_data):
@@ -52,27 +60,30 @@ class FileValidationInfo(ObservableValidationInfo):
     @staticmethod
     def __validate_size_in_bytes(size_in_bytes):
         msg = None
-        if POSITIVE_INTEGER.match(str(size_in_bytes)):
-            pass
-        else:
-            msg = FieldValidationInfo(ValidationStatus.ERROR, r'Size In Bytes should be a positive integer')
+        if size_in_bytes:
+            if POSITIVE_INTEGER.match(str(size_in_bytes)):
+                pass
+            else:
+                msg = FieldValidationInfo(ValidationStatus.ERROR, r'Size In Bytes should be a positive integer')
         return msg
 
     @staticmethod
     def __validate_file_extension(file_extension):
         msg = None
-        if FILE_EXTENSION.match(str(file_extension)):
-            pass
-        else:
-            msg = FieldValidationInfo(ValidationStatus.WARN, r'File Extension should be .{something}')
+        if file_extension:
+            if FILE_EXTENSION.match(str(file_extension)):
+                pass
+            else:
+                msg = FieldValidationInfo(ValidationStatus.WARN, r'File Extension should be .{something}')
         return msg
 
     @staticmethod
     def __validate_hashes(hashes):
         msgs = {}
-        for hash_ in hashes:
-            hash_type = hash_.get(r'type')
-            regex, msg = HASHES.get(hash_type)
-            if not regex.match(hash_.get(r'simple_hash_value')):
-                msgs[hash_type] = FieldValidationInfo(ValidationStatus.WARN, msg)
+        if hashes:
+            for hash_ in hashes:
+                hash_type = hash_.get(r'type')
+                regex, msg = HASHES.get(hash_type)
+                if not regex.match(hash_.get(r'simple_hash_value')):
+                    msgs[hash_type] = FieldValidationInfo(ValidationStatus.WARN, msg)
         return msgs
