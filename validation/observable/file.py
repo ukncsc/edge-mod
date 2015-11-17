@@ -69,7 +69,7 @@ class FileValidationInfo(ObservableValidationInfo):
 
     @staticmethod
     def __validate_hashes(hashes):
-        msgs ={}
+        msgs = {}
         for hash_ in hashes:
             hash_type = hash_.get(r'type')
             regex, msg = HASHES.get(hash_type)

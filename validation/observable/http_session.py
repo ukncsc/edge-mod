@@ -8,7 +8,7 @@ class HTTPSessionValidationInfo(ObservableValidationInfo):
 
     TYPE = 'HTTPSessionObjectType'
 
-    USER_AGENT_MATCHER = re.compile(r'.*/.*', re.IGNORECASE)
+    USER_AGENT_MATCHER = re.compile(r'.+/.+', re.IGNORECASE)
 
     def __init__(self, **field_validation):
         super(HTTPSessionValidationInfo, self).__init__(HTTPSessionValidationInfo.TYPE, **field_validation)
