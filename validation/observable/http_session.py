@@ -10,8 +10,8 @@ class HTTPSessionValidationInfo(ObservableValidationInfo):
 
     USER_AGENT_MATCHER = re.compile(r'.+/.+', re.IGNORECASE)
 
-    def __init__(self, **field_validation):
-        super(HTTPSessionValidationInfo, self).__init__(HTTPSessionValidationInfo.TYPE, **field_validation)
+    def __init__(self, observable_data, **field_validation):
+        super(HTTPSessionValidationInfo, self).__init__(HTTPSessionValidationInfo.TYPE, observable_data, **field_validation)
         self.user_agent = field_validation['user_agent']
 
     @classmethod
@@ -23,4 +23,4 @@ class HTTPSessionValidationInfo(ObservableValidationInfo):
         elif not cls.USER_AGENT_MATCHER.match(user_agent):
             user_agent_validation = FieldValidationInfo(ValidationStatus.WARN, 'User Agent value may be invalid')
 
-        return cls(user_agent=user_agent_validation, description=observable_data.get('description'))
+        return cls(observable_data, user_agent=user_agent_validation)

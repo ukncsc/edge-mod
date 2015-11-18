@@ -9,8 +9,8 @@ class EmailValidationInfo(ObservableValidationInfo):
 
     TYPE = 'EmailMessageObjectType'
 
-    def __init__(self, **field_validation):
-        super(EmailValidationInfo, self).__init__(EmailValidationInfo.TYPE, **field_validation)
+    def __init__(self, observable_data, **field_validation):
+        super(EmailValidationInfo, self).__init__(EmailValidationInfo.TYPE, observable_data, **field_validation)
         self.subject = field_validation.get('subject')
         self.from_address = field_validation.get('from_address')
         self.date = field_validation.get('date')
@@ -38,9 +38,8 @@ class EmailValidationInfo(ObservableValidationInfo):
         cc_validation = cls.__validate_address_list(observable_data.get('cc'), 'Cc')
         bcc_validation = cls.__validate_address_list(observable_data.get('bcc'), 'Bcc')
 
-        return cls(description=observable_data.get('description'), subject=subject_validation,
-                   from_address=from_validation, date=date_validation, to=to_validation, cc=cc_validation,
-                   bcc=bcc_validation)
+        return cls(observable_data, subject=subject_validation, from_address=from_validation, date=date_validation,
+                   to=to_validation, cc=cc_validation, bcc=bcc_validation)
 
     @staticmethod
     def __validate_address_list(address_list, address_field_name):

@@ -9,8 +9,8 @@ class SocketValidationInfo(ObservableValidationInfo):
 
     TYPE = 'SocketAddressObjectType'
 
-    def __init__(self, **field_validation):
-        super(SocketValidationInfo, self).__init__(SocketValidationInfo.TYPE, **field_validation)
+    def __init__(self, observable_data, **field_validation):
+        super(SocketValidationInfo, self).__init__(SocketValidationInfo.TYPE, observable_data, **field_validation)
         self.port = field_validation.get('port')
         self.protocol = field_validation.get('protocol')
         self.hostname = field_validation.get('hostname')
@@ -70,5 +70,5 @@ class SocketValidationInfo(ObservableValidationInfo):
         elif hostname:
             hostname_validation = HostnameValidationInfo.validate_hostname_value(False, hostname)
 
-        return cls(port=port_validation, protocol=protocol_validation, ip_address=ip_address_validation,
-                   hostname=hostname_validation, description=observable_data.get('description'))
+        return cls(observable_data, port=port_validation, protocol=protocol_validation, ip_address=ip_address_validation,
+                   hostname=hostname_validation)

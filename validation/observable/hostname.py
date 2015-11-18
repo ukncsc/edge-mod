@@ -12,8 +12,8 @@ class HostnameValidationInfo(ObservableValidationInfo):
     HOSTNAME_MATCHER = re.compile(
         r'^[A-Z]+(?:(?:[A-Z0-9]|[A-Z0-9][A-Z0-9\-]*[A-Z0-9])\.)*(?:[A-Z0-9]|[A-Z0-9][A-Z0-9\-]*[A-Z0-9])$', re.IGNORECASE)
 
-    def __init__(self, **field_validation):
-        super(HostnameValidationInfo, self).__init__(HostnameValidationInfo.TYPE, **field_validation)
+    def __init__(self, observable_data, **field_validation):
+        super(HostnameValidationInfo, self).__init__(HostnameValidationInfo.TYPE, observable_data, **field_validation)
         self.hostname_value = field_validation.get('hostname_value')
 
     @classmethod
@@ -23,7 +23,7 @@ class HostnameValidationInfo(ObservableValidationInfo):
             value_validation = cls.validate_hostname_value(observable_data.get('is_domain_name', False), value)
         else:
             value_validation = FieldValidationInfo(ValidationStatus.ERROR, 'Hostname value is missing')
-        return cls(hostname_value=value_validation, description=observable_data.get('description'))
+        return cls(observable_data, hostname_value=value_validation)
 
     @staticmethod
     def validate_hostname_value(is_domain, value):

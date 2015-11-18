@@ -11,8 +11,9 @@ class RegistryKeyValidationInfo(ObservableValidationInfo):
     KEY_MATCHER = re.compile(r'^(?:[^\\]+\\)+[^\\]+$')
     HIVE_MATCHER = re.compile(r'^(?:[^\\]+_)+[^_\\]+(?:\\[^\\]+)*$')
 
-    def __init__(self, **field_validation):
-        super(RegistryKeyValidationInfo, self).__init__(RegistryKeyValidationInfo.TYPE, **field_validation)
+    def __init__(self, observable_data, **field_validation):
+        super(RegistryKeyValidationInfo, self).__init__(RegistryKeyValidationInfo.TYPE, observable_data,
+                                                        **field_validation)
         self.hive = field_validation.get('hive')
         self.key = field_validation.get('key')
 
@@ -33,4 +34,4 @@ class RegistryKeyValidationInfo(ObservableValidationInfo):
         elif hive and key.startswith(hive):
             key_validation = FieldValidationInfo(ValidationStatus.WARN, 'Registry key prepended with hive value')
 
-        return cls(hive=hive_validation, key=key_validation, description=observable_data.get('description'))
+        return cls(observable_data, hive=hive_validation, key=key_validation)

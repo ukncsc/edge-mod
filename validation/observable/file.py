@@ -22,8 +22,8 @@ class FileValidationInfo(ObservableValidationInfo):
 
     TYPE = 'FileObjectType'
 
-    def __init__(self, **field_validation):
-        super(FileValidationInfo, self).__init__(FileValidationInfo.TYPE, **field_validation)
+    def __init__(self, observable_data, **field_validation):
+        super(FileValidationInfo, self).__init__(FileValidationInfo.TYPE, observable_data, **field_validation)
         self.size_in_bytes = field_validation.get(r'size_in_bytes')
         self.file_extension = field_validation.get(r'file_extension')
         self.MD5 = field_validation.get(r'MD5')
@@ -43,7 +43,7 @@ class FileValidationInfo(ObservableValidationInfo):
         file_extension_validation = cls.__validate_file_extension(observable_data.get(r'file_extension'))
 
         return cls(
-            description=observable_data.get(r'description'),
+            observable_data,
             size_in_bytes=size_in_bytes_validation,
             file_extension=file_extension_validation,
             MD5=hashes_validation.get(r'MD5'),
