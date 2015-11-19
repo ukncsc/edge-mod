@@ -32,10 +32,10 @@ class PackageValidationInfo(object):
         observables = nested_get(package_dict, [r'observables', r'observables'])
         observable_validation = {}
         for observable in observables:
-            id_ = observable['id']
-            namespace_validation = NamespaceValidationInfo.validate(r'obs', id_)
-            if namespace_validation.is_local():
-                if 'observable_composition' not in observable:
+            if 'observable_composition' not in observable:
+                id_ = observable['id']
+                namespace_validation = NamespaceValidationInfo.validate(r'obs', id_)
+                if namespace_validation.is_local():
                     properties = observable['object']['properties']
                     properties = ObservableStructureConverter.package_to_simple(properties.get('xsi:type'), properties)
                     validation_results = ObservableValidator.validate(
@@ -43,8 +43,8 @@ class PackageValidationInfo(object):
                         description=observable.get('description'), **properties)
                     if validation_results and validation_results.validation_dict:
                         observable_validation.update({id_: validation_results.validation_dict})
-            else:
-                observable_validation.update({id_: namespace_validation.validation_dict})
+                else:
+                    observable_validation.update({id_: namespace_validation.validation_dict})
 
         return observable_validation
 
