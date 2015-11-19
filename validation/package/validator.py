@@ -18,18 +18,28 @@ class PackageValidationInfo(object):
 
     @staticmethod
     def __generate_validation_dict(package_dict):
+        stix_header = package_dict.get(r'stix_header')
         validation = {}
-        validation.update(PackageValidationInfo.__validate_observables(package_dict))
-        validation.update(PackageValidationInfo.__validate_indicators(package_dict))
+        validation.update(PackageValidationInfo.__validate_observables(
+            nested_get(package_dict, [r'observables', r'observables'])
+        ))
+        validation.update(PackageValidationInfo.__validate_indicators(
+            nested_get(package_dict, [r'indicators']), stix_header
+        ))
         # and other types - namespace and TLP checks only ...
-        validation.update(PackageValidationInfo.__validate_other(package_dict, r'coa', [r'courses_of_action']))
-        validation.update(PackageValidationInfo.__validate_other(package_dict, r'ttp', [r'ttps',r'ttps']))
-        validation.update(PackageValidationInfo.__validate_other(package_dict, r'inc', [r'incidents']))
+        validation.update(PackageValidationInfo.__validate_other(
+            nested_get(package_dict, [r'courses_of_action']), r'coa', stix_header
+        ))
+        validation.update(PackageValidationInfo.__validate_other(
+            nested_get(package_dict, [r'ttps', r'ttps']), r'ttp', stix_header
+        ))
+        validation.update(PackageValidationInfo.__validate_other(
+            nested_get(package_dict, [r'incidents']), r'inc', stix_header
+        ))
         return validation
 
     @staticmethod
-    def __validate_observables(package_dict):
-        observables = nested_get(package_dict, [r'observables', r'observables'])
+    def __validate_observables(observables):
         observable_validation = {}
         for observable in observables:
             if 'observable_composition' not in observable:
@@ -49,14 +59,13 @@ class PackageValidationInfo(object):
         return observable_validation
 
     @staticmethod
-    def __validate_indicators(package_dict):
-        indicators = package_dict.get('indicators', {})
+    def __validate_indicators(indicators, stix_header):
         indicator_validation = {}
         for indicator in indicators:
             id_ = indicator['id']
             namespace_validation = NamespaceValidationInfo.validate(r'ind', id_)
             if namespace_validation.is_local():
-                indicator_properties = IndicatorStructureConverter.package_to_simple(indicator, package_dict.get('stix_header'))
+                indicator_properties = IndicatorStructureConverter.package_to_simple(indicator, stix_header)
                 validation_results = IndicatorValidator.validate(**indicator_properties)
                 if validation_results and validation_results.validation_dict:
                     indicator_validation.update({id_: validation_results.validation_dict})
@@ -65,14 +74,13 @@ class PackageValidationInfo(object):
         return indicator_validation
 
     @staticmethod
-    def __validate_other(package_dict, type_, path):
-        other_objects = nested_get(package_dict, path)
+    def __validate_other(other_objects, type_, stix_header):
         other_validation = {}
         for other_object in other_objects:
             id_ = other_object['id']
             namespace_validation = NamespaceValidationInfo.validate(type_, id_)
             if namespace_validation.is_local():
-                other_properties = OtherStructureConverter.package_to_simple(other_object, package_dict.get('stix_header'))
+                other_properties = OtherStructureConverter.package_to_simple(other_object, stix_header)
                 validation_results = CommonValidationInfo.validate(**other_properties)
                 if validation_results and validation_results.validation_dict:
                     other_validation.update({id_: validation_results.validation_dict})
