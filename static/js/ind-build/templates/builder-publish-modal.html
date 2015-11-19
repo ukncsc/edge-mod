@@ -1,0 +1,27 @@
+<div>
+    <div data-bind="if: waitingForResponse">
+        <div class="row">
+            <img class="center-block" src="/static/img/soltra_flame_anim.gif"/>
+        </div>
+        <div class="row text-center">
+            <span data-bind="text: message"></span>
+        </div>
+    </div>
+    <div data-bind="ifnot: waitingForResponse">
+        <!-- ko if: responseType() === "VAL" -->
+            <div data-bind="template: { name: 'validation-results', data: $data }"></div>
+            <div class="text-center" data-bind="text: message"></div>
+        <!-- /ko -->
+        <!-- ko if: responseType() === "PUB" -->
+            <div class="text-center" data-bind="text: message"></div>
+        <!-- /ko -->
+        <!-- ko if: responseType() === "CLIENT_ERROR" -->
+            <div class="bg-danger text-danger">
+                <h4 class="text-danger">Errors</h4>
+                <ul data-bind="foreach: clientErrors">
+                    <li data-bind="text: $data"></li>
+                </ul>
+            </div>
+        <!-- /ko -->
+    </div>
+</div>

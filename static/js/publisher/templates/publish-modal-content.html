@@ -9,25 +9,7 @@
     </div>
     <div data-bind="ifnot: waitingForResponse">
         <!-- ko if: validations.hasMessages -->
-            <div data-bind="if: validations.hasErrors" class="bg-danger text-danger">
-                <h4 class="text-danger">Errors</h4>
-                <ul data-bind="foreach: validations.errors">
-                    <li data-bind="text: message, attr: { title: fields.join('\n') }"></li>
-                </ul>
-            </div>
-            <div data-bind="if: validations.hasWarnings" class="bg-warning text-warning">
-                <h4 class="text-warning">Warnings</h4>
-                <ul data-bind="foreach: validations.warnings">
-                    <li data-bind="text: message, attr: { title: fields.join('\n') }"></li>
-                </ul>
-            </div>
-            <div data-bind="if: validations.hasInfos" class="bg-info text-info">
-                <h4 class="text-info">Informational</h4>
-                <ul data-bind="foreach: validations.infos">
-                    <li data-bind="text: message, attr: { title: fields.join('\n') }"></li>
-                </ul>
-            </div>
-            <hr>
+            <div data-bind="template: { name: 'validation-results', data: $data }"></div>
         <!-- /ko -->
         <!-- ko if: validations.hasErrors -->
             <div data-bind="text: messageError" class="bg-danger text-danger text-center"></div>

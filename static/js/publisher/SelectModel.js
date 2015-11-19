@@ -3,7 +3,8 @@ define([
     "knockout",
     "common/modal/Modal",
     "stix/StixPackage",
-    "kotemplate!publish-modal:./templates/publish-modal-content.html"
+    "kotemplate!publish-modal:./templates/publish-modal-content.html",
+    "kotemplate!validation-results:./templates/validation-results.html"
 ], function (declare, ko, Modal, StixPackage, publishModalTemplate) {
     "use strict";
 

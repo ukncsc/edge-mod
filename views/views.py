@@ -174,3 +174,30 @@ def ajax_publish(request, data):
         'success': success,
         'error_message': error_message
     }
+
+@login_required
+@json_body
+def ajax_validate(request, data):
+    # Just a stub for now...
+    return {
+        'success': True,
+        'error_message': '',
+        'validation_info': {
+            'id_1': {
+                'field_1': {
+                    'status': 'WARN',
+                    'message': 'blah'
+                },
+                'field_2': {
+                    'status': 'WARN',
+                    'message': 'blah blah!'
+                }
+            },
+            'id_2': {
+                'field_1': {
+                    'status': 'INFO',
+                    'message': 'meh'
+                }
+            }
+        }
+    }
