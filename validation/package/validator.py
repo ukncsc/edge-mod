@@ -2,7 +2,8 @@
 from edge.combine import STIXPackage
 from edge.tools import nested_get
 import json
-from structure import ObservableStructureConverter, IndicatorStructureConverter
+from structure import ObservableStructureConverter, IndicatorStructureConverter, OtherStructureConverter
+from adapters.certuk_mod.validation.common.common import CommonValidationInfo
 from adapters.certuk_mod.validation.common.namespace import NamespaceValidationInfo
 from adapters.certuk_mod.validation.observable.validator import ObservableValidator
 from adapters.certuk_mod.validation.indicator.validator import IndicatorValidator
@@ -20,7 +21,7 @@ class PackageValidationInfo(object):
         validation = {}
         validation.update(PackageValidationInfo.__validate_observables(package_dict))
         validation.update(PackageValidationInfo.__validate_indicators(package_dict))
-        # and other types - namespace only checks...
+        # and other types - namespace and TLP checks only ...
         validation.update(PackageValidationInfo.__validate_other(package_dict, r'coa', [r'courses_of_action']))
         validation.update(PackageValidationInfo.__validate_other(package_dict, r'ttp', [r'ttps',r'ttps']))
         validation.update(PackageValidationInfo.__validate_other(package_dict, r'inc', [r'incidents']))
@@ -55,7 +56,7 @@ class PackageValidationInfo(object):
             id_ = indicator['id']
             namespace_validation = NamespaceValidationInfo.validate(r'ind', id_)
             if namespace_validation.is_local():
-                indicator_properties = IndicatorStructureConverter.package_to_simple(indicator)
+                indicator_properties = IndicatorStructureConverter.package_to_simple(indicator, package_dict.get('stix_header'))
                 validation_results = IndicatorValidator.validate(**indicator_properties)
                 if validation_results and validation_results.validation_dict:
                     indicator_validation.update({id_: validation_results.validation_dict})
@@ -71,7 +72,10 @@ class PackageValidationInfo(object):
             id_ = other_object['id']
             namespace_validation = NamespaceValidationInfo.validate(type_, id_)
             if namespace_validation.is_local():
-                pass
+                other_properties = OtherStructureConverter.package_to_simple(other_object, package_dict.get('stix_header'))
+                validation_results = CommonValidationInfo.validate(**other_properties)
+                if validation_results and validation_results.validation_dict:
+                    other_validation.update({id_: validation_results.validation_dict})
             else:
                 other_validation.update({id_: namespace_validation.validation_dict})
         return other_validation

@@ -85,7 +85,7 @@ class ObservableStructureConverter(object):
 class IndicatorStructureConverter(object):
 
     @staticmethod
-    def package_to_simple(package_dict):
+    def package_to_simple(package_dict, package_header_dict):
         simple = package_dict.copy()
         try:
             simple['confidence'] = package_dict['confidence']['value']['value']
@@ -103,11 +103,36 @@ class IndicatorStructureConverter(object):
             marking_structure = handling_structures[0]['marking_structures'][0]
             simple['tlp'] = marking_structure['color']
         except LookupError:
-            simple['tlp'] = None
+            try:
+                handling_structures = package_header_dict['handling']
+                marking_structure = handling_structures[0]['marking_structures'][0]
+                simple['tlp'] = marking_structure['color']
+            except LookupError:
+                simple['tlp'] = None
 
         try:
             simple['suggested_coas'] = simple['suggested_coas']['suggested_coas']
         except KeyError:
             simple['suggested_coas'] = None
+
+        return simple
+
+
+class OtherStructureConverter(object):
+
+    @staticmethod
+    def package_to_simple(package_dict, package_header_dict):
+        simple = package_dict.copy()
+        try:
+            handling_structures = package_dict['handling']
+            marking_structure = handling_structures[0]['marking_structures'][0]
+            simple['tlp'] = marking_structure['color']
+        except LookupError:
+            try:
+                handling_structures = package_header_dict['handling']
+                marking_structure = handling_structures[0]['marking_structures'][0]
+                simple['tlp'] = marking_structure['color']
+            except LookupError:
+                simple['tlp'] = None
 
         return simple
