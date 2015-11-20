@@ -131,7 +131,7 @@ define([
         },
 
         getValidationResult: function (data, onResponseCallback) {
-            postJSON("../../adapter/certuk_mod/ajax/validate/", data, onResponseCallback);
+            postJSON("/adapter/certuk_mod/ajax/validate/", data, onResponseCallback);
         },
 
         _publish: function (modal) {
