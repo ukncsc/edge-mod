@@ -8,13 +8,14 @@ class URIValidationTests(unittest.TestCase):
 
     VALID_URNS = [
         'urn:blah:blah',
-        'urn:125gb:abs@424'
-        'urn:a'
+        'urn:125gb:abs@424',
+        'urn:a-b-c:d-123:45'
     ]
 
     INVALID_URNS = [
         'urn',
-        'abc:123'
+        'abc:123',
+        'urn:a'
     ]
 
     VALID_URLS = [
