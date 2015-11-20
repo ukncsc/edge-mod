@@ -12,13 +12,16 @@ class ObservableStructureConverter(object):
 
     @staticmethod
     def builder_to_simple(object_type, builder_dict):
-        handler = ObservableStructureConverter.__get_builder_package_conversion_handler(object_type)
+        actual_object_type = ObservableStructureConverter.__get_object_type_from_builder(object_type)
+
+        handler = ObservableStructureConverter.__get_builder_package_conversion_handler(actual_object_type)
         if handler:
             simple = handler(builder_dict)
         else:
             simple = builder_dict
 
-        simple['object_type'] = ObservableStructureConverter.__get_object_type_from_builder(simple.pop('objectType'))
+        simple['object_type'] = actual_object_type
+        simple.pop('objectType', None)
 
         return simple
 
