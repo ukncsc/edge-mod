@@ -32,7 +32,8 @@ class ObservableStructureConverter(object):
             'Domain Name': DomainNameValidationInfo.TYPE,
             'Registry Key': RegistryKeyValidationInfo.TYPE,
             'Email': EmailValidationInfo.TYPE,
-            'HTTP Session': HTTPSessionValidationInfo.TYPE
+            'HTTP Session': HTTPSessionValidationInfo.TYPE,
+            'Socket': SocketValidationInfo.TYPE
         }
 
         object_type = object_type_map.get(object_type_short)
@@ -62,9 +63,9 @@ class ObservableStructureConverter(object):
     def __file_builder_to_simple(builder_dict):
         simple = builder_dict.copy()
         hashes = simple.get('hashes', {})
-        for hash in hashes:
-            hash['type'] = hash.pop('hash_type')
-            hash['simple_hash_value'] = hash.pop('hash_value')
+        for hash_ in hashes:
+            hash_['type'] = hash_.pop('hash_type')
+            hash_['simple_hash_value'] = hash_.pop('hash_value')
         return simple
 
     @staticmethod
