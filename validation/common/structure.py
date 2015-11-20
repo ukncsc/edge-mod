@@ -6,6 +6,7 @@ from adapters.certuk_mod.validation.observable.email_type import EmailValidation
 from adapters.certuk_mod.validation.observable.artifact import ArtifactValidationInfo
 from adapters.certuk_mod.validation.observable.domain import DomainNameValidationInfo
 from adapters.certuk_mod.validation.observable.registry_key import RegistryKeyValidationInfo
+from adapters.certuk_mod.validation.observable.file import FileValidationInfo
 
 
 class ObservableStructureConverter(object):
@@ -52,9 +53,19 @@ class ObservableStructureConverter(object):
     @staticmethod
     def __get_builder_package_conversion_handler(object_type):
         conversion_handlers = {
-            ArtifactValidationInfo.TYPE: ObservableStructureConverter.__artifact_builder_to_simple
+            ArtifactValidationInfo.TYPE: ObservableStructureConverter.__artifact_builder_to_simple,
+            FileValidationInfo.TYPE: ObservableStructureConverter.__file_builder_to_simple
         }
         return conversion_handlers.get(object_type)
+
+    @staticmethod
+    def __file_builder_to_simple(builder_dict):
+        simple = builder_dict.copy()
+        hashes = simple.get('hashes', {})
+        for hash in hashes:
+            hash['type'] = hash.pop('hash_type')
+            hash['simple_hash_value'] = hash.pop('hash_value')
+        return simple
 
     @staticmethod
     def __artifact_builder_to_simple(builder_dict):

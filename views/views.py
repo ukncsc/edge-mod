@@ -181,7 +181,7 @@ def ajax_publish(request, data):
 @json_body
 def ajax_validate(request, data):
     validation_info = {}
-    success = True,
+    success = True
     error_message = ''
 
     try:
