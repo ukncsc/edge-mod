@@ -117,6 +117,13 @@ class IndicatorStructureConverter(object):
 
         return simple
 
+    @staticmethod
+    def builder_to_simple(builder_dict):
+        simple = builder_dict.copy()
+        simple['indicator_type'] = simple.pop('indicatorType', None)
+
+        return simple
+
 
 class OtherStructureConverter(object):
 

@@ -175,6 +175,7 @@ def ajax_publish(request, data):
         'error_message': error_message
     }
 
+
 @login_required
 @json_body
 def ajax_validate(request, data):

@@ -1,13 +1,13 @@
-
-from edge.combine import STIXPackage
-from edge.tools import nested_get
 import json
-from structure import ObservableStructureConverter, IndicatorStructureConverter, OtherStructureConverter
+
+from adapters.certuk_mod.validation import FieldAlias
 from adapters.certuk_mod.validation.common.common import CommonValidationInfo
 from adapters.certuk_mod.validation.common.namespace import NamespaceValidationInfo
-from adapters.certuk_mod.validation.observable.validator import ObservableValidator
+from adapters.certuk_mod.validation.common.structure import ObservableStructureConverter, IndicatorStructureConverter, OtherStructureConverter
 from adapters.certuk_mod.validation.indicator.validator import IndicatorValidator
-from adapters.certuk_mod.validation import FieldAlias
+from adapters.certuk_mod.validation.observable.validator import ObservableValidator
+from edge.combine import STIXPackage
+from edge.tools import nested_get
 
 
 class PackageValidationInfo(object):
