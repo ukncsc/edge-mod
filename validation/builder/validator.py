@@ -3,6 +3,7 @@ from adapters.certuk_mod.validation.common.structure import IndicatorStructureCo
 from adapters.certuk_mod.validation.common.structure import ObservableStructureConverter
 from adapters.certuk_mod.validation.indicator.validator import IndicatorValidator
 from adapters.certuk_mod.validation.observable.validator import ObservableValidator
+from adapters.certuk_mod.validation import ValidationStatus
 
 
 class BuilderValidationInfo(object):
@@ -20,6 +21,10 @@ class BuilderValidationInfo(object):
     def __generate_validation_dict(builder_dict):
         validation_dict = {}
         validation_dict.update(BuilderValidationInfo.__validate_indicator(builder_dict))
+        # Bit of a fudge here, but we have different rules for internal/external publish for confidence value...
+        confidence_validation = validation_dict.get(builder_dict['id']).get('confidence')
+        if confidence_validation and confidence_validation.get('status') == ValidationStatus.ERROR:
+            confidence_validation['status'] = ValidationStatus.WARN
         validation_dict.update(BuilderValidationInfo.__validate_observables(builder_dict))
 
         return validation_dict
