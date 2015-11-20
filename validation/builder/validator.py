@@ -42,9 +42,17 @@ class BuilderValidationInfo(object):
         dummy_id = 1
         for observable in observables:
             object_type = observable.get('objectType')
-            if object_type != 'LinkToExisting': # What should we actually do here?
+            if not observable.get('id'):
+                # No id, so we can safely assume this is something from the builder...
                 observable_properties = ObservableStructureConverter.builder_to_simple(object_type, observable)
                 validation_info = ObservableValidator.validate(**observable_properties)
                 validation_results['Observable ' + str(dummy_id)] = validation_info.validation_dict
+            else:
+                # I guess we need to retrieve the object from the database, using the id.
+                # Then we need to convert the object (probably an EdgeObject) to something our validators understand.
+                # Probably easiest to call EdgeObject.capsulize (to convert to package), then call package_to_simple...
+                # Observables with an ID may or may not be something created by us, so we will also need to do the
+                #   NamespaceValidationInfo check thingy...
+                pass
             dummy_id += 1
         return validation_results
