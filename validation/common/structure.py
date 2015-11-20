@@ -3,12 +3,41 @@ from adapters.certuk_mod.validation.observable.address import AddressValidationI
 from adapters.certuk_mod.validation.observable.socket_type import SocketValidationInfo
 from adapters.certuk_mod.validation.observable.http_session import HTTPSessionValidationInfo
 from adapters.certuk_mod.validation.observable.email_type import EmailValidationInfo
+from adapters.certuk_mod.validation.observable.artifact import ArtifactValidationInfo
+from adapters.certuk_mod.validation.observable.domain import DomainNameValidationInfo
+from adapters.certuk_mod.validation.observable.registry_key import RegistryKeyValidationInfo
 
 
 class ObservableStructureConverter(object):
 
     @staticmethod
-    def __get_conversion_handler(object_type):
+    def builder_to_simple(object_type, builder_dict):
+        handler = ObservableStructureConverter.__get_builder_package_conversion_handler(object_type)
+        if handler:
+            simple = handler(builder_dict)
+        else:
+            simple = builder_dict
+
+        simple['object_type'] = ObservableStructureConverter.__get_object_type_from_builder(simple.pop('objectType'))
+
+        return simple
+
+    @staticmethod
+    def __get_object_type_from_builder(object_type_short):
+        object_type_map = {
+            'Domain Name': DomainNameValidationInfo.TYPE,
+            'Registry Key': RegistryKeyValidationInfo.TYPE,
+            'Email': EmailValidationInfo.TYPE,
+            'HTTP Session': HTTPSessionValidationInfo.TYPE
+        }
+
+        object_type = object_type_map.get(object_type_short)
+        if not object_type:
+            object_type = object_type_short + 'ObjectType'
+        return object_type
+
+    @staticmethod
+    def __get_package_conversion_handler(object_type):
         conversion_handlers = {
             AddressValidationInfo.TYPE: ObservableStructureConverter.__address_package_to_simple,
             SocketValidationInfo.TYPE: ObservableStructureConverter.__socket_package_to_simple,
@@ -18,8 +47,22 @@ class ObservableStructureConverter(object):
         return conversion_handlers.get(object_type)
 
     @staticmethod
+    def __get_builder_package_conversion_handler(object_type):
+        conversion_handlers = {
+            ArtifactValidationInfo.TYPE: ObservableStructureConverter.__artifact_builder_to_simple
+        }
+        return conversion_handlers.get(object_type)
+
+    @staticmethod
+    def __artifact_builder_to_simple(builder_dict):
+        return {
+            'type': builder_dict.get('artifactType'),
+            'raw_artifact': builder_dict.get('artifactRaw')
+        }
+
+    @staticmethod
     def package_to_simple(object_type, package_dict):
-        converter = ObservableStructureConverter.__get_conversion_handler(object_type)
+        converter = ObservableStructureConverter.__get_package_conversion_handler(object_type)
         if converter:
             return converter(package_dict)
         return package_dict
@@ -120,7 +163,9 @@ class IndicatorStructureConverter(object):
     @staticmethod
     def builder_to_simple(builder_dict):
         simple = builder_dict.copy()
-        simple['indicator_type'] = simple.pop('indicatorType', None)
+        simple['indicator_types'] = simple.pop('indicatorType', None)
+        simple['observable'] = simple.pop('observables', None)
+        simple['phase_id'] = simple.pop('kill_chain_phase', None)
 
         return simple
 

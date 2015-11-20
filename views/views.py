@@ -16,6 +16,7 @@ from adapters.certuk_mod.publisher.publisher_config import PublisherConfig
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
+from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 from adapters.certuk_mod.builder.cert_observable_object_generator import CERTObservableObjectGenerator
 from indicator.indicator_builder import IndicatorBuilder
 from adapters.certuk_mod.builder.view_seed_data import CERTIndicatorBuilderTemplateDataGenerator
@@ -179,26 +180,18 @@ def ajax_publish(request, data):
 @login_required
 @json_body
 def ajax_validate(request, data):
-    # Just a stub for now...
+    validation_info = {}
+    success = True,
+    error_message = ''
+
+    try:
+        validation_info = BuilderValidationInfo.validate(data).validation_dict
+    except Exception, e:
+        success = False
+        error_message = e.message
+
     return {
-        'success': True,
-        'error_message': '',
-        'validation_info': {
-            'id_1': {
-                'field_1': {
-                    'status': 'WARN',
-                    'message': 'blah'
-                },
-                'field_2': {
-                    'status': 'WARN',
-                    'message': 'blah blah!'
-                }
-            },
-            'id_2': {
-                'field_1': {
-                    'status': 'INFO',
-                    'message': 'meh'
-                }
-            }
-        }
+        'success': success,
+        'error_message': error_message,
+        'validation_info': validation_info
     }

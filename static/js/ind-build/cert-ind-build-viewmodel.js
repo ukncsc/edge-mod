@@ -94,10 +94,18 @@ define([
             this.getValidationResult(data, function (response) {
                 var rawValidation = response['validation_info'];
                 var validations = new ValidationInfo(rawValidation);
-
                 modal.contentData.validations = validations;
+
                 modal.contentData.waitingForResponse(false);
                 modal.contentData.responseType("VAL");
+
+                if (!response["success"]) {
+                    modal.title("Error");
+                    modal.titleIcon("glyphicon-exclamation-sign");
+                    modal.contentData.message("An error occurred during validation (" + response["error_message"] + ")");
+                    modal.getButtonByLabel("Close").disabled(false);
+                    return;
+                }
 
                 if (validations.hasErrors()) {
                     modal.title("Error");
