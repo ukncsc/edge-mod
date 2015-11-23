@@ -24,7 +24,8 @@ publisher_urls = [
     (r'^config/$', 'views.config', 'publisher_config'),
     (r'^ajax/get_sites/$', 'views.ajax_get_sites', None),
     (r'^ajax/set_publish_site/$', 'views.ajax_set_publish_site', None),
-    (r'^ajax/publish/$', 'views.ajax_publish', None)
+    (r'^ajax/publish/$', 'views.ajax_publish', None),
+    (r'^ajax/validate/$', 'views.ajax_validate', None)
 ]
 
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]

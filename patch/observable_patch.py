@@ -66,8 +66,9 @@ class DBObservablePatch(DBObservable):
     def to_draft(cls, observable, tg, load_by_id, id_ns=''):
         try:
             return super(DBObservablePatch, cls).to_draft(observable, tg, load_by_id, id_ns=id_ns)
-        except ValueError:
-            pass
+        except ValueError, v:
+            if v.__class__ != ValueError:
+                raise
 
         object_type = rgetattr(observable, ['_object', '_properties', '_XSI_TYPE'], 'None')
         draft_handler = DBObservablePatch._get_custom_to_draft_handler(object_type)

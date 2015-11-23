@@ -4,7 +4,8 @@ require([
     "ind-build/indicator-builder-shim",
     "ind-build/change-tracker",
     "ind-build/custom-builder-sections",
-    "ind-build/custom-observables"
+    "ind-build/custom-observables",
+    "ind-build/cert-ind-build-viewmodel"
 ], function (ko, builder, indicator_builder, ChangeTracker) {
     "use strict";
 

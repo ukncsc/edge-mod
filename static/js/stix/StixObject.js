@@ -19,7 +19,8 @@ define([
                 return stixPackage.safeGet(this.data(), "id");
             }, this);
             this.namespace = ko.computed(function () {
-                return new ReviewValue(this.id().split(":", 2)[0]);
+                var validation = stixPackage.validations().findByProperty(this.id(), "namespace");
+                return new ReviewValue(this.id().split(":", 2)[0], validation.state, validation.message);
             }, this);
             this.title = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "title");

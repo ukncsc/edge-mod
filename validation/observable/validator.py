@@ -39,11 +39,18 @@ class ObservableValidator(object):
         actual_type = object_type.field_value if isinstance(object_type, FieldAlias) else object_type
         handler = handler_map.get(actual_type)
         if handler is None:
-            handler = ObservableValidator.__unknown_type_handler
+            if actual_type:
+                try:
+                    object_type.field_value = ObservableValidationInfo.TYPE
+                except AttributeError:
+                    object_type = ObservableValidationInfo.TYPE
+                handler = ObservableValidator.__get_unknown_type_handler(object_type)
+            else:
+                handler = ObservableValidator.__get_unknown_type_handler(None)
         return handler
 
     @staticmethod
-    def __unknown_type_handler(**observable_data):
-        return ObservableValidationInfo(observable_type=observable_data['object_type'],
-                                        description=observable_data.get('description'),
-                                        unknown_type=True)
+    def __get_unknown_type_handler(actual_type):
+        def handler(**observable_data):
+            return ObservableValidationInfo(actual_type, observable_data)
+        return handler

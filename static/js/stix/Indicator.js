@@ -48,11 +48,11 @@ define([
             }, this);
             this.composition = ko.computed(function () {
                 var observable = this.observable();
-                return observable ? stixPackage.safeValueGet(this.id(), observable.data(), "observable_composition.operator") : null;
+                return observable ? stixPackage.safeValueGet(this.id(), observable.data(), "observable_composition.operator") : new ReviewValue(null);
             }, this);
             this.observables = ko.computed(function () {
                 var observable = this.observable();
-                var observableList = null;
+                var observableList = new ReviewValue(null);
                 if (observable) {
                     observableList = stixPackage.safeReferenceArrayGet(this.id(), observable.data(), "observable_composition.observables", "idref", "observables");
                     if (observableList.isEmpty()) {

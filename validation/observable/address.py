@@ -30,15 +30,15 @@ class AddressValidationInfo(ObservableValidationInfo):
         '8.8.'
     ]
 
-    def __init__(self, **field_validation):
-        super(AddressValidationInfo, self).__init__(AddressValidationInfo.TYPE, **field_validation)
+    def __init__(self, observable_data, **field_validation):
+        super(AddressValidationInfo, self).__init__(AddressValidationInfo.TYPE, observable_data, **field_validation)
         self.address_value = field_validation['address_value']
         self.category = field_validation['category']
 
     @classmethod
-    def validate(cls, **field_values):
-        address_value = field_values['address_value']
-        category = field_values['category']
+    def validate(cls, **observable_data):
+        address_value = observable_data['address_value']
+        category = observable_data['category']
 
         category_validation = None
         address_validation = None
@@ -50,8 +50,7 @@ class AddressValidationInfo(ObservableValidationInfo):
             category_validation = FieldValidationInfo(ValidationStatus.ERROR,
                                                       'Unable to determine the address category (%s)' % category)
 
-        return cls(address_value=address_validation, category=category_validation,
-                   description=field_values.get('description'))
+        return cls(observable_data, address_value=address_validation, category=category_validation)
 
     @staticmethod
     def __get_category_handler(category):

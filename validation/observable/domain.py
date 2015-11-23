@@ -14,8 +14,8 @@ class DomainNameValidationInfo(ObservableValidationInfo):
     FQDN_MATCHER = re.compile(r'(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)', re.IGNORECASE)
     TLD_MATCHER = re.compile(r'^\.?[a-z]{2,63}$', re.IGNORECASE)
 
-    def __init__(self, **field_validation):
-        super(DomainNameValidationInfo, self).__init__(DomainNameValidationInfo.TYPE, **field_validation)
+    def __init__(self, observable_data, **field_validation):
+        super(DomainNameValidationInfo, self).__init__(DomainNameValidationInfo.TYPE, observable_data, **field_validation)
         self.value = field_validation.get('value')
         self.type = field_validation.get('type')
 
@@ -44,7 +44,7 @@ class DomainNameValidationInfo(ObservableValidationInfo):
             type_validation = FieldValidationInfo(
                 ValidationStatus.ERROR, 'Domain type is missing' if domain_type else 'Unrecognizable domain type')
 
-        return cls(type=type_validation, value=value_validation, description=observable_data.get('description'))
+        return cls(observable_data, type=type_validation, value=value_validation)
 
     @classmethod
     def get_domain_type_from_value(cls, value):

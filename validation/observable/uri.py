@@ -19,8 +19,8 @@ class URIValidationInfo(ObservableValidationInfo):
     URL_TYPE = URI.TYPE_URL
     DOMAIN_TYPE = URI.TYPE_DOMAIN
 
-    def __init__(self, **field_validation):
-        super(URIValidationInfo, self).__init__(URIValidationInfo.TYPE, **field_validation)
+    def __init__(self, observable_data, **field_validation):
+        super(URIValidationInfo, self).__init__(URIValidationInfo.TYPE, observable_data, **field_validation)
         self.type = field_validation.get('type')
         self.value = field_validation.get('value')
 
@@ -32,7 +32,7 @@ class URIValidationInfo(ObservableValidationInfo):
         type_validation = cls.__validate_type(uri_type)
         value_validation = cls.__validate_value(uri_value, uri_type)
 
-        return cls(value=value_validation, type=type_validation, description=observable_data.get('description'))
+        return cls(observable_data, value=value_validation, type=type_validation)
 
     @staticmethod
     def __get_type_map():

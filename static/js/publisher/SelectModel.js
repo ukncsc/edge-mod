@@ -3,7 +3,8 @@ define([
     "knockout",
     "common/modal/Modal",
     "stix/StixPackage",
-    "kotemplate!publish-modal:./templates/publish-modal-content.html"
+    "kotemplate!publish-modal:./templates/publish-modal-content.html",
+    "kotemplate!validation-results:./templates/validation-results.html"
 ], function (declare, ko, Modal, StixPackage, publishModalTemplate) {
     "use strict";
 
@@ -33,6 +34,7 @@ define([
             this.publish({
                 'publicationMessage': modal.contentData.publicationMessage()
             }, function(response) {
+                modal.contentData.phase("RESPONSE");
                 modal.contentData.waitingForResponse(false);
 
                 var success = !!(response["success"]);
@@ -44,7 +46,7 @@ define([
                 }
                 var message = success?
                     "The package was successfully published." :
-                    "An error occurred during publish (" + errorMessage + "). Would you like to try again?";
+                    "An error occurred during publish (" + errorMessage + ")";
                 var title = success ? "Success" : "Error";
                 var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
 
@@ -52,20 +54,16 @@ define([
                 modal.titleIcon(titleIcon);
                 modal.contentData.message(message);
 
-                if (success) {
-                    yesButton.hide(true);
-                    noButton.hide(true);
-                    closeButton.hide(false);
-                } else {
-                    yesButton.disabled(false);
-                    noButton.disabled(false);
-                }
+                yesButton.hide(true);
+                noButton.hide(true);
+                closeButton.hide(false);
             }.bind(this));
         },
 
         onPublish: function () {
             var validations = this.stixPackage().validations();
             var contentData = {
+                phase: ko.observable("INPUT"),
                 message: ko.observable("Are you absolutely sure you want to publish this package?"),
                 messageWarning: "This package has warnings. If you wish to proceed, please describe below why you believe the warnings are not relevant in this case",
                 messageError: "This package has errors and cannot be published",
