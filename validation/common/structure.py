@@ -70,10 +70,10 @@ class ObservableStructureConverter(object):
 
     @staticmethod
     def __artifact_builder_to_simple(builder_dict):
-        return {
-            'type': builder_dict.get('artifactType'),
-            'raw_artifact': builder_dict.get('artifactRaw')
-        }
+        simple = builder_dict.copy()
+        simple['type'] = simple.pop('artifactType', None)
+        simple['raw_artifact'] = simple.pop('artifactRaw', None)
+        return simple
 
     @staticmethod
     def package_to_simple(object_type, package_dict):
@@ -92,16 +92,18 @@ class ObservableStructureConverter(object):
         return simple
 
     @staticmethod
-    def __socket_package_to_simple(package_dict):
-        simple = {
-            'xsi:type': package_dict['xsi:type'],
-            'port': package_dict['port']['port_value'],
-            'protocol': package_dict['port']['layer4_protocol']
-        }
-        if package_dict.get('ip_address'):
-            simple['ip_address'] = package_dict['ip_address']['address_value']
-        if package_dict.get('hostname'):
-            simple['hostname'] = package_dict['hostname']['hostname_value']
+    def __socket_package_to_simple(builder_dict):
+        simple = builder_dict.copy()
+        port = simple.pop('port', {})
+        simple['port'] = port.get('port_value')
+        simple['protocol'] = port.get('layer4_protocol')
+
+        ip_address = simple.pop('ip_address', None)
+        if ip_address:
+            simple['ip_address'] = ip_address['address_value']
+        hostname = simple.pop('hostname', None)
+        if hostname:
+            simple['hostname'] = hostname['hostname_value']
 
         return simple
 

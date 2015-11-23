@@ -10,10 +10,6 @@
     <div data-bind="ifnot: waitingForResponse">
         <!-- ko if: responseType() === "VAL" -->
             <div data-bind="template: { name: 'validation-results', data: $data }"></div>
-            <div class="text-center" data-bind="text: message"></div>
-        <!-- /ko -->
-        <!-- ko if: responseType() === "PUB" -->
-            <div class="text-center" data-bind="text: message"></div>
         <!-- /ko -->
         <!-- ko if: responseType() === "CLIENT_ERROR" -->
             <div class="bg-danger text-danger">
@@ -23,5 +19,11 @@
                 </ul>
             </div>
         <!-- /ko -->
+        <div class="text-center" data-bind="text: statusMessage, css: {
+                'bg-danger text-danger': hasErrors,
+                'bg-warning text-warning': hasWarnings,
+                'text-info': hasInfos
+            }"></div>
+        <div class="text-center" data-bind="text: message"></div>
     </div>
 </div>

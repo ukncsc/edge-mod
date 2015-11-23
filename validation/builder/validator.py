@@ -1,8 +1,10 @@
 
+from edge.generic import EdgeObject
 from adapters.certuk_mod.validation.common.structure import IndicatorStructureConverter, ObservableStructureConverter, OtherStructureConverter
 from adapters.certuk_mod.validation.common.namespace import NamespaceValidationInfo
 from adapters.certuk_mod.validation.indicator.validator import IndicatorValidator
 from adapters.certuk_mod.validation.observable.validator import ObservableValidator
+from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.validation import ValidationStatus
 
 
@@ -44,9 +46,6 @@ class BuilderValidationInfo(object):
 
     @staticmethod
     def __validate_observables(observables):
-        # Need to map between structure defined in ind-build-obs*->save() method,
-        #   and structure defined in the ObservableValidationInfo classes...
-        # So, will need an ObservableStructureConverter.builder_to_simple method.
         validation_results = {}
         dummy_id = 1
         for observable in observables:
@@ -58,14 +57,12 @@ class BuilderValidationInfo(object):
                 validation_info = ObservableValidator.validate(**observable_properties)
                 validation_results['Observable ' + str(dummy_id)] = validation_info.validation_dict
             else:
-                # Observables with an ID may or may not be something created by us, so we will need to do the
-                #   NamespaceValidationInfo check thingy...
                 namespace_validation = NamespaceValidationInfo.validate(r'obs', id_)
                 if namespace_validation.is_local():
-                    # I guess we need to retrieve the object from the database, using the id.
-                    # Then we need to convert the object (probably an EdgeObject) to something our validators understand.
-                    # Probably easiest to call EdgeObject.capsulize (to convert to package), then call package_to_simple...
-                    pass
+                    real_observable = EdgeObject.load(id_)
+                    as_package, _ = real_observable.capsulize('temp')
+                    validation_info = PackageValidationInfo.validate(as_package)
+                    validation_results.update(validation_info.validation_dict)
                 else:
                     validation_results.update({id_: namespace_validation.validation_dict})
             dummy_id += 1

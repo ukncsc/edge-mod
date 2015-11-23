@@ -13,14 +13,37 @@ define([
         return indicator_builder["ajax_uri"] + path + "/";
     }
 
+    function PublishModalContent () {
+        this.message = ko.observable("");
+        this.status = ko.observable("OK");
+        this.validations = null;
+        this.waitingForResponse = ko.observable(false);
+        this.clientErrors = ko.observableArray([]);
+        this.responseType = ko.observable(null);
+        this.statusMessage = ko.computed(function () {
+            return this.messagesByStatus[this.status()];
+        }, this);
+        this.hasErrors = ko.computed(function () {
+            return this.status() === "FAILED" || this.status() === "ERROR";
+        }, this);
+        this.hasWarnings = ko.computed(function () {
+            return this.status() === "WARNING";
+        }, this);
+        this.hasInfos = ko.computed(function () {
+            return this.status() === "INFO";
+        }, this);
+    }
+    PublishModalContent.prototype.messagesByStatus = {
+        "FAILED": "Unable to publish this indicator",
+        "ERROR": "This indicator has errors and cannot be published",
+        "WARNING": "This indicator has warnings",
+        "INFO": "",
+        "OK": "Validation successful..."
+    };
+
     var CERTViewModel = declare(indicator_builder.viewModel, {
         declaredClass: "CERTViewModel",
-
-        constructor: function () {
-            this.messageError = "This package has errors and cannot be published";
-            this.messageWarning = "This package has warnings";
-            this.messageConfirmPublish = "Are you sure you want to publish?";
-        },
+        messageConfirmPublish: "Are you sure you want to publish?",
 
         publish: function () {
             var contentData = this._constructPublishModalContent();
@@ -58,7 +81,8 @@ define([
 
             if (hasErrors) {
                 contentData.responseType("CLIENT_ERROR");
-                contentData.message("The indicator has errors:");
+                contentData.status("ERROR");
+                contentData.message("");
                 contentData.clientErrors(clientValidation.errors.peek());
             } else {
                 this._validate.call(this, confirmModal);
@@ -66,13 +90,7 @@ define([
         },
 
         _constructPublishModalContent: function () {
-            return {
-                message: ko.observable(""),
-                validations: null,
-                waitingForResponse: ko.observable(false),
-                clientErrors: ko.observableArray([]),
-                responseType: ko.observable(null)
-            };
+            return new PublishModalContent();
         },
 
         _serializeIndicator: function () {
@@ -94,6 +112,7 @@ define([
             this.getValidationResult(data, function (response) {
                 var rawValidation = response['validation_info'];
                 var validations = new ValidationInfo(rawValidation);
+                modal.contentData.message("");
                 modal.contentData.validations = validations;
 
                 modal.contentData.waitingForResponse(false);
@@ -102,6 +121,7 @@ define([
                 if (!response["success"]) {
                     modal.title("Error");
                     modal.titleIcon("glyphicon-exclamation-sign");
+                    modal.contentData.status("FAILED");
                     modal.contentData.message("An error occurred during validation (" + response["error_message"] + ")");
                     modal.getButtonByLabel("Close").disabled(false);
                     return;
@@ -110,19 +130,20 @@ define([
                 if (validations.hasErrors()) {
                     modal.title("Error");
                     modal.titleIcon("glyphicon-exclamation-sign");
-                    modal.contentData.message(this.messageError);
+                    modal.contentData.status("ERROR");
                     modal.getButtonByLabel("Close").disabled(false);
                 } else if (validations.hasWarnings() || validations.hasInfos()) {
                     modal.getButtonByLabel("Yes").hide(false);
                     modal.getButtonByLabel("No").hide(false);
                     modal.getButtonByLabel("Close").hide(true);
-                    var message = this.messageConfirmPublish;
+                    modal.contentData.message(this.messageConfirmPublish);
                     if (validations.hasWarnings()) {
-                        message = this.messageWarning + ". " + message;
+                        modal.contentData.status("WARNING");
+                    } else {
+                        modal.contentData.status("INFO");
                     }
-                    modal.contentData.message(message);
                 } else {
-                    modal.contentData.message("Validation successful...");
+                    modal.contentData.status("OK");
                     setTimeout(function () {
                         this._publish(modal);
                     }.bind(this), 1000);
