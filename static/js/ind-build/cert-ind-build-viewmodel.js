@@ -38,12 +38,13 @@ define([
         "ERROR": "This indicator has errors and cannot be published",
         "WARNING": "This indicator has warnings",
         "INFO": "",
-        "OK": "Validation successful..."
+        "OK": ""
     };
 
     var CERTViewModel = declare(indicator_builder.viewModel, {
         declaredClass: "CERTViewModel",
         messageConfirmPublish: "Are you sure you want to publish?",
+        REDIRECT_DELAY: 2000,
 
         publish: function () {
             var contentData = this._constructPublishModalContent();
@@ -144,9 +145,10 @@ define([
                     }
                 } else {
                     modal.contentData.status("OK");
+                    modal.contentData.message("Validation successful...");
                     setTimeout(function () {
                         this._publish(modal);
-                    }.bind(this), 1000);
+                    }.bind(this), this.REDIRECT_DELAY);
                 }
             }.bind(this));
         },
@@ -173,10 +175,15 @@ define([
                 modal.getButtonByLabel("Close").hide(false);
 
                 if (response["success"]) {
+                    modal.contentData.status("OK");
                     modal.contentData.message("The indicator has been published internally");
                     modal.titleIcon("glyphicon-ok-sign");
-                    window.location.assign(window.location.href.split("/indicator/")[0] + "/indicator/build/");
+
+                    setTimeout(function () {
+                        window.location.assign(window.location.href.split("/indicator/")[0] + "/indicator/build/");
+                    }, this.REDIRECT_DELAY);
                 } else {
+                    modal.contentData.status("FAILED");
                     modal.contentData.message(response["message"]);
                     modal.titleIcon("glyphicon-exclamation-sign");
                 }
