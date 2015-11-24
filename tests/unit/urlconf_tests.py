@@ -3,8 +3,9 @@ import unittest
 from django.core.urlresolvers import reverse, resolve
 from django.conf.urls import patterns, url
 from adapters.certuk_mod.views.urls import publisher_urls
-from adapters.certuk_mod.views import views
+from adapters.certuk_mod.tests.unit import view_loader
 
+views = view_loader.get_views_module()
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]
 urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
