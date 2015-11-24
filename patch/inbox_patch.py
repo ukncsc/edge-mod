@@ -36,4 +36,5 @@ def add(self, inbox_item):
     super(InboxProcessorForBuilders, self).add(inbox_item)
 
 
-InboxProcessorForBuilders.add = add
+def apply_patch():
+    InboxProcessorForBuilders.add = add

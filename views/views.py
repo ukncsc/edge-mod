@@ -17,10 +17,7 @@ from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
-from adapters.certuk_mod.builder.cert_observable_object_generator import CERTObservableObjectGenerator
-from indicator.indicator_builder import IndicatorBuilder
-from adapters.certuk_mod.builder.view_seed_data import CERTIndicatorBuilderTemplateDataGenerator
-from indicator import views as original_views
+import adapters.certuk_mod.builder.customizations as cert_builder
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from crashlog.models import save as save_crash
 
@@ -31,6 +28,7 @@ from adapters.certuk_mod.audit.message import format_audit_message
 
 
 setup.configure_publisher_actions()
+cert_builder.apply_customizations()
 
 
 objectid_matcher = re.compile(
@@ -38,10 +36,6 @@ objectid_matcher = re.compile(
     r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
     re.IGNORECASE  # | re.DEBUG
 )
-original_views.observable_object_generator = CERTObservableObjectGenerator()
-original_views.indicator_builder = IndicatorBuilder(original_views.observable_object_generator)
-original_views.view_data_generator = CERTIndicatorBuilderTemplateDataGenerator('Indicator', 'cert-ind-build.html',
-                                                                               original_views.indicator_builder)
 
 
 @login_required
