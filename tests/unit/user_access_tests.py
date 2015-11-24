@@ -1,7 +1,8 @@
+import unittest
 
 import mock
-import unittest
-from view_loader import get_views_module
+
+from adapters.certuk_mod.tests.support.view_loader import get_views_module
 
 
 def dummy_decorator(original_decorator):
