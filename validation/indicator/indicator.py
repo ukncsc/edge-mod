@@ -16,6 +16,10 @@ class IndicatorValidationInfo(ObjectValidationInfo):
 
     def __init__(self, **field_validation):
         super(IndicatorValidationInfo, self).__init__(**field_validation)
+        self.title = field_validation.get('title')
+        self.short_description = field_validation.get('short_description')
+        self.description = field_validation.get('description')
+        self.tlp = field_validation.get('tlp')
         self.indicator_types = field_validation.get('indicator_types')
         self.phase_id = field_validation.get('phase_id')
         self.confidence = field_validation.get('confidence')
