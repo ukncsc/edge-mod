@@ -1,8 +1,11 @@
 
 from edge.generic import EdgeObject
-from adapters.certuk_mod.validation.common.structure import IndicatorStructureConverter, ObservableStructureConverter, OtherStructureConverter
+from adapters.certuk_mod.validation.common.structure import (
+    IndicatorStructureConverter,
+    ObservableStructureConverter
+)
 from adapters.certuk_mod.validation.common.namespace import NamespaceValidationInfo
-from adapters.certuk_mod.validation.indicator.validator import IndicatorValidator
+from adapters.certuk_mod.validation.indicator.indicator import IndicatorValidationInfo
 from adapters.certuk_mod.validation.observable.validator import ObservableValidator
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.validation import ValidationStatus
@@ -33,7 +36,7 @@ class BuilderValidationInfo(object):
 
     @staticmethod
     def __validate_indicator(indicator):
-        validation_result = IndicatorValidator.validate(**indicator)
+        validation_result = IndicatorValidationInfo.validate(**indicator)
 
         # Bit of a fudge here, but we have different rules for internal/external publish for confidence value...
         confidence_validation = validation_result.confidence

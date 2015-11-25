@@ -3,8 +3,12 @@ import json
 from adapters.certuk_mod.validation import FieldAlias
 from adapters.certuk_mod.validation.common.common import CommonValidationInfo
 from adapters.certuk_mod.validation.common.namespace import NamespaceValidationInfo
-from adapters.certuk_mod.validation.common.structure import ObservableStructureConverter, IndicatorStructureConverter, OtherStructureConverter
-from adapters.certuk_mod.validation.indicator.validator import IndicatorValidator
+from adapters.certuk_mod.validation.common.structure import (
+    ObservableStructureConverter,
+    IndicatorStructureConverter,
+    OtherStructureConverter
+)
+from adapters.certuk_mod.validation.indicator.indicator import IndicatorValidationInfo
 from adapters.certuk_mod.validation.observable.validator import ObservableValidator
 from edge.combine import STIXPackage
 from edge.tools import nested_get
@@ -66,7 +70,7 @@ class PackageValidationInfo(object):
             namespace_validation = NamespaceValidationInfo.validate(r'ind', id_)
             if namespace_validation.is_local():
                 indicator_properties = IndicatorStructureConverter.package_to_simple(indicator, stix_header)
-                validation_results = IndicatorValidator.validate(**indicator_properties)
+                validation_results = IndicatorValidationInfo.validate(**indicator_properties)
                 if validation_results and validation_results.validation_dict:
                     indicator_validation.update({id_: validation_results.validation_dict})
             else:
