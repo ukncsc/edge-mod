@@ -9,71 +9,59 @@ from edge.observable import \
 from edge.tools import rgetattr
 
 
-def get_http_session_object_value(obj):
-    http_request_response_list = rgetattr(obj, ['_object', 'properties', 'http_request_response'])
-    value = rgetattr(http_request_response_list[0],
-                    ['http_client_request', 'http_request_header', 'parsed_header', 'user_agent'], '(undefined)')
-    return str(value)
+def generate_db_observable_patch(custom_draft_handler_map):
+    class DBObservablePatch(DBObservable):
+        def __init__(self, obj=None, item=None, id_=None):
+            super(DBObservablePatch, self).__init__(obj, item, id_)
+
+        CUSTOM_DRAFT_HANDLERS = custom_draft_handler_map
+
+        @staticmethod
+        def _get_custom_to_draft_handler(object_type):
+            try:
+                return DBObservablePatch.CUSTOM_DRAFT_HANDLERS[object_type]
+            except KeyError:
+                raise ValueError("Unexpected Object Type %s" % object_type)
+
+        @classmethod
+        def to_draft(cls, observable, tg, load_by_id, id_ns=''):
+            try:
+                return super(DBObservablePatch, cls).to_draft(observable, tg, load_by_id, id_ns=id_ns)
+            except ValueError, v:
+                if v.__class__ != ValueError:
+                    raise
+
+            object_type = rgetattr(observable, ['_object', '_properties', '_XSI_TYPE'], 'None')
+            draft_handler = DBObservablePatch._get_custom_to_draft_handler(object_type)
+            return draft_handler(observable, tg, load_by_id, id_ns)
+
+    return DBObservablePatch
 
 
-custom_object_value_map = {
-    'HTTPSessionObjectType': get_http_session_object_value
-}
+def generate_custom_get_obs_value(custom_object_value_map):
+    def custom_get_obs_value(obj):
+        type_ = rgetattr(obj, ['object_', 'properties', '_XSI_TYPE'], None)
+        custom_type_handler = custom_object_value_map.get(type_)
+        if custom_type_handler is None:
+            return original_get_obs_value(obj)
+        return custom_type_handler(obj)
+    return custom_get_obs_value
 
 
-def custom_get_obs_value(obj):
-    type_ = rgetattr(obj, ['object_', 'properties', '_XSI_TYPE'], None)
-    custom_type_handler = custom_object_value_map.get(type_)
-    if custom_type_handler is None:
-        return original_get_obs_value(obj)
-    return custom_type_handler(obj)
+def apply_patch(custom_observable_definitions):
+    custom_draft_handler_map = {}
+    custom_summary_value_map = {}
 
+    for definition in custom_observable_definitions:
+        custom_draft_handler_map[definition.object_type] = definition.to_draft_handler
+        custom_summary_value_map[definition.object_type] = definition.summary_value_generator
+        CYBOX_SHORT_DESCRIPTION[definition.object_type] = definition.human_readable_type
 
-DBObservable.SUMMARY_BINDING = (
-    ('type', original_get_obs_type),
-    ('title', original_get_obs_title),
-    ('description', original_get_obs_description),
-    ('value', custom_get_obs_value),
-)
+    DBObservable.SUMMARY_BINDING = (
+        ('type', original_get_obs_type),
+        ('title', original_get_obs_title),
+        ('description', original_get_obs_description),
+        ('value', generate_custom_get_obs_value(custom_summary_value_map)),
+    )
 
-
-class DBObservablePatch(DBObservable):
-    def __init__(self, obj=None, item=None, id_=None):
-        super(DBObservablePatch, self).__init__(obj, item, id_)
-
-    @staticmethod
-    def _get_custom_to_draft_handler(object_type):
-        handler_map = {
-            'HTTPSessionObjectType': DBObservablePatch._http_session_to_draft
-        }
-        try:
-            return handler_map[object_type]
-        except KeyError:
-            raise ValueError("Unexpected Object Type %s" % object_type)
-
-    @staticmethod
-    def _http_session_to_draft(observable, tg, load_by_id, id_ns=''):
-        return {
-            'objectType': 'HTTP Session',
-            'id': rgetattr(observable, ['id_'], ''),
-            'id_ns': id_ns,
-            'title': rgetattr(observable, ['title'], ''),
-            'description': str(rgetattr(observable, ['description'], '')),
-            'user_agent': get_http_session_object_value(observable)
-        }
-
-    @classmethod
-    def to_draft(cls, observable, tg, load_by_id, id_ns=''):
-        try:
-            return super(DBObservablePatch, cls).to_draft(observable, tg, load_by_id, id_ns=id_ns)
-        except ValueError, v:
-            if v.__class__ != ValueError:
-                raise
-
-        object_type = rgetattr(observable, ['_object', '_properties', '_XSI_TYPE'], 'None')
-        draft_handler = DBObservablePatch._get_custom_to_draft_handler(object_type)
-        return draft_handler(observable, tg, load_by_id, id_ns)
-
-
-CYBOX_SHORT_DESCRIPTION['HTTPSessionObjectType'] = 'HTTP Session'
-WHICH_DBOBJ['obs'] = DBObservablePatch
+    WHICH_DBOBJ['obs'] = generate_db_observable_patch(custom_draft_handler_map)

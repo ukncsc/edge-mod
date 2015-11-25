@@ -1,4 +1,4 @@
-from adapters.certuk_mod.validation import FieldValidationInfo, ObjectValidationInfo, ValidationStatus, FieldAlias
+from adapters.certuk_mod.validation import FieldValidationInfo, ObjectValidationInfo, ValidationStatus
 
 
 class ObservableValidationInfo(ObjectValidationInfo):
@@ -6,10 +6,11 @@ class ObservableValidationInfo(ObjectValidationInfo):
     TYPE = 'UNKNOWN'
 
     def __init__(self, observable_type, observable_field_values, **field_validation):
-        super(ObservableValidationInfo, self).__init__(
-            object_type=ObservableValidationInfo.__validate_type(observable_type),
-            description=ObservableValidationInfo.__validate_description(observable_field_values.get('description')),
-            **field_validation)
+        field_validation.update({
+            'object_type': ObservableValidationInfo.__validate_type(observable_type),
+            'description': ObservableValidationInfo.__validate_description(observable_field_values.get('description'))
+        })
+        super(ObservableValidationInfo, self).__init__(**field_validation)
 
         self.object_type = field_validation.get(r'object_type')
         self.description = field_validation.get(r'description')

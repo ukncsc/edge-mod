@@ -15,7 +15,7 @@ class NamespaceValidationInfo(ObjectValidationInfo):
         if not NamespaceValidationInfo.__id_is_current_ns(id_):
             field_validation[r'namespace'] = FieldValidationInfo(
                 ValidationStatus.WARN,
-                r'%s originates from an external namespace' % (CLIPPY_TYPES[type_] or r'Object')
+                r'%s originates from an external namespace' % CLIPPY_TYPES.get(type_, r'Object')
             )
         return cls(**field_validation)
 

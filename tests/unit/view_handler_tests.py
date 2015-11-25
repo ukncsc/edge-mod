@@ -2,9 +2,10 @@ import unittest
 
 import mock
 
+from adapters.certuk_mod.audit import status
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
+from adapters.certuk_mod.tests.support.view_loader import get_views_module
 from edge.generic import EdgeObject
-from view_loader import get_views_module
 
 # Good luck trying to patch decorators in a nice way... decorators are applied at class definition time, so we need to
 # monkey-patch them before we import any modules that use them (in this case, our own 'views' module).
@@ -59,7 +60,8 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch(EdgeObject.__module__ + '.' + EdgeObject.__name__ + '.load', new=mock.Mock())
     @mock.patch.object(views, 'objectid_matcher')
     @mock.patch('django.http.request.HttpRequest')
-    def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_regex, mock_package_builder, mock_validate, mock_render):
+    def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_regex, mock_package_builder, mock_validate,
+                                            mock_render):
         mock_id = 'Dummy ID'
         mock_regex.match.return_value = mock.MagicMock(
             group=mock.Mock(return_value=mock_id),
@@ -140,9 +142,23 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch.object(views, 'PackageGenerator', mock.Mock())
     @mock.patch.object(views, 'PublisherEdgeObject', mock.Mock())
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
-    def test_AJAXPublish_IfPublishOK_ReturnOK(self):
-        response = views.ajax_publish(mock.Mock(), {'root_id': ''})
+    @mock.patch.object(views, 'OnPublish')
+    @mock.patch.object(views, 'format_audit_message')
+    def test_AJAXPublish_IfPublishOK_ReturnOK(self, mock_message_formatter, mock_event_publisher):
+        mock_id = 'blah'
+        mock_user = 'mr'
+        mock_message_formatter.return_value = 'dummy message'
+        mock_publication_message = 'publication message'
 
+        response = views.ajax_publish(mock.Mock(user=mock_user), {
+            'root_id': mock_id,
+            'publicationMessage': mock_publication_message
+        })
+
+        mock_event_publisher.raise_event.assert_called_with(views.ajax_publish, publish_status=status.PUBLISH_SUCCESS,
+                                                            stix_id=mock_id, user=mock_user,
+                                                            message=mock_message_formatter.return_value)
+        mock_message_formatter.assert_called_with('', mock_publication_message)
         self.assertEqual(response, {
             'success': True,
             'error_message': ''
@@ -152,24 +168,51 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch.object(views, 'PackageGenerator', mock.Mock())
     @mock.patch.object(views, 'PublisherEdgeObject', mock.Mock())
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
-    def test_AJAXPublish_IfNoRootId_ReturnError(self):
-        response = views.ajax_publish(mock.Mock(), {})
+    @mock.patch.object(views, 'OnPublish')
+    @mock.patch.object(views, 'format_audit_message')
+    def test_AJAXPublish_IfNoRootId_ReturnError(self, mock_message_formatter, mock_event_publisher):
+        mock_user = 'mr'
+        mock_message_formatter.return_value = 'dummy message'
+        mock_publication_message = 'publication message'
+        expected_error_message = 'root_id'
 
+        response = views.ajax_publish(mock.Mock(user=mock_user), {
+            'publicationMessage': mock_publication_message
+        })
+
+        mock_event_publisher.raise_event.assert_called_with(views.ajax_publish, publish_status=status.PUBLISH_FAIL,
+                                                            stix_id=None, user=mock_user,
+                                                            message=mock_message_formatter.return_value)
+        mock_message_formatter.assert_called_with(expected_error_message, mock_publication_message)
         self.assertEqual(response, {
             'success': False,
-            'error_message': 'root_id'
+            'error_message': expected_error_message
         })
 
     @mock.patch.object(views, 'Publisher', mock.Mock())
     @mock.patch.object(views, 'PackageGenerator', mock.Mock())
     @mock.patch.object(views, 'PublisherEdgeObject')
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
-    def test_AJAXPublish_IfEdgeObjectLoadFails_ReturnError(self, mock_edge_object):
+    @mock.patch.object(views, 'OnPublish')
+    @mock.patch.object(views, 'format_audit_message')
+    def test_AJAXPublish_IfEdgeObjectLoadFails_ReturnError(self, mock_message_formatter, mock_event_publisher,
+                                                           mock_edge_object):
         mock_error = 'Mock error'
         mock_edge_object.load.side_effect = Exception(mock_error)
+        mock_id = 'blah'
+        mock_user = 'mr'
+        mock_message_formatter.return_value = 'dummy message'
+        mock_publication_message = 'publication message'
 
-        response = views.ajax_publish(mock.Mock(), {'root_id': ''})
+        response = views.ajax_publish(mock.Mock(user=mock_user), {
+            'root_id': mock_id,
+            'publicationMessage': mock_publication_message
+        })
 
+        mock_event_publisher.raise_event.assert_called_with(views.ajax_publish, publish_status=status.PUBLISH_FAIL,
+                                                            stix_id=mock_id, user=mock_user,
+                                                            message=mock_message_formatter.return_value)
+        mock_message_formatter.assert_called_with(mock_error, mock_publication_message)
         self.assertEqual(response, {
             'success': False,
             'error_message': mock_error
@@ -179,13 +222,26 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch.object(views, 'PackageGenerator')
     @mock.patch.object(views, 'PublisherEdgeObject', mock.Mock())
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
-    @mock.patch.object(views, 'OnPublish', mock.Mock())
-    def test_AJAXPublish_IfBuildPackageFails_ReturnError(self, mock_package_generator):
+    @mock.patch.object(views, 'OnPublish')
+    @mock.patch.object(views, 'format_audit_message')
+    def test_AJAXPublish_IfBuildPackageFails_ReturnError(self, mock_message_formatter, mock_event_publisher,
+                                                         mock_package_generator):
         mock_error = 'Mock error'
         mock_package_generator.build_package.side_effect = Exception(mock_error)
+        mock_id = 'blah'
+        mock_user = 'mr'
+        mock_message_formatter.return_value = 'dummy message'
+        mock_publication_message = 'publication message'
 
-        response = views.ajax_publish(mock.Mock(), {'root_id': ''})
+        response = views.ajax_publish(mock.Mock(user=mock_user), {
+            'root_id': mock_id,
+            'publicationMessage': mock_publication_message
+        })
 
+        mock_event_publisher.raise_event.assert_called_with(views.ajax_publish, publish_status=status.PUBLISH_FAIL,
+                                                            stix_id=mock_id, user=mock_user,
+                                                            message=mock_message_formatter.return_value)
+        mock_message_formatter.assert_called_with(mock_error, mock_publication_message)
         self.assertEqual(response, {
             'success': False,
             'error_message': mock_error
@@ -195,12 +251,26 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch.object(views, 'PackageGenerator', mock.Mock())
     @mock.patch.object(views, 'PublisherEdgeObject')
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
-    def test_AJAXPublish_IfEdgeObjectGetNameSpacesFails_ReturnError(self, mock_edge_object):
+    @mock.patch.object(views, 'OnPublish')
+    @mock.patch.object(views, 'format_audit_message')
+    def test_AJAXPublish_IfEdgeObjectGetNameSpacesFails_ReturnError(self, mock_message_formatter, mock_event_publisher,
+                                                                    mock_edge_object):
         mock_error = 'Mock error'
         mock_edge_object.load.return_value.ns_dict.side_effect = Exception(mock_error)
+        mock_id = 'blah'
+        mock_user = 'mr'
+        mock_message_formatter.return_value = 'dummy message'
+        mock_publication_message = 'publication message'
 
-        response = views.ajax_publish(mock.Mock(), {'root_id': ''})
+        response = views.ajax_publish(mock.Mock(user=mock_user), {
+            'root_id': mock_id,
+            'publicationMessage': mock_publication_message
+        })
 
+        mock_event_publisher.raise_event.assert_called_with(views.ajax_publish, publish_status=status.PUBLISH_FAIL,
+                                                            stix_id=mock_id, user=mock_user,
+                                                            message=mock_message_formatter.return_value)
+        mock_message_formatter.assert_called_with(mock_error, mock_publication_message)
         self.assertEqual(response, {
             'success': False,
             'error_message': mock_error
@@ -210,17 +280,53 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch.object(views, 'PackageGenerator', mock.Mock())
     @mock.patch.object(views, 'PublisherEdgeObject', mock.Mock())
     @mock.patch.object(views, 'PublisherConfig', mock.Mock())
-    def test_AJAXPublish_IfPushPackageFails_ReturnError(self, mock_publisher):
+    @mock.patch.object(views, 'OnPublish')
+    @mock.patch.object(views, 'format_audit_message')
+    def test_AJAXPublish_IfPushPackageFails_ReturnError(self, mock_message_formatter, mock_event_publisher,
+                                                        mock_publisher):
         mock_error = 'Mock error'
         mock_publisher.push_package.side_effect = Exception(mock_error)
+        mock_id = 'blah'
+        mock_user = 'mr'
+        mock_message_formatter.return_value = 'dummy message'
+        mock_publication_message = 'publication message'
 
-        response = views.ajax_publish(mock.Mock(), {'root_id': ''})
+        response = views.ajax_publish(mock.Mock(user=mock_user), {
+            'root_id': mock_id,
+            'publicationMessage': mock_publication_message
+        })
 
+        mock_event_publisher.raise_event.assert_called_with(views.ajax_publish, publish_status=status.PUBLISH_FAIL,
+                                                            stix_id=mock_id, user=mock_user,
+                                                            message=mock_message_formatter.return_value)
+        mock_message_formatter.assert_called_with(mock_error, mock_publication_message)
         self.assertEqual(response, {
             'success': False,
             'error_message': mock_error
         })
 
+    @mock.patch.object(views, 'BuilderValidationInfo')
+    def test_AJAXValidate_IfOK_ReturnsSuccess(self, mock_validator):
+        mock_validation_info = 'dummy validation info'
+        mock_validator.validate.return_value = mock.Mock(validation_dict=mock_validation_info)
 
-if __name__ == '__main__':
-    unittest.main()
+        response = views.ajax_validate(None, {})
+
+        self.assertDictEqual(response, {
+            'success': True,
+            'error_message': '',
+            'validation_info': mock_validation_info
+        })
+
+    @mock.patch.object(views, 'BuilderValidationInfo')
+    def test_AJAXValidate_IfError_ReturnsError(self, mock_validator):
+        mock_error = Exception('error')
+        mock_validator.validate.side_effect = mock_error
+
+        response = views.ajax_validate(None, {})
+
+        self.assertDictEqual(response, {
+            'success': False,
+            'error_message': mock_error.message,
+            'validation_info': {}
+        })

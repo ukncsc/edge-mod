@@ -36,8 +36,9 @@ class URIValidationTests(unittest.TestCase):
         self.assertEqual(uri_validation.type.status, ValidationStatus.ERROR)
 
     def test_Validate_InvalidType_Error(self):
-        uri_validation = URIValidationInfo.validate(type='blah')
+        uri_validation = URIValidationInfo.validate(type='blah', value='hi')
         self.assertEqual(uri_validation.type.status, ValidationStatus.ERROR)
+        self.assertIsNone(uri_validation.value)
 
     def test_Validate_ValidType_Pass(self):
         for type_ in ['URL', 'General URN', 'Domain Name']:

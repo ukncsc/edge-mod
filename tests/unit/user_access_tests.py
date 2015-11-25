@@ -1,7 +1,8 @@
+import unittest
 
 import mock
-import unittest
-from view_loader import get_views_module
+
+from adapters.certuk_mod.tests.support.view_loader import get_views_module
 
 
 def dummy_decorator(original_decorator):
@@ -83,7 +84,3 @@ class UserAccessTests(unittest.TestCase):
         self.login_patch.stop()
         self.superuser_or_staff_patch.stop()
         self.json_body_patch.stop()
-
-
-if __name__ == '__main__':
-    unittest.main()

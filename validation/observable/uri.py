@@ -29,7 +29,7 @@ class URIValidationInfo(ObservableValidationInfo):
         uri_type = observable_data.get('type')
         uri_value = observable_data.get('value')
 
-        type_validation = cls.__validate_type(uri_type)
+        type_validation = cls.__validate_uri_type(uri_type)
         value_validation = cls.__validate_value(uri_value, uri_type)
 
         return cls(observable_data, value=value_validation, type=type_validation)
@@ -54,7 +54,7 @@ class URIValidationInfo(ObservableValidationInfo):
         return None
 
     @classmethod
-    def __validate_type(cls, uri_type):
+    def __validate_uri_type(cls, uri_type):
         if not uri_type:
             return FieldValidationInfo(ValidationStatus.ERROR, 'URI type is missing')
 
@@ -80,7 +80,7 @@ class URIValidationInfo(ObservableValidationInfo):
     def __is_valid_url(cls, url):
         url_parse_result = urlparse(url)
         return url_parse_result.scheme and cls.SCHEME_MATCHER.match(url_parse_result.scheme) and \
-               (url_parse_result.netloc or url_parse_result.path)
+            (url_parse_result.netloc or url_parse_result.path)
 
     @classmethod
     def __validate_domain(cls, domain):

@@ -39,7 +39,3 @@ class PublisherConfigTests(unittest.TestCase):
         mock_db.return_value.peer_sites.find_one.return_value = {'_id': dummy_site_id}
         config = PublisherConfig.get_config()
         self.assertEqual(config['site_id'], dummy_site_id)
-
-
-if __name__ == '__main__':
-    unittest.main()

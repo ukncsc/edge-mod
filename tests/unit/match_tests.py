@@ -1,6 +1,8 @@
-
 import unittest
-from adapters.certuk_mod.views.views import objectid_matcher
+
+from adapters.certuk_mod.tests.support import view_loader
+
+objectid_matcher = view_loader.get_views_module(__name__).objectid_matcher
 
 
 class MatchTests(unittest.TestCase):
@@ -59,7 +61,3 @@ class MatchTests(unittest.TestCase):
 
     def test_IDMatch_NonAZObjectType_Rejected(self):
         self.assertIsNotMatch(self.empty_object_type)
-
-
-if __name__ == '__main__':
-    unittest.main()

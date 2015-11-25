@@ -1,10 +1,12 @@
-
 import unittest
-from django.core.urlresolvers import reverse, resolve
-from django.conf.urls import patterns, url
-from adapters.certuk_mod.views.urls import publisher_urls
-from adapters.certuk_mod.views import views
 
+from django.conf.urls import patterns, url
+from django.core.urlresolvers import reverse, resolve
+
+from adapters.certuk_mod.tests.support import view_loader
+from adapters.certuk_mod.views.urls import publisher_urls
+
+views = view_loader.get_views_module()
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]
 urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
@@ -55,6 +57,6 @@ class URLConfTests(unittest.TestCase):
         publish_resolve_match = resolve('/ajax/publish/', URLConfTests.urls)
         self.assertEqual(publish_resolve_match.func, views.ajax_publish)
 
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_Resolve_AJAXValidate_ReturnsCorrectHandler(self):
+        validate_resolve_match = resolve('/ajax/validate/', URLConfTests.urls)
+        self.assertEqual(validate_resolve_match.func, views.ajax_validate)

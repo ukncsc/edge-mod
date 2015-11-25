@@ -68,6 +68,3 @@ class AddressValidationTests(unittest.TestCase):
                                   'Expecting category validation for %s/%s to be None' % (category, address))
                 self.assertEqual(address_validation.address_value.status, ValidationStatus.WARN,
                                  'Expecting address_value validation for %s/%s to be WARN' % (category, address))
-
-if __name__ == '__main__':
-    unittest.main()
