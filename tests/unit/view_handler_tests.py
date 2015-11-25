@@ -304,3 +304,29 @@ class ViewHandlerTests(unittest.TestCase):
             'success': False,
             'error_message': mock_error
         })
+
+    @mock.patch.object(views, 'BuilderValidationInfo')
+    def test_AJAXValidate_IfOK_ReturnsSuccess(self, mock_validator):
+        mock_validation_info = 'dummy validation info'
+        mock_validator.validate.return_value = mock.Mock(validation_dict=mock_validation_info)
+
+        response = views.ajax_validate(None, {})
+
+        self.assertDictEqual(response, {
+            'success': True,
+            'error_message': '',
+            'validation_info': mock_validation_info
+        })
+
+    @mock.patch.object(views, 'BuilderValidationInfo')
+    def test_AJAXValidate_IfError_ReturnsError(self, mock_validator):
+        mock_error = Exception('error')
+        mock_validator.validate.side_effect = mock_error
+
+        response = views.ajax_validate(None, {})
+
+        self.assertDictEqual(response, {
+            'success': False,
+            'error_message': mock_error.message,
+            'validation_info': {}
+        })

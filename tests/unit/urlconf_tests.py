@@ -57,6 +57,6 @@ class URLConfTests(unittest.TestCase):
         publish_resolve_match = resolve('/ajax/publish/', URLConfTests.urls)
         self.assertEqual(publish_resolve_match.func, views.ajax_publish)
 
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_Resolve_AJAXValidate_ReturnsCorrectHandler(self):
+        validate_resolve_match = resolve('/ajax/validate/', URLConfTests.urls)
+        self.assertEqual(validate_resolve_match.func, views.ajax_validate)
