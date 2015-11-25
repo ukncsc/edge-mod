@@ -23,8 +23,7 @@ class HTTPSessionObservableDefinition(CustomObservableDefinition):
             to_draft_handler=HTTPSessionObservableDefinition.to_draft_handler
         )
 
-    @staticmethod
-    def builder_to_stix_object(object_data):
+    def builder_to_stix_object(self, object_data):
         fields = HTTPRequestHeaderFields()
         fields.user_agent = object_data.get('user_agent')
 
@@ -42,20 +41,18 @@ class HTTPSessionObservableDefinition(CustomObservableDefinition):
 
         return session
 
-    @staticmethod
-    def summary_value_generator(obj):
+    def summary_value_generator(self, obj):
         http_request_response_list = rgetattr(obj, ['_object', 'properties', 'http_request_response'])
         value = rgetattr(http_request_response_list[0],
                         ['http_client_request', 'http_request_header', 'parsed_header', 'user_agent'], '(undefined)')
         return str(value)
 
-    @staticmethod
-    def to_draft_handler(observable, tg, load_by_id, id_ns=''):
+    def to_draft_handler(self, observable, tg, load_by_id, id_ns=''):
         return {
             'objectType': 'HTTP Session',
             'id': rgetattr(observable, ['id_'], ''),
             'id_ns': id_ns,
             'title': rgetattr(observable, ['title'], ''),
             'description': str(rgetattr(observable, ['description'], '')),
-            'user_agent': HTTPSessionObservableDefinition.summary_value_generator(observable)
+            'user_agent': self.summary_value_generator(observable)
         }
