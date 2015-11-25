@@ -39,7 +39,3 @@ class PublisherTests(unittest.TestCase):
         self.assertEqual(send_message_call_args[0], mock_peer_site.objects.get.return_value)
         self.assertEqual(send_message_call_args[1], mock_discover_inbox.return_value)
         self.assertIsInstance(send_message_call_args[2], libtaxii.tm11.InboxMessage)
-
-
-if __name__ == '__main__':
-    unittest.main()

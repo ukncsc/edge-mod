@@ -84,7 +84,3 @@ class UserAccessTests(unittest.TestCase):
         self.login_patch.stop()
         self.superuser_or_staff_patch.stop()
         self.json_body_patch.stop()
-
-
-if __name__ == '__main__':
-    unittest.main()

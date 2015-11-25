@@ -20,7 +20,3 @@ class PackageGeneratorTests(unittest.TestCase):
         PackageGenerator.build_package(mock_edge_object)
 
         self.assertEqual(mock_edge_object.capsulize.call_args[1]['pkg_id'], package_id)
-
-
-if __name__ == '__main__':
-    unittest.main()

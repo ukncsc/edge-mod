@@ -61,7 +61,3 @@ class MatchTests(unittest.TestCase):
 
     def test_IDMatch_NonAZObjectType_Rejected(self):
         self.assertIsNotMatch(self.empty_object_type)
-
-
-if __name__ == '__main__':
-    unittest.main()

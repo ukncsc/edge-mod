@@ -81,7 +81,3 @@ class PublisherEdgeObjectTests(unittest.TestCase):
             edge_object_under_test.filters = mock_filter
             edge_object_under_test.ns_dict()
             mock_stix_scanner.assert_called_with({'_id': mock_root_id}, mock_filter)
-
-
-if __name__ == '__main__':
-    unittest.main()
