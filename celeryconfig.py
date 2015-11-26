@@ -1,4 +1,4 @@
 
 CELERY_IMPORTS = (
-    'adapters.certuk_mod.retention.purge_job',
+    'adapters.certuk_mod.cron.purge_job',
 )
