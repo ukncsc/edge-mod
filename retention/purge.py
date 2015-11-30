@@ -66,8 +66,22 @@ class STIXPurge(object):
 
         old_with_no_back_link_ids = list(set(old_external_ids) - set(old_with_back_link_ids))
 
+        old_with_no_back_links_hashes = get_db().stix.find({
+            '_id': {
+                '$in': old_with_no_back_link_ids
+            }
+        }, {
+            '_id': 0,
+            'data.hash': 1
+        })
+        old_with_no_back_links_hashes = [doc['data']['hash'] for doc in old_with_no_back_links_hashes]
+
         hash_counts = get_db().stix.map_reduce(Code(self.__get_sightings_map_function()),
                                                Code(self.__get_sightings_reduce_function()),
+                                               query={
+                                                   'data.hash': {
+                                                       '$in': old_with_no_back_links_hashes
+                                                   }},
                                                out={
                                                    'inline': 1
                                                })
