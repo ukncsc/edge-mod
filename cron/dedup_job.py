@@ -11,9 +11,44 @@ from celery import Celery
 app = Celery('caches', config_source='repository.celeryconfig')
 from edge.tools import FileLockOrFail, CannotLock
 from crashlog import models as crashlog
+from mongoengine.connection import get_db
 
 
 LOCKNAME = os.path.join(settings.LOCK_DIR, 'dedup_job.lock')
+
+
+def find_duplicates(db, type_):
+    return db.stix.aggregate([
+        {
+            '$match': {
+                'type': type_
+            }
+        },
+        {
+            '$sort': {
+                'created_on': -1
+            }
+        },
+        {
+            '$group': {
+                '_id': '$data.hash',
+                'uniqueIds': {
+                    '$addToSet': '$_id'
+                },
+                'count': {'$sum': 1}
+            }
+        },
+        {
+            '$match': {
+                'count': {'$gt': 1}
+            }
+        }
+    ])
+
+
+def deduplicate(master, dups):
+    print "%s: %s" % (master, dups)
+    # TODO: the actual dedeplication - can we use edge/remap or edge/inbox::user_reuser ?
 
 
 @app.task(ignore_result=True, queue='mapreduce')
@@ -26,9 +61,11 @@ def update(force_start=False):
 
 
 def update_main(force_start=False):
-    js_pathname = os.path.join(settings.BASE_DIR, 'adapters/certuk_mod/cron/dedup_job.js')
     try:
-        proc = subprocess.check_output([settings.MONGO_EXE, '--quiet', 'inbox', js_pathname])
+        duplicates = find_duplicates(get_db(), 'obs')
+        for duplicate in duplicates.get('result'):
+            unique_ids = duplicate.get('uniqueIds')
+            deduplicate(unique_ids[0], unique_ids[1:])
     except subprocess.CalledProcessError as e:
         crash_message = '\n'.join([
             'returncode=%d' % e.returncode,
@@ -37,7 +74,6 @@ def update_main(force_start=False):
         crashlog.save('dedup_job', 'CalledProcessError', crash_message)
         raise
 
-    print proc
     return 0
 
 
