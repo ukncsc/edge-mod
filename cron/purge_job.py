@@ -3,7 +3,7 @@
 import os
 import sys
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE','repository.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 from django.conf import settings
 if not hasattr(settings, 'BASE_DIR'):
     raise Exception("Failed to import Django settings")
@@ -19,10 +19,10 @@ from adapters.certuk_mod.retention.purge import STIXPurge
 import traceback
 
 
-LOCKNAME = os.path.join(settings.LOCK_DIR,'purge_job.lock')
+LOCKNAME = os.path.join(settings.LOCK_DIR, 'purge_job.lock')
 
 
-@app.task(ignore_result=True, queue='mapreduce')
+@app.task(name='adapters.certuk_mod.cron.purge_job.update', ignore_result=True, queue='certuk')
 def update(force_start=False):
     try:
         with FileLockOrFail(LOCKNAME):
