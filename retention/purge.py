@@ -1,10 +1,8 @@
 
 from mongoengine.connection import get_db
-from bson import Code
 from edge import LOCAL_NAMESPACE
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import os
 
 
 class STIXPurge(object):
@@ -22,17 +20,7 @@ class STIXPurge(object):
             raise ValueError('minimum_sightings must be greater than 1')
         self.minimum_sightings = minimum_sightings
 
-    @staticmethod
-    def __get_sightings_map_function():
-        with open(os.path.join(os.path.dirname(__file__), 'sightings-map.js')) as _file:
-            return _file.read().replace('sightingsMap', '')
-
-    @staticmethod
-    def __get_sightings_reduce_function():
-        with open(os.path.join(os.path.dirname(__file__), 'sightings-reduce.js')) as _file:
-            return _file.read().replace('sightingsReduce', '')
-
-    def get_purge_candidates(self):
+    def _get_old_external_ids(self):
         current_date = datetime.utcnow()
         minimum_date = current_date - relativedelta(months=self.max_age_in_months)
 
@@ -46,58 +34,110 @@ class STIXPurge(object):
         }, {
             '_id': 1
         })
-
         old_external_ids = [doc['_id'] for doc in old_external_ids]
 
-        if len(old_external_ids) == 0:
-            return None
+        return old_external_ids
 
-        old_with_back_link_ids = get_db().stix_backlinks.find({
+    @staticmethod
+    def _get_items_with_no_back_links(ids_to_search):
+        with_back_link_ids = get_db().stix_backlinks.find({
             '_id': {
-                '$in': old_external_ids
+                '$in': ids_to_search
             }
         }, {
             '_id': 1
+            # stix_backlinks doesn't contain the hash unfortunately...
         })
-        old_with_back_link_ids = [doc['_id'] for doc in old_with_back_link_ids]
+        with_back_link_ids = [doc['_id'] for doc in with_back_link_ids]
 
-        if len(old_external_ids) == len(old_with_back_link_ids):
-            return None
+        if len(ids_to_search) == len(with_back_link_ids):
+            return {}
 
-        old_with_no_back_link_ids = list(set(old_external_ids) - set(old_with_back_link_ids))
+        no_back_link_ids = list(set(ids_to_search) - set(with_back_link_ids))
 
-        old_with_no_back_links_hashes = get_db().stix.find({
+        no_back_links_objects = get_db().stix.find({
             '_id': {
-                '$in': old_with_no_back_link_ids
+                '$in': no_back_link_ids
             }
         }, {
-            '_id': 0,
+            '_id': 1,
             'data.hash': 1
         })
-        old_with_no_back_links_hashes = [doc['data']['hash'] for doc in old_with_no_back_links_hashes]
+        no_back_links_objects = {doc['_id']: doc['data']['hash'] for doc in no_back_links_objects}
 
-        hash_counts = get_db().stix.map_reduce(Code(self.__get_sightings_map_function()),
-                                               Code(self.__get_sightings_reduce_function()),
-                                               query={
-                                                   'data.hash': {
-                                                       '$in': old_with_no_back_links_hashes
-                                                   }},
-                                               out={
-                                                   'inline': 1
-                                               })
+        return no_back_links_objects
 
-        hashes = [doc['_id'] for doc in hash_counts['results'] if doc['value'] < self.minimum_sightings]
-
-        ids_to_delete = get_db().stix.find({
-            '_id': {
-                '$in': old_with_no_back_link_ids
+    def _get_hashes_for_possible_deletion(self, qualifying_hashes):
+        hash_counts = get_db().stix.aggregate([
+            {
+                '$match': {
+                    'data.hash': {
+                        '$in': qualifying_hashes
+                    }
+                }
             },
-            'data.hash': {
-                '$in': hashes
+            {
+                '$group': {
+                    '_id': '$data.hash',
+                    'sightings': {
+                        '$sum': {
+                            '$cond': [
+                                '$data.api.sightings_count',
+                                '$data.api.sightings_count',
+                                1
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                '$match': {
+                    'sightings': {
+                        '$lt': self.minimum_sightings
+                    }
+                }
             }
-        }, {
+        ], cursor={})
+
+        hashes = [doc['_id'] for doc in hash_counts]
+
+        return hashes
+
+    def _get_ids_for_deletion(self, hashes_lt_min_sightings, ids_old_ext_no_back_links):
+        query = {
+            'data.hash': {
+                '$in': hashes_lt_min_sightings
+            }
+        }
+        # If we are deleting things with more than 1 hash-based sighting, then we must filter by id too, otherwise we
+        #  risk deleting items that are from our namespace/have back links/aren't old etc...
+        if (self.minimum_sightings - 1) > 1:
+            query.update({
+                '_id': {
+                    '$in': ids_old_ext_no_back_links
+                },
+            })
+
+        ids_to_delete = get_db().stix.find(query, {
             '_id': 1
         })
+
+        return ids_to_delete
+
+    def get_purge_candidates(self):
+        old_external_ids = self._get_old_external_ids()
+
+        if not old_external_ids:
+            return None
+
+        items_no_back_links = self._get_items_with_no_back_links(old_external_ids)
+
+        if not items_no_back_links:
+            return None
+
+        hashes_deletion_candidates = self._get_hashes_for_possible_deletion(items_no_back_links.values())
+
+        ids_to_delete = self._get_ids_for_deletion(hashes_deletion_candidates, items_no_back_links.keys())
 
         return ids_to_delete
 
