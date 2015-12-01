@@ -48,7 +48,7 @@ def find_duplicates(db, type_):
                 'count': {'$gt': 1}
             }
         }
-    ])
+    ], cursor={})
 
 
 def deduplicate(master, dups):
@@ -68,7 +68,7 @@ def update(force_start=False):
 def update_main(force_start=False):
     try:
         duplicates = find_duplicates(get_db(), 'obs')
-        for duplicate in duplicates.get('result'):
+        for duplicate in duplicates:
             unique_ids = duplicate.get('uniqueIds')
             deduplicate(unique_ids[0], unique_ids[1:])
     except subprocess.CalledProcessError as e:
