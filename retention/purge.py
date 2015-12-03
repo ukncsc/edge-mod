@@ -7,6 +7,8 @@ from dateutil.relativedelta import relativedelta
 
 class STIXPurge(object):
 
+    PAGE_SIZE = 10000
+
     def __init__(self, max_age_in_months, minimum_sightings):
         if not isinstance(max_age_in_months, int):
             raise TypeError('Integer required for max_age_in_months')
@@ -20,10 +22,7 @@ class STIXPurge(object):
             raise ValueError('minimum_sightings must be greater than 1')
         self.minimum_sightings = minimum_sightings
 
-    def _get_old_external_ids(self):
-        current_date = datetime.utcnow()
-        minimum_date = current_date - relativedelta(months=self.max_age_in_months)
-
+    def _get_old_external_ids(self, minimum_date):
         old_external_ids = get_db().stix.find({
             'created_on': {
                 '$lt': minimum_date
@@ -32,11 +31,18 @@ class STIXPurge(object):
                 '$ne': LOCAL_NAMESPACE
             }
         }, {
-            '_id': 1
-        })
+            '_id': 1,
+            'created_on': 1
+        }).sort('created_on', -1).limit(self.PAGE_SIZE)
+
+        old_external_ids = list(old_external_ids)
+        if not old_external_ids:
+            return None, []
+        new_minimum_date = old_external_ids[-1]['created_on']
+
         old_external_ids = [doc['_id'] for doc in old_external_ids]
 
-        return old_external_ids
+        return new_minimum_date, old_external_ids
 
     @staticmethod
     def _get_items_with_no_back_links(ids_to_search):
@@ -122,30 +128,38 @@ class STIXPurge(object):
             '_id': 1
         })
 
-        return ids_to_delete
+        return [doc['_id'] for doc in ids_to_delete]
 
     def get_purge_candidates(self):
-        old_external_ids = self._get_old_external_ids()
+        current_date = datetime.utcnow()
+        minimum_date = current_date - relativedelta(months=self.max_age_in_months)
 
-        if not old_external_ids:
-            return None
+        ids_to_delete = []
+        while True:
+            minimum_date, old_external_ids = self._get_old_external_ids(minimum_date)
 
-        items_no_back_links = self._get_items_with_no_back_links(old_external_ids)
+            if not old_external_ids:
+                break
 
-        if not items_no_back_links:
-            return None
+            items_no_back_links = self._get_items_with_no_back_links(old_external_ids)
 
-        hashes_deletion_candidates = self._get_hashes_for_possible_deletion(items_no_back_links.values())
+            if not items_no_back_links:
+                continue
 
-        ids_to_delete = self._get_ids_for_deletion(hashes_deletion_candidates, items_no_back_links.keys())
+            hashes_deletion_candidates = self._get_hashes_for_possible_deletion(items_no_back_links.values())
+
+            ids_to_delete += self._get_ids_for_deletion(hashes_deletion_candidates, items_no_back_links.keys())
 
         return ids_to_delete
 
     def run(self):
         ids_to_delete = self.get_purge_candidates()
         if ids_to_delete:
-            get_db().stix.remove({
-                '_id': {
-                    '$in': list(ids_to_delete)
-                }
-            })
+            for page_index in range(0, len(ids_to_delete), self.PAGE_SIZE):
+                chunk_ids = ids_to_delete[page_index : page_index + self.PAGE_SIZE]
+                if chunk_ids:
+                    get_db().stix.remove({
+                        '_id': {
+                            '$in': chunk_ids
+                        }
+                    })
