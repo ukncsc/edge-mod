@@ -13,6 +13,7 @@ def get_views_module(requesting_module=''):
     # Aaarrgghh!
     with mock.patch('adapters.certuk_mod.audit.setup.configure_publisher_actions'):
         with mock.patch('adapters.certuk_mod.builder.customizations.apply_customizations'):
-            views_package_path = imp.load_module('views', *imp.find_module('views')).__path__
-            views = imp.load_module(requesting_module + 'adapters.certuk_mod.views.views', *imp.find_module('views', views_package_path))
-            return views
+            with mock.patch('adapters.certuk_mod.cron.setup.create_jobs'):
+                views_package_path = imp.load_module('views', *imp.find_module('views')).__path__
+                views = imp.load_module(requesting_module + 'adapters.certuk_mod.views.views', *imp.find_module('views', views_package_path))
+                return views

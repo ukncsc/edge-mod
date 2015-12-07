@@ -19,15 +19,17 @@ import adapters.certuk_mod.builder.customizations as cert_builder
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.retention.config import RetentionConfiguration
+from adapters.certuk_mod.cron import setup as cron_setup
 
-from adapters.certuk_mod.audit import setup, status
+from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
 
 
-setup.configure_publisher_actions()
+audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
+cron_setup.create_jobs()
 
 
 objectid_matcher = re.compile(
