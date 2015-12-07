@@ -9,26 +9,19 @@ class STIXPurge(object):
 
     PAGE_SIZE = 10000
 
-    def __init__(self, max_age_in_months, minimum_sightings):
-        if not isinstance(max_age_in_months, int):
-            raise TypeError('Integer required for max_age_in_months')
-        if max_age_in_months < 0:
-            raise ValueError('max_age_in_months must be greater than 0')
-        self.max_age_in_months = max_age_in_months
+    def __init__(self, retention_config):
+        self.retention_config = retention_config
 
-        if not isinstance(minimum_sightings, int):
-            raise TypeError('Integer required for minimum_sightings')
-        if minimum_sightings < 2:
-            raise ValueError('minimum_sightings must be greater than 1')
-        self.minimum_sightings = minimum_sightings
-
-    def _get_old_external_ids(self, minimum_date):
+    def _get_old_external_ids(self, minimum_date, version_epoch):
         old_external_ids = get_db().stix.find({
             'created_on': {
                 '$lt': minimum_date
             },
             'data.idns': {
                 '$ne': LOCAL_NAMESPACE
+            },
+            'cv': {
+                '$lte': str(version_epoch)
             }
         }, {
             '_id': 1,
@@ -99,7 +92,7 @@ class STIXPurge(object):
             {
                 '$match': {
                     'sightings': {
-                        '$lt': self.minimum_sightings
+                        '$lt': self.retention_config.minimum_sightings
                     }
                 }
             }
@@ -117,7 +110,7 @@ class STIXPurge(object):
         }
         # If we are deleting things with more than 1 hash-based sighting, then we must filter by id too, otherwise we
         #  risk deleting items that are from our namespace/have back links/aren't old etc...
-        if (self.minimum_sightings - 1) > 1:
+        if (self.retention_config.minimum_sightings - 1) > 1:
             query.update({
                 '_id': {
                     '$in': ids_old_ext_no_back_links
@@ -132,11 +125,12 @@ class STIXPurge(object):
 
     def get_purge_candidates(self):
         current_date = datetime.utcnow()
-        minimum_date = current_date - relativedelta(months=self.max_age_in_months)
+        minimum_date = current_date - relativedelta(months=self.retention_config.max_age_in_months)
+        version_epoch = int(1000* (minimum_date - datetime(1970, 1, 1)).total_seconds() + 0.5)
 
         ids_to_delete = []
         while True:
-            minimum_date, old_external_ids = self._get_old_external_ids(minimum_date)
+            minimum_date, old_external_ids = self._get_old_external_ids(minimum_date, version_epoch)
 
             if not old_external_ids:
                 break
@@ -156,7 +150,7 @@ class STIXPurge(object):
         ids_to_delete = self.get_purge_candidates()
         if ids_to_delete:
             for page_index in range(0, len(ids_to_delete), self.PAGE_SIZE):
-                chunk_ids = ids_to_delete[page_index : page_index + self.PAGE_SIZE]
+                chunk_ids = ids_to_delete[page_index: page_index + self.PAGE_SIZE]
                 if chunk_ids:
                     get_db().stix.remove({
                         '_id': {

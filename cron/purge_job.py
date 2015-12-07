@@ -33,9 +33,7 @@ def update(force_start=False):
 
 def update_main(force_start=False):
     try:
-        max_age = RetentionConfiguration.get_retention_age_in_months()
-        min_sightings = RetentionConfiguration.get_minimum_number_of_sightings()
-        stix_purge = STIXPurge(max_age, min_sightings)
+        stix_purge = STIXPurge(RetentionConfiguration.get())
         stix_purge.run()
     except Exception as e:
         crashlog.save('purge_job', e.message, traceback.format_exc())
