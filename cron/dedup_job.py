@@ -10,6 +10,8 @@ if not hasattr(settings, 'BASE_DIR'):
 from celery import Celery
 app = Celery('caches', config_source='repository.celeryconfig')
 from edge import LOCAL_ALIAS
+from edge.generic import EdgeObject
+from edge.inbox import InboxItem, InboxProcessorForBuilders
 from edge.tools import FileLockOrFail, CannotLock
 from crashlog import models as crashlog
 from mongoengine.connection import get_db
@@ -51,9 +53,73 @@ def find_duplicates(db, type_):
     ], cursor={})
 
 
-def deduplicate(master, dups):
-    print "%s: %s" % (master, dups)
-    # TODO: the actual de-duplication - can we use edge/remap or edge/inbox::user_reuser ?
+def build_maptable(master, dups):
+    return {dup: master for dup in dups}
+
+
+def find_parents(db, id_):
+    for backlink in db.stix_backlinks.find({r'_id': id_}):
+        for backlink_value in backlink.get(r'value'):
+            yield backlink_value
+
+
+def cleanup_ind(ind):
+    pass
+
+
+def cleanup_obs(obs):
+    if obs.obj.observable_composition is not None:
+        all_refs = getattr(obs.obj.observable_composition, 'observables', [])
+        if len(all_refs) > 1:
+            seen_ids = {}
+            for ref in all_refs:
+                idref = ref.idref
+                if seen_ids.has_key(idref):
+                    sighting_count = getattr(seen_ids[idref], 'sighting_count', 1)
+                    if sighting_count is None:
+                        sighting_count = 1
+                    seen_ids[idref].sighting_count = sighting_count + getattr(ref, 'sighting_count', 1)
+                else:
+                    seen_ids[idref] = ref
+            obs.obj.observable_composition.observables = [ref for ref in seen_ids.itervalues()]
+
+
+def cleanup_ttp(ttp):
+    pass
+
+
+CLEANUP_DISPATCH = {
+    'ind': cleanup_ind,
+    'obs': cleanup_obs,
+    'ttp': cleanup_ttp,
+}
+
+
+def resave(edge_object, api_object):
+    inbox_processor = InboxProcessorForBuilders(
+        user=edge_object.created_by_username
+    )
+    inbox_processor.add(InboxItem(
+        api_object=api_object,
+        etlp=edge_object.etlp,
+        etou=edge_object.etou,
+        esms=edge_object.esms
+    ))
+    inbox_processor.run()
+
+
+def deduplicate(db, master, dups):
+    print "====\n%s: %s" % (master, dups)
+    maptable = build_maptable(master, dups)
+    for dup in dups:
+        # print "\tdup: %s" % dup
+        for parent in find_parents(db, dup):
+            # print "\t\tparent: %s" % parent
+            edge_object = EdgeObject.load(parent)
+            new_api_obj = edge_object.to_ApiObject().remap(maptable)
+            CLEANUP_DISPATCH[edge_object.ty](new_api_obj)
+            print "%s" % new_api_obj.to_dict()
+            resave(edge_object, new_api_obj)
 
 
 @app.task(ignore_result=True, queue='mapreduce')
@@ -67,10 +133,11 @@ def update(force_start=False):
 
 def update_main(force_start=False):
     try:
-        duplicates = find_duplicates(get_db(), 'obs')
+        db = get_db()
+        duplicates = find_duplicates(db, 'obs')
         for duplicate in duplicates:
             unique_ids = duplicate.get('uniqueIds')
-            deduplicate(unique_ids[0], unique_ids[1:])
+            deduplicate(db, unique_ids[0], unique_ids[1:])
     except subprocess.CalledProcessError as e:
         crash_message = '\n'.join([
             'returncode=%d' % e.returncode,
