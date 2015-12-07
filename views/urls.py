@@ -25,7 +25,9 @@ publisher_urls = [
     (r'^ajax/get_sites/$', 'views.ajax_get_sites', None),
     (r'^ajax/set_publish_site/$', 'views.ajax_set_publish_site', None),
     (r'^ajax/publish/$', 'views.ajax_publish', None),
-    (r'^ajax/validate/$', 'views.ajax_validate', None)
+    (r'^ajax/validate/$', 'views.ajax_validate', None),
+    (r'^ajax/get_retention_config/$', 'views.ajax_get_retention_config', None),
+    (r'^ajax/set_retention_config/$', 'views.ajax_set_retention_config', None)
 ]
 
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]
@@ -34,5 +36,5 @@ urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
 navitems = [
     ('External Publisher', 'publisher_discover'),
-    ('External Publisher Configuration', 'publisher_config')
+    ('CERT-UK Configuration', 'publisher_config')
 ]

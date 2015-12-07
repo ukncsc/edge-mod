@@ -13,7 +13,15 @@ class RetentionConfiguration(object):
     __max_age_key = 'max_age_in_months'
     __min_sightings_key = 'minimum_sightings'
 
-    def __init__(self, max_age_in_months, minimum_sightings):
+    def __init__(self, task):
+        if not isinstance(task, PeriodicTaskWithTTL):
+            raise TypeError('The task must be of type PeriodicTaskWithTTL')
+
+        self.task = task
+
+        max_age_in_months = task.kwargs[self.__max_age_key]
+        minimum_sightings = task.kwargs[self.__min_sightings_key]
+
         if not isinstance(max_age_in_months, int):
             raise TypeError('Integer required for max_age_in_months')
         if max_age_in_months < 0:
@@ -26,28 +34,43 @@ class RetentionConfiguration(object):
             raise ValueError('minimum_sightings must be greater than 1')
         self.minimum_sightings = minimum_sightings
 
+    def to_dict(self):
+        return {
+            self.__max_age_key: self.max_age_in_months,
+            self.__min_sightings_key: self.minimum_sightings
+        }
+
     @classmethod
     def get(cls):
         try:
             task = PeriodicTaskWithTTL.objects.get(task=cls.TASK_NAME)
-            return cls(task.kwargs[cls.__max_age_key], task.kwargs[cls.__min_sightings_key])
+            return cls(task)
         except DoesNotExist, e:
             log_error(e, 'adapters/retention/config', 'Configuration for retention task not found')
             raise
 
     @classmethod
     def set(cls, max_age_in_months, minimum_sightings):
-        PeriodicTaskWithTTL(
-            task=cls.TASK_NAME,
-            name='purge',
-            crontab=PeriodicTaskWithTTL.Crontab(month_of_year='*', day_of_month='*', day_of_week='*', hour='0',
-                                                minute='*'),
-            enabled=True,
-            kwargs={
-                cls.__max_age_key: max_age_in_months,
-                cls.__min_sightings_key: minimum_sightings
-            }
-        ).save()
+        try:
+            config = cls.get()
+            task = config.task
+        except DoesNotExist:
+            task = PeriodicTaskWithTTL(
+                task=cls.TASK_NAME,
+                name='purge',
+                crontab=PeriodicTaskWithTTL.Crontab(month_of_year='*', day_of_month='*', day_of_week='*', hour='0',
+                                                    minute='*'),
+                enabled=True
+            )
+        task.kwargs = {
+            cls.__max_age_key: max_age_in_months,
+            cls.__min_sightings_key: minimum_sightings
+        }
+        task.save()
+
+    @classmethod
+    def set_from_dict(cls, config_dict):
+        cls.set(config_dict[cls.__max_age_key], config_dict[cls.__min_sightings_key])
 
     @staticmethod
     def install():

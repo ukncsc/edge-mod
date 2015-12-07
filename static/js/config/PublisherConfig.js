@@ -2,7 +2,7 @@ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
-    "kotemplate!config-modal:./templates/config-modal-content.html"
+    "kotemplate!pub-config-modal:./templates/config-modal-content.html"
 ], function (declare, ko, Modal, publishModalTemplate) {
     "use strict";
 

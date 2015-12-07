@@ -1,8 +1,6 @@
 import os
 import re
 import urllib2
-import inspect
-import traceback
 import json
 
 from django.http import FileResponse, HttpResponseNotFound
@@ -19,7 +17,8 @@ from adapters.certuk_mod.validation.package.validator import PackageValidationIn
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 import adapters.certuk_mod.builder.customizations as cert_builder
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
-from crashlog.models import save as save_crash
+from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
+from adapters.certuk_mod.retention.config import RetentionConfiguration
 
 from adapters.certuk_mod.audit import setup, status
 from adapters.certuk_mod.audit.event import Event
@@ -82,8 +81,8 @@ def not_found(request):
 @login_required
 @superuser_or_staff_role
 def config(request):
-    request.breadcrumbs([("Publisher Configuration", "")])
-    return render(request, "publisher_config.html", {})
+    request.breadcrumbs([("CERT-UK Configuration", "")])
+    return render(request, "config.html", {})
 
 
 @login_required
@@ -132,6 +131,51 @@ def ajax_set_publish_site(request, data):
     }
 
 
+@login_required
+@superuser_or_staff_role
+@json_body
+def ajax_get_retention_config(request, data):
+    success = True
+    error_message = ""
+    config_values = {}
+
+    try:
+        ret_config = RetentionConfiguration.get()
+        config_values = ret_config.to_dict()
+    except Exception, e:
+        success = False
+        error_message = e.message
+        log_error(e, 'Retention config')
+
+    response = {
+        'success': success,
+        'error_message': error_message
+    }
+    response.update(config_values)
+
+    return response
+
+
+@login_required
+@superuser_or_staff_role
+@json_body
+def ajax_set_retention_config(request, data):
+    success = True
+    error_message = ""
+
+    try:
+        RetentionConfiguration.set_from_dict(data)
+    except Exception, e:
+        success = False
+        error_message = e.message
+        log_error(e, 'Retention config')
+
+    return {
+        'success': success,
+        'error_message': error_message
+    }
+
+
 OnPublish = Event()
 OnPublish.set_handler("Write to log", log_activity)
 
@@ -151,11 +195,12 @@ def ajax_publish(request, data):
         Publisher.push_package(package, namespace_info)
     # Narrow down which exceptions we catch...?
     except Exception, e:
-        local_vars = inspect.trace()[-1][0].f_locals
-        if local_vars.get('tr'):
-            stack_trace = traceback.format_exc()
-            save_crash('Publisher', e.message + '\nTAXII Staus Message:\n' + json.dumps(local_vars['tr'].to_dict()),
-                       stack_trace)
+        message = ''
+        taxii_response = get_exception_stack_variable('tr')
+        if taxii_response:
+            message = '\nTAXII Staus Message:\n' + json.dumps(taxii_response.to_dict())
+        log_error(e, 'Publisher', message)
+
         success = False
         error_message = e.message
 
