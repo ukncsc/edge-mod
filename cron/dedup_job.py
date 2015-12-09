@@ -10,11 +10,12 @@ if not hasattr(settings, 'BASE_DIR'):
 from celery import Celery
 app = Celery('caches', config_source='repository.celeryconfig')
 from edge import LOCAL_ALIAS
-from edge.generic import EdgeObject
+from edge.generic import EdgeObject, EdgeError
 from edge.inbox import InboxItem, InboxProcessorForBuilders
 from edge.tools import FileLockOrFail, CannotLock
 from crashlog import models as crashlog
 from mongoengine.connection import get_db
+from users.models import Repository_User
 
 
 LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
@@ -63,28 +64,37 @@ def find_parents(db, id_):
             yield backlink_value
 
 
-def cleanup_ind(ind):
+def cleanup_ind(to_save_objs, ind):
     pass
 
 
-def cleanup_obs(obs):
-    if obs.obj.observable_composition is not None:
-        all_refs = getattr(obs.obj.observable_composition, 'observables', [])
+def get_sighting_count(obs):
+    sighting_count = getattr(obs, 'sighting_count', 1)
+    if sighting_count is None:
+        sighting_count = 1
+    return sighting_count
+
+
+def cleanup_obs(to_save_objs, obs):
+    composition = obs.obj.observable_composition
+    if composition is not None:
+        all_refs = getattr(composition, 'observables', [])
         if len(all_refs) > 1:
             seen_ids = {}
             for ref in all_refs:
                 idref = ref.idref
-                if seen_ids.has_key(idref):
-                    sighting_count = getattr(seen_ids[idref], 'sighting_count', 1)
-                    if sighting_count is None:
-                        sighting_count = 1
-                    seen_ids[idref].sighting_count = sighting_count + getattr(ref, 'sighting_count', 1)
+                if idref in seen_ids:
+                    _, api_object = seen_ids[idref]
+                    api_object.obj.sighting_count = get_sighting_count(api_object.obj) + get_sighting_count(ref)
                 else:
-                    seen_ids[idref] = ref
-            obs.obj.observable_composition.observables = [ref for ref in seen_ids.itervalues()]
+                    api_object = EdgeObject.load(idref).to_ApiObject()
+                    seen_ids[idref] = (ref, api_object)
+                    to_save_objs.add(api_object)
+            composition.observables = [ref for ref, _ in seen_ids.itervalues()]
+            to_save_objs.add(obs)
 
 
-def cleanup_ttp(ttp):
+def cleanup_ttp(to_save_objs, ttp):
     pass
 
 
@@ -95,16 +105,17 @@ CLEANUP_DISPATCH = {
 }
 
 
-def resave(edge_object, api_object):
+def resave(edge_object, api_objects):
     inbox_processor = InboxProcessorForBuilders(
-        user=edge_object.created_by_username
+        user=Repository_User.objects.get(username=getattr(edge_object, 'created_by_username', 'admin'))
     )
-    inbox_processor.add(InboxItem(
-        api_object=api_object,
-        etlp=edge_object.etlp,
-        etou=edge_object.etou,
-        esms=edge_object.esms
-    ))
+    for api_object in api_objects:
+        inbox_processor.add(InboxItem(
+            api_object=api_object,
+            etlp=edge_object.etlp,
+            etou=edge_object.etou,
+            esms=edge_object.esms
+        ))
     inbox_processor.run()
 
 
@@ -112,14 +123,19 @@ def deduplicate(db, master, dups):
     print "====\n%s: %s" % (master, dups)
     maptable = build_maptable(master, dups)
     for dup in dups:
-        # print "\tdup: %s" % dup
         for parent in find_parents(db, dup):
-            # print "\t\tparent: %s" % parent
-            edge_object = EdgeObject.load(parent)
-            new_api_obj = edge_object.to_ApiObject().remap(maptable)
-            CLEANUP_DISPATCH[edge_object.ty](new_api_obj)
-            print "%s" % new_api_obj.to_dict()
-            resave(edge_object, new_api_obj)
+            try:
+                edge_object = EdgeObject.load(parent)
+                api_object = edge_object.to_ApiObject()
+                new_api_obj = api_object.remap(maptable)
+                to_save = set()
+                CLEANUP_DISPATCH[edge_object.ty](to_save, new_api_obj)
+                if len(to_save) > 0:
+                    resave(edge_object, to_save)
+            except EdgeError as e:
+                print "Couldn't find %s" % parent
+    db.stix.remove({'_id': {'$in': dups}})
+    db.stix_backlinks.remove({'_id': {'$in': dups}})
 
 
 @app.task(ignore_result=True, queue='mapreduce')
