@@ -15,9 +15,11 @@ define([
         constructor: function () {
             this.age = ko.observable();
             this.sightings = ko.observable();
+            this.backLinks = ko.observable();
 
             this.savedAge = ko.observable();
             this.savedSightings = ko.observable();
+            this.savedBackLinks = ko.observable();
 
             this.gotConfig = ko.observable(false);
 
@@ -31,8 +33,12 @@ define([
                 if (response["success"]) {
                     this.age(response["max_age_in_months"]);
                     this.savedAge(response["max_age_in_months"]);
+
                     this.sightings(response["minimum_sightings"]);
                     this.savedSightings(response["minimum_sightings"]);
+
+                    this.backLinks(response["minimum_back_links"]);
+                    this.savedBackLinks(response["minimum_back_links"]);
                 } else {
                     var errorModal = new Modal({
                     title: "Error",
@@ -45,7 +51,12 @@ define([
         },
 
         _canSave: function () {
-            return this.gotConfig() && (this.age() != this.savedAge()) || (this.sightings() != this.savedSightings());
+            return this.gotConfig() &&
+                (
+                    this.age() != this.savedAge() ||
+                    this.sightings() != this.savedSightings() ||
+                    this.backLinks() != this.savedBackLinks()
+                );
         },
 
         _save: function (modal) {
@@ -63,6 +74,12 @@ define([
                 errors.push("The minimum sightings must be greater than one.");
             }
 
+            if (!inputIsInteger(this.backLinks())) {
+                errors.push("The minimum back links must be an integer.");
+            } else if (this.backLinks() < 1) {
+                errors.push("The minimum back links must be greater than zero.");
+            }
+
             var modalContent = modal.contentData;
             if (errors.length > 0) {
                 modalContent.waitingForResponse(false);
@@ -76,7 +93,8 @@ define([
 
                 postJSON("../ajax/set_retention_config/", {
                     max_age_in_months: Number(this.age()),
-                    minimum_sightings: Number(this.sightings())
+                    minimum_sightings: Number(this.sightings()),
+                    minimum_back_links: Number(this.backLinks())
                 }, function (response) {
                     modalContent.waitingForResponse(false);
                     modal.getButtonByLabel("Close").disabled(false);
@@ -95,6 +113,7 @@ define([
                     if (success) {
                         this.savedAge(this.age());
                         this.savedSightings(this.sightings());
+                        this.savedBackLinks(this.backLinks());
                     }
                 }.bind(this));
             }

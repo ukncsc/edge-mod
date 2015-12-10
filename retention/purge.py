@@ -38,33 +38,41 @@ class STIXPurge(object):
         return new_minimum_date, old_external_ids
 
     @staticmethod
-    def _get_items_with_no_back_links(ids_to_search):
-        with_back_link_ids = get_db().stix_backlinks.find({
+    def _get_items_under_link_threshold(ids_to_search, minimum_back_links):
+        over_threshold_query = {
             '_id': {
                 '$in': ids_to_search
             }
-        }, {
+        }
+        if minimum_back_links > 1:
+            # There's no easy way of getting the length of an object in Mongo,
+            # so we need a $where clause which uses JavaScript... :(
+            # Note that if an item exists in stix_backlinks, then it will have
+            # at least one entry in value
+            over_threshold_query['$where'] = 'Object.keys(this.value).length >= %s' % minimum_back_links
+
+        over_link_threshold_ids = get_db().stix_backlinks.find(over_threshold_query, {
             '_id': 1
             # stix_backlinks doesn't contain the hash unfortunately...
         })
-        with_back_link_ids = [doc['_id'] for doc in with_back_link_ids]
+        over_link_threshold_ids = [doc['_id'] for doc in over_link_threshold_ids]
 
-        if len(ids_to_search) == len(with_back_link_ids):
+        if len(ids_to_search) == len(over_link_threshold_ids):
             return {}
 
-        no_back_link_ids = list(set(ids_to_search) - set(with_back_link_ids))
+        under_link_threshold_ids = list(set(ids_to_search) - set(over_link_threshold_ids))
 
-        no_back_links_objects = get_db().stix.find({
+        under_link_threshold_objects = get_db().stix.find({
             '_id': {
-                '$in': no_back_link_ids
+                '$in': under_link_threshold_ids
             }
         }, {
             '_id': 1,
             'data.hash': 1
         })
-        no_back_links_objects = {doc['_id']: doc['data']['hash'] for doc in no_back_links_objects}
+        under_link_threshold_objects = {doc['_id']: doc['data']['hash'] for doc in under_link_threshold_objects}
 
-        return no_back_links_objects
+        return under_link_threshold_objects
 
     def _get_hashes_for_possible_deletion(self, qualifying_hashes):
         hash_counts = get_db().stix.aggregate([
@@ -126,7 +134,7 @@ class STIXPurge(object):
     def get_purge_candidates(self):
         current_date = datetime.utcnow()
         minimum_date = current_date - relativedelta(months=self.retention_config.max_age_in_months)
-        version_epoch = int(1000* (minimum_date - datetime(1970, 1, 1)).total_seconds() + 0.5)
+        version_epoch = int(1000 * (minimum_date - datetime(1970, 1, 1)).total_seconds() + 0.5)
 
         ids_to_delete = []
         while True:
@@ -135,14 +143,15 @@ class STIXPurge(object):
             if not old_external_ids:
                 break
 
-            items_no_back_links = self._get_items_with_no_back_links(old_external_ids)
+            items_under_link_threshold = self._get_items_under_link_threshold(old_external_ids,
+                                                                              self.retention_config.minimum_back_links)
 
-            if not items_no_back_links:
+            if not items_under_link_threshold:
                 continue
 
-            hashes_deletion_candidates = self._get_hashes_for_possible_deletion(items_no_back_links.values())
+            hashes_deletion_candidates = self._get_hashes_for_possible_deletion(items_under_link_threshold.values())
 
-            ids_to_delete += self._get_ids_for_deletion(hashes_deletion_candidates, items_no_back_links.keys())
+            ids_to_delete += self._get_ids_for_deletion(hashes_deletion_candidates, items_under_link_threshold.keys())
 
         return ids_to_delete
 

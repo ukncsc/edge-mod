@@ -9,9 +9,11 @@ class RetentionConfiguration(object):
     TASK_NAME = 'adapters.certuk_mod.cron.purge_job.update'
     DEFAULT_MAX_AGE_IN_MONTHS = 36
     DEFAULT_MIN_SIGHTINGS = 2
+    DEFAULT_MIN_BACK_LINKS = 1
 
     __max_age_key = 'max_age_in_months'
     __min_sightings_key = 'minimum_sightings'
+    __min_back_links_key = 'minimum_back_links'
 
     def __init__(self, task):
         if not isinstance(task, PeriodicTaskWithTTL):
@@ -19,8 +21,9 @@ class RetentionConfiguration(object):
 
         self.task = task
 
-        max_age_in_months = task.kwargs[self.__max_age_key]
-        minimum_sightings = task.kwargs[self.__min_sightings_key]
+        max_age_in_months = task.kwargs.get(self.__max_age_key, self.DEFAULT_MAX_AGE_IN_MONTHS)
+        minimum_sightings = task.kwargs.get(self.__min_sightings_key, self.DEFAULT_MIN_SIGHTINGS)
+        minimum_back_links = task.kwargs.get(self.__min_back_links_key, self.DEFAULT_MIN_BACK_LINKS)
 
         if not isinstance(max_age_in_months, int):
             raise TypeError('Integer required for max_age_in_months')
@@ -34,10 +37,17 @@ class RetentionConfiguration(object):
             raise ValueError('minimum_sightings must be greater than 1')
         self.minimum_sightings = minimum_sightings
 
+        if not isinstance(minimum_back_links, int):
+            raise TypeError('Integer required for minimum_back_links')
+        if minimum_back_links < 1:
+            raise ValueError('minimum_back_links must be greater than 1')
+        self.minimum_back_links = minimum_back_links
+
     def to_dict(self):
         return {
             self.__max_age_key: self.max_age_in_months,
-            self.__min_sightings_key: self.minimum_sightings
+            self.__min_sightings_key: self.minimum_sightings,
+            self.__min_back_links_key: self.minimum_back_links
         }
 
     @classmethod
@@ -50,7 +60,7 @@ class RetentionConfiguration(object):
             raise
 
     @classmethod
-    def set(cls, max_age_in_months, minimum_sightings):
+    def set(cls, max_age_in_months, minimum_sightings, minimum_back_links):
         try:
             config = cls.get()
             task = config.task
@@ -64,15 +74,18 @@ class RetentionConfiguration(object):
             )
         task.kwargs = {
             cls.__max_age_key: max_age_in_months,
-            cls.__min_sightings_key: minimum_sightings
+            cls.__min_sightings_key: minimum_sightings,
+            cls.__min_back_links_key: minimum_back_links
         }
         task.save()
 
     @classmethod
     def set_from_dict(cls, config_dict):
-        cls.set(config_dict[cls.__max_age_key], config_dict[cls.__min_sightings_key])
+        cls.set(config_dict[cls.__max_age_key], config_dict[cls.__min_sightings_key],
+                config_dict[cls.__min_back_links_key])
 
     @staticmethod
     def install():
         return RetentionConfiguration.set(RetentionConfiguration.DEFAULT_MAX_AGE_IN_MONTHS,
-                                          RetentionConfiguration.DEFAULT_MIN_SIGHTINGS)
+                                          RetentionConfiguration.DEFAULT_MIN_SIGHTINGS,
+                                          RetentionConfiguration.DEFAULT_MIN_BACK_LINKS)

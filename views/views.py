@@ -169,7 +169,10 @@ def ajax_set_retention_config(request, data):
         RetentionConfiguration.set_from_dict(data)
     except Exception, e:
         success = False
-        error_message = e.message
+        if isinstance(e, KeyError):
+            error_message = 'value missing: %s' % e.message
+        else:
+            error_message = e.message
         log_error(e, 'Retention config')
 
     return {
