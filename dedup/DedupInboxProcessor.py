@@ -12,10 +12,10 @@ def get_sighting_count(obs):
 
 def update_sighting_counts(additional_sightings, user):
     inbox_processor = InboxProcessorForBuilders(user=user)
-    for id_, count in additional_sightings:
+    for id_, count in additional_sightings.iteritems():
         edge_object = EdgeObject.load(id_)
         api_object = edge_object.to_ApiObject()
-        api_object.obj.sighting_count = get_sighting_count(api_object.obs) + count
+        api_object.obj.sighting_count = get_sighting_count(api_object.obj) + count
         inbox_processor.add(InboxItem(
             api_object=api_object,
             etlp=edge_object.etlp,
@@ -29,7 +29,6 @@ def existing_hash_dedup(contents, hashes, user):
     db = get_db()
 
     existing_items = db.stix.find({
-        'created_by': user.id,
         'data.hash': {
             '$in': hashes.values()
         }
