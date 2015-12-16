@@ -1,4 +1,4 @@
-from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, anti_ping_pong
+from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong
 from edge.generic import EdgeObject
 from mongoengine.connection import get_db
 
@@ -63,12 +63,44 @@ def existing_hash_dedup(contents, hashes, user):
 
 
 def new_hash_dedup(contents, hashes, user):
-    return contents
+    hash_to_ids = {}
+    for id_, hash_ in sorted(hashes.iteritems()):
+        hash_to_ids.setdefault(hash_, []).append(id_)
+
+    maptable = {}
+    for hash_, ids in hash_to_ids.iteritems():
+        if len(ids) > 1:
+            master = ids[0]
+            for dup in ids[1:]:
+                maptable[dup] = master
+
+    out = {}
+    additional_sightings = {}
+    for id_, io in contents.iteritems():
+        if id_ not in maptable:
+            io.api_object = io.api_object.remap(maptable)
+            out[id_] = io
+        elif io.api_object.ty == 'obs':
+            existing_id = maptable[id_]
+            sightings_for_duplicate = get_sighting_count(io.api_object.obj)
+            additional_sightings[existing_id] = additional_sightings.get(existing_id, 0) + sightings_for_duplicate
+
+    for id_, count in additional_sightings.iteritems():
+        inbox_item = contents.get(id_, None)
+        if inbox_item is not None:
+            api_object = inbox_item.api_object
+            api_object.obj.sighting_count = get_sighting_count(api_object.obj) + count
+
+    removed = len(contents) - len(out)
+    message = ("Merged %d objects in the supplied package based on hashes" % removed) if removed else None
+
+    raise InboxError(message)  # TODO: remove this once we're happy
+    return out, message
 
 
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = [
         anti_ping_pong,  # removes existing STIX objects matched by id
-        existing_hash_dedup,  # removes existing STIX objects matched by hash
+        # existing_hash_dedup,  # removes existing STIX objects matched by hash
         new_hash_dedup  # removes new STIX objects matched by hash
     ]
