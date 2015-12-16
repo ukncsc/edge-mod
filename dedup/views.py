@@ -30,7 +30,8 @@ def ajax_import(request, username):
             'count': ip.saved_count,
             'duration': '%.2f' % elapsed.ms(),
             'message': ip.message,
-            'state': 'success'
+            'state': 'success',
+            'validation_result': ip.validation_result
         }, status=202)
     except (XMLSyntaxError, EntitiesForbidden, InboxError) as e:
         return JsonResponse({

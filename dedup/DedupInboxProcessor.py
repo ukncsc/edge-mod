@@ -3,6 +3,7 @@ from edge.generic import create_package, EdgeObject
 from mongoengine.connection import get_db
 from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
+from .edges import dedup_collections
 
 
 def get_sighting_count(obs):
@@ -96,14 +97,16 @@ def new_hash_dedup(contents, hashes, user):
     removed = len(contents) - len(out)
     message = ("Merged %d objects in the supplied package based on hashes" % removed) if removed else None
 
-    raise InboxError(message)  # TODO: remove this once we're happy
+    for id_, io in out.iteritems():
+        dedup_collections(io.api_object.ty, io.api_object.obj)
+
     return out, message
 
 
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = [
         anti_ping_pong,  # removes existing STIX objects matched by id
-        # existing_hash_dedup,  # removes existing STIX objects matched by hash
+        existing_hash_dedup,  # removes existing STIX objects matched by hash
         new_hash_dedup  # removes new STIX objects matched by hash
     ]
 
