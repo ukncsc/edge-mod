@@ -1,6 +1,8 @@
 from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong
-from edge.generic import EdgeObject
+from edge.generic import create_package, EdgeObject
 from mongoengine.connection import get_db
+from adapters.certuk_mod.validation import ValidationStatus
+from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 
 
 def get_sighting_count(obs):
@@ -104,3 +106,30 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         # existing_hash_dedup,  # removes existing STIX objects matched by hash
         new_hash_dedup  # removes new STIX objects matched by hash
     ]
+
+    def __init__(self, user, trustgroups=None, streams=None):
+        super(DedupInboxProcessor, self).__init__(user, trustgroups, streams)
+        self.validation_result = {}
+
+    @staticmethod
+    def validate(contents):
+        if not contents:
+            return None
+        # At this point, only things that don't already exist in the database will be in contents...
+        # We can exclude packages, as they only serve as containers for other objects.
+        contents_to_validate = {
+            id_: inbox_item.api_object for id_, inbox_item in contents.iteritems() if inbox_item.api_object.ty != 'pkg'
+        }
+        # Wrap the contents in a package for convenience so they can be easily validated:
+        package_for_validation = create_package(contents_to_validate)
+        validation_result = PackageValidationInfo.validate(package_for_validation)
+
+        return validation_result.validation_dict
+
+    def apply_filters(self):
+        super(DedupInboxProcessor, self).apply_filters()
+        self.validation_result = DedupInboxProcessor.validate(self.contents)
+        for id_, object_fields in self.validation_result.iteritems():
+            for field_name in object_fields:
+                if object_fields[field_name]['status'] == ValidationStatus.ERROR:
+                    raise InboxError('Validation failed')

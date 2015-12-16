@@ -22,6 +22,7 @@ def ajax_import(request, username):
         return JsonResponse({}, status=401)
 
     elapsed = StopWatch()
+    ip = None
     try:
         ip = DedupInboxProcessor(user=request.user, streams=[(request, None)])
         ip.run()
@@ -35,7 +36,8 @@ def ajax_import(request, username):
         return JsonResponse({
             'duration': '%.2f' % elapsed.ms(),
             'message': e.message,
-            'state': 'invalid'
+            'state': 'invalid',
+            'validation_result': ip.validation_result if isinstance(ip, DedupInboxProcessor) else None
         }, status=400)
     except Exception as e:
         log_error(e, 'adapters/dedup/import', 'Import failed')
