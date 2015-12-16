@@ -89,8 +89,8 @@ class STIXPurge(object):
                     'sightings': {
                         '$sum': {
                             '$cond': [
-                                '$data.api.sightings_count',
-                                '$data.api.sightings_count',
+                                '$data.api.sighting_count',
+                                '$data.api.sighting_count',
                                 1
                             ]
                         }
