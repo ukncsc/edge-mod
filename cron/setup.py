@@ -10,7 +10,6 @@ tasks = (
         'hour': '0',
         'installer': RetentionConfiguration.install
     },
-    # {'name': 'dedup', 'task': 'adapters.certuk_mod.cron.dedup_job.update', 'interval': 15}
 )
 
 
