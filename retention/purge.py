@@ -166,3 +166,8 @@ class STIXPurge(object):
                             '$in': chunk_ids
                         }
                     })
+                    get_db().stix_backlinks.remove({
+                        '_id': {
+                            '$in': chunk_ids
+                        }
+                    })
