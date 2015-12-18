@@ -165,7 +165,6 @@ def ajax_get_retention_config(request, data):
 def ajax_set_retention_config(request, data):
     success = True
     error_message = ""
-    ids_to_delete = None
 
     try:
         RetentionConfiguration.set_from_dict(data)
