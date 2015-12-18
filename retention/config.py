@@ -10,10 +10,14 @@ class RetentionConfiguration(object):
     DEFAULT_MAX_AGE_IN_MONTHS = 36
     DEFAULT_MIN_SIGHTINGS = 2
     DEFAULT_MIN_BACK_LINKS = 1
+    DEFAULT_HOUR = '00'
+    DEFAULT_MINUTE = '00'
+    DEFAULT_TIME = DEFAULT_HOUR + ':' + DEFAULT_MINUTE
 
     __max_age_key = 'max_age_in_months'
     __min_sightings_key = 'minimum_sightings'
     __min_back_links_key = 'minimum_back_links'
+    __time_key = 'time'
 
     def __init__(self, task):
         if not isinstance(task, PeriodicTaskWithTTL):
@@ -43,11 +47,24 @@ class RetentionConfiguration(object):
             raise ValueError('minimum_back_links must be greater than 1')
         self.minimum_back_links = minimum_back_links
 
+        try:
+            hour = int(task.crontab.hour)
+            minute = int(task.crontab.minute)
+        except ValueError:
+            raise ValueError("Invalid time")
+
+        if not 0 <= hour < 24 or not 0 <= minute < 60:
+            raise ValueError("Time outside valid range")
+
+        self.hour = task.crontab.hour
+        self.minute = task.crontab.minute
+
     def to_dict(self):
         return {
             self.__max_age_key: self.max_age_in_months,
             self.__min_sightings_key: self.minimum_sightings,
-            self.__min_back_links_key: self.minimum_back_links
+            self.__min_back_links_key: self.minimum_back_links,
+            self.__time_key: '%02d:%02d' % (int(self.hour), int(self.minute))
         }
 
     @classmethod
@@ -60,7 +77,7 @@ class RetentionConfiguration(object):
             raise
 
     @classmethod
-    def set(cls, max_age_in_months, minimum_sightings, minimum_back_links):
+    def set(cls, max_age_in_months, minimum_sightings, minimum_back_links, time):
         try:
             config = cls.get()
             task = config.task
@@ -68,8 +85,8 @@ class RetentionConfiguration(object):
             task = PeriodicTaskWithTTL(
                 task=cls.TASK_NAME,
                 name='purge',
-                crontab=PeriodicTaskWithTTL.Crontab(month_of_year='*', day_of_month='*', day_of_week='*', hour='0',
-                                                    minute='*'),
+                crontab=PeriodicTaskWithTTL.Crontab(month_of_year='*', day_of_month='*', day_of_week='*',
+                                                    hour=cls.DEFAULT_HOUR, minute=cls.DEFAULT_MINUTE),
                 enabled=True
             )
         task.kwargs = {
@@ -77,15 +94,23 @@ class RetentionConfiguration(object):
             cls.__min_sightings_key: minimum_sightings,
             cls.__min_back_links_key: minimum_back_links
         }
+        try:
+            task.crontab.hour = time.split(':')[0]
+            task.crontab.minute = time.split(':')[1]
+        except:
+            raise ValueError("Invalid time")
+
         task.save()
+        return cls.get()
 
     @classmethod
     def set_from_dict(cls, config_dict):
-        cls.set(config_dict[cls.__max_age_key], config_dict[cls.__min_sightings_key],
-                config_dict[cls.__min_back_links_key])
+        return cls.set(config_dict[cls.__max_age_key], config_dict[cls.__min_sightings_key],
+                       config_dict[cls.__min_back_links_key], config_dict[cls.__time_key])
 
     @staticmethod
     def install():
         return RetentionConfiguration.set(RetentionConfiguration.DEFAULT_MAX_AGE_IN_MONTHS,
                                           RetentionConfiguration.DEFAULT_MIN_SIGHTINGS,
-                                          RetentionConfiguration.DEFAULT_MIN_BACK_LINKS)
+                                          RetentionConfiguration.DEFAULT_MIN_BACK_LINKS,
+                                          RetentionConfiguration.DEFAULT_TIME)

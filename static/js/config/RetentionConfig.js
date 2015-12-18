@@ -3,7 +3,7 @@ define([
     "knockout",
     "common/modal/Modal",
     "kotemplate!ret-config-modal:./templates/config-modal-content.html"
-], function (declare, ko, Modal, configModalTempalte) {
+], function (declare, ko, Modal, configModalTemplate) {
     "use strict";
 
     function inputIsInteger (value) {
@@ -16,10 +16,12 @@ define([
             this.age = ko.observable();
             this.sightings = ko.observable();
             this.backLinks = ko.observable();
+            this.time = ko.observable();
 
             this.savedAge = ko.observable();
             this.savedSightings = ko.observable();
             this.savedBackLinks = ko.observable();
+            this.savedTime = ko.observable();
 
             this.gotConfig = ko.observable(false);
 
@@ -39,6 +41,9 @@ define([
 
                     this.backLinks(response["minimum_back_links"]);
                     this.savedBackLinks(response["minimum_back_links"]);
+
+                    this.time(response["time"]);
+                    this.savedTime(response["time"]);
                 } else {
                     var errorModal = new Modal({
                     title: "Error",
@@ -55,7 +60,8 @@ define([
                 (
                     this.age() != this.savedAge() ||
                     this.sightings() != this.savedSightings() ||
-                    this.backLinks() != this.savedBackLinks()
+                    this.backLinks() != this.savedBackLinks() ||
+                    this.time() != this.savedTime()
                 );
         },
 
@@ -80,6 +86,10 @@ define([
                 errors.push("The minimum back links must be greater than zero.");
             }
 
+            if (!this.time()) {
+                errors.push("A time must be configured.")
+            }
+
             var modalContent = modal.contentData;
             if (errors.length > 0) {
                 modalContent.waitingForResponse(false);
@@ -94,7 +104,8 @@ define([
                 postJSON("../ajax/set_retention_config/", {
                     max_age_in_months: Number(this.age()),
                     minimum_sightings: Number(this.sightings()),
-                    minimum_back_links: Number(this.backLinks())
+                    minimum_back_links: Number(this.backLinks()),
+                    time: this.time()
                 }, function (response) {
                     modalContent.waitingForResponse(false);
                     modal.getButtonByLabel("Close").disabled(false);
@@ -114,6 +125,7 @@ define([
                         this.savedAge(this.age());
                         this.savedSightings(this.sightings());
                         this.savedBackLinks(this.backLinks());
+                        this.savedTime(this.time());
                     }
                 }.bind(this));
             }
@@ -129,7 +141,7 @@ define([
                 title: "Save settings",
                 titleIcon: "glyphicon-cloud-upload",
                 contentData: contentData,
-                contentTemplate: configModalTempalte.id,
+                contentTemplate: configModalTemplate.id,
                 onShow: this._save.bind(this),
                 buttonData: [
                     {

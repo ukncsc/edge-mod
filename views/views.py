@@ -25,6 +25,7 @@ from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
+from adapters.certuk_mod.retention.purge import STIXPurge
 
 
 audit_setup.configure_publisher_actions()
@@ -164,6 +165,7 @@ def ajax_get_retention_config(request, data):
 def ajax_set_retention_config(request, data):
     success = True
     error_message = ""
+    ids_to_delete = None
 
     try:
         RetentionConfiguration.set_from_dict(data)
