@@ -28,9 +28,9 @@ def duplicates_finder(request):
 def ajax_import(request, username):
     if not request.method == 'POST':
         return JsonResponse({}, status=405)
-    if not request.META.get('Accept') == 'application/json':
+    if not request.META.get('HTTP_ACCEPT') == 'application/json':
         return JsonResponse({}, status=406)
-    if not request.META.get('Content-Type') in {'application/xml', 'text/xml'}:
+    if not request.META.get('CONTENT_TYPE') in {'application/xml', 'text/xml'}:
         return JsonResponse({}, status=415)
 
     try:

@@ -13,7 +13,7 @@ LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
 
 def find_duplicates(type_):
     def transform(cursor):
-        return [{'original': row.get('uniqueIds')[0], 'duplicates': row.get('uniqueIds')[1:]} for row in cursor]
+        return {row.get('uniqueIds')[0]: row.get('uniqueIds')[1:] for row in cursor}
 
     return transform(get_db().stix.aggregate([
         {
