@@ -108,9 +108,12 @@ class RetentionConfiguration(object):
         return cls.set(config_dict[cls.__max_age_key], config_dict[cls.__min_sightings_key],
                        config_dict[cls.__min_back_links_key], config_dict[cls.__time_key])
 
-    @staticmethod
-    def install():
-        return RetentionConfiguration.set(RetentionConfiguration.DEFAULT_MAX_AGE_IN_MONTHS,
-                                          RetentionConfiguration.DEFAULT_MIN_SIGHTINGS,
-                                          RetentionConfiguration.DEFAULT_MIN_BACK_LINKS,
-                                          RetentionConfiguration.DEFAULT_TIME)
+    @classmethod
+    def install(cls):
+        try:
+            return cls.get()
+        except DoesNotExist:
+            return RetentionConfiguration.set(RetentionConfiguration.DEFAULT_MAX_AGE_IN_MONTHS,
+                                              RetentionConfiguration.DEFAULT_MIN_SIGHTINGS,
+                                              RetentionConfiguration.DEFAULT_MIN_BACK_LINKS,
+                                              RetentionConfiguration.DEFAULT_TIME)
