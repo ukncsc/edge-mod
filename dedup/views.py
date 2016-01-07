@@ -22,10 +22,26 @@ from .duplicates_finder import find_duplicates
 @login_required
 def duplicates_finder(request):
     request.breadcrumbs([("Duplicates Finder", "")])
-    duplicates = {typ: find_duplicates(typ) for typ in CLIPPY_TYPES.iterkeys()}
-    return render(request, "duplicates_finder.html", {
-        'duplicates': dumps(duplicates)
-    })
+    return render(request, "duplicates_finder.html", {})
+
+
+@login_required_ajax
+def ajax_load_duplicates(request, typ):
+    try:
+        if typ not in CLIPPY_TYPES.iterkeys():
+            raise ValueError("Illegal value for 'typ': " + typ)
+        duplicates = find_duplicates(typ)
+        return JsonResponse({
+            typ: duplicates
+        }, status=200)
+    except ValueError as e:
+        return JsonResponse({
+            'message': e.message
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'message': e.message
+        }, status=500)
 
 
 @login_required_ajax

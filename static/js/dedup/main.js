@@ -6,10 +6,9 @@ require([
     "domReady!"
 ], function (ko, Modal, DuplicateModel, errorContentTemplate) {
     try {
-        ko.applyBindings(
-            new DuplicateModel(window["dups"]),
-            document.getElementById("content")
-        );
+        var duplicateModel = new DuplicateModel();
+        ko.applyBindings(duplicateModel, document.getElementById("content"));
+        duplicateModel.loadDuplicates();
     } catch (e) {
         var errorModal = new Modal({
             title: "Error",

@@ -11,6 +11,16 @@
 
 {% block body-content %}
     <div class="container">
+        <!-- ko ifnot: selectedType -->
+        <div class="jumbotron">
+            <img src="/static/img/soltra_flame_anim.gif" class="pull-left" style="margin:2em">
+            <div>
+                <h1>Scanning for duplicates&hellip;</h1>
+                <p>This may take a few minutes. Please be patient.</p>
+            </div>
+        </div>
+        <!-- /ko -->
+        <!-- ko if: selectedType -->
         <div class="row">
             <div data-bind="template:'duplicates-type-selector'"></div>
         </div>
@@ -18,6 +28,7 @@
             <div data-bind="template:'duplicates-original-selector'"></div>
             <div data-bind="template:'duplicates-duplicate-selector'"></div>
         </div>
+        <!-- /ko -->
     </div>
 {% endblock %}
 
@@ -33,7 +44,6 @@
             },
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
-        var dups = Object.freeze({{ duplicates|safe }});
     </script>
     <script src="/adapter/certuk_mod{% static 'js/require.js'%}" data-main="dedup/main"></script>
 {% endblock %}

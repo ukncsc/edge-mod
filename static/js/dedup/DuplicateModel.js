@@ -12,11 +12,11 @@ define([
     var type_labels = Object.freeze({
         "ind": "Indicator",
         "obs": "Observable",
-        "act": "Threat Actor",
         "ttp": "TTP",
+        "coa": "Course Of Action",
+        "act": "Threat Actor",
         "cam": "Campaign",
         "inc": "Incident",
-        "coa": "Course Of Action",
         "tgt": "Exploit Target",
         "pkg": "Package"
     });
@@ -32,12 +32,9 @@ define([
 
     return declare(null, {
         declaredClass: "DuplicateModel",
-        constructor: function (duplicates) {
-            this.duplicates = function () {
-                return duplicates;
-            };
-
-            this.selectedType = ko.observable(null);
+        constructor: function () {
+            this.duplicates = ko.observable({});
+            this.selectedType = ko.observable(null).extend(rate_limited);
             this.originalsLabel = ko.observable("Original");
             this.selectedOriginalId = ko.observable(null).extend(rate_limited);
             this.selectedOriginal = ko.observable(null);
@@ -47,13 +44,17 @@ define([
 
             this.typesWithDuplicates = ko.computed(function () {
                 var typesWithDuplicates = [];
-                // TODO: sort: Indicator, Observable, TTP, then alphabetic
-                ko.utils.objectForEach(this.duplicates(), function (key, value) {
+                var duplicates = this.duplicates();
+                ko.utils.objectForEach(type_labels, function (type, label) {
+                    var value = duplicates[type] || {};
                     var numDups = Object.keys(value).length;
                     if (numDups > 0) {
-                        typesWithDuplicates.push({type: key, label: buildLabel(type_labels[key], "", numDups)});
+                        typesWithDuplicates.push({type: type, label: buildLabel(label, "", numDups)});
                     }
                 });
+                if (typesWithDuplicates.length > 0) {
+                    this.selectedType(typesWithDuplicates[0].type);
+                }
                 return typesWithDuplicates;
             }, this);
             this.originalsForType = ko.computed(function () {
@@ -74,6 +75,31 @@ define([
 
             this.selectedOriginalId.subscribe(this._onOriginalChanged, this);
             this.selectedDuplicateId.subscribe(this._onDuplicateChanged, this);
+        },
+
+        loadDuplicates: function () {
+            var types = Object.keys(type_labels);
+            var allDuplicates = {};
+            var numLoading = types.length;
+            ko.utils.arrayForEach(types, function (type) {
+                getJSON("/adapter/certuk_mod/duplicates/" + type, null, function (data) {
+                    this._onDuplicateLoaded(allDuplicates, data, --numLoading);
+                }.bind(this), function (error) {
+                    console.error(error);
+                    this._onDuplicateLoaded(allDuplicates, null, --numLoading);
+                }.bind(this));
+            }.bind(this));
+        },
+
+        _onDuplicateLoaded: function (allDuplicates, duplicate, numLoading) {
+            ko.utils.extend(allDuplicates, duplicate);
+            if (numLoading === 0) {
+                this._onDuplicatesLoaded(allDuplicates);
+            }
+        },
+
+        _onDuplicatesLoaded: function (duplicates) {
+            this.duplicates(duplicates);
         },
 
         _onOriginalChanged: function (newId) {
