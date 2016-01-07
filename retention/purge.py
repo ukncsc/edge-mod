@@ -1,4 +1,5 @@
 
+import os
 from mongoengine.connection import get_db
 from edge import LOCAL_NAMESPACE
 from datetime import datetime
@@ -7,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 
 class STIXPurge(object):
 
-    PAGE_SIZE = 10000
+    PAGE_SIZE = 5000
 
     def __init__(self, retention_config):
         self.retention_config = retention_config
@@ -19,6 +20,11 @@ class STIXPurge(object):
             },
             'data.idns': {
                 '$ne': LOCAL_NAMESPACE
+            },
+            'data.summary.type': {
+                # Exclude Observable Compositions, since they will only ever have at most 1 back link
+                # We sweep up any orphaned Observable Compositions later...
+                '$ne': 'ObservableComposition'
             },
             'cv': {
                 '$lte': str(version_epoch)
@@ -38,18 +44,23 @@ class STIXPurge(object):
         return new_minimum_date, old_external_ids
 
     @staticmethod
+    def __get_back_links_filter_where_clause(minimum_back_links):
+        with open(os.path.join(os.path.dirname(__file__), 'back-links-filter.js')) as _file:
+            where_clause = _file.read()
+            return where_clause.replace('excludePackages', '').replace('minimumBackLinks', str(minimum_back_links))
+
+    @staticmethod
     def _get_items_under_link_threshold(ids_to_search, minimum_back_links):
         over_threshold_query = {
             '_id': {
                 '$in': ids_to_search
-            }
-        }
-        if minimum_back_links > 1:
+            },
             # There's no easy way of getting the length of an object in Mongo,
             # so we need a $where clause which uses JavaScript... :(
             # Note that if an item exists in stix_backlinks, then it will have
             # at least one entry in value
-            over_threshold_query['$where'] = 'Object.keys(this.value).length >= %s' % minimum_back_links
+            '$where': STIXPurge.__get_back_links_filter_where_clause(minimum_back_links)
+        }
 
         over_link_threshold_ids = get_db().stix_backlinks.find(over_threshold_query, {
             '_id': 1
@@ -131,9 +142,52 @@ class STIXPurge(object):
 
         return [doc['_id'] for doc in ids_to_delete]
 
-    def get_purge_candidates(self):
-        current_date = datetime.utcnow()
-        minimum_date = current_date - relativedelta(months=self.retention_config.max_age_in_months)
+    @staticmethod
+    def _get_orphaned_external_observable_compositions():
+        composition_ids = get_db().stix.find({
+            'data.summary.type': 'ObservableComposition',
+            'data.idns': {
+                '$ne': LOCAL_NAMESPACE
+            }
+        }, {
+            '_id': 1
+        })
+        composition_ids = [doc['_id'] for doc in composition_ids]
+        orphaned_ids = []
+
+        for page_index in range(0, len(composition_ids), STIXPurge.PAGE_SIZE):
+            chunk_ids = composition_ids[page_index: page_index + STIXPurge.PAGE_SIZE]
+            with_back_links_chunk = get_db().stix_backlinks.find({
+                '_id': {
+                    '$in': chunk_ids
+                }
+            }, {
+                '_id': 1
+            })
+            orphaned_ids += list(set(chunk_ids) - set([doc['_id'] for doc in with_back_links_chunk]))
+
+        return orphaned_ids
+
+    @staticmethod
+    def _get_old_packages(minimum_date, include_internal=True):
+        query = {
+            'created_on': {
+                '$lt': minimum_date
+            },
+            'data.type': 'pkg'
+        }
+        if not include_internal:
+            query.update({
+                'data.idns': {
+                    '$ne': LOCAL_NAMESPACE
+                }
+            })
+        packages_cursor = get_db().stix.find(query, {
+            '_id': 1
+        })
+        return [doc['_id'] for doc in packages_cursor]
+
+    def get_purge_candidates(self, minimum_date):
         version_epoch = int(1000 * (minimum_date - datetime(1970, 1, 1)).total_seconds() + 0.5)
 
         ids_to_delete = []
@@ -155,19 +209,69 @@ class STIXPurge(object):
 
         return ids_to_delete
 
+    @staticmethod
+    def remove(ids):
+        if not ids:
+            return
+
+        get_db().stix_backlinks.remove({
+            '_id': {
+                '$in': ids
+            }
+        })
+        edges_cursor = get_db().stix.find({
+            '_id': {
+                '$in': ids
+            }
+        }, {
+            '_id': 1,
+            'data.edges': 1
+        })
+        edges = []
+        ids_with_edges = []
+        for doc in edges_cursor:
+            doc_edges = doc.get('data', {}).get('edges', {})
+            if doc_edges:
+                ids_with_edges.append(doc['_id'])
+                edges += [edge_id for edge_id in doc_edges]
+
+        if ids_with_edges:
+            get_db().stix_backlinks.update({
+                '_id': {
+                    '$in': edges
+                }
+            }, {
+                '$unset': {
+                    'value.%s' % old_parent: 1 for old_parent in ids_with_edges
+                }
+            }, multi=True)
+
+        # Un-setting some back link values may result in entries which are empty...
+        get_db().stix_backlinks.remove({
+            'value': {
+                '$eq': {
+
+                }
+            }
+        })
+
+        get_db().stix.remove({
+            '_id': {
+                '$in': ids
+            }
+        })
+
     def run(self):
-        ids_to_delete = self.get_purge_candidates()
-        if ids_to_delete:
-            for page_index in range(0, len(ids_to_delete), self.PAGE_SIZE):
-                chunk_ids = ids_to_delete[page_index: page_index + self.PAGE_SIZE]
-                if chunk_ids:
-                    get_db().stix.remove({
-                        '_id': {
-                            '$in': chunk_ids
-                        }
-                    })
-                    get_db().stix_backlinks.remove({
-                        '_id': {
-                            '$in': chunk_ids
-                        }
-                    })
+        current_date = datetime.utcnow()
+        minimum_date = current_date - relativedelta(months=self.retention_config.max_age_in_months)
+
+        # Get old external items that don't have enough back links and sightings (excluding observable compositions):
+        ids_to_delete = self.get_purge_candidates(minimum_date)
+        # Look for any external observable compositions that were orphaned on the previous call to run:
+        ids_to_delete += STIXPurge._get_orphaned_external_observable_compositions()
+        # Look for old packages (including internal ones, if any)
+        ids_to_delete += STIXPurge._get_old_packages(minimum_date)
+
+        for page_index in range(0, len(ids_to_delete), self.PAGE_SIZE):
+            chunk_ids = ids_to_delete[page_index: page_index + self.PAGE_SIZE]
+            STIXPurge.remove(chunk_ids)

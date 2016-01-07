@@ -4,6 +4,13 @@ from mongoengine import DoesNotExist
 from adapters.certuk_mod.common.logger import log_error
 
 
+class RetentionConfigurationError(Exception):
+
+    def __init__(self, messages):
+        message = '. '.join(messages) + '.'
+        super(RetentionConfigurationError, self).__init__(message)
+
+
 class RetentionConfiguration(object):
 
     TASK_NAME = 'adapters.certuk_mod.cron.purge_job.update'
@@ -29,35 +36,45 @@ class RetentionConfiguration(object):
         minimum_sightings = task.kwargs.get(self.__min_sightings_key, self.DEFAULT_MIN_SIGHTINGS)
         minimum_back_links = task.kwargs.get(self.__min_back_links_key, self.DEFAULT_MIN_BACK_LINKS)
 
-        if not isinstance(max_age_in_months, int):
-            raise TypeError('Integer required for max_age_in_months')
-        if max_age_in_months < 0:
-            raise ValueError('max_age_in_months must be greater than 0')
+        errors = RetentionConfiguration.__validate(max_age_in_months, minimum_sightings, minimum_back_links,
+                                                   task.crontab.hour, task.crontab.minute)
+        if errors:
+            raise RetentionConfigurationError(errors)
+
         self.max_age_in_months = max_age_in_months
-
-        if not isinstance(minimum_sightings, int):
-            raise TypeError('Integer required for minimum_sightings')
-        if minimum_sightings < 2:
-            raise ValueError('minimum_sightings must be greater than 1')
         self.minimum_sightings = minimum_sightings
-
-        if not isinstance(minimum_back_links, int):
-            raise TypeError('Integer required for minimum_back_links')
-        if minimum_back_links < 1:
-            raise ValueError('minimum_back_links must be greater than 1')
         self.minimum_back_links = minimum_back_links
-
-        try:
-            hour = int(task.crontab.hour)
-            minute = int(task.crontab.minute)
-        except ValueError:
-            raise ValueError("Invalid time")
-
-        if not 0 <= hour < 24 or not 0 <= minute < 60:
-            raise ValueError("Time outside valid range")
-
         self.hour = task.crontab.hour
         self.minute = task.crontab.minute
+
+    @staticmethod
+    def __validate(max_age_in_months, minimum_sightings, minimum_back_links, hour_str, minute_str):
+        errors = []
+        if not isinstance(max_age_in_months, int):
+            errors.append('Integer required for max_age_in_months')
+        if max_age_in_months < 0:
+            errors.append('max_age_in_months must be greater than 0')
+
+        if not isinstance(minimum_sightings, int):
+            errors.append('Integer required for minimum_sightings')
+        if minimum_sightings < 2:
+            errors.append('minimum_sightings must be greater than 1')
+
+        if not isinstance(minimum_back_links, int):
+            errors.append('Integer required for minimum_back_links')
+        if minimum_back_links < 1:
+            errors.append('minimum_back_links must be greater than 1')
+
+        try:
+            hour = int(hour_str)
+            minute = int(minute_str)
+        except ValueError:
+            errors.append("Invalid time")
+        else:
+            if not 0 <= hour < 24 or not 0 <= minute < 60:
+                errors.append("Time outside valid range")
+
+        return errors
 
     def to_dict(self):
         return {
@@ -81,7 +98,8 @@ class RetentionConfiguration(object):
         try:
             config = cls.get()
             task = config.task
-        except DoesNotExist:
+        except (DoesNotExist, RetentionConfigurationError):
+            # Either task has not been saved, or dodgy data was in the database
             task = PeriodicTaskWithTTL(
                 task=cls.TASK_NAME,
                 name='purge',
@@ -94,11 +112,19 @@ class RetentionConfiguration(object):
             cls.__min_sightings_key: minimum_sightings,
             cls.__min_back_links_key: minimum_back_links
         }
+
+        errors = []
         try:
             task.crontab.hour = time.split(':')[0]
             task.crontab.minute = time.split(':')[1]
-        except:
-            raise ValueError("Invalid time")
+        except IndexError:
+            errors.append("Invalid time")
+
+        errors += RetentionConfiguration.__validate(max_age_in_months, minimum_sightings, minimum_back_links,
+                                                    task.crontab.hour, task.crontab.minute)
+
+        if errors:
+            raise RetentionConfigurationError(errors)
 
         task.save()
         return cls.get()
