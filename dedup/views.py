@@ -1,4 +1,3 @@
-from bson.json_util import dumps
 from defusedxml import EntitiesForbidden
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
