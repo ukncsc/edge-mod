@@ -23,6 +23,7 @@ publisher_urls = [
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
     (r'^config/$', 'views.config', 'publisher_config'),
     (r'^duplicates/$', 'views.duplicates_finder', 'duplicates_finder'),
+    (r'^duplicates/object/(?P<id_>[A-Za-z][\w\d-]+:[A-Za-z]+-[A-Fa-f\d]{8}-[A-Fa-f\d]{4}-[A-Fa-f\d]{4}-[A-Fa-f\d]{4}-[A-Fa-f\d]{12})$', 'views.ajax_load_object', 'duplicates_object_loader'),
     (r'^ajax/get_sites/$', 'views.ajax_get_sites', None),
     (r'^ajax/set_publish_site/$', 'views.ajax_set_publish_site', None),
     (r'^ajax/publish/$', 'views.ajax_publish', None),

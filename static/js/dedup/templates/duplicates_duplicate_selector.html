@@ -1,0 +1,20 @@
+<fieldset class="col-sm-6">
+    <legend data-bind="text:duplicatesLabel"></legend>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <select class="form-control" data-bind="
+                    value: selectedDuplicateId,
+                    disable: duplicatesForOriginal().length < 2,
+                    options: duplicatesForOriginal
+                "></select>
+            </div>
+        </div>
+    </div>
+    <div data-bind="template: {
+        if: selectedDuplicate,
+        name: 'duplicates-preview',
+        data: selectedDuplicate
+    }"></div>
+</fieldset>

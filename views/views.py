@@ -20,7 +20,7 @@ from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.retention.config import RetentionConfiguration
 from adapters.certuk_mod.cron import setup as cron_setup
-from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_import
+from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_object, ajax_import
 from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity

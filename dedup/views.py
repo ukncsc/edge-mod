@@ -1,6 +1,7 @@
 from bson.json_util import dumps
 from defusedxml import EntitiesForbidden
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from lxml.etree import XMLSyntaxError
@@ -8,20 +9,33 @@ from mongoengine import DoesNotExist
 
 from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
+from adapters.certuk_mod.publisher.package_generator import PackageGenerator
+from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from clippy.models import CLIPPY_TYPES
 from edge.inbox import InboxError
 from edge.tools import StopWatch
-from users.decorators import JsonResponse
+from users.decorators import login_required_ajax
 from users.models import Repository_User
 from .duplicates_finder import find_duplicates
 
 
 @login_required
 def duplicates_finder(request):
+    request.breadcrumbs([("Duplicates Finder", "")])
     duplicates = {typ: find_duplicates(typ) for typ in CLIPPY_TYPES.iterkeys()}
     return render(request, "duplicates_finder.html", {
         'duplicates': dumps(duplicates)
     })
+
+
+@login_required_ajax
+def ajax_load_object(request, id_):
+    root_edge_object = PublisherEdgeObject.load(id_)
+    package = PackageGenerator.build_package(root_edge_object)
+    return JsonResponse({
+        "root_id": id_,
+        "package": package.to_dict()
+    }, status=200)
 
 
 @csrf_exempt
