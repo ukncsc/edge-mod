@@ -1,0 +1,16 @@
+<div class="row">
+    <div class="col-sm-12 form-horizontal">
+        <div class="form-group">
+            <label for="type-selector" class="col-sm-1">Type</label>
+            <div class="col-sm-3">
+                <select id="type-selector" class="form-control" data-bind="
+                    value: selectedType,
+                    disable: typesWithDuplicates().length < 2,
+                    options: typesWithDuplicates,
+                    optionsValue: 'type',
+                    optionsText: 'label'
+                "></select>
+            </div>
+        </div>
+    </div>
+</div>

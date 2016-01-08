@@ -1,5 +1,5 @@
 
-from setup import log_error
+from adapters.certuk_mod.common.logger import log_error
 
 
 class Event(object):
@@ -23,4 +23,4 @@ class Event(object):
             try:
                 self._handlers[handler](source, **event_args)
             except Exception, e:
-                log_error(e)
+                log_error(e, 'adapters/audit/event')

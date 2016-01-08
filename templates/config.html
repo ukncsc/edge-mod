@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% load staticfiles %}
+{% block head-title %}{{ main_title }}{% endblock %}
+
+{% block body-content %}
+    <style type="text/css">
+        .btn-content {
+            vertical-align: middle;
+        }
+
+        .btn-content.pull-left {
+            padding-left: 6px;
+        }
+
+        .btn-content.pull-right {
+            padding-right: 6px;
+        }
+    </style>
+    <div class="container">
+
+        <div class="obj-title">
+            <div class="col-sm-7">
+                <div class="row">
+                    <img src="/static/img/hex/hex_.png">
+                    <h3>CERT-UK Modifications</h3>
+                    <small>Configuration</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row builder">
+            <div class="col-sm-7">
+
+                <!-- Generic settings pages could have multiple panels, each containing multiple dropdowns/fields -->
+                <div class="panel panel-default" data-bind="with: publisher">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">External Publisher</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h5>Site: </h5>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <div class="dropdown">
+                                    <button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <!-- Candidate for template/component. The "generic" configuration pages could
+                                         use this, icons indicate which is the saved option. -->
+                                        <span class="btn-content pull-left glyphicon"
+                                              data-bind="css: {
+                                              'glyphicon-remove': !selectedSite(),
+                                              'glyphicon-cloud-upload': selectedSite() && !(selectedSite().is_publish_site()),
+                                              'glyphicon-ok': selectedSite() && selectedSite().is_publish_site()}"></span>
+                                        <span class="btn-content pull-left"
+                                              data-bind="text: selectedSite() ? selectedSite().name : 'None'"></span>
+                                        <span class="btn-content pull-right glyphicon glyphicon-chevron-down"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#" data-bind="click: function() { selectedSite(null); }">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                            None
+                                        </a></li>
+                                        <!-- ko foreach: sites -->
+                                        <li>
+                                            <a href="#" data-bind="click: $parent.selectedSite">
+                                                <span class="glyphicon"
+                                                      data-bind="css: {
+                                                      'glyphicon-cloud-upload': $data && !($data.is_publish_site()),
+                                                      'glyphicon-ok': $data && $data.is_publish_site() }"></span>
+                                                <span data-bind="text: $data.name"></span>
+                                            </a>
+                                        </li>
+                                        <!-- /ko -->
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <button class="btn btn-default pull-right"
+                                        data-bind="click: onSavePublishSite,
+                                                   css: {
+                                                   disabled: (!selectedSite() && !publishId()) ||
+                                                   (selectedSite() && selectedSite().is_publish_site()) },
+                                                   text: gotSites() ? 'Save' : 'Retrieving sites...'">
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="panel panel-default" data-bind="with: retention">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Retention</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h5>Retention policy: </h5>
+                            </div>
+                            <div class="col-sm-5">
+                                <!--This dropdown is very similar to the one above, potential here for template/component-->
+                                <div class="dropdown">
+                                    <button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <span class="btn-content pull-left glyphicon"
+                                              data-bind="css: {
+                                              'glyphicon-ok': enabled(),
+                                              'glyphicon-remove': !(enabled())}"></span>
+                                        <span class="btn-content pull-left"
+                                              data-bind="text: enabled() ? 'Enabled': 'Disabled'"></span>
+                                        <span class="btn-content pull-right glyphicon glyphicon-chevron-down"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <!-- ko foreach: [true, false] -->
+                                        <li>
+                                            <a href="#" data-bind="click: function() { $parent.enabled($data); }">
+                                                <span class="glyphicon"
+                                                      data-bind="css: {
+                                                      'glyphicon-ok': $data,
+                                                      'glyphicon-remove': !$data }"></span>
+                                                <span data-bind="text: $data ? 'Enabled' : 'Disabled'"></span>
+                                            </a>
+                                        </li>
+                                        <!-- /ko -->
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <button class="btn btn-default pull-right"
+                                        data-bind="click: function () { onSave(false); },
+                                                   css: { disabled: !(changesPending()) },
+                                                   text: gotConfig() ? 'Save' : 'Retrieving config...'">
+                                </button>
+                                <button class="btn btn-default pull-right"
+                                        data-bind="click: function () { onSave(true); },
+                                                   css: { disabled: running() },
+                                                   text: 'Reset to default'">
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h5>Maximum age (months): </h5>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <input type="number" placeholder="Maximum age" class="form-control" data-bind="enable: enabled, value: age, valueUpdate: ['input','keyup']">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h5>Minimum sightings: </h5>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <input type="number" min="2" placeholder="Minimum sightings" class="form-control" data-bind="enable: enabled, value: sightings, valueUpdate: ['input','keyup']">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h5>Minimum back links: </h5>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <input type="number" min="1" placeholder="Minimum back links" class="form-control" data-bind="enable: enabled, value: backLinks, valueUpdate: ['input','keyup']">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h5>Run purge daily at: </h5>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <input type="time" class="form-control" data-bind="enable: enabled, value: time">
+                            </div>
+
+                            <div class="col-sm-4">
+                                <button class="btn btn-default pull-right"
+                                        data-bind="click: runNow,
+                                                   css: { disabled: running() || changesPending() },
+                                                   text: running() ? 'Running...' : 'Run now'">
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-sm-5">
+                <!-- Could place a panel here, showing a summary of the selected settings -->
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static "js/stickytape.js" %}"></script>
+    <script>
+        var require = {
+            baseUrl: "/adapter/certuk_mod{% static 'js' %}",
+            paths: {
+                knockout: "common/knockout-shim"
+            },
+            urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
+        };
+    </script>
+    <script src="/adapter/certuk_mod{% static 'js/require.js'%}" data-main="config/config-main"></script>
+{% endblock %}

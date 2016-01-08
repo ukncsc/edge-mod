@@ -1,8 +1,6 @@
 import os
 import re
 import urllib2
-import inspect
-import traceback
 import json
 
 from django.http import FileResponse, HttpResponseNotFound
@@ -19,16 +17,21 @@ from adapters.certuk_mod.validation.package.validator import PackageValidationIn
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 import adapters.certuk_mod.builder.customizations as cert_builder
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
-from crashlog.models import save as save_crash
-
-from adapters.certuk_mod.audit import setup, status
+from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
+from adapters.certuk_mod.cron import setup as cron_setup
+from adapters.certuk_mod.cron.views import ajax_get_purge_task_status, ajax_run_purge
+from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, ajax_set_retention_config
+from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, ajax_load_parent_ids, ajax_import
+from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
+from adapters.certuk_mod.retention.purge import STIXPurge
 
 
-setup.configure_publisher_actions()
+audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
+cron_setup.create_jobs()
 
 
 objectid_matcher = re.compile(
@@ -82,8 +85,8 @@ def not_found(request):
 @login_required
 @superuser_or_staff_role
 def config(request):
-    request.breadcrumbs([("Publisher Configuration", "")])
-    return render(request, "publisher_config.html", {})
+    request.breadcrumbs([("CERT-UK Configuration", "")])
+    return render(request, "config.html", {})
 
 
 @login_required
@@ -151,11 +154,12 @@ def ajax_publish(request, data):
         Publisher.push_package(package, namespace_info)
     # Narrow down which exceptions we catch...?
     except Exception, e:
-        local_vars = inspect.trace()[-1][0].f_locals
-        if local_vars.get('tr'):
-            stack_trace = traceback.format_exc()
-            save_crash('Publisher', e.message + '\nTAXII Staus Message:\n' + json.dumps(local_vars['tr'].to_dict()),
-                       stack_trace)
+        message = ''
+        taxii_response = get_exception_stack_variable('tr')
+        if taxii_response:
+            message = '\nTAXII Staus Message:\n' + json.dumps(taxii_response.to_dict())
+        log_error(e, 'Publisher', message)
+
         success = False
         error_message = e.message
 
