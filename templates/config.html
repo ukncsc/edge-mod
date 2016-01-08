@@ -131,9 +131,14 @@
                             </div>
                             <div class="col-sm-4">
                                 <button class="btn btn-default pull-right"
-                                        data-bind="click: runNow,
-                                                   css: { disabled: running() || changesPending() },
-                                                   text: running() ? 'Running...' : 'Run now'">
+                                        data-bind="click: function () { onSave(false); },
+                                                   css: { disabled: !(changesPending()) },
+                                                   text: gotConfig() ? 'Save' : 'Retrieving config...'">
+                                </button>
+                                <button class="btn btn-default pull-right"
+                                        data-bind="click: function () { onSave(true); },
+                                                   css: { disabled: running() },
+                                                   text: 'Reset to default'">
                                 </button>
                             </div>
                         </div>
@@ -179,9 +184,9 @@
 
                             <div class="col-sm-4">
                                 <button class="btn btn-default pull-right"
-                                        data-bind="click: onSave,
-                                                   css: { disabled: !(changesPending()) },
-                                                   text: gotConfig() ? 'Save' : 'Retrieving config...'">
+                                        data-bind="click: runNow,
+                                                   css: { disabled: running() || changesPending() },
+                                                   text: running() ? 'Running...' : 'Run now'">
                                 </button>
                             </div>
                         </div>

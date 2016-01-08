@@ -36,6 +36,7 @@ publisher_urls = [
     (r'^ajax/validate/$', 'views.ajax_validate', None),
     (r'^ajax/get_retention_config/$', 'views.ajax_get_retention_config', None),
     (r'^ajax/set_retention_config/$', 'views.ajax_set_retention_config', None),
+    (r'^ajax/reset_retention_config/$', 'views.ajax_reset_retention_config', None),
     (r'^ajax/import/(?P<username>\S+)$', 'views.ajax_import', None),
     (r'^ajax/get_purge_task_status/$', 'views.ajax_get_purge_task_status', None),
     (r'^ajax/run_purge/$', 'views.ajax_run_purge', None)

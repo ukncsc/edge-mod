@@ -18,9 +18,9 @@ from adapters.certuk_mod.validation.builder.validator import BuilderValidationIn
 import adapters.certuk_mod.builder.customizations as cert_builder
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
-from adapters.certuk_mod.retention.config import RetentionConfiguration
 from adapters.certuk_mod.cron import setup as cron_setup
 from adapters.certuk_mod.cron.views import ajax_get_purge_task_status, ajax_run_purge
+from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, ajax_set_retention_config
 from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, ajax_load_parent_ids, ajax_import
 from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
@@ -131,54 +131,6 @@ def ajax_set_publish_site(request, data):
     return {
         'success': success,
         'saved_id': site_id,
-        'error_message': error_message
-    }
-
-
-@login_required
-@superuser_or_staff_role
-@json_body
-def ajax_get_retention_config(request, data):
-    success = True
-    error_message = ""
-    config_values = {}
-
-    try:
-        ret_config = RetentionConfiguration.get()
-        config_values = ret_config.to_dict()
-    except Exception, e:
-        success = False
-        error_message = e.message
-        log_error(e, 'Retention config')
-
-    response = {
-        'success': success,
-        'error_message': error_message
-    }
-    response.update(config_values)
-
-    return response
-
-
-@login_required
-@superuser_or_staff_role
-@json_body
-def ajax_set_retention_config(request, data):
-    success = True
-    error_message = ""
-
-    try:
-        RetentionConfiguration.set_from_dict(data)
-    except Exception, e:
-        success = False
-        if isinstance(e, KeyError):
-            error_message = 'value missing: %s' % e.message
-        else:
-            error_message = e.message
-        log_error(e, 'Retention config')
-
-    return {
-        'success': success,
         'error_message': error_message
     }
 

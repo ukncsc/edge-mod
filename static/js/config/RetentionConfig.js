@@ -54,26 +54,30 @@ define([
             }
         },
 
+        _parseConfigResponse: function (response) {
+            // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
+            this.age(response["max_age_in_months"]);
+            this.savedAge(response["max_age_in_months"]);
+
+            this.sightings(response["minimum_sightings"]);
+            this.savedSightings(response["minimum_sightings"]);
+
+            this.backLinks(response["minimum_back_links"]);
+            this.savedBackLinks(response["minimum_back_links"]);
+
+            this.time(response["time"]);
+            this.savedTime(response["time"]);
+
+            this.enabled(response["enabled"]);
+            this.savedEnabled(response["enabled"]);
+        },
+
         getConfig: function () {
             this.gotConfig(false);
             postJSON("../ajax/get_retention_config/", { }, function (response) {
                 this.gotConfig(true);
                 if (response["success"]) {
-                    // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
-                    this.age(response["max_age_in_months"]);
-                    this.savedAge(response["max_age_in_months"]);
-
-                    this.sightings(response["minimum_sightings"]);
-                    this.savedSightings(response["minimum_sightings"]);
-
-                    this.backLinks(response["minimum_back_links"]);
-                    this.savedBackLinks(response["minimum_back_links"]);
-
-                    this.time(response["time"]);
-                    this.savedTime(response["time"]);
-
-                    this.enabled(response["enabled"]);
-                    this.savedEnabled(response["enabled"]);
+                    this._parseConfigResponse(response);
                 } else {
                     var errorModal = new Modal({
                     title: "Error",
@@ -105,7 +109,7 @@ define([
                 );
         },
 
-        _save: function (modal) {
+        _basicValidate: function () {
             var errors = [];
 
             if (!inputIsInteger(this.age())) {
@@ -130,6 +134,15 @@ define([
                 errors.push("A time must be configured.")
             }
 
+            return errors;
+        },
+
+        _save: function (modal, reset) {
+            var errors = [];
+            if (!reset) {
+                errors = this._basicValidate();
+            }
+
             var modalContent = modal.contentData;
             if (errors.length > 0) {
                 modalContent.waitingForResponse(false);
@@ -141,39 +154,50 @@ define([
                 modalContent.message("Saving...");
                 modal.getButtonByLabel("Close").disabled(true);
 
-                postJSON("../ajax/set_retention_config/", {
+                var postUrl = reset ? "../ajax/reset_retention_config/" : "../ajax/set_retention_config/";
+                var postData = reset ? { } : {
                     max_age_in_months: Number(this.age()),
                     minimum_sightings: Number(this.sightings()),
                     minimum_back_links: Number(this.backLinks()),
                     time: this.time(),
                     enabled: this.enabled()
-                }, function (response) {
-                    modalContent.waitingForResponse(false);
-                    modal.getButtonByLabel("Close").disabled(false);
+                };
 
-                    var success = !!(response["success"]);
-
-                    var title = success ? "Success" : "Error";
-                    var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
-                    var message = success ? "The retention settings were saved successfully." :
-                        "An error occurred while attempting to save (" + response["error_message"] + ").";
-
-                    modalContent.message(message);
-                    modal.title(title);
-                    modal.titleIcon(titleIcon);
-
-                    if (success) {
-                        this.savedAge(this.age());
-                        this.savedSightings(this.sightings());
-                        this.savedBackLinks(this.backLinks());
-                        this.savedTime(this.time());
-                        this.savedEnabled(this.enabled());
-                    }
+                postJSON(postUrl, postData, function (response) {
+                    this._processSaveResponse(modal, reset, response);
                 }.bind(this));
             }
         },
 
-        onSave: function () {
+        _processSaveResponse: function (modal, reset, response) {
+            modal.contentData.waitingForResponse(false);
+            modal.getButtonByLabel("Close").disabled(false);
+
+            var success = !!(response["success"]);
+
+            var title = success ? "Success" : "Error";
+            var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
+            var message = success ? "The retention settings were saved successfully." :
+                "An error occurred while attempting to save (" + response["error_message"] + ").";
+
+            modal.contentData.message(message);
+            modal.title(title);
+            modal.titleIcon(titleIcon);
+
+            if (success) {
+                if (reset) {
+                    this._parseConfigResponse(response);
+                }
+
+                this.savedAge(this.age());
+                this.savedSightings(this.sightings());
+                this.savedBackLinks(this.backLinks());
+                this.savedTime(this.time());
+                this.savedEnabled(this.enabled());
+            }
+        },
+
+        onSave: function (reset) {
             var contentData = {
                 message: ko.observable(""),
                 waitingForResponse: ko.observable(false)
@@ -184,7 +208,7 @@ define([
                 titleIcon: "glyphicon-cloud-upload",
                 contentData: contentData,
                 contentTemplate: configModalTemplate.id,
-                onShow: this._save.bind(this),
+                onShow: function (modal) { this._save.call(this, modal, reset);}.bind(this),
                 buttonData: [
                     {
                         label: "Close",

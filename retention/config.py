@@ -145,8 +145,12 @@ class RetentionConfiguration(object):
         try:
             return cls.get()
         except DoesNotExist:
-            return RetentionConfiguration.set(RetentionConfiguration.DEFAULT_MAX_AGE_IN_MONTHS,
-                                              RetentionConfiguration.DEFAULT_MIN_SIGHTINGS,
-                                              RetentionConfiguration.DEFAULT_MIN_BACK_LINKS,
-                                              RetentionConfiguration.DEFAULT_TIME,
-                                              RetentionConfiguration.DEFAULT_ENABLED)
+            return cls.reset()
+
+    @classmethod
+    def reset(cls):
+        return cls.set(RetentionConfiguration.DEFAULT_MAX_AGE_IN_MONTHS,
+                       RetentionConfiguration.DEFAULT_MIN_SIGHTINGS,
+                       RetentionConfiguration.DEFAULT_MIN_BACK_LINKS,
+                       RetentionConfiguration.DEFAULT_TIME,
+                       RetentionConfiguration.DEFAULT_ENABLED)
