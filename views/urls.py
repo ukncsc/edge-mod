@@ -37,6 +37,8 @@ publisher_urls = [
     (r'^ajax/get_retention_config/$', 'views.ajax_get_retention_config', None),
     (r'^ajax/set_retention_config/$', 'views.ajax_set_retention_config', None),
     (r'^ajax/import/(?P<username>\S+)$', 'views.ajax_import', None),
+    (r'^ajax/get_purge_task_status/$', 'views.ajax_get_purge_task_status', None),
+    (r'^ajax/run_purge/$', 'views.ajax_run_purge', None)
 ]
 
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]

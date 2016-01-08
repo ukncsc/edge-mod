@@ -20,11 +20,13 @@ class RetentionConfiguration(object):
     DEFAULT_HOUR = '00'
     DEFAULT_MINUTE = '00'
     DEFAULT_TIME = DEFAULT_HOUR + ':' + DEFAULT_MINUTE
+    DEFAULT_ENABLED = False
 
     __max_age_key = 'max_age_in_months'
     __min_sightings_key = 'minimum_sightings'
     __min_back_links_key = 'minimum_back_links'
     __time_key = 'time'
+    __enabled_key = 'enabled'
 
     def __init__(self, task):
         if not isinstance(task, PeriodicTaskWithTTL):
@@ -46,6 +48,7 @@ class RetentionConfiguration(object):
         self.minimum_back_links = minimum_back_links
         self.hour = task.crontab.hour
         self.minute = task.crontab.minute
+        self.enabled = task.enabled
 
     @staticmethod
     def __validate(max_age_in_months, minimum_sightings, minimum_back_links, hour_str, minute_str):
@@ -81,7 +84,8 @@ class RetentionConfiguration(object):
             self.__max_age_key: self.max_age_in_months,
             self.__min_sightings_key: self.minimum_sightings,
             self.__min_back_links_key: self.minimum_back_links,
-            self.__time_key: '%02d:%02d' % (int(self.hour), int(self.minute))
+            self.__time_key: '%02d:%02d' % (int(self.hour), int(self.minute)),
+            self.__enabled_key: self.enabled
         }
 
     @classmethod
@@ -94,7 +98,7 @@ class RetentionConfiguration(object):
             raise
 
     @classmethod
-    def set(cls, max_age_in_months, minimum_sightings, minimum_back_links, time):
+    def set(cls, max_age_in_months, minimum_sightings, minimum_back_links, time, enabled):
         try:
             config = cls.get()
             task = config.task
@@ -105,13 +109,14 @@ class RetentionConfiguration(object):
                 name='purge',
                 crontab=PeriodicTaskWithTTL.Crontab(month_of_year='*', day_of_month='*', day_of_week='*',
                                                     hour=cls.DEFAULT_HOUR, minute=cls.DEFAULT_MINUTE),
-                enabled=True
+                enabled=enabled
             )
         task.kwargs = {
             cls.__max_age_key: max_age_in_months,
             cls.__min_sightings_key: minimum_sightings,
             cls.__min_back_links_key: minimum_back_links
         }
+        task.enabled = bool(enabled)
 
         errors = []
         try:
@@ -132,7 +137,8 @@ class RetentionConfiguration(object):
     @classmethod
     def set_from_dict(cls, config_dict):
         return cls.set(config_dict[cls.__max_age_key], config_dict[cls.__min_sightings_key],
-                       config_dict[cls.__min_back_links_key], config_dict[cls.__time_key])
+                       config_dict[cls.__min_back_links_key], config_dict[cls.__time_key],
+                       config_dict[cls.__enabled_key])
 
     @classmethod
     def install(cls):
@@ -142,4 +148,5 @@ class RetentionConfiguration(object):
             return RetentionConfiguration.set(RetentionConfiguration.DEFAULT_MAX_AGE_IN_MONTHS,
                                               RetentionConfiguration.DEFAULT_MIN_SIGHTINGS,
                                               RetentionConfiguration.DEFAULT_MIN_BACK_LINKS,
-                                              RetentionConfiguration.DEFAULT_TIME)
+                                              RetentionConfiguration.DEFAULT_TIME,
+                                              RetentionConfiguration.DEFAULT_ENABLED)

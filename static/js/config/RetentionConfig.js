@@ -17,15 +17,41 @@ define([
             this.sightings = ko.observable();
             this.backLinks = ko.observable();
             this.time = ko.observable();
+            this.enabled = ko.observable();
+            this.enabled.subscribe(this._onEnabledChanged.bind(this));
 
             this.savedAge = ko.observable();
             this.savedSightings = ko.observable();
             this.savedBackLinks = ko.observable();
             this.savedTime = ko.observable();
+            this.savedEnabled = ko.observable();
 
             this.gotConfig = ko.observable(false);
 
-            this.canSave = ko.computed(this._canSave, this);
+            this.changesPending = ko.computed(this.changesPending, this);
+
+            this.running = ko.observable();
+            this.getTaskStatus();
+        },
+
+        getTaskStatus: function () {
+            postJSON("../ajax/get_purge_task_status/", { }, function (response) {
+                this.running(!!response['status']);
+                setTimeout(this.getTaskStatus.bind(this), 10000);
+            }.bind(this));
+        },
+
+        runNow: function () {
+            if (!this.running() && !this.changesPending()) {
+                postJSON("../ajax/run_purge/", { }, function (response) {
+                    var modal = new Modal({
+                        title: "Retention policy",
+                        titleIcon: "glyphicon-info-sign",
+                        contentData: "The retention job has been scheduled to run (celery task ID '" + response['id'] + "')."
+                    });
+                    modal.show();
+                });
+            }
         },
 
         getConfig: function () {
@@ -33,6 +59,7 @@ define([
             postJSON("../ajax/get_retention_config/", { }, function (response) {
                 this.gotConfig(true);
                 if (response["success"]) {
+                    // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
                     this.age(response["max_age_in_months"]);
                     this.savedAge(response["max_age_in_months"]);
 
@@ -44,6 +71,9 @@ define([
 
                     this.time(response["time"]);
                     this.savedTime(response["time"]);
+
+                    this.enabled(response["enabled"]);
+                    this.savedEnabled(response["enabled"]);
                 } else {
                     var errorModal = new Modal({
                     title: "Error",
@@ -55,13 +85,23 @@ define([
             }.bind(this));
         },
 
-        _canSave: function () {
+        _onEnabledChanged: function () {
+            if (!(this.enabled())) {
+                this.age(this.savedAge());
+                this.sightings(this.savedSightings());
+                this.backLinks(this.savedBackLinks());
+                this.time(this.savedTime());
+            }
+        },
+
+        changesPending: function () {
             return this.gotConfig() &&
                 (
                     this.age() != this.savedAge() ||
                     this.sightings() != this.savedSightings() ||
                     this.backLinks() != this.savedBackLinks() ||
-                    this.time() != this.savedTime()
+                    this.time() != this.savedTime() ||
+                    this.enabled() != this.savedEnabled()
                 );
         },
 
@@ -105,7 +145,8 @@ define([
                     max_age_in_months: Number(this.age()),
                     minimum_sightings: Number(this.sightings()),
                     minimum_back_links: Number(this.backLinks()),
-                    time: this.time()
+                    time: this.time(),
+                    enabled: this.enabled()
                 }, function (response) {
                     modalContent.waitingForResponse(false);
                     modal.getButtonByLabel("Close").disabled(false);
@@ -126,6 +167,7 @@ define([
                         this.savedSightings(this.sightings());
                         this.savedBackLinks(this.backLinks());
                         this.savedTime(this.time());
+                        this.savedEnabled(this.enabled());
                     }
                 }.bind(this));
             }

@@ -32,6 +32,14 @@ def update(force_start=False, **kwargs):
         return 0
 
 
+def task_is_running():
+    try:
+        with FileLockOrFail(LOCKNAME):
+            return False
+    except CannotLock:
+        return True
+
+
 def update_main(force_start=False, **kwargs):
     try:
         stix_purge = STIXPurge(RetentionConfiguration.get())
