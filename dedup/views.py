@@ -11,6 +11,7 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from edge.inbox import InboxError
+from edge.models import StixBacklink
 from edge.tools import StopWatch
 from users.decorators import login_required_ajax
 from users.models import Repository_User
@@ -49,7 +50,7 @@ def ajax_load_object(request, id_):
 @login_required_ajax
 def ajax_load_parent_ids(request, id_):
     try:
-        parents = {}
+        parents = StixBacklink.objects.get(id=id_).edges
         return JsonResponse(parents, status=200)
     except Exception as e:
         return JsonResponse({
