@@ -5,7 +5,8 @@ define([
     "kotemplate!duplicates-type-selector:./templates/duplicates_type_selector.html",
     "kotemplate!duplicates-original-selector:./templates/duplicates_original_selector.html",
     "kotemplate!duplicates-duplicate-selector:./templates/duplicates_duplicate_selector.html",
-    "kotemplate!duplicates-preview:./templates/duplicates_preview.html"
+    "kotemplate!duplicates-preview:./templates/duplicates_preview.html",
+    "kotemplate!duplicates-analyse:./templates/duplicates_analyse.html"
 ], function (declare, ko, StixPackage) {
     "use strict";
 
@@ -120,6 +121,10 @@ define([
             } else {
                 this.selectedDuplicate(null);
             }
+        },
+
+        analyse: function () {
+            alert("Coming soon...");
         }
     });
 });

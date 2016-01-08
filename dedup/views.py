@@ -10,7 +10,6 @@ from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
-from clippy.models import CLIPPY_TYPES
 from edge.inbox import InboxError
 from edge.tools import StopWatch
 from users.decorators import login_required_ajax
@@ -27,16 +26,10 @@ def duplicates_finder(request):
 @login_required_ajax
 def ajax_load_duplicates(request, typ):
     try:
-        if typ not in CLIPPY_TYPES.iterkeys():
-            raise ValueError("Illegal value for 'typ': " + typ)
         duplicates = find_duplicates(typ)
         return JsonResponse({
             typ: duplicates
         }, status=200)
-    except ValueError as e:
-        return JsonResponse({
-            'message': e.message
-        }, status=400)
     except Exception as e:
         return JsonResponse({
             'message': e.message
@@ -51,6 +44,17 @@ def ajax_load_object(request, id_):
         "root_id": id_,
         "package": package.to_dict()
     }, status=200)
+
+
+@login_required_ajax
+def ajax_load_parent_ids(request, id_):
+    try:
+        parents = {}
+        return JsonResponse(parents, status=200)
+    except Exception as e:
+        return JsonResponse({
+            'message': e.message
+        }, status=500)
 
 
 @csrf_exempt
