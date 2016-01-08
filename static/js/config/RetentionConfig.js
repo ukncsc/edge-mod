@@ -7,7 +7,7 @@ define([
     "use strict";
 
     function inputIsInteger (value) {
-        return /*typeof value === "number" &&*/ isFinite(value) && Math.floor(value) /*=*/== value;
+        return isFinite(value) && Math.floor(value) == value;
     }
 
     return declare(null, {
