@@ -10,7 +10,10 @@
             name: "publisher/main"
         },
         {
-            name: "publisher/config-main"
+            name: "config/config-main"
+        },
+        {
+            name: "dedup/main"
         },
         {
             name: "ind-build/cert-ind-build-ready"
