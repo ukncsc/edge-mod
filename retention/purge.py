@@ -13,10 +13,13 @@ class STIXPurge(object):
     def __init__(self, retention_config):
         self.retention_config = retention_config
 
-    def _get_old_external_ids(self, minimum_date, version_epoch):
+    def _get_old_external_ids(self, minimum_id, minimum_date, version_epoch):
         old_external_ids = get_db().stix.find({
             'created_on': {
                 '$lt': minimum_date
+            },
+            '_id': {
+                '$gt': minimum_id
             },
             'data.idns': {
                 '$ne': LOCAL_NAMESPACE
@@ -32,16 +35,20 @@ class STIXPurge(object):
         }, {
             '_id': 1,
             'created_on': 1
-        }).sort('created_on', -1).limit(self.PAGE_SIZE)
+        }).sort([('created_on', -1), ('_id', 1)]).limit(self.PAGE_SIZE)
 
         old_external_ids = list(old_external_ids)
         if not old_external_ids:
-            return None, []
+            return None, None, []
         new_minimum_date = old_external_ids[-1]['created_on']
+        # We need this, just in case we have more than PAGE_SIZE worth of data with the same 'created_on' date.
+        # If not, we'd end up in a loop because the returned new_minimum_date is not updated.
+        # We could simply sort on '_id' only, however it's probably quicker to sort on a date field first, then by ID.
+        new_minimum_id = old_external_ids[-1]['_id']
 
         old_external_ids = [doc['_id'] for doc in old_external_ids]
 
-        return new_minimum_date, old_external_ids
+        return new_minimum_id, new_minimum_date, old_external_ids
 
     @staticmethod
     def __get_back_links_filter_where_clause(minimum_back_links):
@@ -189,10 +196,12 @@ class STIXPurge(object):
 
     def get_purge_candidates(self, minimum_date):
         version_epoch = int(1000 * (minimum_date - datetime(1970, 1, 1)).total_seconds() + 0.5)
+        minimum_id = ''
 
         ids_to_delete = []
         while True:
-            minimum_date, old_external_ids = self._get_old_external_ids(minimum_date, version_epoch)
+            minimum_id, minimum_date, old_external_ids = self._get_old_external_ids(minimum_id, minimum_date,
+                                                                                    version_epoch)
 
             if not old_external_ids:
                 break
