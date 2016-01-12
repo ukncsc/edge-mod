@@ -181,7 +181,7 @@ class STIXPurge(object):
             'created_on': {
                 '$lt': minimum_date
             },
-            'data.type': 'pkg'
+            'type': 'pkg'
         }
         if not include_internal:
             query.update({
@@ -236,24 +236,24 @@ class STIXPurge(object):
             '_id': 1,
             'data.edges': 1
         })
-        edges = []
-        ids_with_edges = []
+
+        ids_with_edges = {}
         for doc in edges_cursor:
             doc_edges = doc.get('data', {}).get('edges', {})
             if doc_edges:
-                ids_with_edges.append(doc['_id'])
-                edges += [edge_id for edge_id in doc_edges]
+                ids_with_edges[doc['_id']] = [edge_id for edge_id in doc_edges]
 
         if ids_with_edges:
-            get_db().stix_backlinks.update({
-                '_id': {
-                    '$in': edges
-                }
-            }, {
-                '$unset': {
-                    'value.%s' % old_parent: 1 for old_parent in ids_with_edges
-                }
-            }, multi=True)
+            for parent_id in ids_with_edges:
+                get_db().stix_backlinks.update({
+                    '_id': {
+                        '$in': ids_with_edges[parent_id]
+                    }
+                }, {
+                    '$unset': {
+                        'value.%s' % parent_id: 1
+                    }
+                })
 
         # Un-setting some back link values may result in entries which are empty...
         get_db().stix_backlinks.remove({
