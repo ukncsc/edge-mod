@@ -244,16 +244,18 @@ class STIXPurge(object):
                 ids_with_edges[doc['_id']] = [edge_id for edge_id in doc_edges]
 
         if ids_with_edges:
+            bulk_operation = get_db().stix_backlinks.initialize_unordered_bulk_op()
             for parent_id in ids_with_edges:
-                get_db().stix_backlinks.update({
+                bulk_operation.find({
                     '_id': {
                         '$in': ids_with_edges[parent_id]
                     }
-                }, {
+                }).update({
                     '$unset': {
                         'value.%s' % parent_id: 1
                     }
                 })
+            bulk_operation.execute()
 
         # Un-setting some back link values may result in entries which are empty...
         get_db().stix_backlinks.remove({
