@@ -52,6 +52,7 @@ def existing_hash_dedup(contents, hashes, user):
     db = get_db()
 
     existing_items = db.stix.find({
+        'type': 'obs',
         'data.hash': {
             '$in': hashes.values()
         }
@@ -62,13 +63,14 @@ def existing_hash_dedup(contents, hashes, user):
 
     hash_to_existing_ids = {doc['data']['hash']: doc['_id'] for doc in existing_items}
 
-    maptable = {
+    map_table = {
         id_: hash_to_existing_ids[hash_] for id_, hash_ in hashes.iteritems() if hash_ in hash_to_existing_ids
     }
 
-    out, additional_sightings = coalesce_duplicates_to_sitings(contents, maptable)
+    out, additional_sightings = coalesce_duplicates_to_sitings(contents, map_table)
 
-    update_sighting_counts(additional_sightings, user)
+    if additional_sightings:
+        update_sighting_counts(additional_sightings, user)
 
     message = generate_message("Remapped %d objects to existing objects based on hashes", contents, out)
 
@@ -80,14 +82,14 @@ def new_hash_dedup(contents, hashes, user):
     for id_, hash_ in sorted(hashes.iteritems()):
         hash_to_ids.setdefault(hash_, []).append(id_)
 
-    maptable = {}
+    map_table = {}
     for hash_, ids in hash_to_ids.iteritems():
         if len(ids) > 1:
             master = ids[0]
             for dup in ids[1:]:
-                maptable[dup] = master
+                map_table[dup] = master
 
-    out, additional_sightings = coalesce_duplicates_to_sitings(contents, maptable)
+    out, additional_sightings = coalesce_duplicates_to_sitings(contents, map_table)
 
     for id_, count in additional_sightings.iteritems():
         inbox_item = contents.get(id_, None)
