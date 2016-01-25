@@ -1,6 +1,6 @@
 import hashlib
 
-from edge.generic import WHICH_DBOBJ, HASH_DISPATCH, TreeHasher
+from edge.generic import WHICH_DBOBJ, HASH_DISPATCH
 from edge.observable import \
     CYBOX_SHORT_DESCRIPTION, \
     DBObservable, \
@@ -105,15 +105,3 @@ def apply_patch(custom_observable_definitions):
     db_observable_patch = generate_db_observable_patch(custom_draft_handler_map)
     WHICH_DBOBJ['obs'] = db_observable_patch
     HASH_DISPATCH['obs'] = db_observable_patch.dupehash
-
-    # TODO: this should be in a separate module called from customizations.py
-    _original_hash = TreeHasher.hash
-
-    def _new_hash(self, ao, fetch_func):
-        if ao.ty == 'obs' and ao.obj.observable_composition is None:
-            hash_ = ao.localhash()
-        else:
-            hash_ = _original_hash(self, ao, fetch_func)
-        return hash_
-
-    TreeHasher.hash = _new_hash
