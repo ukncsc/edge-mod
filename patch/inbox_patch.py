@@ -4,6 +4,7 @@ from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_ID
 from edge.inbox import InboxProcessorForBuilders
 from stix.common.kill_chains import KillChainPhaseReference, KillChainPhasesReference
 from signalregistry import SignalRegistry
+from mongoengine.connection import get_db
 
 
 def get_previous_frame():
@@ -37,10 +38,7 @@ def add(self, inbox_item):
     super(InboxProcessorForBuilders, self).add(inbox_item)
 
 
-def update_created_on(content, user, txn_id, **kwargs):
-    from dateutil.parser import parse as date_time_parse
-    from mongoengine.connection import get_db
-
+def get_objects(content):
     query = {
         '_id': {
             '$in': content
@@ -53,11 +51,12 @@ def update_created_on(content, user, txn_id, **kwargs):
         'type': 1,
         'created_on': 1
     }
-    objects = {doc['_id']: doc for doc in get_db().stix.find(query, projection)}
+    return {doc['_id']: doc for doc in get_db().stix.find(query, projection)}
 
-    top_level_objects = {_id: objects[_id] for _id in objects if objects[_id]['type'] != 'obs'}
 
-    # Update non-observables, which should always have timestamp:
+def update_non_observables(top_level_objects):
+    from dateutil.parser import parse as date_time_parse
+
     for _id in top_level_objects:
         doc = top_level_objects[_id]
         if doc['type'] != 'obs':
@@ -80,10 +79,20 @@ def update_created_on(content, user, txn_id, **kwargs):
                 })
                 doc['created_on'] = actual_date
 
-    observables = {
-        _id: objects[_id] for _id in objects if objects[_id]['type'] == 'obs'
-    }
 
+def update_observables_date(children, top_level):
+    get_db().stix.update({
+        '_id': {
+            '$in': children
+        }
+    }, {
+        '$set': {
+            'created_on': top_level['created_on']
+        }
+    }, multi=True)
+
+
+def update_observables(top_level_objects, observables):
     # Inspect the children of all top-level objects... for those that are observables (and that are in scope here),
     #  update their 'created_on' dates to that of the top-level object...
     for _id in top_level_objects:
@@ -110,19 +119,25 @@ def update_created_on(content, user, txn_id, **kwargs):
 
                     # Finally update the observables' date:
                     if all_obs_children:
-                        get_db().stix.update({
-                            '_id': {
-                                '$in': all_obs_children
-                            }
-                        }, {
-                            '$set': {
-                                'created_on': top_level['created_on']
-                            }
-                        }, multi=True)
+                        update_observables_date(all_obs_children, top_level)
                     # ...and locally...
                     for obs_id, obs in observables.iteritems():
                         if obs_id in all_obs_children:
                             obs['created_on'] = top_level['created_on']
+
+
+def update_created_on(content, user, txn_id, **kwargs):
+    objects = get_objects(content)
+
+    top_level_objects = {_id: objects[_id] for _id in objects if objects[_id]['type'] != 'obs'}
+
+    update_non_observables(top_level_objects)
+
+    observables = {
+        _id: objects[_id] for _id in objects if objects[_id]['type'] == 'obs'
+    }
+
+    update_observables(top_level_objects, observables)
 
 
 def apply_patch():
