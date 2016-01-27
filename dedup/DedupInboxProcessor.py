@@ -1,9 +1,17 @@
+import pymongo
+
 from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong
 from edge.generic import create_package, EdgeObject
 from mongoengine.connection import get_db
 from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
+from edge.tools import rgetattr
 from .edges import dedup_collections
+
+PROPERTY_FILENAME = ['api_object', 'obj', 'object_', 'properties', 'file_name']
+PROPERTY_MD5 = ['api_object', 'obj', 'object_', 'properties', 'md5']
+PROPERTY_SHA1 = ['api_object', 'obj', 'object_', 'properties', 'sha1']
+PROPERTY_SHA256 = ['api_object', 'obj', 'object_', 'properties', 'sha256']
 
 
 def get_sighting_count(obs):
@@ -48,6 +56,75 @@ def generate_message(template_text, contents, out):
     return message
 
 
+def find_matching_db_file_obs(db, new_file_obs):
+    def extract_properties(inbox_items, property_path):
+        return list({str(rgetattr(inbox_item, property_path, None)) for inbox_item in inbox_items.itervalues()
+                     if rgetattr(inbox_item, property_path, None) is not None})
+
+    new_filenames = extract_properties(new_file_obs, PROPERTY_FILENAME)
+    new_md5s = extract_properties(new_file_obs, PROPERTY_MD5)
+    new_sha1s = extract_properties(new_file_obs, PROPERTY_SHA1)
+    new_sha256s = extract_properties(new_file_obs, PROPERTY_SHA256)
+    existing_file_obs = db.stix.find({
+        'type': 'obs',
+        'data.api.object.properties.xsi:type': 'FileObjectType',
+        '$or': [
+            {
+                'data.api.object.properties.file_name': {'$in': new_filenames}
+            }, {
+                '$and': [
+                    {'data.api.object.properties.hashes.type': 'MD5'},
+                    {'data.api.object.properties.hashes.simple_hash_value': {'$in': new_md5s}}
+                ]
+            }, {
+                '$and': [
+                    {'data.api.object.properties.hashes.type': 'SHA1'},
+                    {'data.api.object.properties.hashes.simple_hash_value': {'$in': new_sha1s}}
+                ]
+            }, {
+                '$and': [
+                    {'data.api.object.properties.hashes.type': 'SHA256'},
+                    {'data.api.object.properties.hashes.simple_hash_value': {'$in': new_sha256s}}
+                ]
+            }
+        ]
+    }).sort('created_on', pymongo.DESCENDING)
+    return existing_file_obs
+
+
+def is_matching_file(existing_file, new_file):
+    def matches(existing, new, property_path):
+        return rgetattr(existing, property_path, '') == rgetattr(new, property_path, '')
+
+    return matches(existing_file, new_file, PROPERTY_FILENAME) and (
+        matches(existing_file, new_file, PROPERTY_MD5) or
+        matches(existing_file, new_file, PROPERTY_SHA1) or
+        matches(existing_file, new_file, PROPERTY_SHA256)
+    )
+
+
+def add_matching_file_observables(db, map_table, contents):
+    # identify file observables in contents excluding any which are already in map_table
+    new_file_obs = {id_: inbox_item for (id_, inbox_item) in contents.iteritems()
+                    if inbox_item.api_object.ty == 'obs' and
+                    id_ not in map_table and  # exclude perfect matches which have already been discovered via data hash
+                    rgetattr(inbox_item, ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE'],
+                             None) == 'FileObjectType'}
+    if not new_file_obs:
+        # if we have no new file observables, we can bail out
+        return
+
+    existing_file_obs = find_matching_db_file_obs(db, new_file_obs)
+    if not existing_file_obs:
+        # if we have no matching existing file observables, we can bail out
+        return
+
+    for existing_file in existing_file_obs:
+        for (new_id, new_file) in new_file_obs.iteritems():
+            if is_matching_file(EdgeObject(existing_file).to_ApiObject(), new_file.api_object):
+                map_table[new_id] = existing_file['_id']
+
+
 def existing_hash_dedup(contents, hashes, user):
     db = get_db()
 
@@ -59,13 +136,16 @@ def existing_hash_dedup(contents, hashes, user):
     }, {
         '_id': 1,
         'data.hash': 1
-    })
+    }).sort('created_on', pymongo.DESCENDING)
 
     hash_to_existing_ids = {doc['data']['hash']: doc['_id'] for doc in existing_items}
 
     map_table = {
         id_: hash_to_existing_ids[hash_] for id_, hash_ in hashes.iteritems() if hash_ in hash_to_existing_ids
     }
+
+    # file observable have more complex rules for duplicates, so simple hash matching isn't good enough
+    add_matching_file_observables(db, map_table, contents)
 
     out, additional_sightings = coalesce_duplicates_to_sitings(contents, map_table)
 
