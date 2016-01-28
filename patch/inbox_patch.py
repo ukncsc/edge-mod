@@ -38,7 +38,7 @@ def add(self, inbox_item):
     super(InboxProcessorForBuilders, self).add(inbox_item)
 
 
-def get_objects(content):
+def get_objects(content, db):
     query = {
         '_id': {
             '$in': content
@@ -51,10 +51,10 @@ def get_objects(content):
         'type': 1,
         'created_on': 1
     }
-    return {doc['_id']: doc for doc in get_db().stix.find(query, projection)}
+    return {doc['_id']: doc for doc in db().stix.find(query, projection)}
 
 
-def update_non_observables(top_level_objects):
+def update_non_observables(top_level_objects, db):
     from dateutil.parser import parse as date_time_parse
 
     for _id in top_level_objects:
@@ -70,7 +70,7 @@ def update_non_observables(top_level_objects):
                 # So let's derive the offset from UTC, subtract it from the hour, then remove the timezone info...
                 # ffs
                 actual_date = (actual_date - actual_date.tzinfo.utcoffset(actual_date)).replace(tzinfo=None)
-                get_db().stix.update({
+                db().stix.update({
                     '_id': _id
                 }, {
                     '$set': {
@@ -80,8 +80,8 @@ def update_non_observables(top_level_objects):
                 doc['created_on'] = actual_date
 
 
-def update_observables_date(children, top_level):
-    get_db().stix.update({
+def update_observables_date(children, top_level, db):
+    db().stix.update({
         '_id': {
             '$in': children
         }
@@ -92,7 +92,7 @@ def update_observables_date(children, top_level):
     }, multi=True)
 
 
-def update_observables(top_level_objects, observables):
+def update_observables(top_level_objects, observables, db):
     # Inspect the children of all top-level objects... for those that are observables (and that are in scope here),
     #  update their 'created_on' dates to that of the top-level object...
     for _id in top_level_objects:
@@ -119,7 +119,7 @@ def update_observables(top_level_objects, observables):
 
                     # Finally update the observables' date:
                     if all_obs_children:
-                        update_observables_date(all_obs_children, top_level)
+                        update_observables_date(all_obs_children, top_level, db)
                     # ...and locally...
                     for obs_id, obs in observables.iteritems():
                         if obs_id in all_obs_children:
@@ -127,17 +127,20 @@ def update_observables(top_level_objects, observables):
 
 
 def update_created_on(content, user, txn_id, **kwargs):
-    objects = get_objects(content)
+
+    db = get_db
+
+    objects = get_objects(content, db)
 
     top_level_objects = {_id: objects[_id] for _id in objects if objects[_id]['type'] != 'obs'}
 
-    update_non_observables(top_level_objects)
+    update_non_observables(top_level_objects, db)
 
     observables = {
         _id: objects[_id] for _id in objects if objects[_id]['type'] == 'obs'
     }
 
-    update_observables(top_level_objects, observables)
+    update_observables(top_level_objects, observables, db)
 
 
 def apply_patch():
