@@ -29,7 +29,7 @@ class InboxPatchTests(unittest.TestCase):
             }
         }
 
-        inbox_patch.update_non_observables(mock_objects, mock_db)
+        inbox_patch.update_non_observables(mock_objects, mock_db())
 
         expected_date = date_time_parse("2015-09-07T10:45:14.291293+00:00")
         expected_date = (expected_date - expected_date.tzinfo.utcoffset(expected_date)).replace(tzinfo=None)
@@ -85,7 +85,7 @@ class InboxPatchTests(unittest.TestCase):
             }
         }
 
-        inbox_patch.update_observables(mock_top_level_objects, mock_observables, mock_db)
+        inbox_patch.update_observables(mock_top_level_objects, mock_observables, mock_db())
 
         self.assertEqual(mock_observables["fireeye:observable-8328d5ae-2016-4049-b9d5-ebcd60accf17"]['created_on'],
                          mock_top_level_objects["PurpleSecureSystems:indicator-02db75d2-77e2-4774-a219-293318051515"]['created_on'])
@@ -159,7 +159,7 @@ class InboxPatchTests(unittest.TestCase):
             }
         }
 
-        inbox_patch.update_observables(mock_top_level_objects, mock_observables, mock_db)
+        inbox_patch.update_observables(mock_top_level_objects, mock_observables, mock_db())
 
         self.assertEqual(mock_observables["fireeye:observable-8328d5ae-2016-4049-b9d5-ebcd60accf17"]['created_on'],
                  mock_top_level_objects["PurpleSecureSystems:indicator-02db75d2-77e2-4774-a219-293318051515"]['created_on'])

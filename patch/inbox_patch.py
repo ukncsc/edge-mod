@@ -51,7 +51,7 @@ def get_objects(content, db):
         'type': 1,
         'created_on': 1
     }
-    return {doc['_id']: doc for doc in db().stix.find(query, projection)}
+    return {doc['_id']: doc for doc in db.stix.find(query, projection)}
 
 
 def update_non_observables(top_level_objects, db):
@@ -70,7 +70,7 @@ def update_non_observables(top_level_objects, db):
                 # So let's derive the offset from UTC, subtract it from the hour, then remove the timezone info...
                 # ffs
                 actual_date = (actual_date - actual_date.tzinfo.utcoffset(actual_date)).replace(tzinfo=None)
-                db().stix.update({
+                db.stix.update({
                     '_id': _id
                 }, {
                     '$set': {
@@ -81,7 +81,7 @@ def update_non_observables(top_level_objects, db):
 
 
 def update_observables_date(children, top_level, db):
-    db().stix.update({
+    db.stix.update({
         '_id': {
             '$in': children
         }
@@ -128,7 +128,7 @@ def update_observables(top_level_objects, observables, db):
 
 def update_created_on(content, user, txn_id, **kwargs):
 
-    db = get_db
+    db = get_db()
 
     objects = get_objects(content, db)
 
