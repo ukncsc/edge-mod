@@ -179,6 +179,8 @@ define([
                     modal.contentData.message("The indicator has been published internally");
                     modal.titleIcon("glyphicon-ok-sign");
 
+                    window.location.assign('/object/' + this.id());
+
                     setTimeout(function () {
                         window.location.assign(window.location.href.split("/indicator/")[0] + "/indicator/build/");
                     }, this.REDIRECT_DELAY);
