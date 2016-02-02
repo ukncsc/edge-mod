@@ -1,6 +1,7 @@
 import pymongo
 
-from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong
+from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong, \
+    drop_envelopes, INBOX_DROP_ENVELOPES
 from edge.generic import create_package, EdgeObject
 from mongoengine.connection import get_db
 from adapters.certuk_mod.validation import ValidationStatus
@@ -8,25 +9,26 @@ from adapters.certuk_mod.validation.package.validator import PackageValidationIn
 from edge.tools import rgetattr
 from .edges import dedup_collections
 
+PROPERTY_TYPE = ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE']
 PROPERTY_FILENAME = ['api_object', 'obj', 'object_', 'properties', 'file_name']
 PROPERTY_MD5 = ['api_object', 'obj', 'object_', 'properties', 'md5']
 PROPERTY_SHA1 = ['api_object', 'obj', 'object_', 'properties', 'sha1']
 PROPERTY_SHA256 = ['api_object', 'obj', 'object_', 'properties', 'sha256']
 
 
-def get_sighting_count(obs):
+def _get_sighting_count(obs):
     sighting_count = getattr(obs, 'sighting_count', 1)
     if sighting_count is None:
         sighting_count = 1
     return sighting_count
 
 
-def update_sighting_counts(additional_sightings, user):
+def _update_sighting_counts(additional_sightings, user):
     inbox_processor = InboxProcessorForBuilders(user=user)
     for id_, count in additional_sightings.iteritems():
         edge_object = EdgeObject.load(id_)
         api_object = edge_object.to_ApiObject()
-        api_object.obj.sighting_count = get_sighting_count(api_object.obj) + count
+        api_object.obj.sighting_count = _get_sighting_count(api_object.obj) + count
         inbox_processor.add(InboxItem(
             api_object=api_object,
             etlp=edge_object.etlp,
@@ -36,7 +38,7 @@ def update_sighting_counts(additional_sightings, user):
     inbox_processor.run()
 
 
-def coalesce_duplicates_to_sitings(contents, maptable):
+def _coalesce_duplicates_to_sitings(contents, maptable):
     out = {}
     additional_sightings = {}
     for id_, io in contents.iteritems():
@@ -45,18 +47,18 @@ def coalesce_duplicates_to_sitings(contents, maptable):
             out[id_] = io
         elif io.api_object.ty == 'obs':
             existing_id = maptable[id_]
-            sightings_for_duplicate = get_sighting_count(io.api_object.obj)
+            sightings_for_duplicate = _get_sighting_count(io.api_object.obj)
             additional_sightings[existing_id] = additional_sightings.get(existing_id, 0) + sightings_for_duplicate
     return out, additional_sightings
 
 
-def generate_message(template_text, contents, out):
+def _generate_message(template_text, contents, out):
     removed = len(contents) - len(out)
     message = (template_text % removed) if removed else None
     return message
 
 
-def find_matching_db_file_obs(db, new_file_obs):
+def _find_matching_db_file_obs(db, new_file_obs):
     def extract_properties(inbox_items, property_path):
         return list({str(rgetattr(inbox_item, property_path, None)) for inbox_item in inbox_items.itervalues()
                      if rgetattr(inbox_item, property_path, None) is not None})
@@ -92,9 +94,11 @@ def find_matching_db_file_obs(db, new_file_obs):
     return existing_file_obs
 
 
-def is_matching_file(existing_file, new_file):
+def _is_matching_file(existing_file, new_file):
     def matches(existing, new, property_path):
-        return rgetattr(existing, property_path, '') == rgetattr(new, property_path, '')
+        existing_value = rgetattr(existing, property_path, None)
+        new_value = rgetattr(new, property_path, None)
+        return existing_value is not None and new_value is not None and existing_value == new_value
 
     return matches(existing_file, new_file, PROPERTY_FILENAME) and (
         matches(existing_file, new_file, PROPERTY_MD5) or
@@ -103,29 +107,28 @@ def is_matching_file(existing_file, new_file):
     )
 
 
-def add_matching_file_observables(db, map_table, contents):
+def _add_matching_file_observables(db, map_table, contents):
     # identify file observables in contents excluding any which are already in map_table
     new_file_obs = {id_: inbox_item for (id_, inbox_item) in contents.iteritems()
                     if inbox_item.api_object.ty == 'obs' and
                     id_ not in map_table and  # exclude perfect matches which have already been discovered via data hash
-                    rgetattr(inbox_item, ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE'],
-                             None) == 'FileObjectType'}
+                    rgetattr(inbox_item, PROPERTY_TYPE, 'Unknown') == 'FileObjectType'}
     if not new_file_obs:
         # if we have no new file observables, we can bail out
         return
 
-    existing_file_obs = find_matching_db_file_obs(db, new_file_obs)
+    existing_file_obs = _find_matching_db_file_obs(db, new_file_obs)
     if not existing_file_obs:
         # if we have no matching existing file observables, we can bail out
         return
 
     for existing_file in existing_file_obs:
         for (new_id, new_file) in new_file_obs.iteritems():
-            if is_matching_file(EdgeObject(existing_file).to_ApiObject(), new_file.api_object):
+            if _is_matching_file(EdgeObject(existing_file).to_ApiObject(), new_file.api_object):
                 map_table[new_id] = existing_file['_id']
 
 
-def existing_hash_dedup(contents, hashes, user):
+def _existing_hash_dedup(contents, hashes, user):
     db = get_db()
 
     existing_items = db.stix.find({
@@ -145,19 +148,19 @@ def existing_hash_dedup(contents, hashes, user):
     }
 
     # file observable have more complex rules for duplicates, so simple hash matching isn't good enough
-    add_matching_file_observables(db, map_table, contents)
+    _add_matching_file_observables(db, map_table, contents)
 
-    out, additional_sightings = coalesce_duplicates_to_sitings(contents, map_table)
+    out, additional_sightings = _coalesce_duplicates_to_sitings(contents, map_table)
 
     if additional_sightings:
-        update_sighting_counts(additional_sightings, user)
+        _update_sighting_counts(additional_sightings, user)
 
-    message = generate_message("Remapped %d objects to existing objects based on hashes", contents, out)
+    message = _generate_message("Remapped %d objects to existing objects based on hashes", contents, out)
 
     return out, message
 
 
-def new_hash_dedup(contents, hashes, user):
+def _new_hash_dedup(contents, hashes, user):
     hash_to_ids = {}
     for id_, hash_ in sorted(hashes.iteritems()):
         hash_to_ids.setdefault(hash_, []).append(id_)
@@ -169,15 +172,15 @@ def new_hash_dedup(contents, hashes, user):
             for dup in ids[1:]:
                 map_table[dup] = master
 
-    out, additional_sightings = coalesce_duplicates_to_sitings(contents, map_table)
+    out, additional_sightings = _coalesce_duplicates_to_sitings(contents, map_table)
 
     for id_, count in additional_sightings.iteritems():
         inbox_item = contents.get(id_, None)
         if inbox_item is not None:
             api_object = inbox_item.api_object
-            api_object.obj.sighting_count = get_sighting_count(api_object.obj) + count
+            api_object.obj.sighting_count = _get_sighting_count(api_object.obj) + count
 
-    message = generate_message("Merged %d objects in the supplied package based on hashes", contents, out)
+    message = _generate_message("Merged %d objects in the supplied package based on hashes", contents, out)
 
     for id_, io in out.iteritems():
         dedup_collections(io.api_object.ty, io.api_object.obj)
@@ -186,10 +189,10 @@ def new_hash_dedup(contents, hashes, user):
 
 
 class DedupInboxProcessor(InboxProcessorForPackages):
-    filters = [
+    filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
         anti_ping_pong,  # removes existing STIX objects matched by id
-        existing_hash_dedup,  # removes existing STIX objects matched by hash
-        new_hash_dedup  # removes new STIX objects matched by hash
+        _existing_hash_dedup,  # removes existing STIX objects matched by hash
+        _new_hash_dedup  # removes new STIX objects matched by hash
     ]
 
     def __init__(self, user, trustgroups=None, streams=None):
@@ -197,7 +200,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         self.validation_result = {}
 
     @staticmethod
-    def validate(contents):
+    def _validate(contents):
         if not contents:
             return None
         # At this point, only things that don't already exist in the database will be in contents...
@@ -213,7 +216,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
 
     def apply_filters(self):
         super(DedupInboxProcessor, self).apply_filters()
-        self.validation_result = DedupInboxProcessor.validate(self.contents)
+        self.validation_result = DedupInboxProcessor._validate(self.contents)
         for id_, object_fields in self.validation_result.iteritems():
             for field_name in object_fields:
                 if object_fields[field_name]['status'] == ValidationStatus.ERROR:
