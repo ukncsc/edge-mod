@@ -6,10 +6,13 @@ import adapters.certuk_mod.builder.customizations as cert_builder
 from edge.generic import EdgeObject
 from mongoengine.connection import get_db
 from pprint import pprint
-from pymongo.errors import BulkWriteError
+from pymongo.errors import BulkWriteError, PyMongoError
 
 
 def main():
+    """
+    A script to recalculate all observable data hashes according to CERT requirements (can safely be run multiple times)
+    """
     cert_builder.apply_customizations()
 
     db = get_db()
@@ -27,7 +30,6 @@ def main():
         eo = EdgeObject.load(stix_id)
         ao = eo.to_ApiObject()
         new_hash = ao.localhash()
-        # print "%s - %s" % (stix_id, new_hash)
 
         bulk.find({
             '_id': stix_id,
@@ -40,6 +42,8 @@ def main():
 
     try:
         bulk_result = bulk.execute()
+    except PyMongoError as pme:
+        print pme
     except BulkWriteError as bwe:
         pprint(bwe.details)
     else:
