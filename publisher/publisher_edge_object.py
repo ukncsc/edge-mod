@@ -1,14 +1,22 @@
 
 from edge.generic import EdgeObject
 from edge.scanner import STIXScanner
-
-
+from users.models import Repository_User
+from mongoengine import DoesNotExist
 class PublisherEdgeObject(EdgeObject):
 
     id_alias_separator = ':'
 
     def __init__(self, doc, filters=None):
         super(PublisherEdgeObject, self).__init__(doc, filters)
+        self.created_by_username = ""
+        if doc is not None:
+            try:
+                u = Repository_User.objects(id=doc.get('created_by', ''))
+                self.created_by_username = u.get().username
+            except DoesNotExist:
+                return
+
 
     def ns_dict(self):
         namespaces = {}
