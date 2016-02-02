@@ -27,7 +27,8 @@ from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
 from adapters.certuk_mod.retention.purge import STIXPurge
-
+from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus
+from users.models import Repository_User
 
 audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
@@ -63,11 +64,25 @@ def discover(request):
         return redirect("publisher_not_found")
 
 
+def _get_request_username(request):
+    if hasattr(request, "user") and hasattr(request.user, "username"):
+        return request.user.username
+    return ""
+
+
 @login_required
 def review(request, id_):
     root_edge_object = PublisherEdgeObject.load(id_)
     package = PackageGenerator.build_package(root_edge_object)
     validation_info = PackageValidationInfo.validate(package)
+
+    req_user = _get_request_username(request)
+    if root_edge_object.created_by_username != req_user:
+        validation_info.validation_dict.update({id_: {"created_by":
+                                                          {"status": ValidationStatus.WARN,
+                                                           "message": "This object was created by %s not %s"
+                                                                     %(root_edge_object.created_by_username, req_user)}}})
+
     request.breadcrumbs([("Publisher", "")])
     return render(request, "publisher_review.html", {
         "root_id": id_,
