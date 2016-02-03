@@ -5,6 +5,8 @@ from edge.inbox import InboxProcessorForBuilders
 from stix.common.kill_chains import KillChainPhaseReference, KillChainPhasesReference
 from signalregistry import SignalRegistry
 from mongoengine.connection import get_db
+from edge.inbox import InboxError, InboxProcessor
+from edge import LOCAL_NAMESPACE, LOCAL_ALIAS
 
 
 def get_previous_frame():
@@ -141,6 +143,21 @@ def update_created_on(content, user, txn_id, **kwargs):
     }
 
     update_observables(top_level_objects, observables, db)
+
+old_inbox_add = InboxProcessor.add
+
+
+def name_space_check(self, inbox_item):
+    api_object = inbox_item.api_object
+    if api_object.id_.startswith(LOCAL_ALIAS + ":") \
+            and api_object.obj.id_ns != LOCAL_NAMESPACE:
+        raise InboxError(
+            "'%s' starts with the local STIX alias '%s', "
+            "but uses the namespace '%s' rather than the local STIX namespace '%s'"
+                % (api_object.id_, LOCAL_ALIAS, api_object.obj.id_ns, LOCAL_NAMESPACE))
+    old_inbox_add(self, inbox_item)
+
+InboxProcessor.add = name_space_check
 
 
 def apply_patch():
