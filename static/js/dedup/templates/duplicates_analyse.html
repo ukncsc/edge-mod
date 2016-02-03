@@ -1,2 +1,16 @@
 <hr>
-<button data-bind="click:analyse" class="btn btn-default pull-right">Analyse</button>
+<div class="row" data-bind="if: analysisStatus() === 1">
+    <button data-bind="click: analyse.bind($root)" class="btn btn-default pull-right">Analyse</button>
+</div>
+<div class="row" data-bind="if: analysisStatus() === 2">
+    <div class="jumbotron">
+        <img src="/static/img/soltra_flame_anim.gif" class="pull-left" style="margin:2em">
+        <div>
+            <h1>Analysing&hellip;</h1>
+            <p>This may take a few minutes. Please be patient.</p>
+        </div>
+    </div>
+</div>
+<div class="row" data-bind="if: analysisStatus() === 3">
+    <pre data-bind="text: ko.toJSON(analysis, null, 2)"></pre>
+</div>

@@ -11,6 +11,7 @@ define([
             this.indicatorType.extend({ required: true });
             this.tlp.extend({ required: true });
             this.killChainPhase = ko.observable("").extend({ required: true });
+            this.confidence.extend({ required: true });
 
             this.kill_chain_phase_list = ko.observableArray([]);
         },
@@ -27,6 +28,9 @@ define([
                 var msgs = sup.call(this);
                 if (this.description.hasError()) {
                     msgs.addError("You need to enter a description for your indicator");
+                }
+                if (!this.confidence()) {
+                    msgs.addError("You need to select a confidence level for your indicator");
                 }
                 if (!this.indicatorType()) {
                     msgs.addError("You need to select a type for your indicator");

@@ -1,4 +1,6 @@
-from edge.generic import WHICH_DBOBJ
+import hashlib
+
+from edge.generic import WHICH_DBOBJ, HASH_DISPATCH
 from edge.observable import \
     CYBOX_SHORT_DESCRIPTION, \
     DBObservable, \
@@ -6,7 +8,18 @@ from edge.observable import \
     get_obs_type as original_get_obs_type, \
     get_obs_title as original_get_obs_title, \
     get_obs_description as original_get_obs_description
-from edge.tools import rgetattr
+from edge.tools import rgetattr, dicthash_sha1, scrubcopy, nested_get
+
+OBS_HASH_PATHS = {
+    'AddressObjectType': ['category', 'address_value'],
+    'ArtifactObjectType': ['type_', 'data'],
+    'DomainNameObjectType': ['type_', 'value'],
+    'HostnameObjectType': ['hostname_value'],
+    'MutexObjectType': ['name'],
+    'SocketAddressObjectType': ['ip_address', 'hostname.hostname_value', 'port.layer4_protocol', 'port.port_value'],
+    'URIObjectType': ['type_', 'value'],
+    'WindowsRegistryKeyObjectType': ['key', 'hive'],
+}
 
 
 def generate_db_observable_patch(custom_draft_handler_map):
@@ -34,6 +47,31 @@ def generate_db_observable_patch(custom_draft_handler_map):
             object_type = rgetattr(observable, ['_object', '_properties', '_XSI_TYPE'], 'None')
             draft_handler = DBObservablePatch._get_custom_to_draft_handler(object_type)
             return draft_handler(observable, tg, load_by_id, id_ns)
+
+        @classmethod
+        def dupehash(cls, apiobj):
+            properties = rgetattr(apiobj, ['object_', 'properties'], None)
+            obs_type = rgetattr(properties, ['_XSI_TYPE'], None)
+            if obs_type is not None:
+                if obs_type in OBS_HASH_PATHS:
+                    # we can produce a meaningful hash for selected properties
+                    to_hash = "%s|%s|%s" % (
+                        cls.SHORT_NAME,
+                        obs_type,
+                        '|'.join(
+                            [str(rgetattr(properties, str(path).split('.'), '')) for path in OBS_HASH_PATHS[obs_type]]
+                        )
+                    )
+                    hash_ = "certuk:%s" % hashlib.sha1(to_hash).hexdigest()
+                else:
+                    # we can't produce a meaningful hash on selected properties, so hash them all
+                    to_hash = scrubcopy(nested_get(apiobj.to_dict(), ['object', 'properties'], {}), ['xsi:type'])
+                    hash_ = "certuk:%s" % dicthash_sha1(to_hash, salt=cls.SHORT_NAME)
+            else:
+                # we don't know what this is, so let the existing code deal with it
+                hash_ = super(DBObservablePatch, cls).dupehash(apiobj)
+
+            return hash_
 
     return DBObservablePatch
 
@@ -64,4 +102,6 @@ def apply_patch(custom_observable_definitions):
         ('value', generate_custom_get_obs_value(custom_summary_value_map)),
     )
 
-    WHICH_DBOBJ['obs'] = generate_db_observable_patch(custom_draft_handler_map)
+    db_observable_patch = generate_db_observable_patch(custom_draft_handler_map)
+    WHICH_DBOBJ['obs'] = db_observable_patch
+    HASH_DISPATCH['obs'] = db_observable_patch.dupehash

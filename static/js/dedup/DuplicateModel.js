@@ -42,6 +42,8 @@ define([
             this.duplicatesLabel = ko.observable("Duplicate");
             this.selectedDuplicateId = ko.observable(null).extend(rate_limited);
             this.selectedDuplicate = ko.observable(null);
+            this.analysisStatus = ko.observable(0);
+            this.analysis = ko.observable(null);
 
             this.typesWithDuplicates = ko.computed(function () {
                 var typesWithDuplicates = [];
@@ -114,9 +116,11 @@ define([
         },
 
         _onDuplicateChanged: function (newId) {
+            this.analysisStatus(0);
             if (typeof newId === "string") {
                 getJSON("/adapter/certuk_mod/duplicates/object/" + newId, null, function (data) {
                     this.selectedDuplicate(new StixPackage(data["package"], data["root_id"]));
+                    this.analysisStatus(1);
                 }.bind(this));
             } else {
                 this.selectedDuplicate(null);
@@ -124,7 +128,14 @@ define([
         },
 
         analyse: function () {
-            alert("Coming soon...");
+            this.analysisStatus(2);
+            getJSON("/adapter/certuk_mod/duplicates/parents/" + this.selectedDuplicateId(), null, function (data) {
+                this.analysis(data);
+                this.analysisStatus(3);
+            }.bind(this), function (error) {
+                this.analysis(error);
+                this.analysisStatus(3);
+            }.bind(this));
         }
     });
 });

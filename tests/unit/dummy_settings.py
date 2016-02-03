@@ -34,3 +34,5 @@ mock.patch('mongoengine.connect').start()
 RUNNING_ADAPTERS = ()
 
 TEMPLATE_DIRS = ()
+
+LOCK_DIR = 'LockDir'

@@ -13,10 +13,13 @@ class STIXPurge(object):
     def __init__(self, retention_config):
         self.retention_config = retention_config
 
-    def _get_old_external_ids(self, minimum_date, version_epoch):
+    def _get_old_external_ids(self, minimum_id, minimum_date, version_epoch):
         old_external_ids = get_db().stix.find({
             'created_on': {
                 '$lt': minimum_date
+            },
+            '_id': {
+                '$gt': minimum_id
             },
             'data.idns': {
                 '$ne': LOCAL_NAMESPACE
@@ -32,16 +35,20 @@ class STIXPurge(object):
         }, {
             '_id': 1,
             'created_on': 1
-        }).sort('created_on', -1).limit(self.PAGE_SIZE)
+        }).sort([('created_on', -1), ('_id', 1)]).limit(self.PAGE_SIZE)
 
         old_external_ids = list(old_external_ids)
         if not old_external_ids:
-            return None, []
+            return None, None, []
         new_minimum_date = old_external_ids[-1]['created_on']
+        # We need this, just in case we have more than PAGE_SIZE worth of data with the same 'created_on' date.
+        # If not, we'd end up in a loop because the returned new_minimum_date is not updated.
+        # We could simply sort on '_id' only, however it's probably quicker to sort on a date field first, then by ID.
+        new_minimum_id = old_external_ids[-1]['_id']
 
         old_external_ids = [doc['_id'] for doc in old_external_ids]
 
-        return new_minimum_date, old_external_ids
+        return new_minimum_id, new_minimum_date, old_external_ids
 
     @staticmethod
     def __get_back_links_filter_where_clause(minimum_back_links):
@@ -174,7 +181,7 @@ class STIXPurge(object):
             'created_on': {
                 '$lt': minimum_date
             },
-            'data.type': 'pkg'
+            'type': 'pkg'
         }
         if not include_internal:
             query.update({
@@ -189,10 +196,12 @@ class STIXPurge(object):
 
     def get_purge_candidates(self, minimum_date):
         version_epoch = int(1000 * (minimum_date - datetime(1970, 1, 1)).total_seconds() + 0.5)
+        minimum_id = ''
 
         ids_to_delete = []
         while True:
-            minimum_date, old_external_ids = self._get_old_external_ids(minimum_date, version_epoch)
+            minimum_id, minimum_date, old_external_ids = self._get_old_external_ids(minimum_id, minimum_date,
+                                                                                    version_epoch)
 
             if not old_external_ids:
                 break
@@ -227,24 +236,26 @@ class STIXPurge(object):
             '_id': 1,
             'data.edges': 1
         })
-        edges = []
-        ids_with_edges = []
+
+        ids_with_edges = {}
         for doc in edges_cursor:
             doc_edges = doc.get('data', {}).get('edges', {})
             if doc_edges:
-                ids_with_edges.append(doc['_id'])
-                edges += [edge_id for edge_id in doc_edges]
+                ids_with_edges[doc['_id']] = [edge_id for edge_id in doc_edges]
 
         if ids_with_edges:
-            get_db().stix_backlinks.update({
-                '_id': {
-                    '$in': edges
-                }
-            }, {
-                '$unset': {
-                    'value.%s' % old_parent: 1 for old_parent in ids_with_edges
-                }
-            }, multi=True)
+            bulk_operation = get_db().stix_backlinks.initialize_unordered_bulk_op()
+            for parent_id in ids_with_edges:
+                bulk_operation.find({
+                    '_id': {
+                        '$in': ids_with_edges[parent_id]
+                    }
+                }).update({
+                    '$unset': {
+                        'value.%s' % parent_id: 1
+                    }
+                })
+            bulk_operation.execute()
 
         # Un-setting some back link values may result in entries which are empty...
         get_db().stix_backlinks.remove({
