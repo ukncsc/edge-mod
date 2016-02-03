@@ -168,3 +168,32 @@ class InboxPatchTests(unittest.TestCase):
 
         mock_db.assert_called_with()
 
+    @mock.patch('adapters.certuk_mod.patch.inbox_patch.LOCAL_NAMESPACE', "localNamespace")
+    @mock.patch('adapters.certuk_mod.patch.inbox_patch.LOCAL_ALIAS', "localAlias")
+    @mock.patch('adapters.certuk_mod.patch.inbox_patch.old_inbox_add')
+    def test_pass_name_space_check(self, mock_method):
+        from edge.inbox import InboxError, InboxProcessor
+        mock_inbox = mock.Mock(spec=InboxProcessor)
+        mock_object = mock.MagicMock()
+        mock_object.api_object.id_ = "localAlias:"
+        mock_object.api_object.obj.id_ns = "localNamespace"
+
+        from edge.inbox import InboxError
+
+        try:
+            inbox_patch.name_space_check(mock_inbox, mock_object)
+        except InboxError:
+            self.fail(" inbox_patch.namspace_check raised InboxError unexpectedly")
+
+    @mock.patch('adapters.certuk_mod.patch.inbox_patch.LOCAL_NAMESPACE', "localNamespace")
+    @mock.patch('adapters.certuk_mod.patch.inbox_patch.LOCAL_ALIAS', "localAlias")
+    @mock.patch('adapters.certuk_mod.patch.inbox_patch.old_inbox_add')
+    def test_fail_name_space_check(self, mock_method):
+
+        mock_inbox = mock.Mock()
+        mock_object = mock.Mock()
+        mock_object.api_object.id_ = "localAlias:"
+        mock_object.api_object.obj.id_ns = "localNamespace2"
+
+        from edge.inbox import InboxError
+        self.assertRaises(InboxError, inbox_patch.name_space_check, mock_inbox, mock_object);
