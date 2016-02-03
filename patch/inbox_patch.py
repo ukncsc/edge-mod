@@ -152,8 +152,7 @@ def name_space_check(self, inbox_item):
     if api_object.id_.startswith(LOCAL_ALIAS + ":") \
             and api_object.obj.id_ns != LOCAL_NAMESPACE:
         raise InboxError(
-            "Failure to inbox '%s' as its "
-            "id starts with the local STIX alias '%s', "
+            "'%s' starts with the local STIX alias '%s', "
             "but uses the namespace '%s' rather than the local STIX namespace '%s'"
                 % (api_object.id_, LOCAL_ALIAS, api_object.obj.id_ns, LOCAL_NAMESPACE))
     old_inbox_add(self, inbox_item)
