@@ -39,15 +39,15 @@ def _update_sighting_counts(additional_sightings, user):
     inbox_processor.run()
 
 
-def _coalesce_duplicates_to_sitings(contents, maptable):
+def _coalesce_duplicates_to_sitings(contents, map_table):
     out = {}
     additional_sightings = {}
     for id_, io in contents.iteritems():
-        if id_ not in maptable:
-            io.api_object = io.api_object.remap(maptable)
+        if id_ not in map_table:
+            io.api_object = io.api_object.remap(map_table)
             out[id_] = io
         elif io.api_object.ty == 'obs':
-            existing_id = maptable[id_]
+            existing_id = map_table[id_]
             sightings_for_duplicate = _get_sighting_count(io.api_object.obj)
             additional_sightings[existing_id] = additional_sightings.get(existing_id, 0) + sightings_for_duplicate
     return out, additional_sightings
@@ -156,7 +156,7 @@ def _existing_hash_dedup(contents, hashes, user):
     if additional_sightings:
         _update_sighting_counts(additional_sightings, user)
 
-    message = _generate_message("Remapped %d objects to existing objects based on hashes", contents, out)
+    message = _generate_message("Remapped %d observables to existing observables based on hashes", contents, out)
 
     return out, message
 
@@ -164,7 +164,8 @@ def _existing_hash_dedup(contents, hashes, user):
 def _new_hash_dedup(contents, hashes, user):
     hash_to_ids = {}
     for id_, hash_ in sorted(hashes.iteritems()):
-        hash_to_ids.setdefault(hash_, []).append(id_)
+        if contents[id_].api_object.ty == 'obs':
+            hash_to_ids.setdefault(hash_, []).append(id_)
 
     map_table = {}
     for hash_, ids in hash_to_ids.iteritems():
@@ -181,7 +182,7 @@ def _new_hash_dedup(contents, hashes, user):
             api_object = inbox_item.api_object
             api_object.obj.sighting_count = _get_sighting_count(api_object.obj) + count
 
-    message = _generate_message("Merged %d objects in the supplied package based on hashes", contents, out)
+    message = _generate_message("Merged %d observables in the supplied package based on hashes", contents, out)
 
     for id_, io in out.iteritems():
         dedup_collections(io.api_object.ty, io.api_object.obj)
@@ -193,9 +194,9 @@ class DedupInboxProcessor(InboxProcessorForPackages):
     # TODO: use the line below when Edge 2.8 is released
     # filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
     filters = [
-        anti_ping_pong,  # removes existing STIX objects matched by id
+        _new_hash_dedup,  # removes new STIX objects matched by hash
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
-        _new_hash_dedup  # removes new STIX objects matched by hash
+        anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 
     def __init__(self, user, trustgroups=None, streams=None):
@@ -219,6 +220,8 @@ class DedupInboxProcessor(InboxProcessorForPackages):
 
     def apply_filters(self):
         super(DedupInboxProcessor, self).apply_filters()
+        if not self.contents:
+            return
         self.validation_result = DedupInboxProcessor._validate(self.contents)
         for id_, object_fields in self.validation_result.iteritems():
             for field_name in object_fields:
