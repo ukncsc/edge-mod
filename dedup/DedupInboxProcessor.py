@@ -1,8 +1,7 @@
 import pymongo
 
-from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong
-    # TODO: add the following imports to the above line when Edge 2.8 is released
-    # drop_envelopes, INBOX_DROP_ENVELOPES
+from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong,\
+    drop_envelopes, INBOX_DROP_ENVELOPES
 from edge.generic import create_package, EdgeObject
 from mongoengine.connection import get_db
 from adapters.certuk_mod.validation import ValidationStatus
@@ -164,7 +163,7 @@ def _existing_hash_dedup(contents, hashes, user):
 def _new_hash_dedup(contents, hashes, user):
     hash_to_ids = {}
     for id_, hash_ in sorted(hashes.iteritems()):
-        if contents[id_].api_object.ty == 'obs':
+        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'obs':
             hash_to_ids.setdefault(hash_, []).append(id_)
 
     map_table = {}
@@ -191,9 +190,7 @@ def _new_hash_dedup(contents, hashes, user):
 
 
 class DedupInboxProcessor(InboxProcessorForPackages):
-    # TODO: use the line below when Edge 2.8 is released
-    # filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
-    filters = [
+    filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
         _new_hash_dedup,  # removes new STIX objects matched by hash
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
         anti_ping_pong,  # removes existing STIX objects matched by id
