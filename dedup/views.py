@@ -77,24 +77,26 @@ def ajax_import(request, username):
     try:
         ip = DedupInboxProcessor(user=request.user, streams=[(request, None)])
         ip.run()
+        if len(ip.filter_messages) == 0 and ip.message:
+            ip.filter_messages.append(ip.message)
         return JsonResponse({
             'count': ip.saved_count,
-            'duration': '%.2f' % elapsed.ms(),
-            'message': ip.message,
+            'duration': int(elapsed.ms()),
+            'messages': ip.filter_messages,
             'state': 'success',
             'validation_result': ip.validation_result
         }, status=202)
     except (XMLSyntaxError, EntitiesForbidden, InboxError) as e:
         return JsonResponse({
-            'duration': '%.2f' % elapsed.ms(),
-            'message': e.message,
+            'duration': int(elapsed.ms()),
+            'messages': [e.message],
             'state': 'invalid',
             'validation_result': ip.validation_result if isinstance(ip, DedupInboxProcessor) else None
         }, status=400)
     except Exception as e:
         log_error(e, 'adapters/dedup/import', 'Import failed')
         return JsonResponse({
-            'duration': '%.2f' % elapsed.ms(),
-            'message': e.message,
+            'duration': int(elapsed.ms()),
+            'messages': [e.message],
             'state': 'error'
         }, status=500)
