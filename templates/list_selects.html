@@ -1,0 +1,54 @@
+<template id="listSelectsPanel">
+     <div data-bind="if: $data == $parent.section().value()">
+        <div class="panel-heading"> <span data-bind="text: label"></span>
+           </div>
+        <div class="panel-body">
+
+
+        <table>
+            <tr>
+                <td>
+                    <div class="col-lg-5">
+                        <span>Available</span>
+
+                        <select id="list_selects_left" style="align:right;width:350px", data-bind="listSelectElement: sourceSelect,
+                        event:
+                        {
+                            mousedown: onMouseDown,
+                            mousemove: onMouseMove,
+                            mouseup: onMouseUp
+                         },
+
+                        options: remaining_items" size="20" multiple="true"></select>
+                    </div>
+                </td>
+                <td>
+                    <div class="col-lg-1" style="vertical-align: middle">
+                    <button  class="btn btn-default btn-xs btn-add" data-bind="click: add, visible: $parent.mode().isEditable()" style="align:left",>
+                            <span class="glyphicon glyphicon-chevron-right green"></span>
+                        </button>
+                        <button class="btn btn-default btn-xs btn-add" data-bind="click: remove, visible: $parent.mode().isEditable()">
+                            <span class="glyphicon glyphicon-chevron-left green"></span>
+                        </button>
+                    </div>
+                </td>
+                <td>
+                    <div class="col-lg-5">
+                        <span>Selected</span>
+                       <select id="list_selects_right" style="align:right;width:350px", data-bind="listSelectElement: targetSelect,
+                       event:
+                       {
+                            mousedown: onMouseDown,
+                            mousemove: onMouseMove,
+                            mouseup: onMouseUp
+                       },
+                       options: items" size="20" multiple="true"></select>
+                    </div>
+                </td>
+        </tr>
+    </table>
+   </div>
+        <!-- panel body -->
+   </div>
+</template>
+

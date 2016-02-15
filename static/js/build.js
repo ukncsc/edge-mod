@@ -17,6 +17,9 @@
         },
         {
             name: "ind-build/cert-ind-build-ready"
+        },
+        {
+            name: "cert-identity"
         }
     ],
     fileExclusionRegExp: /^\.|^tests$|^build.js$|\.md$|\.pyc$/,

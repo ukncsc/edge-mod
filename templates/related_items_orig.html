@@ -1,0 +1,124 @@
+{% include 'observable-objects.html' %}
+
+<template id="relatedItemsPanel">
+    <div data-bind="if: $data == $parent.section().value()">
+        <div class="panel panel-default panel-builder">
+
+            <div class="panel-heading">
+                <p class="pull-right" data-bind="visible: totalItems() > 0, text: paginationHUD"></p>
+                <span data-bind="text: label"></span>
+                <button class="btn btn-default btn-xs btn-add" data-bind="click: showCandidateItems, visible: $parent.mode().isEditable()">
+                    <span class="glyphicon glyphicon-plus-sign green"></span> Add
+                </button>
+                <div data-bind="template: { name: 'operator-toggle-template', if: $data.label() == 'Observables' && $data.count() && $parent.mode().isEditable() }"></div>
+            </div>
+
+            <div class="panel-body">
+                <table>
+                    <tbody role="form" data-bind="foreach: pageItems">
+                        <tr class="datarow">
+                            <td>
+                                <div data-bind="template: { name: $parent.itemTemplate }"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div><!-- panel body -->
+            <ul class="pager" data-bind="if: totalItems() > 0">
+                <li class="previous"><input type="button" class="btn btn-default" data-bind="enable: hasPrev(), click: firstPage" value="&lt;&lt;"></li>
+                <li class="previous"><input type="button" class="btn btn-default" data-bind="enable: hasPrev(), click: prevPage" value="&lt;"></li>
+                <li><small data-bind="text: paginationHUD"></small></li>
+                <li class="next"><button class="btn btn-default" data-bind="enable: hasNext(), click: nextPage">&gt;</button></li>
+                <li class="next"><button class="btn btn-default" data-bind="enable: hasNext(), click: lastPage">&gt;&gt;</button></li>
+            </ul>
+        </div>
+    </div>
+</template>
+
+
+<template id="relatedItem">
+    <div class="form-horizontal">
+        <fieldset>
+            <div data-bind="visible: $root.mode().isReadOnly()">
+                <div class="form-group">
+                    <label for="title" class="col-lg-2 control-label">Title</label>
+
+                    <div class="col-lg-8">
+                        <input class="form-control" data-bind="value: title" id="title" name="title" disabled>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="title" class="col-lg-2 control-label">ID Ref</label>
+
+                <div class="col-lg-8">
+                    <input class="form-control" data-bind="value: idref" id="idref" name="idref" disabled>
+                </div>
+                <div class="col-lg-2">
+                    <div data-bind="visible: $root.mode().isReadOnly()">
+                        <a data-bind="visible: view_url.length > 0, attr:{href:view_url}" title="View this item"><span
+                                class="glyphicon glyphicon-file"></span></a>
+                    </div>
+                    <div data-bind="visible: $root.mode().isEditable()">
+                        <span class="glyphicon glyphicon-remove" title="Remove this item"
+                              data-bind="click: $parent.removeRelatedItem.bind($parent)"></span>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</template>
+
+<template id="observableItem">
+    <span class="pull-right">
+        <!-- ko if: $root.mode().isEditable() -->
+            <a class="glyphicon glyphicon-remove" data-bind="click: $parent.remove.bind($parent)"></a>
+        <!-- /ko -->
+    </span>
+    <dl class="dl-horizontal">
+        <dt>Type</dt>
+        <dd data-bind="text: objectType"></dd>
+        <dt>Title</dt>
+        <dd>
+            <!-- ko if: $root.mode().isReadOnly() -->
+                <!-- ko if: $data.view_url -->
+                    <a href="" data-bind="attr: { href: view_url }" target="_blank">
+                        <span data-bind="text: title"></span>
+                    </a>
+                <!-- /ko -->
+                <!-- ko if: !$data.reviewOnly -->
+                    <a href="javascript:void(0)" data-bind="text: title, click: $parent.startEditing.bind($parent)"></a>
+                <!-- /ko -->
+                <!-- ko if: !$data.view_url && $data.reviewOnly -->
+                    <span data-bind="text: title"></span>
+                <!-- /ko -->
+            <!-- /ko -->
+            <!-- ko if: $root.mode().isEditable() -->
+                <!-- ko if: $data.view_url && !($data.isLinked) -->
+                    <a href="" data-bind="attr: { href: view_url }" target="_blank">
+                        <span data-bind="text: title"></span>
+                    </a>
+                <!-- /ko -->
+                <!-- ko if: !$data.reviewOnly -->
+                    <a href="javascript:void(0)" data-bind="text: title, click: $parent.startEditing.bind($parent)"></a>
+                <!-- /ko -->
+                <!-- ko if: $root.mode().isNew() &&  !($data.isLinked) || !($data.id) -->
+                    <a href="" data-bind="click: $parent.startEditing.bind($parent)"><span class="glyphicon glyphicon-edit" title="Edit this object"></span></a>
+                <!-- /ko -->
+            <!-- /ko -->
+        </dd>
+    </dl>
+
+    <div data-bind="template: { name: 'address-readonly', if: objectType=='Address'}"></div>
+    <div data-bind="template: { name: 'hostname-readonly', if: objectType=='Hostname'}"></div>
+    <div data-bind="template: { name: 'uri-readonly', if: objectType=='URI'}"></div>
+    <div data-bind="template: { name: 'domain-name-readonly', if: objectType=='Domain Name'}"></div>
+    <div data-bind="template: { name: 'file-readonly', if: objectType=='File'}"></div>
+    <div data-bind="template: { name: 'mutex-readonly', if: objectType=='Mutex'}"></div>
+    <div data-bind="template: { name: 'socket-readonly', if: objectType=='Socket'}"></div>
+    <div data-bind="template: { name: 'registry-readonly', if: objectType=='Registry Key'}"></div>
+    <div data-bind="template: { name: 'artifact-readonly', if: objectType=='Artifact'}"></div>
+    <div data-bind="template: { name: 'email-readonly', if: objectType=='Email'}"></div>
+    {% block extra-read-only-observable-templates %}{% endblock %}
+</template>
