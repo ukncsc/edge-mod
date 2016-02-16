@@ -1,13 +1,13 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/cert-identity-shim",
+    "common/identity",
     "common/cert-identity_showmodal-shim",
     "common/cert-build-functions"
 ], function (declare, ko, EdgeIdentity, EdgeIdentityShowModal, buildFunctions) {
     "use strict";
 
-     function CERTIdentity(options) {
+     function CERTIdentity() {
         CERTIdentity.super.constructor.call(this);
     }
 

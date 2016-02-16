@@ -17,7 +17,7 @@ define([
         this.status = ko.observable();
         this.tlp = ko.observable();
         this.reporter = ko.observable();
-        this.reporter(new CERTIdentity({name: 'Click to edit'}))
+        this.reporter(new CERTIdentity());
         this.markings = ko.observable();
         this.statuses = ko.observableArray([]);
         this.confidences = ko.observableArray([]);

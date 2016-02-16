@@ -60,8 +60,8 @@
                     <label class="col-lg-2 control-label">Reporter</label>
                     <div class="col-lg-10" data-bind="value: reporter,
                                                       disable: $root.mode().isReadOnly()">
-                        <a data-bind='text: reporter().name(),
-                                      click: function() { generalShowModal({viewModel: reporter()}) }'></a>
+                        <a data-bind='
+                                      click: function() { generalShowModal({viewModel: reporter()}) }'>Click to Edit</a>
                        </div>
                 </div>
 
