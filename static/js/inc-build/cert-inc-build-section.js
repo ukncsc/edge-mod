@@ -1,7 +1,8 @@
 define([
-    "dcl/dcl",
     "knockout",
     "inc-build/cert-inc-build-attributed-actors",
+    "inc-build/cert-inc-build-times",
+    "inc-build/cert-inc-build-categories",
     "inc-build/cert-inc-build-discovery-methods",
     "inc-build/cert-inc-build-effects",
     "inc-build/cert-inc-build-general",
@@ -14,7 +15,7 @@ define([
     "inc-build/cert-inc-build-victims",
     "inc-build/cert-inc-build-responders",
     "common/cert-messages"
-], function (declare, ko, AttributedActors, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Messages) {
+], function (ko, AttributedActors, Times, Categories, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Messages) {
     "use strict";
     function indexBy(items, pname) {
         var indexed = {};
@@ -27,6 +28,8 @@ define([
     function Section() {
         this.options = ko.observableArray([
             ko.observable(new General()),
+            ko.observable(new Times()),
+            ko.observable(new Categories()),
             ko.observable(new TrustGroups()),
             ko.observable(new Effects()),
             ko.observable(new Victims()),

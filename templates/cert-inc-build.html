@@ -12,6 +12,7 @@
 {% include 'list_idents.html' %}
 {% include 'cert-inc-build-general.html' %}
 {% include 'draft_list.html' %}
+{% include 'cert-inc-build-time.html' %}
 
 <div class="obj-title" data-bind="templateWithContext: { name: 'builder-hdr', data: $root, context: { imgsrc: '{% static 'img/hex/hex_inc.png' %}', typeName: 'Incident' }  }"></div>
 
@@ -52,6 +53,7 @@
 
 
             <div data-bind="template: { name: 'GeneralPanel', data: section().findByLabel('General') }"></div>
+            <div data-bind="template: { name: 'TimePanel', data: section().findByLabel('Times') }"></div>
             <div data-bind="template: { name: 'listSelectsPanel', data: section().findByLabel('Trust Groups') }"></div>
             <div data-bind="template: { name: 'relatedItemsPanel', data: section().findByLabel('Related Indicators') }"></div>
             <div data-bind="template: { name: 'relatedItemsPanel', data: section().findByLabel('Related Incidents') }"></div>
@@ -62,6 +64,7 @@
             <div data-bind="template: { name: 'listIdentsPanel', data: section().findByLabel('Victims') }"></div>
             <div data-bind="template: { name: 'listIdentsPanel', data: section().findByLabel('Responders') }"></div>
             <div data-bind="template: { name: 'listSelectsPanel', data: section().findByLabel('Discovery Methods') }"></div>
+            <div data-bind="template: { name: 'listSelectsPanel', data: section().findByLabel('Categories') }"></div>
             <div data-bind="template: { name: 'listSelectsPanel', data: section().findByLabel('Intended Effects') }"></div>
         </div>
     </div>
@@ -93,6 +96,10 @@
     incident_builder.default_tlp        = '{{ default_tlp|safe }}';
     incident_builder.effects_list = {{ effects|safe }};
     incident_builder.statuses_list = {{ statuses|safe }};
+    incident_builder.categories_list = {{ categories|safe }};
+
+    incident_builder.time_types_list = {{ time_types_list|safe }};
+    incident_builder.time_zones_list = {{ time_zones_list|safe }};
 
     incident_builder.discovery_methods_list = {{ discovery_methods|safe }};
     incident_builder.intended_effects_list = {{ intended_effects|safe }};

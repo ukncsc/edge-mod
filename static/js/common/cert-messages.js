@@ -1,7 +1,6 @@
 define([
-    "../dcl/dcl",
     "knockout"
-], function (declare, ko) {
+], function (ko) {
     "use strict";
 
     function Messages () {

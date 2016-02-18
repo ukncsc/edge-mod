@@ -1,13 +1,12 @@
 // When the DOM is ready, set up the viewmodel...
 
 define([
-    "dcl/dcl",
     "knockout",
     "inc-build/cert-incident-builder-shim",
     "inc-build/cert-inc-build-section",
     "common/cert-build-mode",
     "inc-build/cert-inc-viewmodel"
-], function (declare, ko, incident_builder, section, BuildMode, ViewModel) {
+], function (ko, incident_builder, section, BuildMode, ViewModel) {
     "use strict";
     var vm = new ViewModel();
     vm.loadStatic({
@@ -17,7 +16,10 @@ define([
         "confidence_list": incident_builder.confidence_list,
         "discovery_methods_list": incident_builder.discovery_methods_list,
         "intended_effects_list": incident_builder.intended_effects_list,
-        "effects_list": incident_builder.effects_list
+        "effects_list": incident_builder.effects_list,
+        "categories_list": incident_builder.categories_list,
+        "time_zones_list": incident_builder.time_zones_list,
+        "time_types_list": incident_builder.time_types_list,
     });
 
     vm.id(incident_builder.id);

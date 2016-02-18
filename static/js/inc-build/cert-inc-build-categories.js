@@ -5,19 +5,20 @@ define([
 ], function (declare, ko, listSelects) {
     "use strict";
 
-        var IntendedEffects = declare(listSelects, {
-        declaredClass: "IntendedEffects",
+
+    var DiscoveryMethods = declare(listSelects, {
+        declaredClass: "Categories",
 
         constructor: declare.superCall(function (sup) {
                 return function () {
-                    sup.call(this, "Intended Effects", {
-                        selectChoice: 'intended_effects_list',
-                        saveKey: 'intended_effects'
+                    sup.call(this, "Categories", {
+                        selectChoice: 'categories_list',
+                        saveKey: 'categories'
                     });
                 }
             }
         )
     });
 
-     return IntendedEffects;
+    return  DiscoveryMethods;
 });

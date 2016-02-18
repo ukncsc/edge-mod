@@ -1,23 +1,26 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/cert-build-related",
-    "common/cert-build-functions"
-], function (declare, ko, buildRelated, buildFunctions) {
+    "common/cert-build-related"
+], function (declare, ko, buildRelated) {
     "use strict";
 
-    function RelatedObservables() {
-        RelatedObservables.super.constructor.call(this, "Related Observables", {
-            resultsPerPage: 10,
-            itemType: 'obs',
-            saveKey: 'related_observables',
-            getUrl: '/catalog/ajax/load_catalog/',
-            candidateItemsTemplate: 'candidateModal',
-            itemTemplate: 'relatedItem'
-        });
-    }
+    var RelatedObservables = declare(buildRelated, {
+        declaredClass: "RelatedObservables",
 
-    buildFunctions.extend(RelatedObservables, buildRelated);
+        constructor: declare.superCall(function (sup) {
+            return function() {
+                sup.call(this, "Related Observables", {
+                    resultsPerPage: 10,
+                    itemType: 'inc',
+                    saveKey: 'related_observables',
+                    getUrl: '/catalog/ajax/load_catalog/',
+                    candidateItemsTemplate: 'candidateModal',
+                    itemTemplate: 'relatedItem'
+                });
+            }
+        })
+    });
 
     return  RelatedObservables;
 });

@@ -1,11 +1,10 @@
 define([
-    "dcl/dcl",
     "knockout",
     "inc-build/cert-incident-builder-shim",
     "common/cert-build-mode",
     "inc-build/cert-inc-build-section",
     "common/cert-build-functions",
-], function (declare, ko, incident_builder, BuildMode, Section, buildFunctions) {
+], function (ko, incident_builder, BuildMode, Section, buildFunctions) {
     "use strict";
 
     function ViewModel() {
@@ -146,12 +145,21 @@ define([
                 data.id_ns = this.id_ns();
                 data.composition_type = this.compositionType();
                 postJSON(buildRestUrl("create_incident"), data, function (response) {
-                    if (response["success"]) {
-                        alert("The incident has been published");
+                   if (response["success"]) {
+                    modal.contentData.status("OK");
+                    modal.contentData.message("The incident has been published internally");
+                    modal.titleIcon("glyphicon-ok-sign");
+
+                    window.location.assign('/object/' + this.id());
+
+                    setTimeout(function () {
                         window.location.assign(window.location.href.split("/incident/")[0] + "/incident/build/");
-                    } else {
-                        alert(response["message"]);
-                    }
+                    }, this.REDIRECT_DELAY);
+                } else {
+                    modal.contentData.status("FAILED");
+                    modal.contentData.message(response["message"]);
+                    modal.titleIcon("glyphicon-exclamation-sign");
+                }
                 }.bind(this));
             }
         },

@@ -1,23 +1,26 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/cert-build-related",
-    "common/cert-build-functions"
-], function (declare, ko, buildRelated, buildFunctions) {
+    "common/cert-build-related"
+], function (declare, ko, buildRelated) {
     "use strict";
 
-    function AttributedActors() {
-        AttributedActors.super.constructor.call(this, "Attributed Actors", {
-            resultsPerPage: 10,
-            itemType: 'act',
-            saveKey: 'attributed_actors',
-            getUrl: '/catalog/ajax/load_catalog/',
-            candidateItemsTemplate: 'candidateModal',
-            itemTemplate: 'relatedItem'
-        });
-    }
+    var AttributedActors = declare(buildRelated, {
+        declaredClass: "AttributedActors",
 
-    buildFunctions.extend(AttributedActors, buildRelated);
+        constructor: declare.superCall(function (sup) {
+            return function() {
+                sup.call(this, "Attributed Actors", {
+                    resultsPerPage: 10,
+                    itemType: 'inc',
+                    saveKey: 'attributed_actors',
+                    getUrl: '/catalog/ajax/load_catalog/',
+                    candidateItemsTemplate: 'candidateModal',
+                    itemTemplate: 'relatedItem'
+                });
+            }
+        })
+    });
 
-    return AttributedActors;
+    return  AttributedActors;
 });

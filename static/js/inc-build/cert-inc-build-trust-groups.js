@@ -1,19 +1,24 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/cert-build-list-selects",
-    "common/cert-build-functions"
-], function (declare, ko, listSelects, buildFunctions) {
+    "common/cert-build-list-selects"
+], function (declare, ko, listSelects) {
     "use strict";
 
-    function TrustGroups() {
-        TrustGroups.super.constructor.call(this, "Trust Groups", {
+        var TrustGroups = declare(listSelects, {
+        declaredClass: "TrustGroups",
+
+        constructor: declare.superCall(function (sup) {
+                return function () {
+                    sup.call(this,  "Trust Groups", {
             selectChoice: 'trustgroups_list',
             saveKey: 'trustgroups'
         });
-    }
 
-    buildFunctions.extend(TrustGroups, listSelects);
+                }
+            }
+        )
+    });
 
-    return  TrustGroups;
+     return TrustGroups;
 });
