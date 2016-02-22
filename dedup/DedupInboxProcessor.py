@@ -23,12 +23,21 @@ def _get_sighting_count(obs):
     return sighting_count
 
 
-def _update_sighting_counts(additional_sightings, user):
+def _merge_properties(api_object, id_, count, additional_file_hashes):
+    api_object.obj.sighting_count = _get_sighting_count(api_object.obj) + count
+    if id_ in additional_file_hashes:
+        file_properties = rgetattr(api_object, ['obj', 'object_', 'properties'], None)
+        for hash_type, hash_value in additional_file_hashes[id_].iteritems():
+            if getattr(file_properties, hash_type, None) is None:
+                setattr(file_properties, hash_type, hash_value)
+
+
+def _update_existing_properties(additional_sightings, additional_file_hashes, user):
     inbox_processor = InboxProcessorForBuilders(user=user)
     for id_, count in additional_sightings.iteritems():
         edge_object = EdgeObject.load(id_)
         api_object = edge_object.to_ApiObject()
-        api_object.obj.sighting_count = _get_sighting_count(api_object.obj) + count
+        _merge_properties(api_object, id_, count, additional_file_hashes)
         inbox_processor.add(InboxItem(
             api_object=api_object,
             etlp=edge_object.etlp,
@@ -38,9 +47,17 @@ def _update_sighting_counts(additional_sightings, user):
     inbox_processor.run()
 
 
-def _coalesce_duplicates_to_sitings(contents, map_table):
+def _coalesce_duplicates(contents, map_table):
+    def add_missing_file_hash(inbox_object, file_hashes, property_name):
+        hash_type = property_name[-1]
+        if hash_type not in file_hashes:
+            hash_value = rgetattr(inbox_object, property_name, None)
+            if hash_value is not None:
+                file_hashes[hash_type] = hash_value
+
     out = {}
     additional_sightings = {}
+    additional_file_hashes = {}
     for id_, io in contents.iteritems():
         if id_ not in map_table:
             io.api_object = io.api_object.remap(map_table)
@@ -49,7 +66,13 @@ def _coalesce_duplicates_to_sitings(contents, map_table):
             existing_id = map_table[id_]
             sightings_for_duplicate = _get_sighting_count(io.api_object.obj)
             additional_sightings[existing_id] = additional_sightings.get(existing_id, 0) + sightings_for_duplicate
-    return out, additional_sightings
+            if rgetattr(io, PROPERTY_TYPE, None) == 'FileObjectType':
+                if existing_id not in additional_file_hashes:
+                    additional_file_hashes[existing_id] = {}
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_MD5)
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA1)
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA256)
+    return out, additional_sightings, additional_file_hashes
 
 
 def _generate_message(template_text, contents, out):
@@ -150,10 +173,10 @@ def _existing_hash_dedup(contents, hashes, user):
     # file observable have more complex rules for duplicates, so simple hash matching isn't good enough
     _add_matching_file_observables(db, map_table, contents)
 
-    out, additional_sightings = _coalesce_duplicates_to_sitings(contents, map_table)
+    out, additional_sightings, additional_file_hashes = _coalesce_duplicates(contents, map_table)
 
     if additional_sightings:
-        _update_sighting_counts(additional_sightings, user)
+        _update_existing_properties(additional_sightings, additional_file_hashes, user)
 
     message = _generate_message("Remapped %d observables to existing observables based on hashes", contents, out)
 
@@ -173,13 +196,13 @@ def _new_hash_dedup(contents, hashes, user):
             for dup in ids[1:]:
                 map_table[dup] = master
 
-    out, additional_sightings = _coalesce_duplicates_to_sitings(contents, map_table)
+    out, additional_sightings, additional_file_hashes = _coalesce_duplicates(contents, map_table)
 
     for id_, count in additional_sightings.iteritems():
         inbox_item = contents.get(id_, None)
         if inbox_item is not None:
             api_object = inbox_item.api_object
-            api_object.obj.sighting_count = _get_sighting_count(api_object.obj) + count
+            _merge_properties(api_object, id_, count, additional_file_hashes)
 
     message = _generate_message("Merged %d observables in the supplied package based on hashes", contents, out)
 
