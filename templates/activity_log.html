@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% load staticfiles %}
+{% block head-title %}{{ main_title }}{% endblock %}
+{% block head-content %}
+
+    <style type="text/css">
+    </style>
+
+{% endblock %}
+
+{% block body-content %}
+    <div class="container">
+        <div class="row">
+            <fieldset class="col-sm-12">
+                <legend>Filters</legend>
+                <div class="row">
+                    <div class="form-group col-sm-2">
+                        <label for="filter-user">User</label>
+                        <input id="filter-user" class="form-control" data-bind="value: filterUser">
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label for="filter-category">Category</label>
+                        <select id="filter-category" class="form-control" data-bind="
+                            value: filterCategory,
+                            optionsCaption: 'all',
+                            options: validCategories
+                        "></select>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label for="filter-state">State</label>
+                        <select id="filter-state" class="form-control" data-bind="
+                            value: filterState,
+                            optionsCaption: 'all',
+                            options: validStates
+                        "></select>
+                    </div>
+                    <div class="form-group col-sm-5">
+                        <label for="filter-message">Message</label>
+                        <input id="filter-message" class="form-control" data-bind="value: filterMessage"
+                               placeholder="Search for text in the message">
+                    </div>
+                    <div class="form-group col-sm-1">
+                        <label for="filter-apply">&nbsp;</label>
+                        <button id="filter-apply" class="form-control btn btn-primary" data-bind="click: loadLog">
+                            Apply
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="row" data-bind="if: loading">
+
+        </div>
+        <div class="row" data-bind="ifnot: loading">
+            <div class="row" data-bind="if: logContent">
+                <fieldset class="col-sm-12">
+                    <legend>Log</legend>
+                    <table class="table table-condensed table-hover">
+                        <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Category</th>
+                            <th>State</th>
+                            <th>Message</th>
+                        </tr>
+                        </thead>
+                        <tbody data-bind="foreach: logContent">
+                        {% comment %}
+                        <tr data-bind="css: {
+                            danger: $data.category() === 'FATAL' || $data.category() === 'ERROR',
+                            warning: $data.category() === 'WARN'
+                        }">
+                        {% endcomment %}
+                        <tr>
+                            <td data-bind="text: timestamp"></td>
+                            <td data-bind="text: user"></td>
+                            <td data-bind="text: category"></td>
+                            <td data-bind="text: state"></td>
+                            <td>
+                                <pre data-bind="text: message"></pre>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body-end %}
+    <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/stickytape.js' %}"></script>
+    <script>
+        var require = {
+            baseUrl: "/adapter/certuk_mod{% static 'js' %}",
+            paths: {
+                knockout: "common/knockout-shim"
+            },
+            urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
+        };
+    </script>
+    <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="activity-log/main"></script>
+{% endblock %}

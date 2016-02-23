@@ -26,6 +26,8 @@ publisher_urls = [
     (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'publisher_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
     (r'^config/$', 'views.config', 'publisher_config'),
+    (r'^activity/$', 'views.activity_log', 'activity_log'),
+    (r'^ajax/activity_log/(?P<user>[\S]*)/(?P<category>\S*)/(?P<state>\S*)/(?P<message>\S*)/(?P<limit>\d*)/$', 'views.ajax_activity_log', None),
     (r'^duplicates/$', 'views.duplicates_finder', 'duplicates_finder'),
     (r'^duplicates/(?P<typ>' + VALID_TYPES + ')$', 'views.ajax_load_duplicates', 'duplicates_duplicates_loader'),
     (r'^duplicates/object/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_load_object', 'duplicates_object_loader'),
@@ -49,5 +51,6 @@ urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 navitems = [
     ('External Publisher', 'publisher_discover'),
     # ('Duplicates Finder', 'duplicates_finder'),
+    ('Activity Log', 'activity_log'),
     ('CERT-UK Configuration', 'publisher_config')
 ]

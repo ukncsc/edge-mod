@@ -2,7 +2,6 @@ import pymongo
 from datetime import datetime
 from mongoengine.connection import get_db
 
-
 VALID_STATES = ["FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE"]
 
 
@@ -22,12 +21,13 @@ def save(user, category, state, message):
 
 def find(user=None, category=None, state=None, message=None, limit=20):
     query = {}
-    if user:
+    if user and user != '*':
         query['user'] = {'$eq': user}
-    if category:
+    if category and category != '*':
         query['category'] = {'$eq': category}
     if state and state in VALID_STATES:
         query['state'] = {'$eq': state}
-    if message:
+    if message and message != '*':
         query['message'] = {'$regex': message}
-    return _activity_log().find(query).sort('timestamp', pymongo.DESCENDING).limit(limit)
+    return [match for match in
+            _activity_log().find(query, {'_id': 0}).sort('timestamp', pymongo.DESCENDING).limit(int(limit))]
