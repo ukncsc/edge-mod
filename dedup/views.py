@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from lxml.etree import XMLSyntaxError
 from mongoengine import DoesNotExist
 
+from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
@@ -60,6 +61,18 @@ def ajax_load_parent_ids(request, id_):
 
 @csrf_exempt
 def ajax_import(request, username):
+    def build_activity_message(messages, validation_result):
+        validation_text = []
+        for id_, fields in validation_result.iteritems():
+            validation_text.append('%s:' % id_)
+            for field_id, validation in fields.iteritems():
+                validation_text.append('\t%5s: %s - %s' % (validation['status'], field_id, validation['message']))
+
+        return 'Messages:\n\t%s\nValidation:\n\t%s' % (
+            '\n\t'.join(messages),
+            '\n\t'.join(validation_text)
+        )
+
     if not request.method == 'POST':
         return JsonResponse({}, status=405)
     if not request.META.get('HTTP_ACCEPT') == 'application/json':
@@ -79,6 +92,7 @@ def ajax_import(request, username):
         ip.run()
         if len(ip.filter_messages) == 0 and ip.message:
             ip.filter_messages.append(ip.message)
+        log_activity(username, 'DEDUP', 'INFO', build_activity_message(ip.filter_messages, ip.validation_result))
         return JsonResponse({
             'count': ip.saved_count,
             'duration': int(elapsed.ms()),
@@ -87,13 +101,17 @@ def ajax_import(request, username):
             'validation_result': ip.validation_result
         }, status=202)
     except (XMLSyntaxError, EntitiesForbidden, InboxError) as e:
+        messages = [e.message]
+        validation_result = ip.validation_result if isinstance(ip, DedupInboxProcessor) else None
+        log_activity(username, 'DEDUP', 'WARN', build_activity_message(messages, validation_result))
         return JsonResponse({
             'duration': int(elapsed.ms()),
-            'messages': [e.message],
+            'messages': messages,
             'state': 'invalid',
-            'validation_result': ip.validation_result if isinstance(ip, DedupInboxProcessor) else None
+            'validation_result': validation_result
         }, status=400)
     except Exception as e:
+        log_activity(username, 'DEDUP', 'ERROR', e.message)
         log_error(e, 'adapters/dedup/import', 'Import failed')
         return JsonResponse({
             'duration': int(elapsed.ms()),
