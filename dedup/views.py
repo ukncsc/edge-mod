@@ -61,14 +61,18 @@ def ajax_load_parent_ids(request, id_):
 
 @csrf_exempt
 def ajax_import(request, username):
-    def build_activity_message(messages, validation_result):
+    def build_activity_message(count, duration, messages, validation_result):
         validation_text = []
         for id_, fields in validation_result.iteritems():
             validation_text.append('%s:' % id_)
             for field_id, validation in fields.iteritems():
                 validation_text.append('\t%5s: %s - %s' % (validation['status'], field_id, validation['message']))
+        if len(validation_text) > 0:
+            validation_text.insert(0, '\nValidation:')
 
-        return 'Messages:\n\t%s\nValidation:\n\t%s' % (
+        return 'Ingested %d objects in %dms\nMessages:\n\t%s%s' % (
+            count,
+            duration,
             '\n\t'.join(messages),
             '\n\t'.join(validation_text)
         )
@@ -90,22 +94,30 @@ def ajax_import(request, username):
     try:
         ip = DedupInboxProcessor(user=request.user, streams=[(request, None)])
         ip.run()
+        duration = int(elapsed.ms())
         if len(ip.filter_messages) == 0 and ip.message:
             ip.filter_messages.append(ip.message)
-        log_activity(username, 'DEDUP', 'INFO', build_activity_message(ip.filter_messages, ip.validation_result))
+        log_activity(username, 'DEDUP', 'INFO', build_activity_message(
+            ip.saved_count, duration, ip.filter_messages, ip.validation_result
+        ))
         return JsonResponse({
             'count': ip.saved_count,
-            'duration': int(elapsed.ms()),
+            'duration': duration,
             'messages': ip.filter_messages,
             'state': 'success',
             'validation_result': ip.validation_result
         }, status=202)
     except (XMLSyntaxError, EntitiesForbidden, InboxError) as e:
+        count = ip.saved_count if isinstance(ip, DedupInboxProcessor) else 0
+        duration = int(elapsed.ms())
         messages = [e.message]
         validation_result = ip.validation_result if isinstance(ip, DedupInboxProcessor) else None
-        log_activity(username, 'DEDUP', 'WARN', build_activity_message(messages, validation_result))
+        log_activity(username, 'DEDUP', 'WARN', build_activity_message(
+            count, duration, messages, validation_result
+        ))
         return JsonResponse({
-            'duration': int(elapsed.ms()),
+            'count': count,
+            'duration': duration,
             'messages': messages,
             'state': 'invalid',
             'validation_result': validation_result
