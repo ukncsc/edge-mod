@@ -29,7 +29,7 @@ define([
         },
         _onLoadLogError: function (error) {
             this.logContent(null);
-            this.logError(error);
+            this.logError(JSON.parse(error.responseText).message);
             this.loading(false);
         }
     });

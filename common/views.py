@@ -35,4 +35,6 @@ def ajax_activity_log(request, search):
         }, status=200)
     except Exception as e:
         print "%s" % e
-        return JsonResponse(e.message, status=500)
+        return JsonResponse({
+            'message': e.message
+        }, status=500)

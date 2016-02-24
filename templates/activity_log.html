@@ -156,8 +156,18 @@
                 </div>
             </form>
         </div>
-        <div class="row" data-bind="if: logContent">
-            <table class="table table-condensed table-hover fixed-header">
+        <div class="row" style="display:none;" data-bind="if: logError, visible: true">
+            <div class="jumbotron">
+                <h2>The server returned an error:</h2>
+                <p data-bind="text: logError"></p>
+                <button type="submit" class="btn btn-primary" data-bind="click: loadLog">Retry</button>
+            </div>
+        </div>
+        <div class="row" style="display:none;" data-bind="if: logContent, visible: true">
+            <div class="jumbotron" data-bind="visible: logContent().length < 1">
+                <h2>No matches found</h2>
+            </div>
+            <table class="table table-condensed table-hover" data-bind="visible: logContent().length > 0">
                 <thead>
                 <tr>
                     <th>Timestamp</th>
