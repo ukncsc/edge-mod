@@ -4,6 +4,7 @@ from mongoengine.connection import get_db
 from edge import LOCAL_NAMESPACE
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from adapters.certuk_mod.common.activity import save as log_activity
 
 
 class STIXPurge(object):
@@ -273,16 +274,38 @@ class STIXPurge(object):
         })
 
     def run(self):
+        def build_activity_message(min_date, observables, compositions, packages):
+            def summarise(into, summary_template, items):
+                num_items = len(items)
+                into.append(summary_template % num_items)
+                if num_items > 0:
+                    for item in items:
+                        into.append("\t%s", item)
+
+            messages = ['Objects created before %s are candidates for deletion' % min_date]
+            summarise(messages, 'Found %d observables with insufficient back links or sightings', observables)
+            summarise(messages, 'Found %d orphaned observable compositions', compositions)
+            summarise(messages, 'Found %d old packages', packages)
+            return "\n".join(messages)
+
         current_date = datetime.utcnow()
         minimum_date = current_date - relativedelta(months=self.retention_config.max_age_in_months)
 
         # Get old external items that don't have enough back links and sightings (excluding observable compositions):
-        ids_to_delete = self.get_purge_candidates(minimum_date)
+        observables_to_delete = self.get_purge_candidates(minimum_date)
         # Look for any external observable compositions that were orphaned on the previous call to run:
-        ids_to_delete += STIXPurge._get_orphaned_external_observable_compositions()
+        orphaned_observable_compositions_to_delete = STIXPurge._get_orphaned_external_observable_compositions()
         # Look for old packages (including internal ones, if any)
-        ids_to_delete += STIXPurge._get_old_packages(minimum_date)
+        old_packages_to_delete = STIXPurge._get_old_packages(minimum_date)
+        ids_to_delete = observables_to_delete + orphaned_observable_compositions_to_delete + old_packages_to_delete
+
+        log_activity('system', 'AGEING', 'INFO', build_activity_message(
+            minimum_date, observables_to_delete, orphaned_observable_compositions_to_delete, old_packages_to_delete
+        ))
 
         for page_index in range(0, len(ids_to_delete), self.PAGE_SIZE):
-            chunk_ids = ids_to_delete[page_index: page_index + self.PAGE_SIZE]
-            STIXPurge.remove(chunk_ids)
+            try:
+                chunk_ids = ids_to_delete[page_index: page_index + self.PAGE_SIZE]
+                STIXPurge.remove(chunk_ids)
+            except Exception as e:
+                log_activity('system', 'AGEING', 'ERROR', e.message)
