@@ -19,15 +19,18 @@ def save(user, category, state, message):
     })
 
 
-def find(user=None, category=None, state=None, message=None, limit=20):
+def find(user=None, category=None, state=None, regex=None, limit=100):
     query = {}
-    if user and user != '*':
+    if user:
         query['user'] = {'$eq': user}
-    if category and category != '*':
-        query['category'] = {'$eq': category}
-    if state and state in VALID_STATES:
-        query['state'] = {'$eq': state}
-    if message and message != '*':
-        query['message'] = {'$regex': message}
+    if category:
+        query['category'] = {'$eq': str(category).upper()}
+    if state and str(state).upper() in VALID_STATES:
+        query['state'] = {'$eq': str(state).upper()}
+    if regex:
+        query['message'] = {'$regex': regex, '$options': 'i'}
     return [match for match in
-            _activity_log().find(query, {'_id': 0}).sort('timestamp', pymongo.DESCENDING).limit(int(limit))]
+            _activity_log()
+                .find(query, {'_id': 0})
+                .sort('timestamp', pymongo.DESCENDING)
+                .limit(int(limit))]

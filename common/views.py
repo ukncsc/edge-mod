@@ -1,3 +1,4 @@
+import re
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -12,12 +13,26 @@ def activity_log(request):
 
 
 @csrf_exempt
-def ajax_activity_log(request, user=None, category=None, state=None, message=None, limit=None):
+def ajax_activity_log(request, search):
     try:
-        matches = find(user=user, category=category, state=state, message=message, limit=limit)
+        pattern = re.compile(
+            r'((?:cat|regex|state|user):\w+)',
+            flags=re.IGNORECASE
+        )
+        match = pattern.findall(search)
+        if match:
+            find_params = {k: v for k, v in (x.split(':') for x in match)}
+            matches = find(
+                category=find_params.get('cat', None),
+                regex=find_params.get('regex', None),
+                state=find_params.get('state', None),
+                user=find_params.get('user', None)
+            )
+        else:
+            matches = find(regex=search)
         return JsonResponse({
             'matches': matches
         }, status=200)
     except Exception as e:
-        print e
-        return JsonResponse(e, status=500)
+        print "%s" % e
+        return JsonResponse(e.message, status=500)

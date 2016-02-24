@@ -5,87 +5,186 @@
 {% block head-content %}
 
     <style type="text/css">
+        .form-group .help-block {
+            text-align: right;
+        }
+        /* Absolute Center Spinner */
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: visible;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+
+        /* Transparent Overlay */
+        .loading:before {
+            content: '';
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        /* :not(:required) hides these rules from IE9 and below */
+        .loading:not(:required) {
+            /* hide "loading..." text */
+            font: 0/0 a;
+            color: transparent;
+            text-shadow: none;
+            background-color: transparent;
+            border: 0;
+        }
+        .loading:not(:required):after {
+            content: '';
+            display: block;
+            font-size: 10px;
+            width: 1em;
+            height: 1em;
+            margin-top: -0.5em;
+            -webkit-animation: spinner 1500ms infinite linear;
+            -moz-animation: spinner 1500ms infinite linear;
+            -ms-animation: spinner 1500ms infinite linear;
+            -o-animation: spinner 1500ms infinite linear;
+            animation: spinner 1500ms infinite linear;
+            border-radius: 0.5em;
+            -webkit-box-shadow: rgba(0, 0, 0, 0.75) 1.5em 0 0 0, rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) 0 1.5em 0 0, rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, rgba(0, 0, 0, 0.5) -1.5em 0 0 0, rgba(0, 0, 0, 0.5) -1.1em -1.1em 0 0, rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0;
+            box-shadow: rgba(0, 0, 0, 0.75) 1.5em 0 0 0, rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) 0 1.5em 0 0, rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) -1.5em 0 0 0, rgba(0, 0, 0, 0.75) -1.1em -1.1em 0 0, rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0;
+        }
+
+        /* Animation */
+        @-webkit-keyframes spinner {
+            0% {
+                -webkit-transform: rotate(0deg);
+                -moz-transform: rotate(0deg);
+                -ms-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+        @-moz-keyframes spinner {
+            0% {
+                -webkit-transform: rotate(0deg);
+                -moz-transform: rotate(0deg);
+                -ms-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+        @-o-keyframes spinner {
+            0% {
+                -webkit-transform: rotate(0deg);
+                -moz-transform: rotate(0deg);
+                -ms-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes spinner {
+            0% {
+                -webkit-transform: rotate(0deg);
+                -moz-transform: rotate(0deg);
+                -ms-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
     </style>
 
 {% endblock %}
 
 {% block body-content %}
+    <div id="_loading_" class="loading">Loading&#8230;</div>
     <div class="container">
         <div class="row">
-            <fieldset class="col-sm-12">
-                <legend>Filters</legend>
-                <div class="row">
-                    <div class="form-group col-sm-2">
-                        <label for="filter-user">User</label>
-                        <input id="filter-user" class="form-control" data-bind="value: filterUser">
+            <form class="col-sm-12 form-horizontal">
+                <div class="form-group">
+                    <label for="filter-search" class="control-label sr-only">Search</label>
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </span>
+                        <input type="text" class="form-control" id="filter-search" data-bind="value: search"
+                               placeholder="Search for text in the message (case-insensitive regex)">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary" data-bind="click: loadLog">Search</button>
+                        </span>
                     </div>
-                    <div class="form-group col-sm-2">
-                        <label for="filter-category">Category</label>
-                        <select id="filter-category" class="form-control" data-bind="
-                            value: filterCategory,
-                            optionsCaption: 'all',
-                            options: validCategories
-                        "></select>
-                    </div>
-                    <div class="form-group col-sm-2">
-                        <label for="filter-state">State</label>
-                        <select id="filter-state" class="form-control" data-bind="
-                            value: filterState,
-                            optionsCaption: 'all',
-                            options: validStates
-                        "></select>
-                    </div>
-                    <div class="form-group col-sm-5">
-                        <label for="filter-message">Message</label>
-                        <input id="filter-message" class="form-control" data-bind="value: filterMessage"
-                               placeholder="Search for text in the message">
-                    </div>
-                    <div class="form-group col-sm-1">
-                        <label for="filter-apply">&nbsp;</label>
-                        <button id="filter-apply" class="form-control btn btn-primary" data-bind="click: loadLog">
-                            Apply
-                        </button>
-                    </div>
+                    <span class="help-block">
+                        Instead of a simple regex, you can also use
+                        <code>cat:<em>category</em></code>,
+                        <code>regex:<em>message regex</em></code>,
+                        <code>state:<em>state</em></code> and
+                        <code>user:<em>user id</em></code>
+                    </span>
                 </div>
-            </fieldset>
+            </form>
         </div>
-        <div class="row" data-bind="if: loading">
-
-        </div>
-        <div class="row" data-bind="ifnot: loading">
-            <div class="row" data-bind="if: logContent">
-                <fieldset class="col-sm-12">
-                    <legend>Log</legend>
-                    <table class="table table-condensed table-hover">
-                        <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>User</th>
-                            <th>Category</th>
-                            <th>State</th>
-                            <th>Message</th>
-                        </tr>
-                        </thead>
-                        <tbody data-bind="foreach: logContent">
-                        {% comment %}
-                        <tr data-bind="css: {
-                            danger: $data.category() === 'FATAL' || $data.category() === 'ERROR',
-                            warning: $data.category() === 'WARN'
-                        }">
-                        {% endcomment %}
-                        <tr>
-                            <td data-bind="text: timestamp"></td>
-                            <td data-bind="text: user"></td>
-                            <td data-bind="text: category"></td>
-                            <td data-bind="text: state"></td>
-                            <td>
-                                <pre data-bind="text: message"></pre>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </fieldset>
-            </div>
+        <div class="row" data-bind="if: logContent">
+            <table class="table table-condensed table-hover fixed-header">
+                <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Category</th>
+                    <th>State</th>
+                    <th>Message</th>
+                </tr>
+                </thead>
+                <tbody data-bind="foreach: logContent">
+                {% comment %}
+                <tr data-bind="css: {
+                    danger: $data.category() === 'FATAL' || $data.category() === 'ERROR',
+                    warning: $data.category() === 'WARN'
+                }">
+                {% endcomment %}
+                <tr>
+                    <td data-bind="text: timestamp"></td>
+                    <td data-bind="text: user"></td>
+                    <td data-bind="text: category"></td>
+                    <td data-bind="text: state"></td>
+                    <td>
+                        <pre data-bind="text: message"></pre>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 {% endblock %}
