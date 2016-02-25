@@ -13,12 +13,14 @@ define([
                 return function () {
                     sup.call(this, "Discovery Methods", {
                         selectChoice: 'discovery_methods_list',
-                        saveKey: 'discovery_methods'
+                        saveKey: 'discovery_methods',
+                        required: true,
+                        displayName: 'Discovery Method'
                     });
                 }
             }
         )
     });
 
-    return  DiscoveryMethods;
+    return DiscoveryMethods;
 });

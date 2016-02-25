@@ -12,11 +12,13 @@ define([
             return function() {
                 sup.call(this, "Attributed Actors", {
                     resultsPerPage: 10,
-                    itemType: 'inc',
+                    itemType: 'act',
                     saveKey: 'attributed_actors',
                     getUrl: '/catalog/ajax/load_catalog/',
                     candidateItemsTemplate: 'candidateModal',
-                    itemTemplate: 'relatedItem'
+                    itemTemplate: 'relatedItem',
+                    required: true,
+                    displayName: 'Attributed Actor'
                 });
             }
         })

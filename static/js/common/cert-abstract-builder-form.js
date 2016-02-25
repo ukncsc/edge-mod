@@ -1,16 +1,17 @@
 define([
     "../dcl/dcl",
-    "knockout"
-], function (declare, ko) {
+    "knockout",
+    "common/cert-messages",
+], function (declare, ko, Messages) {
     "use strict";
 
     var AbstractBuilderForm = declare(null, {
 
         declaredClass: "AbstractBuilderForm",
-        constructor: function(labelIn)
-        {
+        constructor: function (labelIn) {
             this.label = ko.observable(labelIn);
             this.count = ko.observable("");
+            this.validationGroup = ko.observableArray();
         },
 
         /*
@@ -32,26 +33,34 @@ define([
         /*
          Loads/processes data in response to an ajax request
          */
-        load : function (data) {
+        load: function (data) {
             // stub - does nothing here
         },
 
         /*
          validates the object's form before save()ing
          */
-        doValidation : function () {
-            // stub - does nothing here
-            return null;
+        doValidation: function () {
+            var msgs = new Messages();
+            ko.utils.arrayForEach(this.validationGroup(), function (validatable_obs) {
+                if (validatable_obs.hasError()) {
+                    msgs.addError(validatable_obs.displayErrorMessage());
+                }
+            });
+
+
+            return msgs;
+
         },
 
         /*
          Serializes the object in preparation for persistence
          */
-        save : function () {
+        save: function () {
             // stub - does nothing here
             return null;
         },
-        });
+    });
 
     return AbstractBuilderForm;
 });

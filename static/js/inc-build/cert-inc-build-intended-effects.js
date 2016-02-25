@@ -12,7 +12,9 @@ define([
                 return function () {
                     sup.call(this, "Intended Effects", {
                         selectChoice: 'intended_effects_list',
-                        saveKey: 'intended_effects'
+                        saveKey: 'intended_effects',
+                        required: true,
+                        displayName: 'Intended Effect'
                     });
                 }
             }

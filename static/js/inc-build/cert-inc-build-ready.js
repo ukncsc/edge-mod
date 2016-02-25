@@ -20,6 +20,7 @@ define([
         "categories_list": incident_builder.categories_list,
         "time_zones_list": incident_builder.time_zones_list,
         "time_types_list": incident_builder.time_types_list,
+        "marking_priorities":  incident_builder.marking_priorities
     });
 
     vm.id(incident_builder.id);
@@ -29,12 +30,14 @@ define([
         vm.initDraft(incident_builder["default_tlp"]);
         vm.id_ns(incident_builder.id_ns);
     } else if (incident_builder.mode == "Edit") {
-        vm.mode().value(builder.BuildMode.prototype.MODES.EDIT);
+        vm.mode().value(BuildMode.prototype.MODES.EDIT);
         vm.loadObject(incident_builder.id);
     } else {
-        vm.mode().value(builder.BuildMode.prototype.MODES.VIEW);
+        vm.mode().value(BuildMode.prototype.MODES.VIEW);
         vm.loadObject(incident_builder.id);
     }
+
+
 
     ko.applyBindings(vm);
 });

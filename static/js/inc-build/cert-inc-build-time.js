@@ -1,28 +1,39 @@
 define([
     "dcl/dcl",
-    "knockout"
-], function (declare, ko) {
+    "knockout",
+    "common/jquery-shim"
+], function (declare, ko, $) {
     "use strict";
 
+    return declare(null, {
+            declaredClass: "Times",
 
-    var Time = declare(null, {
-        declaredClass: "Times",
+            constructor: function (save_name, visible_name) {
+                this.type_name = ko.observable(visible_name);
+                this.save_name = ko.observable(save_name);
+                this.time_string = ko.observable("");
+            },
 
-        constructor: function () {
-            this.type = ko.observable("type1");
-            this.time_timezone = ko.observable("zone1");
-            this.date = ko.observable("adate")
-            this.hours = ko.observable("hours")
-            this.minutes = ko.observable("minutes")
-            this.seconds = ko.observable("seconds")
-            this.timezone = ko.observable("zone1")
-                },
-
-
+            load: function(data) {
+                if (typeof data === "string") {
+                    this.time_string(data);
+                } else {
+                    this.time_string(data['value']);
+                }
             }
-        )
-    return Time;
-    });
+        }
+    );
+});
+
+ko.bindingHandlers.dateTime = {
+     init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            $(element).datetimepicker({format: "YYYY-MM-DD HH:mm:ss", defaultDate:valueAccessor()()}).on("dp.change", function (ev) {
+                var observable = valueAccessor();
+                observable(ev.date.format("YYYY-MM-DDTHH:mm:ss"));
+            });
+            return ko.bindingHandlers.value.init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
+        }
+};
 
 
 

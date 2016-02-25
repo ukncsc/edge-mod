@@ -10,7 +10,9 @@ define([
         constructor: declare.superCall(function (sup) {
             return function () {
                 sup.call(this, "Responders", {
-                    saveKey: 'responders'
+                    saveKey: 'responders',
+                    required: true,
+                    displayName: 'Responder'
                 });
             }
         })

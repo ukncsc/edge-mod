@@ -14,7 +14,10 @@ define([
                 sup.call(this, [label]);
                 this.saveKey = options['saveKey'];
 
-                this.items = ko.observableArray([]);
+                this.items = ko.observableArray([]).extend(
+                        {required2:
+                            {required :options['required'], group: this.validationGroup, displayMessage: "Needs at least one " + options['displayName']}
+                        });
                 this.count = ko.computed(function () {
                     return this.items().length || "";
                 }, this);
@@ -23,15 +26,15 @@ define([
 
 
         add: function () {
-            var newItem = new CERTIdentity({name: 'Click to edit'});
+            var newItem = new CERTIdentity();
             var items = this.items;
-            newItem.ModelUI({viewModel: newItem}).done(function (context, result) {
+            newItem.ModelUI().done(function (context, result) {
                 items.unshift(newItem);
             });
         },
 
         show_ui: function (model, data) {
-            model.identity_model_ui({viewModel: data});
+            data.ModelUI();
         },
 
         load: function (data) {

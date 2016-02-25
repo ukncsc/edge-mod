@@ -12,11 +12,13 @@ define([
             return function() {
                 sup.call(this, "Related Indicators", {
                     resultsPerPage: 10,
-                    itemType: 'inc',
+                    itemType: 'ind',
                     saveKey: 'related_indicators',
                     getUrl: '/catalog/ajax/load_catalog/',
                     candidateItemsTemplate: 'candidateModal',
-                    itemTemplate: 'relatedItem'
+                    itemTemplate: 'relatedItem',
+                    required: true,
+                    displayName: 'Related Indicator'
                 });
             }
         })

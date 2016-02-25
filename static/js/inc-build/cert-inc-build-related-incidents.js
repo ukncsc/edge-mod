@@ -16,7 +16,9 @@ define([
                     saveKey: 'related_incidents',
                     getUrl: '/catalog/ajax/load_catalog/',
                     candidateItemsTemplate: 'candidateModal',
-                    itemTemplate: 'relatedItem'
+                    itemTemplate: 'relatedItem',
+                    required: true,
+                    displayName: 'Related Incident'
                 });
             }
         })

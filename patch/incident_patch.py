@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 
 from stix.common import vocabs
-from edge.generic import WHICH_DBOBJ
+from edge.generic import WHICH_DBOBJ, FROM_DICT_DISPATCH
 from edge import IDManager, NamespaceNotConfigured
 from edge.tools import rgetattr, cleanstrings
 from incident import views
@@ -39,6 +39,7 @@ from edge.handling import lines2list
 from edge.inbox import InboxProcessorForBuilders, InboxItem, InboxError
 from trustgroups.models import Trustgroup
 from edge.tools import rgetattr, would_update
+from setup.views import TIMEZONE_OPTIONS
 from edge.relate import correlateInctoObs, correlateInctoTtp, correlateInctoAct, correlateInctoInd, correlateInctoInc
 from users.models import TLP_GROUPS
 from users.decorators import json_body
@@ -46,10 +47,27 @@ from crashlog.models import save as save_crash
 from rbac import user_can_edit
 
 import json
+import pytz, datetime
+
+from dateutil import tz
+
+
+configuration = settings.ACTIVE_CONFIG
+
+TIMZONE_DESCRIPTIONS = pytz.all_timezones
 
 CATEGORIES = vocabs.IncidentCategory._ALLOWED_VALUES
-TIMETYPES = ("First_Malicious_Action", "Initial_Compromise", "First_Data_Exfiltration", "Incident_Discovery", "Incident_Opened", "Containment_Achieved", "Restoration_Achieved", "Incident_Reported", "Incident_Closed")
-TIMEZONES = ("zone1", "zone2", "zone3")
+TIMETYPES = (("first_malicious_action", "First Malicious Action"),
+             ("initial_compromise", "Initial Compromise"),
+             ("first_data_exfiltration", "First Data Exfiltration"),
+             ("incident_discovery", "Incident Discovery"),
+             ("incident_opened", "Incident Opened"),
+             ("containment_achieved", "Containment Achieved"),
+             ("restoration_achieved", "Restoration Achieved"),
+             ("incident_reported", "Incident Reported"),
+             ("incident_closed", "Incident Closed"))
+
+MARKING_PRIORITIES = ("UK HMG Priority: [C1]", "UK HMG Priority: [C2]", "UK HMG Priority: [C3]")
 
 @login_required
 def incident_build(request):
@@ -75,7 +93,8 @@ def incident_build(request):
         'statuses': json.dumps(static['statuses']),
         'categories': json.dumps(CATEGORIES),
         'time_types_list' : json.dumps(TIMETYPES),
-        'time_zones_list' : json.dumps(TIMEZONES),
+        'time_zones_list' : json.dumps(TIMZONE_DESCRIPTIONS),
+        'marking_priorities' : json.dumps(MARKING_PRIORITIES),
         'confidences': json.dumps(static['confidences']),
         'tlps': json.dumps(static['tlps']),
         'trustgroups': json.dumps(static['trustgroups']),
@@ -107,7 +126,7 @@ def incident_view(request, id, edit=False):
         'statuses': json.dumps(static['statuses']),
         'categories': json.dumps(CATEGORIES),
         'time_types_list' : json.dumps(TIMETYPES),
-        'time_zones_list' : json.dumps(TIMEZONES),
+        'time_zones_list' : json.dumps(TIMZONE_DESCRIPTIONS),
         'confidences': json.dumps(static['confidences']),
         'tlps': json.dumps(static['tlps']),
         'trustgroups': json.dumps(static['trustgroups']),
@@ -117,6 +136,7 @@ def incident_view(request, id, edit=False):
         'object_type': "incident",
     })
 
+from stix.incident.time import Time as StixTime
 class DBIncidentPatch(incident.DBIncident):
 
     def __init__(self, obj=None, id_=None, idref=None, timestamp=None, title=None, description=None, short_description=None):
@@ -126,12 +146,42 @@ class DBIncidentPatch(incident.DBIncident):
     def to_draft(cls, incident, tg, load_by_id, id_ns=''):
         draft = super(DBIncidentPatch, cls).to_draft(incident, tg, load_by_id, id_ns)
         draft['categories'] =  [ c.value for c in rgetattr(incident,['categories'],[]) ]
+        draft['time'] = incident.time.to_dict();
         return draft
+
+    @classmethod
+    def sort_out_timezone(cls, time_dict):
+
+        offset = datetime.datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime('%z');
+        if (time_dict is None or not time_dict.has_key('value')):
+            return
+        if time_dict.get('value')[-6] is '-' or time_dict.get('value')[-6] is '+':
+            return
+        #offset = datetime.datetime.now(pytz.timezone(time_dict.get('zone'))).strftime('%z');
+        offset_split = offset[0:3] + ":" + offset[3:5]
+        time_dict['value'] = time_dict.get('value') + offset_split;
+
+    def update_with(self, update_obj, update_timestamp=True):
+        super(DBIncidentPatch, self).update_with(update_obj, update_timestamp);
+        self.time = StixTime.from_dict(update_obj.time.to_dict());
 
     @classmethod
     def from_draft(cls, draft):
         target = super(DBIncidentPatch, cls).from_draft(draft)
         target.categories = cleanstrings(draft.get('categories'))
+
+        DBIncidentPatch.sort_out_timezone(draft.get('time').get('first_malicious_action'));
+        DBIncidentPatch.sort_out_timezone(draft.get('time').get('initial_compromise'));
+        DBIncidentPatch.sort_out_timezone(draft.get('time').get('first_data_exfiltration'));
+        DBIncidentPatch.sort_out_timezone(draft.get('time').get('incident_discovery'));
+        DBIncidentPatch.sort_out_timezone(draft.get('time').get('incident_opened'));
+        DBIncidentPatch.sort_out_timezone(draft.get('time').get('containment_achieved'));
+        DBIncidentPatch.sort_out_timezone(draft.get('time').get('restoration_achieved'));
+        DBIncidentPatch.sort_out_timezone(draft.get('time').get('incident_reported'));
+        DBIncidentPatch.sort_out_timezone(draft.get('time').get('incident_closed'));
+
+        target.time = StixTime();
+        target.time = StixTime.from_dict(draft.get('time'), target.time);
         return target
 
 @json_body
@@ -205,6 +255,8 @@ def ajax_create_incident(request, draft):
 
 def apply_patch():
     WHICH_DBOBJ['inc'] = DBIncidentPatch
+    FROM_DICT_DISPATCH['inc'] = DBIncidentPatch.api_from_dict;
+    #SUMMARIZE_DISPATCH['inc'] = DBIncidentPatch.summarize;
     views.incident_view = incident_view
     views.incident_build = incident_build
     views.ajax_create_incident = ajax_create_incident

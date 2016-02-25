@@ -12,11 +12,13 @@ define([
             return function() {
                 sup.call(this, "Leveraged TTPs", {
                     resultsPerPage: 10,
-                    itemType: 'inc',
+                    itemType: 'ttp',
                     saveKey: 'leveraged_ttps',
                     getUrl: '/catalog/ajax/load_catalog/',
                     candidateItemsTemplate: 'candidateModal',
-                    itemTemplate: 'relatedItem'
+                    itemTemplate: 'relatedItem',
+                    required: true,
+                    displayName: 'Leveraged TTP'
                 });
             }
         })

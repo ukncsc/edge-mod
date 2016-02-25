@@ -99,7 +99,7 @@ define([
             data.id = this.id();
             data.id_ns = this.id_ns();
             data.composition_type = this.compositionType();
-
+            data.stixtype = 'ind';
             return data;
         },
 

@@ -13,7 +13,9 @@ define([
                 return function () {
                     sup.call(this, "Categories", {
                         selectChoice: 'categories_list',
-                        saveKey: 'categories'
+                        saveKey: 'categories',
+                        required: true,
+                        displayName: 'Category'
                     });
                 }
             }

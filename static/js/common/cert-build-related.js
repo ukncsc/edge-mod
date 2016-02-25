@@ -18,7 +18,11 @@ define([
             return function (label, options) {
                 sup.call(this, [label]);
 
-                this.relatedItems = ko.observableArray([]);
+                this.relatedItems = ko.observableArray([]).extend(
+                        {
+                            required2:{required :options['required'], group: this.validationGroup, displayMessage: "Needs at least one " + options['displayName']}
+                        });
+
                 this.totalItems = ko.computed(function () {
                     return this.relatedItems().length;
                 }, this);

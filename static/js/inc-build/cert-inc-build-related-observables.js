@@ -12,11 +12,13 @@ define([
             return function() {
                 sup.call(this, "Related Observables", {
                     resultsPerPage: 10,
-                    itemType: 'inc',
+                    itemType: 'obs',
                     saveKey: 'related_observables',
                     getUrl: '/catalog/ajax/load_catalog/',
                     candidateItemsTemplate: 'candidateModal',
-                    itemTemplate: 'relatedItem'
+                    itemTemplate: 'relatedItem',
+                    required: true,
+                    displayName: 'Related Observable'
                 });
             }
         })

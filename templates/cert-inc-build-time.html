@@ -1,57 +1,34 @@
-<template id="TimePanel">
-<div data-bind="if: $data == $parent.section().value()">
+<template type="text/html" id="TimePanel">
+
+
+    <div data-bind="if: $data == $parent.section().value()">
         <div class="panel-heading">Time Types</div>
+
         <div class="panel-body">
-        <div class="row">
-            <div class="col-sm-10">
-                    <div role="form" data-bind="foreach: time_types">
-                        <div class="form-horizontal">
-                            <fieldset>
+            <div class="row">
+                <div class="col-lg-9">
+                    <table  cellpadding="10">
+                        <tbody data-bind="foreach: time_types">
+                        <tr>
+                            <td nowrap data-bind="text: $data.type_name()"></td>
+                            <td valign="bottom" >
                                 <div class="form-group">
-                                    <label for="time_type" class="col-lg-2 control-label">Type</label>
-                                    <div class="col-lg-8">
-                                        <select data-bind="options: $parent.time_types_list, selectedOptions: type", id='time_type', name='mal_type'></select>
+                                    <div class="col-lg-16">
+                                    <div class='input-group  input-group-lg date' data-bind="dateTime: time_string, disable: $root.mode().isReadOnly()">
+                                        <input type='text' class="form-control" data-bind="disable: $root.mode().isReadOnly()"/>
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
                                     </div>
-                                    <div class="col-lg-2">
-                                        {% if mode == 'Build' %}
-                                        <button class="btn btn-info btn-xs glyphicon glyphicon-trash" data-bind="click: $parent.removeTimeType($data)"></button>
-                                        {% endif %}
-                                    </div>
+                                 </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="time_date" class="col-lg-2 control-label">Date</label>
-                                    <div class="col-lg-4">
-                                        <!-- for the datepicker widget add the date-field-input class
-                                             we currently avoid this however as it breaks the knockout data-bind -->
-                                        <input class="form-control" data-bind="value: date" id="time_date" name="time_date" placeholder="YYYY-MM-DD">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="time_hours" class="col-lg-2 control-label">Time</label>
-                                    <div class="col-lg-2">
-                                        <input class="form-control" data-bind="value: hours" id="time_hours" name="time_hours" placeholder="HH">
-                                    </div>
-                                    <div class="col-lg-2">
-                                        <input class="form-control" data-bind="value: minutes" id="time_minutes" name="time_minutes" placeholder="MM">
-                                    </div>
-                                    <div class="col-lg-2">
-                                        <input class="form-control" data-bind="value: seconds" id="time_seconds" name="time_seconds" placeholder="SS">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="time_timezone" class="col-lg-2 control-label">Timezone</label>
-                                    <div class="col-lg-10">
-                                        <select data-bind="options: $parent.time_zones_list, selectedOptions: timezone" id="time_timezone" name="time_timezone"></select>
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </div>
-                    </div><!-- panel body -->
-                    {% if mode == 'Build' %}
-                    <button class="btn btn-primary btn-xs col-lg-offset-2"  data-bind="click: addTimeType">Add Time Type</button>
-                    {% endif %}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
-    </div><!-- end TimeType panel -->
+        </div><!-- end TimeType panel -->
+    </div>
+
 </template>
