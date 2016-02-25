@@ -37,13 +37,13 @@ define([], function () {
         return target;
     };
 
-    ko.extenders.required2 = function (target, options) {
+    ko.extenders.requiredGrouped = function (target, options) {
         if (options['required'] === true) {
             options['group'].push(target);
             var displayMessage = options['displayMessage'];
             return ko.extenders.validate(target, {
                 isValidCallback: function (value) {
-                     if (Array.isArray(value)) {
+                    if (Array.isArray(value)) {
                         return value.length != 0;
                     }
                     return (typeof value === "string" && value.trim().length > 0) || isFinite(parseFloat(value));
@@ -60,7 +60,7 @@ define([], function () {
 
 
     ko.bindingHandlers.highlightedText = {
-    update: function(element, valueAccessor) {
+        update: function (element, valueAccessor) {
             var options = valueAccessor();
             var search = ko.utils.unwrapObservable(options.match);
             search = search.trim().replace(/\s/g, "|");
@@ -71,19 +71,19 @@ define([], function () {
         }
     };
 
-    ko.onDemandObservable = function(callback, target) {
+    ko.onDemandObservable = function (callback, target) {
         // Perhaps pass this in, making this function a wrapper on existing observables..?
         var _value = ko.observableArray();
 
         var result = ko.computed({
-            read: function() {
+            read: function () {
                 if (!result.loaded()) {
                     callback.call(target);
                 }
 
                 return _value();
             },
-            write: function(newValue) {
+            write: function (newValue) {
                 result.loaded(true);
                 _value(newValue);
             },
@@ -92,7 +92,7 @@ define([], function () {
 
         result.loaded = ko.observable();
         // Could make this a computed observable, so it would refresh automatically?
-        result.refresh = function() {
+        result.refresh = function () {
             result.loaded(false);
         };
 
@@ -100,7 +100,7 @@ define([], function () {
     };
 
     ko.bindingHandlers.effectOnChange = {
-        update: function(element, valueAccessor, allBindings) {
+        update: function (element, valueAccessor, allBindings) {
             var value = valueAccessor();
             var applyEffectOnEmpty = allBindings.get('applyEffectOnEmpty') === 'true';
             if (applyEffectOnEmpty || ko.unwrap(value)) {

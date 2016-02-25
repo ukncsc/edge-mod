@@ -34,15 +34,15 @@
 
 
                 <div class="form-group">
-                    <label for="short_description" class="col-lg-2 control-label">Short Description</label>
-                    <!-- ko if: short_description.hasValidation -->
-                    <span class="validation-error" data-bind="visible: short_description.hasError, text: short_description.errorMessage"></span>
+                    <label for="shortDescription" class="col-lg-2 control-label">Short Description</label>
+                    <!-- ko if: shortDescription.hasValidation -->
+                    <span class="validation-error" data-bind="visible: shortDescription.hasError, text: shortDescription.errorMessage"></span>
                     <!-- /ko -->
                     <div class="col-lg-6">
-                        <input class="form-control" data-bind="value: short_description,
+                        <input class="form-control" data-bind="value: shortDescription,
                                                                valueUpdate: 'afterkeydown',
                                                                disable: $root.mode().isReadOnly()"
-                               name="short_description" id="short_description">
+                               name="shortDescription" id="shortDescription">
                     </div>
                 </div>
 
@@ -70,7 +70,7 @@
                         <span class="validation-error" data-bind="visible: reporter.hasError, text: reporter.errorMessage"></span>
                         <!-- /ko -->
                         <a data-bind='text: reporter().displayName(),
-                                      click: function() { generalShowModal({viewModel: reporter()}) }'></a>
+                                      click: function() { generalShowModal() }'></a>
                         <!--/ko -->
                        </div>
                 </div>

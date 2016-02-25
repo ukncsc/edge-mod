@@ -15,39 +15,46 @@ define([
                 sup.call(this, "General");
 
                 this.title = ko.observable().extend({
-                    required2: {
+                    requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
                         displayMessage: "You need to enter a title for your indicator"
                     }
                 });
-                this.short_description = ko.observable();
+                this.shortDescription = ko.observable();
                 this.description = ko.observable().extend({
-                    required2: {
+                    requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
                         displayMessage: "You need to enter a description for your indicator"
                     }
                 });
                 this.confidence = ko.observable().extend({
-                    required2: {
+                    requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
                         displayMessage: "You need to select a confidence level for your indicator"
                     }
                 });
                 this.status = ko.observable().extend({
-                    required2: {
+                    requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
                         displayMessage: "You need to select a status for your indicator"
                     }
                 });
 
-                this.tlp = ko.observable();
+                this.tlp = ko.observable().extend({
+                    requiredGrouped: {
+                        required: true,
+                        group: this.validationGroup,
+                        displayMessage: "You need to select a TLP for your indicator"
+                    }
+                });
+
                 this.reporter = ko.observable(new CERTIdentity({name: ''}));
                 this.reporter().name.extend({
-                    required2: {
+                    requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
                         displayMessage: "You need to select a reporter for your indicator"
@@ -55,7 +62,7 @@ define([
                 })
 
                 this.markings = ko.observable().extend({
-                    required2: {
+                    requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
                         displayMessage: "You need to select a marking for your indicator"
@@ -78,9 +85,8 @@ define([
             this.marking_priorities(optionLists.marking_priorities);
         },
 
-        generalShowModal: function (namearg) {
-            //ToDo make static
-            return (new CERTIdentity(namearg)).ModelUI()
+        generalShowModal: function () {
+            return this.reporter().ModelUI()
         },
 
         load: function (data) {
@@ -91,7 +97,7 @@ define([
             if ('reporter' in data) {
                 if ('identity' in data['reporter']) {
                     if ('name' in data['reporter']['identity'])
-                        this.reporter((new CERTIdentity(data['reporter']['identity'])))
+                        this.reporter(new CERTIdentity(data['reporter']['identity']))
                 }
             }
 

@@ -14,7 +14,7 @@ define([
                 return function () {
                     sup.call(this, "Times");
                     //this.time_zones_list = ko.observableArray([]);
-                    this.time_types = ko.observableArray([]);
+                    this.time_types = ko.observableArray();
 
                     this.count = ko.computed(function () {
                         var count = 0;
@@ -31,10 +31,10 @@ define([
 
             loadStatic: function (optionsList) {
                 $('.btn').button();
-                for (var i in optionsList['time_types_list']) {
+                this.time_types.removeAll();
+                for (var i = 0; i < optionsList['time_types_list'].length; i++) {
                     this.time_types.push(new Time(optionsList['time_types_list'][i][0], optionsList['time_types_list'][i][1]));
                 }
-                //this.time_zones_list(optionsList['time_zones_list']);
             },
 
             load: function (data) {

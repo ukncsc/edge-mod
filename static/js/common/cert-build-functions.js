@@ -25,18 +25,5 @@ define([
                 return result
             }
         },
-
-        inherit: function (proto) {
-            var F = function F() {
-            };
-            F.prototype = proto;
-            return new F();
-        },
-
-        extend: function (child, parent) {
-            child.prototype = this.inherit(parent.prototype);
-            child.prototype.constructor = child;
-            child.super = parent.prototype;
-        }
     };
 });

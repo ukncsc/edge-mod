@@ -20,7 +20,7 @@ define([
 
                 this.relatedItems = ko.observableArray([]).extend(
                         {
-                            required2:{required :options['required'], group: this.validationGroup, displayMessage: "Needs at least one " + options['displayName']}
+                            requiredGrouped:{required :options['required'], group: this.validationGroup, displayMessage: "Needs at least one " + options['displayName']}
                         });
 
                 this.totalItems = ko.computed(function () {

@@ -12,10 +12,10 @@ define([
         constructor: declare.superCall(function (sup) {
             return function (label, options) {
                 sup.call(this, [label]);
-                this.saveKey = options['saveKey'];
 
+                this.saveKey = options['saveKey'];
                 this.items = ko.observableArray([]).extend(
-                        {required2:
+                        {requiredGrouped:
                             {required :options['required'], group: this.validationGroup, displayMessage: "Needs at least one " + options['displayName']}
                         });
                 this.count = ko.computed(function () {
@@ -26,15 +26,14 @@ define([
 
 
         add: function () {
-            var newItem = new CERTIdentity();
-            var items = this.items;
-            newItem.ModelUI().done(function (context, result) {
-                items.unshift(newItem);
-            });
+            var newIdent = new CERTIdentity();
+            newIdent.ModelUI().done(function (context, result) {
+                this.items.unshift(newIdent);
+            }.bind(this));
         },
 
-        show_ui: function (model, data) {
-            data.ModelUI();
+        showUi: function (model, ident) {
+            ident.ModelUI();
         },
 
         load: function (data) {
@@ -53,11 +52,10 @@ define([
 
         save: function () {
             var data = {};
-            var saveKey = this.saveKey;
-            data[saveKey] = [];
+            data[this.saveKey] = [];
             ko.utils.arrayForEach(this.items(), function (item) {
-                data[saveKey].push({'identity': item.to_json()});
-            });
+                data[this.saveKey].push({'identity': item.to_json()});
+            }.bind(this));
 
             return data;
         }

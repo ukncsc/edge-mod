@@ -5,15 +5,6 @@ define([
 ], function (declare, ko, AbstractBuilderForm) {
     "use strict";
 
-    Array.prototype.chunk = function (chunkSize) {
-        var array = this;
-        return [].concat.apply([],
-            array.map(function (elem, i) {
-                return i % chunkSize ? [] : [array.slice(i, i + chunkSize)];
-            })
-        );
-    }
-
     var ListSelects = declare(AbstractBuilderForm, {
         declaredClass: "ListSelects",
 
@@ -21,17 +12,12 @@ define([
             return function (label, options) {
                 sup.call(this, [label]);
                 this.saveKey = options['saveKey'];
-                this.selectChoiceName = options['selectChoice'];
-                this.options = ko.observableArray();
-
-                this.optionsGrouped = ko.computed(function () {
-                    return this.options().chunk(8);
-                }, this);
-
+                this.choiceListName = options['selectChoice'];
+                this.choices = ko.observableArray([]);
                 this.items = ko.observableArray().extend(
                     {
                         rateLimit: 200,
-                        required2: {
+                        requiredGrouped: {
                             required: options['required'],
                             group: this.validationGroup,
                             displayMessage: "Needs at least one " + options['displayName']
@@ -44,30 +30,20 @@ define([
             }
         }),
 
-        loadStatic: function (optionLists) {
-            this.options(optionLists[this.selectChoiceName]);
+        loadStatic: function (options) {
+            this.choices(options[this.choiceListName]);
         },
 
 
         load: function (data) {
             this.items.removeAll();
-            var self = this;
-            if (self.saveKey in data) {
-                $.each(data[self.saveKey], function (i, v) {
-                    self.items.push(v);
-                });
-            }
+            Array.prototype.push.apply(this.items(), data[this.saveKey]);
         },
-
 
         save: function () {
             var data = {};
-            var saveKey = this.saveKey;
-            data[saveKey] = [];
-            ko.utils.arrayForEach(this.items(), function (item) {
-                data[saveKey].push(item);
-            });
-
+            data[this.saveKey] = [];
+            Array.prototype.push.apply(data[this.saveKey], this.items());
             return data;
         }
     });
@@ -90,12 +66,9 @@ define([
             var newValueAccessor = function () {
                 return {
                     change: function () {
+                        array.remove(element.defaultValue);
                         if (element.checked) {
-                            array.remove(element.defaultValue);
                             array.push(element.defaultValue);
-                        }
-                        else {
-                            array.remove(element.defaultValue);
                         }
                     }
                 }

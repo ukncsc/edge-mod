@@ -1,35 +1,60 @@
 <style>
-    .selectbtn:active, .selectbtn.active {
-        background: #007299;
-        box-shadow: none;
+    .btn.btn-primary.option-btn:active, .btn.btn-primary.option-btn.active {
+        background-color: #4b5f6a;
+        color: #DFE0E0;
+    }
+
+    .btn.btn-primary.option-btn {
+        display: table;
+        background-color: #d2dadd;
+        color: #4b5f6a;
+        text-align: center;
+        vertical-align: middle;
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+
+    .option-block {
+        display: inline-block;
+        width: 150px;
+        height: 75px;
+        margin: 3px;
+    }
+
+    .option-span {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+        height: 100%;
+        width: 100%;
+    }
+
+    .option-container {
+        max-width: 100%;
     }
 
 </style>
 
 <template id="listSelectsPanel">
     <div data-bind="if: $data == $parent.section().value()">
-        <div class="panel-heading"><span data-bind="text: label"></span>
-        </div>
+        <div class="panel-heading"><span data-bind="text: label"></span></div>
         <div class="panel-body">
-
-            <div class="container">
-
-                <div class="row">
-                    <div data-bind="foreach: optionsGrouped">
-                        <div class="col-lg-2">
-                            <div class="btn-group-vertical" data-toggle="buttons">
-                                <!-- ko foreach: $data -->
-                                <label class="selectbtn btn btn-primary" style="white-space:normal">
-                                    <!-- ko text: $data --><!-- /ko -->
-                                    <input type="checkbox" data-bind="id:$data ,bsChecked: {id:$data, array:$parents[1].items}, name:$data , value:$data"/>
-                                </label>
-                                <!-- /ko -->
-                            </div>
-                        </div>
-                    </div>
+            <div class="container option-container">
+                <!-- ko foreach: choices -->
+                <div class="btn-group-vertical option-block" data-toggle="buttons" data-bind="disable: $root.mode().isReadOnly()">
+                    <label class="option-btn btn btn-primary option-block" style="white-space:normal">
+                        <span class="option-span" data-bind="text:$data"></span>
+                        <input type="checkbox"
+                               data-bind="
+                                   disable: $root.mode().isReadOnly(),
+                                   id:$data,
+                                   bsChecked: {id:$data, array:$parents[0].items},
+                                   name:$data,
+                                   value:$data"/>
+                    </label>
                 </div>
+                <!-- /ko -->
             </div>
-            <!-- panel body -->
         </div>
     </div>
 </template>
