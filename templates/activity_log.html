@@ -5,8 +5,32 @@
 {% block head-content %}
 
     <style type="text/css">
+        .content-header {
+            background: white;
+            position: fixed;
+            left: 0;
+            right: 12px;
+        }
+        .content-body {
+            margin-top: 116px;
+        }
         .form-group .help-block {
             text-align: right;
+        }
+        .table.fixed {
+            table-layout: fixed;
+        }
+        .table.fixed.header {
+            margin-bottom: 0;
+        }
+        .table.fixed th, .table.fixed td {
+            width: auto;
+        }
+        .table.fixed th:first-child, .table.fixed td:first-child {
+            width: 12em;
+        }
+        .table pre {
+            margin-bottom: 0;
         }
         /* Absolute Center Spinner */
         .loading {
@@ -131,68 +155,77 @@
 
 {% block body-content %}
     <div id="_loading_" class="loading">Loading&#8230;</div>
-    <div class="container">
-        <div class="row">
-            <form class="col-sm-12 form-horizontal">
-                <div class="form-group">
-                    <label for="filter-search" class="control-label sr-only">Search</label>
-                    <div class="input-group">
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-search"></span>
-                        </span>
-                        <input type="text" class="form-control" id="filter-search" data-bind="value: search"
-                               placeholder="Search for text in the message (case-insensitive regex)">
-                        <span class="input-group-btn">
-                            <button type="button" class="btn btn-default" data-bind="click: clearSearch">Clear</button>
-                            <button type="submit" class="btn btn-primary" data-bind="click: loadLog">Search</button>
+    <div class="content-header">
+        <div class="container">
+            <div class="row">
+                <form class="col-sm-12 form-horizontal">
+                    <div class="form-group">
+                        <label for="filter-search" class="control-label sr-only">Search</label>
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </span>
+                            <input type="text" class="form-control" id="filter-search" data-bind="value: search"
+                                   placeholder="Search for text in the message (case-insensitive regex)">
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-default" data-bind="click: clearSearch">Clear</button>
+                                <button type="submit" class="btn btn-primary" data-bind="click: loadLog">Search</button>
+                            </span>
+                        </div>
+                        <span class="help-block">
+                            Instead of a simple regex, you can also use
+                            <code>cat:<em>category</em></code>,
+                            <code>regex:<em>message regex</em></code>,
+                            <code>state:<em>state</em></code> and
+                            <code>user:<em>user id</em></code>
                         </span>
                     </div>
-                    <span class="help-block">
-                        Instead of a simple regex, you can also use
-                        <code>cat:<em>category</em></code>,
-                        <code>regex:<em>message regex</em></code>,
-                        <code>state:<em>state</em></code> and
-                        <code>user:<em>user id</em></code>
-                    </span>
+                </form>
+            </div>
+            <div class="row" style="display:none;" data-bind="if: logError, visible: true">
+                <div class="jumbotron">
+                    <h2>The server returned an error:</h2>
+                    <p data-bind="text: logError"></p>
+                    <button type="submit" class="btn btn-primary" data-bind="click: loadLog">Retry</button>
                 </div>
-            </form>
-        </div>
-        <div class="row" style="display:none;" data-bind="if: logError, visible: true">
-            <div class="jumbotron">
-                <h2>The server returned an error:</h2>
-                <p data-bind="text: logError"></p>
-                <button type="submit" class="btn btn-primary" data-bind="click: loadLog">Retry</button>
+            </div>
+            <div class="row" style="display:none;" data-bind="if: logContent, visible: true">
+                <div class="jumbotron" data-bind="visible: logContent().length < 1">
+                    <h2>No matches found</h2>
+                </div>
+                <table class="table table-condensed table-hover fixed header" data-bind="visible: logContent().length > 0">
+                    <thead>
+                    <tr>
+                        <th>Metadata</th>
+                        <th>Message</th>
+                    </tr>
+                    </thead>
+                </table>
             </div>
         </div>
-        <div class="row" style="display:none;" data-bind="if: logContent, visible: true">
-            <div class="jumbotron" data-bind="visible: logContent().length < 1">
-                <h2>No matches found</h2>
+    </div>
+    <div class="content-body">
+        <div class="container">
+            <div class="row" style="display:none;" data-bind="if: logContent, visible: true">
+                <table class="table table-condensed table-hover fixed" data-bind="visible: logContent().length > 0">
+                    <tbody data-bind="foreach: logContent">
+                    <tr data-bind="css: {
+                        danger: state === 'FATAL' || state === 'ERROR',
+                        warning: state === 'WARN'
+                    }">
+                        <td>
+                            <div data-bind="text: timestamp"></div>
+                            <div>User: <span data-bind="text: user"></span></div>
+                            <div>Category: <span data-bind="text: category"></span></div>
+                            <div>State: <span data-bind="text: state"></span></div>
+                        </td>
+                        <td>
+                            <pre data-bind="text: message" style="min-height:6em;"></pre>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-            <table class="table table-condensed table-hover" data-bind="visible: logContent().length > 0">
-                <thead>
-                <tr>
-                    <th>Timestamp</th>
-                    <th>User</th>
-                    <th>Category</th>
-                    <th>State</th>
-                    <th>Message</th>
-                </tr>
-                </thead>
-                <tbody data-bind="foreach: logContent">
-                <tr data-bind="css: {
-                    danger: state === 'FATAL' || state === 'ERROR',
-                    warning: state === 'WARN'
-                }">
-                    <td data-bind="text: timestamp"></td>
-                    <td data-bind="text: user"></td>
-                    <td data-bind="text: category"></td>
-                    <td data-bind="text: state"></td>
-                    <td>
-                        <pre data-bind="text: message"></pre>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
         </div>
     </div>
 {% endblock %}
