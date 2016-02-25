@@ -1,7 +1,6 @@
 
 import os
 from mongoengine.connection import get_db
-from edge import LOCAL_NAMESPACE
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from adapters.certuk_mod.common.activity import save as log_activity
@@ -21,9 +20,6 @@ class STIXPurge(object):
             },
             '_id': {
                 '$gt': minimum_id
-            },
-            'data.idns': {
-                '$ne': LOCAL_NAMESPACE
             },
             'data.summary.type': {
                 # Exclude Observable Compositions, since they will only ever have at most 1 back link
@@ -154,9 +150,6 @@ class STIXPurge(object):
     def _get_orphaned_external_observable_compositions():
         composition_ids = get_db().stix.find({
             'data.summary.type': 'ObservableComposition',
-            'data.idns': {
-                '$ne': LOCAL_NAMESPACE
-            }
         }, {
             '_id': 1
         })
@@ -177,19 +170,13 @@ class STIXPurge(object):
         return orphaned_ids
 
     @staticmethod
-    def _get_old_packages(minimum_date, include_internal=True):
+    def _get_old_packages(minimum_date):
         query = {
             'created_on': {
                 '$lt': minimum_date
             },
             'type': 'pkg'
         }
-        if not include_internal:
-            query.update({
-                'data.idns': {
-                    '$ne': LOCAL_NAMESPACE
-                }
-            })
         packages_cursor = get_db().stix.find(query, {
             '_id': 1
         })
