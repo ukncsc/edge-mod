@@ -16,7 +16,7 @@ def activity_log(request):
 def ajax_activity_log(request, search):
     try:
         pattern = re.compile(
-            r'((?:cat|regex|state|user):\w+)',
+            r'((?:cat|regex|state|user):\S+)',
             flags=re.IGNORECASE
         )
         match = pattern.findall(search)

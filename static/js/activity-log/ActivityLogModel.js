@@ -22,6 +22,12 @@ define([
             var url = "/adapter/certuk_mod/ajax/activity_log/" + encodeURIComponent(this.search());
             getJSON(url, null, this._onLoadLogSuccess.bind(this), this._onLoadLogError.bind(this));
         },
+        clearSearch: function () {
+            if (!(this.search.peek() === "")) {
+                this.search("");
+                this.loadLog();
+            }
+        },
         _onLoadLogSuccess: function (data) {
             this.logError(null);
             this.logContent(data.matches);
