@@ -13,7 +13,10 @@ PROPERTY_TYPE = ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE']
 PROPERTY_FILENAME = ['api_object', 'obj', 'object_', 'properties', 'file_name']
 PROPERTY_MD5 = ['api_object', 'obj', 'object_', 'properties', 'md5']
 PROPERTY_SHA1 = ['api_object', 'obj', 'object_', 'properties', 'sha1']
+PROPERTY_SHA224 = ['api_object', 'obj', 'object_', 'properties', 'sha224']
 PROPERTY_SHA256 = ['api_object', 'obj', 'object_', 'properties', 'sha256']
+PROPERTY_SHA384 = ['api_object', 'obj', 'object_', 'properties', 'sha384']
+PROPERTY_SHA512 = ['api_object', 'obj', 'object_', 'properties', 'sha512']
 
 
 def _get_sighting_count(obs):
@@ -71,7 +74,10 @@ def _coalesce_duplicates(contents, map_table):
                     additional_file_hashes[existing_id] = {}
                 add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_MD5)
                 add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA1)
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA224)
                 add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA256)
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA384)
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA512)
     return out, additional_sightings, additional_file_hashes
 
 
@@ -89,7 +95,10 @@ def _find_matching_db_file_obs(db, new_file_obs):
     new_filenames = extract_properties(new_file_obs, PROPERTY_FILENAME)
     new_md5s = extract_properties(new_file_obs, PROPERTY_MD5)
     new_sha1s = extract_properties(new_file_obs, PROPERTY_SHA1)
+    new_sha224s = extract_properties(new_file_obs, PROPERTY_SHA224)
     new_sha256s = extract_properties(new_file_obs, PROPERTY_SHA256)
+    new_sha384s = extract_properties(new_file_obs, PROPERTY_SHA384)
+    new_sha512s = extract_properties(new_file_obs, PROPERTY_SHA512)
     existing_file_obs = db.stix.find({
         'type': 'obs',
         'data.api.object.properties.xsi:type': 'FileObjectType',
@@ -108,8 +117,23 @@ def _find_matching_db_file_obs(db, new_file_obs):
                 ]
             }, {
                 '$and': [
+                    {'data.api.object.properties.hashes.type': 'SHA224'},
+                    {'data.api.object.properties.hashes.simple_hash_value': {'$in': new_sha224s}}
+                ]
+            }, {
+                '$and': [
                     {'data.api.object.properties.hashes.type': 'SHA256'},
                     {'data.api.object.properties.hashes.simple_hash_value': {'$in': new_sha256s}}
+                ]
+            }, {
+                '$and': [
+                    {'data.api.object.properties.hashes.type': 'SHA384'},
+                    {'data.api.object.properties.hashes.simple_hash_value': {'$in': new_sha384s}}
+                ]
+            }, {
+                '$and': [
+                    {'data.api.object.properties.hashes.type': 'SHA512'},
+                    {'data.api.object.properties.hashes.simple_hash_value': {'$in': new_sha512s}}
                 ]
             }
         ]
@@ -127,7 +151,10 @@ def _is_matching_file(existing_file, new_file):
     return matches(existing_file, new_file, PROPERTY_FILENAME) and (
         matches(existing_file, new_file, PROPERTY_MD5) or
         matches(existing_file, new_file, PROPERTY_SHA1) or
-        matches(existing_file, new_file, PROPERTY_SHA256)
+        matches(existing_file, new_file, PROPERTY_SHA224) or
+        matches(existing_file, new_file, PROPERTY_SHA256) or
+        matches(existing_file, new_file, PROPERTY_SHA384) or
+        matches(existing_file, new_file, PROPERTY_SHA512)
     )
 
 
