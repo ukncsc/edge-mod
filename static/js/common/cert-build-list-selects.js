@@ -5,7 +5,7 @@ define([
 ], function (declare, ko, AbstractBuilderForm) {
     "use strict";
 
-    var ListSelects = declare(AbstractBuilderForm, {
+    return declare(AbstractBuilderForm, {
         declaredClass: "ListSelects",
 
         constructor: declare.superCall(function (sup) {
@@ -14,26 +14,35 @@ define([
                 this.saveKey = options['saveKey'];
                 this.choiceListName = options['selectChoice'];
                 this.choices = ko.observableArray([]);
-                this.items = ko.observableArray().extend(
-                    {
-                        rateLimit: 200,
-                        requiredGrouped: {
-                            required: options['required'],
-                            group: this.validationGroup,
-                            displayMessage: "Needs at least one " + options['displayName']
-                        }
-                    });
+                this.items = ko.observableArray([]).extend({
+                    requiredGrouped: {
+                        required: options['required'],
+                        group: this.validationGroup,
+                        displayMessage: "Needs at least one " + options['displayName']
+                    }
+                });
 
                 this.count = ko.computed(function () {
                     return this.items().length || "";
-                }, this);
+                }, this).extend({rateLimit: 100});
             }
         }),
+
+        toggle: function (item) {
+            if (this.isSelected(item)) {
+                this.items.remove(item);
+            } else {
+                this.items.push(item)
+            }
+        },
+
+        isSelected: function (item) {
+            return this.items.indexOf(item) > -1;
+        },
 
         loadStatic: function (options) {
             this.choices(options[this.choiceListName]);
         },
-
 
         load: function (data) {
             this.items.removeAll();
@@ -47,39 +56,5 @@ define([
             return data;
         }
     });
-
-    ko.bindingHandlers.bsChecked = {
-        init: function (element, valueAccessor, allBindingsAccessor,
-                        viewModel, bindingContext) {
-
-            var id = valueAccessor().id;
-            var array = valueAccessor().array;
-
-            ko.utils.arrayForEach(array(), function (item) {
-                if (item === id) {
-                    element.setAttribute('checked', true);
-                    element.parentNode.className = element.parentNode.className + " active";
-                }
-            });
-
-
-            var newValueAccessor = function () {
-                return {
-                    change: function () {
-                        array.remove(element.defaultValue);
-                        if (element.checked) {
-                            array.push(element.defaultValue);
-                        }
-                    }
-                }
-            };
-
-
-            ko.bindingHandlers.event.init(element, newValueAccessor,
-                allBindingsAccessor, viewModel, bindingContext);
-        },
-    }
-
-    return ListSelects;
 });
 
