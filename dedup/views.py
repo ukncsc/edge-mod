@@ -63,12 +63,13 @@ def ajax_load_parent_ids(request, id_):
 def ajax_import(request, username):
     def build_activity_message(count, duration, messages, validation_result):
         validation_text = []
-        for id_, fields in validation_result.iteritems():
-            validation_text.append('%s:' % id_)
-            for field_id, validation in fields.iteritems():
-                validation_text.append('\t%5s: %s - %s' % (validation['status'], field_id, validation['message']))
-        if len(validation_text) > 0:
-            validation_text.insert(0, '\nValidation:')
+        if validation_result:
+            for id_, fields in validation_result.iteritems():
+                validation_text.append('%s:' % id_)
+                for field_id, validation in fields.iteritems():
+                    validation_text.append('\t%5s: %s - %s' % (validation['status'], field_id, validation['message']))
+            if len(validation_text) > 0:
+                validation_text.insert(0, '\nValidation:')
 
         return 'Ingested %d objects in %dms\nMessages:\n\t%s%s' % (
             count,
