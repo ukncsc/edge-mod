@@ -34,7 +34,6 @@ def ajax_activity_log(request, search):
             'matches': matches
         }, status=200)
     except Exception as e:
-        print "%s" % e
         return JsonResponse({
             'message': e.message
         }, status=500)
