@@ -119,8 +119,9 @@ def _find_matching_db_file_obs(db, new_file_obs):
 
 def _is_matching_file(existing_file, new_file):
     def matches(existing, new, property_path):
-        existing_value = rgetattr(existing, property_path, None)
-        new_value = rgetattr(new, property_path, None)
+        # NOTE: need to ignore the `api_object` part of the property path here - hence `[1:]`
+        existing_value = rgetattr(existing, property_path[1:], None)
+        new_value = rgetattr(new, property_path[1:], None)
         return existing_value is not None and new_value is not None and existing_value == new_value
 
     return matches(existing_file, new_file, PROPERTY_FILENAME) and (
