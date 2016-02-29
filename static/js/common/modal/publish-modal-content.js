@@ -4,7 +4,7 @@ define([
 ], function (dcl, ko) {
     "use strict";
 
-    function PublishModalContent() {
+    function PublishModalContent(type) {
         this.message = ko.observable("");
         this.status = ko.observable("OK");
         this.validations = null;
@@ -12,7 +12,7 @@ define([
         this.clientErrors = ko.observableArray([]);
         this.responseType = ko.observable(null);
         this.statusMessage = ko.computed(function () {
-            return this.messagesByStatus[this.status()];
+            return this.getMessagesByStatus(this.status(), type);
         }, this);
         this.hasErrors = ko.computed(function () {
             return this.status() === "FAILED" || this.status() === "ERROR";
@@ -25,13 +25,21 @@ define([
         }, this);
     }
 
-    PublishModalContent.prototype.messagesByStatus = {
-        "FAILED": "Unable to publish this incident",
-        "ERROR": "This incident has errors and cannot be published",
-        "WARNING": "This incident has warnings",
-        "INFO": "",
-        "OK": ""
-    }
+    PublishModalContent.prototype.getMessagesByStatus = function (status, type) {
+        if (status === "FAILED") {
+            return "Unable to publish this " + type;
+        }
+
+        if (status === "ERROR") {
+            return "This " + type + " has errors and cannot be published";
+        }
+
+        if (status === "WARNING") {
+            return "This " + type + "  warnings";
+        }
+
+        return "";
+    };
 
     return PublishModalContent;
 });

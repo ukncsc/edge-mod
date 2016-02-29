@@ -1,11 +1,10 @@
 define([
     "dcl/dcl",
-    "knockout",
     "common/cert-build-list-idents"
-], function (declare, ko, listIdents) {
+], function (declare, listIdents) {
     "use strict";
 
-    var Victims = declare(listIdents, {
+    return declare(listIdents, {
         declaredClass: "Victims",
         constructor: declare.superCall(function (sup) {
             return function () {
@@ -17,6 +16,4 @@ define([
             }
         })
     });
-
-    return  Victims;
 });

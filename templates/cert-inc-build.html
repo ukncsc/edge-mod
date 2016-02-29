@@ -6,7 +6,7 @@
 {% endblock %} {% block body-content %}
     {% include 'cert-identity.html' %}
     {% include 'candidate_modal.html' %}
-    {% include 'related_items_orig.html' %}
+    {% include 'related_items.html' %}
     {% include 'list_selects.html' %}
     {% include 'list_idents.html' %}
     {% include 'cert-inc-build-general.html' %}
@@ -40,7 +40,7 @@
 
                 <div class="alert alert-warning" data-bind="visible: isIncomplete()">
                     <h4 data-bind="visible: messages().hasErrors()">The Incident is incomplete:
-                        <ul data-bind="foreach: messages().errors">
+                        <ul data-bind="foreach: messages().displayErrors">
                             <li data-bind="text: $data"></li>
                         </ul>
                     </h4>
@@ -53,18 +53,18 @@
 
                 <div data-bind="template: { name: 'GeneralPanel', data: section().findByLabel('General')}"></div>
                 <div data-bind="template: { name: 'TimePanel', data: section().findByLabel('Times')  }"></div>
-                <div data-bind="template: { name: 'listSelectsPanel', data: section().findByLabel('Trust Groups') }"></div>
+                <div data-bind="template: { name: 'ListSelectsPanel', data: section().findByLabel('Trust Groups') }"></div>
                 <div data-bind="template: { name: 'relatedItemsPanel', data: section().findByLabel('Related Indicators') }"></div>
                 <div data-bind="template: { name: 'relatedItemsPanel', data: section().findByLabel('Related Incidents') }"></div>
                 <div data-bind="template: { name: 'relatedItemsPanel', data: section().findByLabel('Related Observables') }"></div>
                 <div data-bind="template: { name: 'relatedItemsPanel', data: section().findByLabel('Leveraged TTPs') }"></div>
                 <div data-bind="template: { name: 'relatedItemsPanel', data: section().findByLabel('Attributed Actors') }"></div>
-                <div data-bind="template: { name: 'listSelectsPanel', data: section().findByLabel('Effects') }"></div>
-                <div data-bind="template: { name: 'listIdentsPanel', data: section().findByLabel('Victims') }"></div>
-                <div data-bind="template: { name: 'listIdentsPanel', data: section().findByLabel('Responders') }"></div>
-                <div data-bind="template: { name: 'listSelectsPanel', data: section().findByLabel('Discovery Methods') }"></div>
-                <div data-bind="template: { name: 'listSelectsPanel', data: section().findByLabel('Categories') }"></div>
-                <div data-bind="template: { name: 'listSelectsPanel', data: section().findByLabel('Intended Effects') }"></div>
+                <div data-bind="template: { name: 'ListSelectsPanel', data: section().findByLabel('Effects') }"></div>
+                <div data-bind="template: { name: 'ListIdentsPanel', data: section().findByLabel('Victims') }"></div>
+                <div data-bind="template: { name: 'ListIdentsPanel', data: section().findByLabel('Responders') }"></div>
+                <div data-bind="template: { name: 'ListSelectsPanel', data: section().findByLabel('Discovery Methods') }"></div>
+                <div data-bind="template: { name: 'ListSelectsPanel', data: section().findByLabel('Categories') }"></div>
+                <div data-bind="template: { name: 'ListSelectsPanel', data: section().findByLabel('Intended Effects') }"></div>
             </div>
         </div>
     </div><!-- container -->
@@ -72,18 +72,15 @@
 {% endblock %}
 {% block body-end %}
 
+        <!-- jquery & boostrap -->
+
+    <script src="/adapter/certuk_mod/static/js/moment-with-locales.min.js"></script>
     <script type="text/javascript" src="{% static 'js/knockout-3.1.0.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/knockout-3.1.0.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/stickytape.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/shared/validation.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/shared/identity.js' %}"></script>
+    <script src="/adapter/certuk_mod/static/js/bootstrap-datetimepicker.min.js"></script>
 
-
-
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
-<script src="//cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
     {% include 'partials/builder_toolbar.html' %}
 
     <script type="text/javascript">
@@ -102,10 +99,7 @@
         incident_builder.effects_list = {{ effects|safe }};
         incident_builder.statuses_list = {{ statuses|safe }};
         incident_builder.categories_list = {{ categories|safe }};
-
         incident_builder.time_types_list = {{ time_types_list|safe }};
-        incident_builder.time_zones_list = {{ time_zones_list|safe }};
-
         incident_builder.discovery_methods_list = {{ discovery_methods|safe }};
         incident_builder.intended_effects_list = {{ intended_effects|safe }};
 

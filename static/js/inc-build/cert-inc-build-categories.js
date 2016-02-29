@@ -1,26 +1,21 @@
 define([
     "dcl/dcl",
-    "knockout",
     "common/cert-build-list-selects"
-], function (declare, ko, listSelects) {
+], function (declare, ListSelects) {
     "use strict";
 
-
-    var DiscoveryMethods = declare(listSelects, {
+    return declare(ListSelects, {
         declaredClass: "Categories",
 
         constructor: declare.superCall(function (sup) {
-                return function () {
-                    sup.call(this, "Categories", {
-                        selectChoice: 'categories_list',
-                        saveKey: 'categories',
-                        required: true,
-                        displayName: 'Category'
-                    });
-                }
+            return function () {
+                sup.call(this, "Categories", {
+                    selectChoice: 'categories_list',
+                    saveKey: 'categories',
+                    required: true,
+                    displayName: 'Category'
+                });
             }
-        )
+        })
     });
-
-    return  DiscoveryMethods;
 });

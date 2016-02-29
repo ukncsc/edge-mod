@@ -6,21 +6,19 @@
 
         <div class="panel-body">
             <div class="row">
-                <div class="col-lg-9">
-                    <table  cellpadding="10">
-                        <tbody data-bind="foreach: time_types">
+                <div class="col-lg-7">
+                    <table cellpadding="10" style=width:100%;>
+                        <tbody data-bind="foreach: timeTypes">
                         <tr>
-                            <td nowrap data-bind="text: $data.display_name()"></td>
-                            <td valign="bottom" >
+                            <td nowrap data-bind="text: $data.displayName()"></td>
+                            <td valign="bottom">
                                 <div class="form-group">
-                                    <div class="col-lg-16">
-                                    <div class='input-group  input-group-lg date' data-bind="dateTime: time_string, disable: $root.mode().isReadOnly()">
+                                    <div class='input-group date' data-bind="dateTime: timeString, disable: $root.mode().isReadOnly()">
                                         <input type='text' class="form-control" data-bind="disable: $root.mode().isReadOnly()"/>
                                             <span class="input-group-addon">
                                                 <span class="glyphicon glyphicon-calendar"></span>
                                             </span>
                                     </div>
-                                 </div>
                                 </div>
                             </td>
                         </tr>

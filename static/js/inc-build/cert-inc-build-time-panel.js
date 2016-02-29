@@ -6,76 +6,64 @@ define([
 ], function (declare, ko, AbstractBuilderForm, Time) {
     "use strict";
 
-
     return declare(AbstractBuilderForm, {
-        declaredClass: "Times",
+        declaredClass: "TimePanel",
 
         constructor: declare.superCall(function (sup) {
             return function () {
+                this.timeTypes = ko.observableArray();
                 sup.call(this, "Times");
-                //this.time_zones_list = ko.observableArray([]);
-                this.time_types = ko.observableArray();
-
-                this.count = ko.computed(function () {
-                    var count = 0;
-                    ko.utils.arrayForEach(this.time_types(), function (time_type) {
-                        if (time_type.time_string() != "") {
-                            count++;
-                        }
-                    });
-                    return count != 0 ? count : "";
-                }, this).extend({rateLimit: 300});
-
             }
         }),
 
+        counter: function () {
+            var count = 0;
+            ko.utils.arrayForEach(this.timeTypes(), function (timeType) {
+                if (timeType.timeString() != "") {
+                    count++;
+                }
+            });
+            return count != 0 ? count : "";
+        },
+
         loadStatic: function (optionsList) {
-            $('.btn').button();
-            this.time_types.removeAll();
+            this.timeTypes.removeAll();
             for (var i = 0; i < optionsList['time_types_list'].length; i++) {
-                this.time_types.push(new Time(optionsList['time_types_list'][i][0], optionsList['time_types_list'][i][1]));
+                this.timeTypes.push(new Time(optionsList['time_types_list'][i][0], optionsList['time_types_list'][i][1]));
             }
         },
 
         load: function (data) {
             var self = this;
-            ko.utils.arrayForEach(self.time_types(), function (time_type) {
-                time_type.load("");
+            ko.utils.arrayForEach(self.timeTypes(), function (timeType) {
+                timeType.load("");
             });
 
 
             if ('time' in data) {
                 $.each(data['time'], function (i, v) {
-                    ko.utils.arrayForEach(self.time_types(), function (time_type) {
-                        if (time_type.save_name() === i) {
-                            time_type.load(v);
+                    ko.utils.arrayForEach(self.timeTypes(), function (timeType) {
+                        if (timeType.saveName() === i) {
+                            timeType.load(v);
                         }
                     });
                 });
             }
         },
 
-        ButtonsExampleViewModel: function () {
-            this.isToggled = ko.observable(false);
-        },
-
-
         save: function () {
-            var data = {};
-            var self = this;
-            var data_time = {};
-
-            ko.utils.arrayForEach(this.time_types(), function (item) {
-                var time = {};
-                if (item.time_string() != "") {
-                    data_time[item.save_name()] = {
-                        'value': item.time_string(),
-                        'precision': 'second'
+            var dataTime = {};
+            ko.utils.arrayForEach(this.timeTypes(), function (item) {
+                if (item.timeString() != "") {
+                    dataTime[item.saveName()] = {
+                        'value': item.timeString(),
+                        'precision': 'second' //Hardcoded for now and strictly not needed for 'second'.
                     };
                 }
             });
 
-            data['time'] = data_time
+            var data = {};
+            data['time'] = dataTime
             return data;
         }
     })

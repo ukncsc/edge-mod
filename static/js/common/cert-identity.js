@@ -2,14 +2,12 @@ define([
     "knockout",
     "dcl/dcl",
     "common/cert-identity-shim",
-    "common/cert-identity_showmodal-shim",
-    "common/cert-build-functions"
-
-], function (ko, declare, EdgeIdentity, EdgeIdentityShowModal, buildFunctions) {
+    "common/cert-identity_showmodal-shim"
+], function (ko, declare, EdgeIdentity, EdgeIdentityShowModal) {
     "use strict";
 
 
-    var CERTIdentity = declare(EdgeIdentity, {
+    return declare(EdgeIdentity, {
         declaredClass: "CERTIdentity",
 
         constructor: declare.superCall(function (sup) {
@@ -22,7 +20,7 @@ define([
                     return this.name() ? this.name() : "Click To Edit";
                 }, this);
 
-                //ToDo, remove lines below when not using EdgeIdentity anymore;
+                //Remove lines below when not using EdgeIdentity anymore;
                 //it was the only way to override cancel to correct behaviour on cancel dialog
                 this.cancel = function () {
                     this.restoreSnapshot();
@@ -30,7 +28,6 @@ define([
                 }.bind(this);
 
                 this.template = "identity-element-popup";
-
             }
         }),
 
@@ -43,6 +40,4 @@ define([
             this.modal.close();
         }
     });
-
-    return CERTIdentity;
 });

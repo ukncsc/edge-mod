@@ -3,9 +3,19 @@ define([
 ], function (ko) {
     "use strict";
 
-    function Messages () {
+    function Messages() {
         this.errors = ko.observableArray([]);
         this.warnings = ko.observableArray([]);
+
+        this.displayErrors = ko.computed(function () {
+            var limit = 6;
+            var errorsToDisplay = this.errors();
+            if (errorsToDisplay.length > limit) {
+                errorsToDisplay = errorsToDisplay.slice(0, limit);
+                errorsToDisplay.push("... and " + (this.errors().length - limit) + " others ...");
+            }
+            return errorsToDisplay;
+        }, this);
     }
 
     Messages.prototype.addError = function (message) {

@@ -7,7 +7,7 @@ define([
 ], function (declare, ko, AbstractBuilderForm, Messages, CERTIdentity) {
     "use strict";
 
-    var General = declare(AbstractBuilderForm, {
+    return declare(AbstractBuilderForm, {
         declaredClass: "General",
 
         constructor: declare.superCall(function (sup) {
@@ -43,7 +43,6 @@ define([
                         displayMessage: "You need to select a status for your indicator"
                     }
                 });
-
                 this.tlp = ko.observable().extend({
                     requiredGrouped: {
                         required: true,
@@ -51,15 +50,16 @@ define([
                         displayMessage: "You need to select a TLP for your indicator"
                     }
                 });
-
-                this.reporter = ko.observable(new CERTIdentity({name: ''}));
-                this.reporter().name.extend({
-                    requiredGrouped: {
+                this.reporter = ko.observable(new CERTIdentity({name: ''})).extend({
+                    requiredIdentity: {
                         required: true,
                         group: this.validationGroup,
+                        validateFunction: function() {
+                            return this.reporter().name() != "";
+                        },
                         displayMessage: "You need to select a reporter for your indicator"
                     }
-                })
+                });
 
                 this.markings = ko.observable().extend({
                     requiredGrouped: {
@@ -85,14 +85,14 @@ define([
             this.marking_priorities(optionLists.marking_priorities);
         },
 
-        generalShowModal: function () {
+        showReporterUiModal: function () {
             return this.reporter().ModelUI()
         },
 
         load: function (data) {
             this.title(data["title"] || "");
             this.status(data["status"] || "");
-            this.short_description(data["short_description"] || "");
+            this.shortDescription(data["short_description"] || "");
             this.description(data["description"] || "");
             if ('reporter' in data) {
                 if ('identity' in data['reporter']) {
@@ -100,7 +100,6 @@ define([
                         this.reporter(new CERTIdentity(data['reporter']['identity']))
                 }
             }
-
 
             this.confidence(data["confidence"] || "");
             this.tlp(data["tlp"] || "");
@@ -111,12 +110,11 @@ define([
             }
         },
 
-
         save: function () {
             return {
                 title: this.title(),
                 status: this.status(),
-                short_description: this.short_description(),
+                short_description: this.shortDescription(),
                 description: this.description(),
                 confidence: this.confidence(),
                 reporter: {'identity': this.reporter().to_json()},
@@ -126,5 +124,4 @@ define([
         }
     });
 
-    return General;
 });

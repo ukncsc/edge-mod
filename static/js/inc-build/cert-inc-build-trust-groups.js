@@ -1,11 +1,10 @@
 define([
     "dcl/dcl",
-    "knockout",
     "common/cert-build-list-selects"
-], function (declare, ko, listSelects) {
+], function (declare, ListSelects) {
     "use strict";
 
-    var TrustGroups = declare(listSelects, {
+    return declare(ListSelects, {
         declaredClass: "TrustGroups",
 
         constructor: declare.superCall(function (sup) {
@@ -18,9 +17,7 @@ define([
                     });
 
                 }
-            }
-        )
+            })
     });
 
-    return TrustGroups;
 });

@@ -37,7 +37,5 @@ define([
         vm.loadObject(incident_builder.id);
     }
 
-
-
     ko.applyBindings(vm);
 });

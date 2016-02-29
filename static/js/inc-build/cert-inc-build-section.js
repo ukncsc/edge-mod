@@ -1,7 +1,7 @@
 define([
     "knockout",
     "inc-build/cert-inc-build-attributed-actors",
-    "inc-build/cert-inc-build-times",
+    "inc-build/cert-inc-build-time-panel",
     "inc-build/cert-inc-build-categories",
     "inc-build/cert-inc-build-discovery-methods",
     "inc-build/cert-inc-build-effects",
@@ -89,9 +89,6 @@ define([
     };
 
     Section.prototype.select = function (item) {
-        //if (this.options.indexOf(item) === -1) {
-        //    throw new Error("Invalid selection: " + item);
-        //}
         this.value(item);
     };
 

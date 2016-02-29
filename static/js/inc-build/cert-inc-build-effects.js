@@ -1,26 +1,22 @@
 define([
     "dcl/dcl",
-    "knockout",
     "common/cert-build-list-selects"
-], function (declare, ko, listSelects) {
+], function (declare, ListSelects) {
     "use strict";
 
-    var Effects = declare(listSelects, {
+    return declare(ListSelects, {
         declaredClass: "Effects",
 
         constructor: declare.superCall(function (sup) {
-                return function () {
-                    sup.call(this, "Effects", {
-                        selectChoice: 'effects_list',
-                        saveKey: 'effects',
-                        required: true,
-                        displayName: 'Effect'
-                    });
-
-                }
+            return function () {
+                sup.call(this, "Effects", {
+                    selectChoice: 'effects_list',
+                    saveKey: 'effects',
+                    required: true,
+                    displayName: 'Effect'
+                });
             }
-        )
+        })
     });
 
-    return Effects;
 });

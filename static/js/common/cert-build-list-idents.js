@@ -2,33 +2,38 @@ define([
     "../dcl/dcl",
     "knockout",
     "common/cert-abstract-builder-form",
-    "common/cert-identity"
-], function (declare, ko, AbstractBuilderForm, CERTIdentity) {
+    "common/cert-identity",
+    "common/jquery-shim"
+], function (declare, ko, AbstractBuilderForm, CERTIdentity, $) {
     "use strict";
 
-    var ListIdents = declare(AbstractBuilderForm, {
+    return declare(AbstractBuilderForm, {
         declaredClass: "ListIdents",
 
         constructor: declare.superCall(function (sup) {
             return function (label, options) {
+                this.items = ko.observableArray([]);
                 sup.call(this, [label]);
-
                 this.saveKey = options['saveKey'];
-                this.items = ko.observableArray([]).extend(
-                        {requiredGrouped:
-                            {required :options['required'], group: this.validationGroup, displayMessage: "Needs at least one " + options['displayName']}
-                        });
-                this.count = ko.computed(function () {
-                    return this.items().length || "";
-                }, this);
+                this.items.extend({
+                    requiredGrouped: {
+                        required: options['required'],
+                        group: this.validationGroup,
+                        displayMessage: "Needs at least one " + options['displayName']
+                    }
+                });
+
             }
         }),
 
+        counter: function () {
+            return this.items().length || "";
+        },
 
         add: function () {
-            var newIdent = new CERTIdentity();
-            newIdent.ModelUI().done(function (context, result) {
-                this.items.unshift(newIdent);
+            var newIdentity = new CERTIdentity();
+            newIdentity.ModelUI().done(function () {
+                this.items.unshift(newIdentity);
             }.bind(this));
         },
 
@@ -60,6 +65,4 @@ define([
             return data;
         }
     });
-
-    return ListIdents;
 });
