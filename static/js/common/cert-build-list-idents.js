@@ -15,6 +15,7 @@ define([
                 this.items = ko.observableArray([]);
                 sup.call(this, [label]);
                 this.saveKey = options['saveKey'];
+                this.saveGroup = options['saveGroup'] || "";
                 this.items.extend({
                     requiredGrouped: {
                         required: options['required'],
@@ -44,9 +45,15 @@ define([
         load: function (data) {
             this.items.removeAll();
             var self = this;
+            var saveGroup = this.saveGroup;
             if (this.saveKey in data) {
                 $.each(data[this.saveKey], function (i, v) {
-                    self.items.push(new CERTIdentity(v['identity']));
+                    if (saveGroup) {
+                        self.items.push(new CERTIdentity(v['identity']));
+                    }
+                    else {
+                        self.items.push(new CERTIdentity(v));
+                    }
                 });
             }
         },
@@ -58,8 +65,15 @@ define([
         save: function () {
             var data = {};
             data[this.saveKey] = [];
+            var saveGroup = this.saveGroup;
             ko.utils.arrayForEach(this.items(), function (item) {
-                data[this.saveKey].push({'identity': item.to_json()});
+                if (saveGroup) {
+                    var subData = {}
+                    subData[saveGroup] = item.to_json();
+                    data[this.saveKey].push(subData);
+                } else {
+                    data[this.saveKey].push(item.to_json());
+                }
             }.bind(this));
 
             return data;

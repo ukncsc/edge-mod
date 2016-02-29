@@ -148,13 +148,18 @@ class DBIncidentPatch(incident.DBIncident):
 
     def update_with(self, update_obj, update_timestamp=True):
         super(DBIncidentPatch, self).update_with(update_obj, update_timestamp)
+        self.categories = None
         IncidentCategories.from_dict(update_obj.categories.to_dict(), self.categories)
         if update_obj.time:
             self.time = StixTime.from_dict(update_obj.time.to_dict())
 
+    @classmethod
+    def api_from_dict(cls, data):
+        return cls.from_dict(data)
 
 def apply_patch():
     WHICH_DBOBJ['inc'] = DBIncidentPatch
+    FROM_DICT_DISPATCH['inc'] = DBIncidentPatch.api_from_dict
     views.incident_view = incident_view
     views.incident_build = incident_build
     incident.DBIncident.from_draft = from_draft_wrapper(incident.DBIncident.from_draft)

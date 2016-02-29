@@ -24,5 +24,4 @@ def post(endpoint_url, filename):
     print json.dumps(response.json(), indent=4)
 
 
-for x in xrange(1, 10000):
-    post("http://0.0.0.0:9000/adapter/certuk_mod/import/admin", '/home/andy/Downloads/obs_purplesecure_observable-108fb72e-ec78-4cea-956d-64cd54bb7f75.xml')
+post("http://0.0.0.0:9000/adapter/certuk_mod/ajax/import/admin", '/home/andy/Downloads/obs_purplesecure_observable-108fb72e-ec78-4cea-956d-64cd54bb7f75.xml')

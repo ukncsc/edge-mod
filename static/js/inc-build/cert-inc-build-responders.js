@@ -11,7 +11,8 @@ define([
                 sup.call(this, "Responders", {
                     saveKey: 'responders',
                     required: true,
-                    displayName: 'Responder'
+                    displayName: 'Responder',
+                    saveGroup:'identity'
                 });
             }
         })
