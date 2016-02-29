@@ -11,7 +11,9 @@ from django.conf import settings
 
 from stix.common import vocabs
 from stix.incident.time import Time as StixTime
+from stix.incident import IncidentCategories
 
+from edge.common import EdgeInformationSource
 from edge.generic import WHICH_DBOBJ, FROM_DICT_DISPATCH
 from edge.tools import cleanstrings, rgetattr
 from edge import IDManager, NamespaceNotConfigured, incident
@@ -99,6 +101,20 @@ def incident_view(request, id, edit=False):
     })
 
 
+def from_draft_wrapper(wrapped_func):
+    wrapped_func = wrapped_func.__func__
+    def _w(cls, draft):
+        target = wrapped_func(cls, draft)
+        target.categories = cleanstrings(draft.get('categories'))
+
+        for time_type, _ in TIME_TYPES:
+            DBIncidentPatch.append_timezone(draft.get('time').get(time_type))
+
+        target.time = StixTime()
+        StixTime.from_dict(draft.get('time'), target.time)
+        return target
+    return classmethod(_w)
+
 class DBIncidentPatch(incident.DBIncident):
     def __init__(self, obj=None, id_=None, idref=None, timestamp=None, title=None, description=None,
                  short_description=None):
@@ -107,8 +123,14 @@ class DBIncidentPatch(incident.DBIncident):
     @classmethod
     def to_draft(cls, inc, tg, load_by_id, id_ns=''):
         draft = super(DBIncidentPatch, cls).to_draft(inc, tg, load_by_id, id_ns)
+        if 'responder' in draft: #fix unbalanced save / load keys in incident.py
+            del draft['responder']
+
+        draft['responders'] = [EdgeInformationSource.clone(responder).to_draft() for responder in inc.responders ]
+
         draft['categories'] = [c.value for c in rgetattr(inc, ['categories'], [])]
-        draft['time'] = inc.time.to_dict();
+        if inc.time:
+            draft['time'] = inc.time.to_dict();
         return draft
 
     @staticmethod
@@ -126,24 +148,13 @@ class DBIncidentPatch(incident.DBIncident):
 
     def update_with(self, update_obj, update_timestamp=True):
         super(DBIncidentPatch, self).update_with(update_obj, update_timestamp)
-        self.categories = update_obj.categories
-        self.time = StixTime.from_dict(update_obj.time.to_dict())
-
-    @classmethod
-    def from_draft(cls, draft):
-        target = super(DBIncidentPatch, cls).from_draft(draft)
-        target.categories = cleanstrings(draft.get('categories'))
-
-        for time_type, _ in TIME_TYPES:
-            DBIncidentPatch.append_timezone(draft.get('time').get(time_type))
-
-        target.time = StixTime()
-        StixTime.from_dict(draft.get('time'), target.time)
-        return target
+        IncidentCategories.from_dict(update_obj.categories.to_dict(), self.categories)
+        if update_obj.time:
+            self.time = StixTime.from_dict(update_obj.time.to_dict())
 
 
 def apply_patch():
     WHICH_DBOBJ['inc'] = DBIncidentPatch
-    FROM_DICT_DISPATCH['inc'] = DBIncidentPatch.api_from_dict
     views.incident_view = incident_view
     views.incident_build = incident_build
+    incident.DBIncident.from_draft = from_draft_wrapper(incident.DBIncident.from_draft)
