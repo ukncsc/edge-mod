@@ -131,7 +131,7 @@ class DBIncidentPatch(incident.DBIncident):
 
     @classmethod
     def from_draft(cls, draft):
-        target = super(incident.DBIncident, cls).from_draft(draft)
+        target = super(DBIncidentPatch, cls).from_draft(draft)
         target.categories = cleanstrings(draft.get('categories'))
 
         for time_type, _ in TIME_TYPES:
@@ -147,4 +147,3 @@ def apply_patch():
     FROM_DICT_DISPATCH['inc'] = DBIncidentPatch.api_from_dict
     views.incident_view = incident_view
     views.incident_build = incident_build
-    incident.DBIncident.from_draft = DBIncidentPatch.from_draft
