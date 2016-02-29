@@ -1,8 +1,12 @@
-
 import os
+from time import sleep
+
+from celery.exceptions import TimeoutError
 from mongoengine.connection import get_db
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from repository.scheduler import PeriodicTaskWithTTL
+
 from adapters.certuk_mod.common.activity import save as log_activity
 
 
@@ -261,38 +265,54 @@ class STIXPurge(object):
         })
 
     def run(self):
-        def build_activity_message(min_date, observables, compositions, packages):
+        def build_activity_message(min_date, objects, compositions, packages):
             def summarise(into, summary_template, items):
                 num_items = len(items)
                 into.append(summary_template % num_items)
                 if num_items > 0:
                     for item in items:
-                        into.append("\t%s", item)
+                        into.append("\t%s" % item)
 
             messages = ['Objects created before %s are candidates for deletion' % min_date]
-            summarise(messages, 'Found %d observables with insufficient back links or sightings', observables)
+            summarise(messages, 'Found %d objects with insufficient back links or sightings', objects)
             summarise(messages, 'Found %d orphaned observable compositions', compositions)
             summarise(messages, 'Found %d old packages', packages)
             return "\n".join(messages)
 
-        current_date = datetime.utcnow()
-        minimum_date = current_date - relativedelta(months=self.retention_config.max_age_in_months)
+        def wait_for_background_jobs_completion(as_at_date, minutes_to_wait=5, poll_interval=5):
+            tries_remaining = int((60 * minutes_to_wait) / poll_interval)
+            while tries_remaining:
+                cache_sightings = PeriodicTaskWithTTL.objects.get(name='cache_sightings')
+                cache_backlinks = PeriodicTaskWithTTL.objects.get(name='cache_backlinks')
+                if cache_backlinks.last_run_at > as_at_date and cache_sightings.last_run_at > as_at_date:
+                    return
+                else:
+                    sleep(poll_interval)
+                    tries_remaining -= 1
+            raise TimeoutError('Timeout waiting for sightings and backlinks jobs to complete.  Will retry in 24 hours.')
 
-        # Get old external items that don't have enough back links and sightings (excluding observable compositions):
-        observables_to_delete = self.get_purge_candidates(minimum_date)
-        # Look for any external observable compositions that were orphaned on the previous call to run:
-        orphaned_observable_compositions_to_delete = STIXPurge._get_orphaned_external_observable_compositions()
-        # Look for old packages (including internal ones, if any)
-        old_packages_to_delete = STIXPurge._get_old_packages(minimum_date)
-        ids_to_delete = observables_to_delete + orphaned_observable_compositions_to_delete + old_packages_to_delete
+        try:
+            current_date = datetime.utcnow()
+            wait_for_background_jobs_completion(current_date)
+            minimum_date = current_date - relativedelta(months=self.retention_config.max_age_in_months)
 
-        log_activity('system', 'AGEING', 'INFO', build_activity_message(
-            minimum_date, observables_to_delete, orphaned_observable_compositions_to_delete, old_packages_to_delete
-        ))
+            # Get old items that don't have enough back links and sightings (excluding observable compositions):
+            objects_to_delete = self.get_purge_candidates(minimum_date)
+            # Look for any observable compositions that were orphaned on the previous call to run:
+            orphaned_observable_compositions_to_delete = STIXPurge._get_orphaned_external_observable_compositions()
+            # Look for old packages
+            old_packages_to_delete = STIXPurge._get_old_packages(minimum_date)
+            ids_to_delete = objects_to_delete + orphaned_observable_compositions_to_delete + old_packages_to_delete
 
-        for page_index in range(0, len(ids_to_delete), self.PAGE_SIZE):
-            try:
-                chunk_ids = ids_to_delete[page_index: page_index + self.PAGE_SIZE]
-                STIXPurge.remove(chunk_ids)
-            except Exception as e:
-                log_activity('system', 'AGEING', 'ERROR', e.message)
+            log_activity('system', 'AGEING', 'INFO', build_activity_message(
+                minimum_date, objects_to_delete, orphaned_observable_compositions_to_delete, old_packages_to_delete
+            ))
+
+            for page_index in range(0, len(ids_to_delete), self.PAGE_SIZE):
+                try:
+                    chunk_ids = ids_to_delete[page_index: page_index + self.PAGE_SIZE]
+                    STIXPurge.remove(chunk_ids)
+                except Exception as e:
+                    log_activity('system', 'AGEING', 'ERROR', e.message)
+        except Exception as e:
+            log_activity('system', 'AGEING', 'ERROR', e.message)
