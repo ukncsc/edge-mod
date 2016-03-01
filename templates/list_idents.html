@@ -8,21 +8,25 @@
         <div class="panel-body">
             <table style="width: 100%">
                 <tbody role="form" data-bind="foreach: items">
-                    <tr class="datarow">
-                        <td>
-                            <div class="form-horizontal">
-                                <div data-bind="value: $data,
-                                                disable: $root.mode().isReadOnly()">
-                                    <a data-bind='text: name(), click: function() {$parent.showUi($parent, $data)}'></a>
-                                </div>
+                <tr class="datarow">
+                    <td>
+                        <div class="form-horizontal">
+                            <div data-bind="value: $data">
+                                <!--ko if: $root.mode().isReadOnly() -->
+                                <span data-bind='text: name()'></span>
+                                <!--/ko -->
+                                <!--ko ifnot: $root.mode().isReadOnly() -->
+                                <a data-bind='text: name(), click: function() {$parent.showUi($parent, $data)}'></a>
+                                <!--/ko -->
                             </div>
-                        </td>
-                        <td>
-                            <span class="glyphicon glyphicon-remove" title="Remove this item"
-                                  data-bind="click: function() { $parent.remove($data) }, disable: $root.mode().isReadOnly()">
-                            </span>
-                        </td>
-                    </tr>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="glyphicon glyphicon-remove" title="Remove this item"
+                              data-bind="click: function() { $parent.remove($data) }, disable: $root.mode().isReadOnly()">
+                        </span>
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>

@@ -1,5 +1,4 @@
 import json
-import pytz
 import datetime
 from dateutil import tz
 
@@ -13,15 +12,14 @@ from stix.common import vocabs
 from stix.incident.time import Time as StixTime
 from stix.incident import IncidentCategories
 
+from incident import views
+
 from edge.common import EdgeInformationSource
 from edge.generic import WHICH_DBOBJ, FROM_DICT_DISPATCH
 from edge.tools import cleanstrings, rgetattr
 from edge import IDManager, NamespaceNotConfigured, incident
-
-from incident import views
 from rbac import user_can_edit
 
-TIME_ZONE_DESCRIPTIONS = pytz.all_timezones
 CATEGORIES = vocabs.IncidentCategory._ALLOWED_VALUES
 TIME_TYPES = (("first_malicious_action", "First Malicious Action"),
               ("initial_compromise", "Initial Compromise"),
@@ -82,7 +80,6 @@ def incident_view(request, id, edit=False):
     static = views.get_static(request.user)
     return render(request, 'cert-inc-build.html', {
         'mode': mode,
-        'object_type': 'incident',
         'id': id,
         'object_type': "incident",
         'edit_allowed': user_can_edit(request.user, id),
@@ -103,17 +100,19 @@ def incident_view(request, id, edit=False):
 
 def from_draft_wrapper(wrapped_func):
     wrapped_func = wrapped_func.__func__
+
     def _w(cls, draft):
         target = wrapped_func(cls, draft)
         target.categories = cleanstrings(draft.get('categories'))
 
-        for time_type, _ in TIME_TYPES:
-            DBIncidentPatch.append_timezone(draft.get('time').get(time_type))
+        for key, value in draft.get('time').iteritems():
+            DBIncidentPatch.append_timezone(value)
 
         target.time = StixTime()
         StixTime.from_dict(draft.get('time'), target.time)
         return target
     return classmethod(_w)
+
 
 class DBIncidentPatch(incident.DBIncident):
     def __init__(self, obj=None, id_=None, idref=None, timestamp=None, title=None, description=None,
@@ -135,12 +134,8 @@ class DBIncidentPatch(incident.DBIncident):
 
     @staticmethod
     def append_timezone(time_dict):
-        # No value
-        if time_dict is None or not time_dict.has_key('value'):
-            return
-
         # Already has a timezone offset
-        if time_dict.get('value')[-6] is '-' or time_dict.get('value')[-6] is '+':
+        if time_dict.get('value')[-6]  == '-' or time_dict.get('value')[-6] == '+':
             return
 
         offset = datetime.datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime('%z')
@@ -156,6 +151,7 @@ class DBIncidentPatch(incident.DBIncident):
     @classmethod
     def api_from_dict(cls, data):
         return cls.from_dict(data)
+
 
 def apply_patch():
     WHICH_DBOBJ['inc'] = DBIncidentPatch

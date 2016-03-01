@@ -4,9 +4,9 @@ from adapters.certuk_mod.validation.common.validator import CommonFieldValidator
 from stix.common.vocabs import HighMediumLow
 from stix.common.vocabs import IncidentStatus
 
+
 class IncidentValidationInfo(ObjectValidationInfo):
 
-#ToDo, finish
     CONFIDENCE_VALUES = (
         HighMediumLow.TERM_NONE,
         HighMediumLow.TERM_LOW,
