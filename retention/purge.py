@@ -151,9 +151,12 @@ class STIXPurge(object):
         return [doc['_id'] for doc in ids_to_delete]
 
     @staticmethod
-    def _get_orphaned_external_observable_compositions():
+    def _get_orphaned_external_observable_compositions(as_at_timestamp):
         composition_ids = get_db().stix.find({
             'data.summary.type': 'ObservableComposition',
+            'created_on': {
+                '$lt': as_at_timestamp
+            }
         }, {
             '_id': 1
         })
@@ -299,7 +302,7 @@ class STIXPurge(object):
             # Get old items that don't have enough back links and sightings (excluding observable compositions):
             objects_to_delete = self.get_purge_candidates(minimum_date)
             # Look for any observable compositions that were orphaned on the previous call to run:
-            orphaned_observable_compositions_to_delete = STIXPurge._get_orphaned_external_observable_compositions()
+            orphaned_observable_compositions_to_delete = STIXPurge._get_orphaned_external_observable_compositions(current_date)
             # Look for old packages
             old_packages_to_delete = STIXPurge._get_old_packages(minimum_date)
             ids_to_delete = objects_to_delete + orphaned_observable_compositions_to_delete + old_packages_to_delete
