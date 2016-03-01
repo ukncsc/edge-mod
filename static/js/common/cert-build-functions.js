@@ -28,63 +28,6 @@ define([
         }
     }
 
-
-    MiscFunctions.getField = function(obj, key) {
-        return key.split(".").reduce(function(o,x) {
-            return (typeof o == "undefined" || o === null) ? o : o[x];
-        }, obj);
-    }
-
-    // use to find if array contains an item, is called by
-    // contains.call(myArray, value)
-    MiscFunctions.contains = function(needle) {
-        // Per spec, the way to identify NaN is that it is not equal to itself
-        var findNaN = needle !== needle;
-        var indexOf;
-
-        if(!findNaN && typeof Array.prototype.indexOf === 'function') {
-            indexOf = Array.prototype.indexOf;
-        } else {
-            indexOf = function(needle) {
-                var i = -1, index = -1;
-
-                for(i = 0; i < this.length; i++) {
-                    var item = this[i];
-
-                    if((findNaN && item !== item) || item === needle) {
-                        index = i;
-                        break;
-                    }
-                }
-
-                return index;
-            };
-        }
-        return indexOf.call(this, needle) > -1;
-    }
-
-    MiscFunctions.fullArray = function (arr) {
-        if(arr.length === 0){
-            return true
-        }
-        for(var i = 0; i<arr.length; i++){
-            var item = arr[i].trim();
-
-            if(item.length === 0 || !item) {
-                return false
-            }
-        }
-        return true
-    }
-
-    MiscFunctions.arrayisFull = function (arr) {
-        return MiscFunctions.fullArray(arr);
-    }
-
-    MiscFunctions.arrayHasEmptyEmailAddresses = function (arr) {
-         return MiscFunctions.contains.call(arr,{value: '', type: ''});
-    }
-
     MiscFunctions.inherit = function(proto) {
         var F = function F() {
         };

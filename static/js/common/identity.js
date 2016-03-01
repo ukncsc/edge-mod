@@ -2,133 +2,101 @@ define([
     "dcl/dcl",
     "knockout",
     "common/cert-abstract-builder-form",
-    "common/cert-build-functions"
-], function (declare, ko, AbstractBuilderForm, buildFunctions) {
+], function (declare, ko, AbstractBuilderForm) {
     "use strict";
 
-    function EdgeIdentity() {
-        EdgeIdentity.super.constructor.call(this, "EdgeIdentity");
-        this.name = ko.observable().extend({ required: true});
-        this.roles = ko.observableArray([]);
-        this.electronic_address_identifiers = ko.observableArray([]);
-        this.party_name = ko.observable();
-        this.languages = ko.observableArray([]);
-        this.free_text_lines = ko.observableArray([]);
-        this.template = "identity-element-popup";
-        this.electronic_address_type = ko.observable();
-        this.electronic_address_types = ko.observableArray([]);
-    }
+    return declare(AbstractBuilderForm, {
+        declaredClass: "identity",
 
-    buildFunctions.extend(EdgeIdentity, AbstractBuilderForm);
+        constructor: function () {
+            this.searchTerm = ko.observable();
+            this.searchResults = ko.observableArray([]);
+            this.UUID = ko.observable();
+            this.sector = ko.observable();
 
-    EdgeIdentity.prototype.loadStatic = function (optionLists){
-        this.electronic_address_types(optionLists.electronic_address_types);
-    };
+            this.haveQuery = ko.computed(function () {
+                return this.searchTerm() != null ? this.searchTerm().trim().length > 0 : false;
+            }, this);
 
-    EdgeIdentity.prototype.load = function (data) {
-        this.name(buildFunctions.getField(data, "name") || "");
-        this.roles(buildFunctions.getField(data, "roles") || []);
-        this.electronic_address_identifiers(buildFunctions.getField(data, "specification.electronic_address_identifiers") || []);
-        this.party_name(buildFunctions.getField(data, "specification.name") || "");
-        this.languages(buildFunctions.getField(data, "specification.languages") || []);
-        this.free_text_lines(buildFunctions.getField(data, "specification.free_text_lines") || []);
-        this.template("identity-element-popup");
-        this.electronic_address_type(buildFunctions.getField(data, "electronic_address_type") || "");
-    };
+            this.search = ko.observable(false);
+            this.selected = ko.observable(false);
+        },
 
-    EdgeIdentity.prototype.addRole = function() {
-         if(buildFunctions.arrayisFull(this.roles())){
-             this.roles.unshift("");
-         }
-    };
+        load: function (data) {
+            this.UUID(data["uuid"] || "");
+            this.sector(data["sector"] || "");
+        },
 
-    EdgeIdentity.prototype.addLanguage = function() {
-         if(buildFunctions.arrayisFull(this.languages())){
-             this.languages.unshift("");
-         }
-    };
+        buildCRMURL: function () {
+            return "http://10.1.10.65:8080/crmapi";
+        },
 
-    EdgeIdentity.prototype.addText = function() {
-         if(buildFunctions.arrayisFull(this.free_text_lines())){
-             this.free_text_lines.unshift("");
-         }
-    };
+        buildOrgCRMURL: function () {
+            return this.buildCRMURL() + "/organisations/"
+        },
 
-    EdgeIdentity.prototype.addEAddress = function() {
-         if(!buildFunctions.arrayHasEmptyEmailAddresses(this.electronic_address_identifiers())){
-             this.electronic_address_identifiers.unshift({value: '', type: ''});
-         }
-    };
+        buildSearchCRMURL: function () {
+            return this.buildOrgCRMURL() + "find?organisation=";
+        },
 
-    EdgeIdentity.prototype.createSnapshot = function() {
-		this.previousState = this.clone();
-	};
+        searchCRM: function () {
+            this.search(!this.search());
+            this.searchResults([]);
 
-	EdgeIdentity.prototype.restoreSnapshot = function() {
-		for (var key in this.previousState) {
-			if (this.previousState.hasOwnProperty(key)) {
-				this[key](this.previousState[key])
-			}
-		}
-	};
+            var searchUrl = this.buildSearchCRMURL() + this.searchTerm();
 
-	EdgeIdentity.prototype.okay = function() {
-		if(!is_string.test(this.name())) {
-			$('#identity_name').parent().append(alert_danger("This field may not be empty and may only contain letters, numbers and spaces"));
-			return;
-		}
-		this.modal.close(this.newIdentity());
-	};
+            getJSON(searchUrl, null, this.searchResults);
+        },
 
-	EdgeIdentity.prototype.cancel = function() {
-		this.restoreSnapshot(this.previousState);
-		this.modal.close(this.previousState);
-	};
+        selectOrganisation: function (data) {
+            this.uuid(data["uuid"]);
+            this.getSector(data["uuid"]);
+        },
 
+        getSector: function(id) {
+            getJSON(this.buildOrgCRMURL() + id, null, function(data) {
+                this.sector(data["sector"])
+            })
+        },
 
-    EdgeIdentity.prototype.clone = function() {
-		return {
-			name: this.name(),
-			party_name: this.party_name(),
-			roles: this.roles().slice(),
-			languages: this.languages().slice(),
-			electronic_address_identifiers: this.electronic_address_identifiers().slice(),
-			free_text_lines: this.free_text_lines().slice()
-		};
-	};
+        createSnapshot: function () {
+            this.previousState = this.clone();
+        },
 
-    EdgeIdentity.prototype.to_json = function() {
-        if(this.name())
-		{
-			return {
-                name: this.name(),
-                roles: this.roles(),
-                specification: {
-                    party_name: {
-                          names_lines: [{
-                              value: this.party_name(),
-                              type: 'string'
-                          }]
-                    },
-                    languages: this.languages().map(function(obj) {
-                        return {
-                            value: obj
-                        }
-                    }),
-                    free_text_lines: this.free_text_lines().map(function(obj) {
-                        return {
-                            value: obj,
-                            type: 'string'
-                        }
-                    }),
-                    electronic_address_identifiers: this.electronic_address_identifiers()
+        restoreSnapshot: function () {
+            for (var key in this.previousState) {
+                if (this.previousState.hasOwnProperty(key)) {
+                    this[key](this.previousState[key])
                 }
+            }
+        },
+
+        okay: function () {
+            this.modal.close(this.newIdentity());
+        },
+
+        cancel: function () {
+            this.restoreSnapshot(this.previousState);
+            this.modal.close(this.previousState);
+        },
+
+        clone: function () {
+            return {
+                UUID: this.UUID(),
+                sector: this.sector()
             };
-		} else {
-			return undefined
-		}
-    };
+        },
 
-    return EdgeIdentity;
-
+        to_json: function () {
+            if (this.UUID()) {
+             /*   return {
+                    UUID: this.UUID(),
+                    sector: this.sector()
+                };  */
+                return this.clone();
+            } else {
+                return undefined
+            }
+        }
+    })
 });

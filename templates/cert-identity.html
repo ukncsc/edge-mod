@@ -4,89 +4,48 @@
 <template id='cert-identity-element-popup' xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 	<div id="identityModal" class="modal">
 
-    <div class="panel-heading modal-header">CIQIdentity 3.0 Details</div>
+    <div class="panel-heading modal-header">Organisation</div>
 
        <div class="panel-body">
-          <div class="form-horizontal">
-            <fieldset >
-                <div class="form-group">
-                    <label class="col-lg-4 control-label">Name</label>
-                        <!-- ko if: name.hasValidation -->
-                            <span class="validation-error" data-bind="visible: name.hasError, text: name.errorMessage"></span>
-                        <!-- /ko -->
-                        <div class="col-lg-6">
-                            <input data-bind="value: name" class="form-control" id="identity_name" name="identity_name">
-                        </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="col-lg-4 control-label">Party Name</label>
-                        <div class="col-lg-6">
-                            <input data-bind="value: party_name" class="form-control" id="party_name" name="party_name">
-                        </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="roles" class="col-lg-4 control-label">Roles
-                        {% if mode == 'Build' %}
-                            <button class="btn btn-default btn-xs btn-add"  data-bind="click: addRole"><span class="glyphicon glyphicon-plus-sign green"></span> Add</button>
-                        {% endif %}
-                    </label>
-                    <div>
-                        <div class="col-lg-6" data-bind='foreach: roles'>
-                            <input class="form-control input-sm" data-bind="value: $parent.roles()[$index()]">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="languages" class="col-lg-4 control-label">Languages
-                        {% if mode == 'Build' %}
-                            <button class="btn btn-default btn-xs btn-add"  data-bind="click: addLanguage"><span class="glyphicon glyphicon-plus-sign green"></span> Add</button>
-                        {% endif %}
-                    </label>
-                    <div>
-                        <div class="col-lg-6" data-bind="foreach: languages">
-                            <input class="form-control input-sm" data-bind="value: $parent.languages()[$index()]">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="electronic_address_identifiers" class="col-lg-4 control-label">Electronic Addresses
-                        {% if mode == 'Build' %}
-                            <button class="btn btn-default btn-xs btn-add"  data-bind="click: addEAddress"><span class="glyphicon glyphicon-plus-sign green"></span> Add</button>
-                        {% endif %}
-                    </label>
-                    <div>
-                        <div class="col-lg-6" data-bind="foreach: electronic_address_identifiers">
-                            <input class="form-control input-sm" data-bind="value: $parent.electronic_address_identifiers()[$index()].value"></input>
-                            <select data-bind="options: $parent.electronic_address_types, value: $parent.electronic_address_identifiers()[$index()].type"></select>
-                            <br>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="notes" class="col-lg-4 control-label">Notes
-                        {% if mode == 'Build' %}
-                            <button class="btn btn-default btn-xs btn-add"  data-bind="click: addText"><span class="glyphicon glyphicon-plus-sign green"></span> Add</button>
-                        {% endif %}
-                    </label>
-                    <div>
-                        <div class="col-lg-6" data-bind="foreach: free_text_lines">
-                            <input class="form-control input-sm"  data-bind="value: $parent.free_text_lines()[$index()]"></input>
-                        </div>
-                    </div>
-                </div>
-
-            </fieldset>
+          <div class="form-horizontal" data-bind="if: !selected()">
+                  <div class="input-group col-sm-offset-2">
+                      <input data-bind="value: searchTerm, valueUpdate: ['input','keyup']" type="text" class="form-control">
+                      <span class="input-group-btn">
+                          <button data-bind="click: searchCRM, enable: haveQuery" class="btn btn-default" type="button">Search</button>
+                      </span>
+                  </div>
           </div>
+           </br>
+            <table class="table" data-bind="if: search || !selected()">
+                <tbody role="form" data-bind="foreach: searchResults">
+                    <tr class="datarow">
+                        <td data-bind="text: name, click: $parent.selectOrganisation" class="text-center"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="form-group" data-bind="if: selected">
+                <label class="col-lg-4 control-label">Name</label>
+                <span data-bind="text: name" id="identity_name" name="identity_name"></span>
+            </div>
+
+            <div class="form-group" data-bind="if: selected">
+                <label class="col-lg-4 control-label">UUID</label>
+                <span data-bind="text: UUID" id="identity_uuid" name="identity_uuid"></span>
+            </div>
+
+            <div class="form-group" data-bind="if: selected">
+                <label class="col-lg-4 control-label">Sector</label>
+                <span data-bind="text: sector" id="identity_sector" name="identity_sector"></span>
+            </div>
+
 
         <div class="modal-footer" style="float: right;">
             <button class="btn btn-default"  data-bind="click: cancel">Cancel</button>
             <button class="btn btn-default" data-bind="click: okay">Okay</button>
         </div>
+
        </div>
 	</div>
 </template>
