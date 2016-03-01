@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-from adapters.certuk_mod.patch import indicator_patch, inbox_patch, observable_patch, hash_patch, incident_patch
-=======
-from adapters.certuk_mod.patch import indicator_patch, inbox_patch, observable_patch, hash_patch, remap_patch
->>>>>>> develop
+from adapters.certuk_mod.patch import indicator_patch, inbox_patch, observable_patch, hash_patch, incident_patch, remap_patch
 from adapters.certuk_mod.builder import CUSTOM_OBSERVABLES
 from adapters.certuk_mod.builder.cert_observable_object_generator import CERTObservableObjectGenerator
 from adapters.certuk_mod.builder.view_seed_data import CERTIndicatorBuilderTemplateDataGenerator
