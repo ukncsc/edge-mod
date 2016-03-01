@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% load staticfiles %}
+{% block head-title %}{{ main_title }}{% endblock %}
+
+{% block head-content %}
+    <style type="text/css">
+
+        g {
+            cursor: pointer;
+        }
+
+        text.node {
+            font-size: 11px;
+            text-anchor: end;
+        }
+
+        #tree-container {
+            background: transparent none;
+            position: fixed;
+            margin: 0;
+            top: 62px;
+            right: 0;
+            bottom: 24px;
+            left: 0;
+        }
+    </style>
+{% endblock %}
+
+{% block body-content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Details/Search/...</h3>
+                    </div>
+                    <div class="panel-body">
+                        Stuff goes here...
+                    </div>
+                </div>
+            </div>
+            <div class=col-md-10">
+                <div id="tree-container" class="panel">
+{#                  Ideally we want something like this: #}
+{#                    <svg data-bind="foreachGraphNode: { nodes: nodeData, links: linkData, linkWidth: 1, linkDistance: 200, charge: -500 }" width="800" height="600">#}
+{#                  We could make the nodes and links arguments above observables, then adding/removing nodes/links should refresh the graph  #}
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                         style="position:relative;width:100%;height:100%;"
+                         preserveAspectRatio="xMidYMid meet" viewBox="0 0 1000 1000"
+                         data-bind="foreachGraphNode: graph">
+                        <g data-bind="attr: { title: $data.id }, click: function () { alert('You clicked on ' + title + '.'); }">
+                            <image xlink:href="{% static 'img/hex/hex_.png'%}" data-bind="attr: {
+                                        'xlink:href': '{% static 'img/hex/' %}hex_' + $data.type + '.png',
+                                        height: $data.isRoot ? 32 : 20,
+                                        width: $data.isRoot ? 32 : 20,
+                                        x: $data.isRoot ? -32 : -10,
+                                        y: $data.isRoot ? -16 : -10
+                                   }"></image>
+                            <text class="node" data-bind="
+                                attr: {
+                                    x: $data.isRoot ? -32 : -8,
+                                    y: $data.isRoot ? -16 : -8
+                                },
+                                text: title,
+                                style: { 'text-anchor': $data.isRoot ? 'start' : 'end' }
+                                "></text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body-end %}
+    <script>
+    var stixId = "{{ id }}";
+    </script>
+    <script src="{% static "js/d3.js" %}"></script>
+    <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
+    <script src="{% static 'js/visualiser/foreachGraphNodeBinding.js' %}"></script>
+    <script src="{% static 'js/visualiser/tempViewModel.js' %}"></script>
+{# Below is graph example lifted from D3 wiki #}
+{#    <script src="{% static 'js/visualiser/temp2.js' %}"></script>#}
+{% endblock %}
