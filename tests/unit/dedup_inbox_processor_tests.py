@@ -10,7 +10,7 @@ from edge.inbox import InboxItem
 
 from adapters.certuk_mod.dedup.DedupInboxProcessor import \
     _get_sighting_count,\
-    _coalesce_duplicates_to_sitings,\
+    _coalesce_duplicates,\
     _generate_message,\
     _is_matching_file
 
@@ -51,7 +51,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
         self.assertEqual(actual, 2)
 
     def test_coalesce_duplicates_to_sitings_empty_maptable(self):
-        actual_out, actual_additional_sightings = _coalesce_duplicates_to_sitings({
+        actual_out, actual_additional_sightings, actual_additional_file_hashes = _coalesce_duplicates({
             'pss:observable-00000000-0000-0000-0000-000000000001': mock.create_autospec(
                 InboxItem, api_object=mock.create_autospec(
                     ApiObject, ty='obs', obj=mock.create_autospec(
@@ -63,9 +63,10 @@ class DedupInboxProcessorTests(unittest.TestCase):
             'pss:observable-00000000-0000-0000-0000-000000000001'
         ], actual_out.keys())
         self.assertDictEqual({}, actual_additional_sightings)
+        self.assertDictEqual({}, actual_additional_file_hashes)
 
     def test_coalesce_duplicates_to_sitings_with_maptable(self):
-        actual_out, actual_additional_sightings = _coalesce_duplicates_to_sitings({
+        actual_out, actual_additional_sightings, actual_additional_file_hashes = _coalesce_duplicates({
             'pss:observable-00000000-0000-0000-0000-000000000001': mock.create_autospec(
                 InboxItem, api_object=mock.create_autospec(
                     ApiObject, ty='obs', obj=mock.create_autospec(
@@ -87,6 +88,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
         self.assertDictEqual({
             'pss:observable-11111111-1111-1111-1111-000000000001': 1
         }, actual_additional_sightings)
+        self.assertDictEqual({}, actual_additional_file_hashes)
 
     def test_generate_message_no_removals(self):
         self.assertEqual(_generate_message("Removed: %d", [1, 2], [1, 2]), None)
