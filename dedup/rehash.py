@@ -2,6 +2,7 @@ import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 from django.conf import settings
 if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.py')
+
 from edge.generic import EdgeObject
 from mongoengine.connection import get_db
 from pprint import pprint
@@ -47,6 +48,6 @@ def main():
     else:
         pprint(bulk_result)
 
-
 if __name__ == '__main__':
+    import adapters.certuk_mod as only_needed_to_patch
     main()
