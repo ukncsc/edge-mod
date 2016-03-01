@@ -16,6 +16,9 @@
             name: "dedup/main"
         },
         {
+            name: "activity-log/main"
+        },
+        {
             name: "ind-build/cert-ind-build-ready"
         }
     ],

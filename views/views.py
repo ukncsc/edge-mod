@@ -17,6 +17,7 @@ from adapters.certuk_mod.validation.package.validator import PackageValidationIn
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
+from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 
 from adapters.certuk_mod.cron.views import ajax_get_purge_task_status, ajax_run_purge
