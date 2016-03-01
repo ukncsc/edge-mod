@@ -9,7 +9,6 @@ from indicator import views as original_views
 def apply_customizations():
     indicator_patch.apply_patch()
     inbox_patch.apply_patch()
-    remap_patch.apply_patch()
     observable_patch.apply_patch(CUSTOM_OBSERVABLES)
     hash_patch.apply_patch()
     original_views.observable_object_generator = CERTObservableObjectGenerator()

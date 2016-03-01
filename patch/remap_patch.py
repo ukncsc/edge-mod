@@ -15,4 +15,4 @@ def remap_tgt(src,maptable):
 
 
 def apply_patch():
-    remap.remap_tgt = remap_tgt
+    remap.REMAP_DISPATCH['tgt'] = remap_tgt
