@@ -14,8 +14,9 @@ define([
     "inc-build/cert-inc-build-trust-groups",
     "inc-build/cert-inc-build-victims",
     "inc-build/cert-inc-build-responders",
+    "inc-build/cert-inc-build-coordinators",
     "common/cert-messages"
-], function (ko, AttributedActors, Times, Categories, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Messages) {
+], function (ko, AttributedActors, Times, Categories, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Coordinators, Messages) {
     "use strict";
     function indexBy(items, pname) {
         var indexed = {};
@@ -32,6 +33,7 @@ define([
             ko.observable(new Categories()),
             ko.observable(new TrustGroups()),
             ko.observable(new Effects()),
+            ko.observable(new Coordinators()),
             ko.observable(new Victims()),
             ko.observable(new Responders()),
             ko.observable(new DiscoveryMethods()),
@@ -40,7 +42,7 @@ define([
             ko.observable(new RelatedObservables()),
             ko.observable(new LeveragedTTPs()),
             ko.observable(new AttributedActors()),
-            ko.observable(new RelatedIncidents())
+            ko.observable(new RelatedIncidents()),
         ]);
         this._byLabel = indexBy(this.options, "label");
         this.value = ko.observable(

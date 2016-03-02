@@ -102,6 +102,9 @@ def from_draft_wrapper(wrapped_func):
     wrapped_func = wrapped_func.__func__
 
     def _w(cls, draft):
+        def drop_if_empty(val):
+            return val if val else None
+
         target = wrapped_func(cls, draft)
         target.categories = cleanstrings(draft.get('categories'))
 
@@ -110,6 +113,7 @@ def from_draft_wrapper(wrapped_func):
 
         target.time = StixTime()
         StixTime.from_dict(draft.get('time'), target.time)
+        target.coordinators = [ EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in draft.get('coordinators', []) ]
         return target
     return classmethod(_w)
 
@@ -125,7 +129,8 @@ class DBIncidentPatch(incident.DBIncident):
         if 'responder' in draft: #fix unbalanced save / load keys in incident.py
             del draft['responder']
 
-        draft['responders'] = [EdgeInformationSource.clone(responder).to_draft() for responder in inc.responders ]
+        draft['responders'] = [EdgeInformationSource.clone(responder).to_draft() for responder in inc.responders]
+        draft['coordinators'] = [EdgeInformationSource.clone(coordinator).to_draft() for coordinator in inc.coordinators]
 
         draft['categories'] = [c.value for c in rgetattr(inc, ['categories'], [])]
         if inc.time:
@@ -147,6 +152,7 @@ class DBIncidentPatch(incident.DBIncident):
         IncidentCategories.from_dict(update_obj.categories.to_dict(), self.categories)
         if update_obj.time:
             self.time = StixTime.from_dict(update_obj.time.to_dict())
+        self.coordinators = update_obj.coordinators
 
     @classmethod
     def api_from_dict(cls, data):
