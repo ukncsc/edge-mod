@@ -22,7 +22,6 @@ define([
                         displayMessage: "Needs at least one " + options['displayName']
                     }
                 });
-
             }
         }),
 

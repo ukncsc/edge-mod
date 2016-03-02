@@ -15,7 +15,9 @@ define([
     "inc-build/cert-inc-build-related-observables",
     "inc-build/cert-inc-build-trust-groups",
     "inc-build/cert-inc-build-victims",
-    "inc-build/cert-inc-build-responders"
+    "inc-build/cert-inc-build-responders",
+    "inc-build/cert-inc-build-coordinators",
+    "inc-build/cert-inc-build-categories"
 ], function (registerSuite, assert) {
     "use strict";
 

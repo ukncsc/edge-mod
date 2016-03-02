@@ -2,7 +2,7 @@ require([
     "knockout",
     "ind-build/builder-shim",
     "ind-build/indicator-builder-shim",
-    "ind-build/change-tracker",
+    "common/change-tracker",
     "ind-build/cert-ind-build-viewmodel",
     "ind-build/custom-observables",
     "ind-build/custom-builder-sections"

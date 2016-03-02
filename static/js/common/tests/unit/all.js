@@ -1,5 +1,5 @@
 define([
-    "./list-selects_test"
+    "./change-tracker",
 ], function () {
 
 });

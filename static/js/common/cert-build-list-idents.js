@@ -23,7 +23,6 @@ define([
                         displayMessage: "Needs at least one " + options['displayName']
                     }
                 });
-
             }
         }),
 
@@ -49,7 +48,7 @@ define([
             if (this.saveKey in data) {
                 $.each(data[this.saveKey], function (i, v) {
                     if (saveGroup) {
-                        self.items.push(new CERTIdentity(v['identity']));
+                        self.items.push(new CERTIdentity(v[saveGroup]));
                     }
                     else {
                         self.items.push(new CERTIdentity(v));
