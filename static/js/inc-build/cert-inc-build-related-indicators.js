@@ -12,7 +12,7 @@ define([
                 sup.call(this, "Related Indicators", {
                     itemType: 'ind',
                     saveKey: 'related_indicators',
-                    required: true,
+                    required: false,
                     displayName: 'Related Indicator'
                 });
             }

@@ -12,7 +12,7 @@ define([
                 sup.call(this, "Related Observables", {
                     itemType: 'obs',
                     saveKey: 'related_observables',
-                    required: true,
+                    required: false,
                     displayName: 'Related Observable'
                 });
             }

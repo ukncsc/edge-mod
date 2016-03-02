@@ -12,7 +12,7 @@ define([
                 sup.call(this, "Attributed Actors", {
                     itemType: 'act',
                     saveKey: 'attributed_actors',
-                    required: true,
+                    required: false,
                     displayName: 'Attributed Actor'
                 });
             }

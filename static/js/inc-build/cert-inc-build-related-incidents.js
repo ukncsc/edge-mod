@@ -12,7 +12,7 @@ define([
                 sup.call(this, "Related Incidents", {
                     itemType: 'inc',
                     saveKey: 'related_incidents',
-                    required: true,
+                    required: false,
                     displayName: 'Related Incident'
                 });
             }

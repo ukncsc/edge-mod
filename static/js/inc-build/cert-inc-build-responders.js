@@ -10,7 +10,7 @@ define([
             return function () {
                 sup.call(this, "Responders", {
                     saveKey: 'responders',
-                    required: true,
+                    required: false,
                     displayName: 'Responder',
                     saveGroup:'identity'
                 });
