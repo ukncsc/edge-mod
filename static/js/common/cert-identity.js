@@ -1,24 +1,48 @@
 define([
-    "dcl/dcl",
     "knockout",
-    "common/identity",
+    "dcl/dcl",
+    "common/cert-identity-shim",
     "common/cert-identity_showmodal-shim",
     "common/cert-build-functions"
-], function (declare, ko, EdgeIdentity, EdgeIdentityShowModal, buildFunctions) {
+
+], function (ko, declare, EdgeIdentity, EdgeIdentityShowModal, buildFunctions) {
     "use strict";
 
-     function CERTIdentity() {
-        CERTIdentity.super.constructor.call(this);
-    }
 
+    var CERTIdentity = declare(EdgeIdentity, {
+        declaredClass: "CERTIdentity",
 
-    buildFunctions.extend(CERTIdentity, EdgeIdentity);
+        constructor: declare.superCall(function (sup) {
+            return function (options) {
+                sup.call(this, options);
+                if (!options || !options.name) {
+                    this.name("");
+                }
+                this.displayName = ko.computed(function () {
+                    return this.name() ? this.name() : "Click To Edit";
+                }, this);
 
-    CERTIdentity.prototype.ModelUI  = function (model) {
-        model.viewModel.template  = "cert-identity-element-popup";
-        return EdgeIdentityShowModal({viewModel: model.viewModel});
-    };
+                //ToDo, remove lines below when not using EdgeIdentity anymore;
+                //it was the only way to override cancel to correct behaviour on cancel dialog
+                this.cancel = function () {
+                    this.restoreSnapshot();
+                    this.modal.close();
+                }.bind(this);
 
+                this.template = "identity-element-popup";
 
-    return  CERTIdentity;
+            }
+        }),
+
+        ModelUI: function () {
+            return EdgeIdentityShowModal({viewModel: this});
+        },
+
+        cancel: function () {
+            this.restoreSnapshot();
+            this.modal.close();
+        }
+    });
+
+    return CERTIdentity;
 });

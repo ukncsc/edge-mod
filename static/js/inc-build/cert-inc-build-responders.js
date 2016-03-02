@@ -1,18 +1,22 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/cert-build-list-idents",
-    "common/cert-build-functions"
-], function (declare, ko, listIdents, buildFunctions) {
+    "common/cert-build-list-idents"
+], function (declare, ko, listIdents) {
     "use strict";
 
-    function Responders() {
-        Responders.super.constructor.call(this, "Responders", {
-            saveKey: 'responders'
-        });
-    }
-
-    buildFunctions.extend(Responders, listIdents);
+    var Responders = declare(listIdents, {
+        declaredClass: "Responders",
+        constructor: declare.superCall(function (sup) {
+            return function () {
+                sup.call(this, "Responders", {
+                    saveKey: 'responders',
+                    required: true,
+                    displayName: 'Responder'
+                });
+            }
+        })
+    });
 
     return  Responders;
 });

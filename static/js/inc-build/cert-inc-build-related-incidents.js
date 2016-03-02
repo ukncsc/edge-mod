@@ -1,23 +1,28 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/cert-build-related",
-    "common/cert-build-functions"
-], function (declare, ko, buildRelated, buildFunctions) {
+    "common/cert-build-related"
+], function (declare, ko, buildRelated) {
     "use strict";
 
-    function RelatedIncidents() {
-        RelatedIncidents.super.constructor.call(this, "Related Incidents", {
-            resultsPerPage: 10,
-            itemType: 'inc',
-            saveKey: 'related_incidents',
-            getUrl: '/catalog/ajax/load_catalog/',
-            candidateItemsTemplate: 'candidateModal',
-            itemTemplate: 'relatedItem'
-        });
-    }
+    var RelatedIncidents = declare(buildRelated, {
+        declaredClass: "RelatedIncidents",
 
-    buildFunctions.extend(RelatedIncidents, buildRelated);
+        constructor: declare.superCall(function (sup) {
+            return function() {
+                sup.call(this, "Related Incidents", {
+                    resultsPerPage: 10,
+                    itemType: 'inc',
+                    saveKey: 'related_incidents',
+                    getUrl: '/catalog/ajax/load_catalog/',
+                    candidateItemsTemplate: 'candidateModal',
+                    itemTemplate: 'relatedItem',
+                    required: true,
+                    displayName: 'Related Incident'
+                });
+            }
+        })
+    });
 
     return  RelatedIncidents;
 });

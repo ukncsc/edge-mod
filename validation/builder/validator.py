@@ -1,14 +1,14 @@
-
-from edge.generic import EdgeObject
+from adapters.certuk_mod.validation import ValidationStatus
+from adapters.certuk_mod.validation.common.namespace import NamespaceValidationInfo
 from adapters.certuk_mod.validation.common.structure import (
     IndicatorStructureConverter,
     ObservableStructureConverter
 )
-from adapters.certuk_mod.validation.common.namespace import NamespaceValidationInfo
 from adapters.certuk_mod.validation.indicator.indicator import IndicatorValidationInfo
+from adapters.certuk_mod.validation.incident.incident import IncidentValidationInfo
 from adapters.certuk_mod.validation.observable.validator import ObservableValidator
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
-from adapters.certuk_mod.validation import ValidationStatus
+from edge.generic import EdgeObject
 
 
 class BuilderValidationInfo(object):
@@ -25,12 +25,17 @@ class BuilderValidationInfo(object):
     @staticmethod
     def __generate_validation_dict(builder_dict):
         validation_dict = {}
-        validation_dict.update(BuilderValidationInfo.__validate_indicator(
-            IndicatorStructureConverter.builder_to_simple(builder_dict)
-        ))
-        validation_dict.update(BuilderValidationInfo.__validate_observables(
-            builder_dict.get('observables', {})
-        ))
+        if builder_dict['stixtype'] == "ind":
+            validation_dict.update(BuilderValidationInfo.__validate_indicator(
+                IndicatorStructureConverter.builder_to_simple(builder_dict)
+            ))
+            validation_dict.update(BuilderValidationInfo.__validate_observables(
+                builder_dict.get('observables', {})
+            ))
+        elif builder_dict['stixtype'] == "inc":
+            validation_dict.update(BuilderValidationInfo.__validate_incident(
+                builder_dict
+            ))
 
         return validation_dict
 
@@ -38,13 +43,16 @@ class BuilderValidationInfo(object):
     def __validate_indicator(indicator):
         validation_result = IndicatorValidationInfo.validate(**indicator)
 
-        # Bit of a fudge here, but we have different rules for internal/external publish for confidence value...
-        confidence_validation = validation_result.confidence
-        if confidence_validation and confidence_validation.status == ValidationStatus.ERROR:
-            confidence_validation.status = ValidationStatus.WARN
-
         return {
             indicator['id']: validation_result.validation_dict
+        }
+
+    @staticmethod
+    def __validate_incident(incident):
+        validation_result = IncidentValidationInfo.validate(**incident)
+
+        return {
+            incident['id']: validation_result.validation_dict
         }
 
     @staticmethod

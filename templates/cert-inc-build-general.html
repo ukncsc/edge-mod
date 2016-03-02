@@ -19,10 +19,10 @@
                 <div class="form-group">
                     <label class="col-lg-2 control-label">Status</label>
                      <!-- ko if: status.hasValidation -->
-                    <span class="validation-error" data-bind="visible: status.hasError, text: status.errorMessage"></span>
+                    <span class="validation-error" data-bind="visible: status.hasError, text: status.errorMessage, disable: $root.mode().isReadOnly()"></span>
                     <!-- /ko -->
                     <div class="col-lg-6">
-                        <select data-bind="options: statuses,
+                        <select  class="form-control" data-bind="options: statuses,
                                            disable: $root.mode().isReadOnly(),
                                            value: status,
                                            optionsCaption: 'Choose...'"
@@ -32,18 +32,21 @@
                     </div>
                 </div>
 
+
                 <div class="form-group">
-                    <label for="description" class="col-lg-2 control-label">Short Description</label>
-                    <!-- ko if: short_description.hasValidation -->
-                    <span class="validation-error" data-bind="visible: short_description.hasError, text: short_description.errorMessage"></span>
+                    <label for="shortDescription" class="col-lg-2 control-label">Short Description</label>
+                    <!-- ko if: shortDescription.hasValidation -->
+                    <span class="validation-error" data-bind="visible: shortDescription.hasError, text: shortDescription.errorMessage"></span>
                     <!-- /ko -->
                     <div class="col-lg-6">
-                        <input class="form-control" data-bind="value: short_description,
+                        <input class="form-control" data-bind="value: shortDescription,
                                                                valueUpdate: 'afterkeydown',
                                                                disable: $root.mode().isReadOnly()"
-                               name="short_description" id="short_description">
+                               name="shortDescription" id="shortDescription">
                     </div>
                 </div>
+
+
                 <div class="form-group">
                     <label for="description" class="col-lg-2 control-label">Description</label>
                     <!-- ko if: description.hasValidation -->
@@ -58,20 +61,27 @@
                 </div>
                 <div class="form-group">
                     <label class="col-lg-2 control-label">Reporter</label>
-                    <div class="col-lg-10" data-bind="value: reporter,
-                                                      disable: $root.mode().isReadOnly()">
-                        <a data-bind='
-                                      click: function() { generalShowModal({viewModel: reporter()}) }'>Click to Edit</a>
+                    <div class="col-lg-10" data-bind="value: reporter">
+                        <!--ko if: $root.mode().isReadOnly() -->
+                        <span data-bind='text: reporter().name()'></span>
+                        <!--/ko -->
+                        <!--ko ifnot: $root.mode().isReadOnly() -->
+                        <!-- ko if: reporter.hasValidation -->
+                        <span class="validation-error" data-bind="visible: reporter.hasError, text: reporter.errorMessage"></span>
+                        <!-- /ko -->
+                        <a data-bind='text: reporter().displayName(),
+                                      click: function() { generalShowModal() }'></a>
+                        <!--/ko -->
                        </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-lg-2 control-label">Confidence</label>
                     <!-- ko if: confidence.hasValidation -->
-                    <span class="validation-error" data-bind="visible: confidence.hasError, text: confidence.errorMessage"></span>
+                    <span class="validation-error" data-bind="visible: confidence.hasError, text: confidence.errorMessage, disable: $root.mode().isReadOnly()"></span>
                     <!-- /ko -->
                     <div class="col-lg-6">
-                        <select data-bind="options: confidences,
+                        <select class="form-control" data-bind="options: confidences,
                                            value: confidence,
                                            optionsCaption: 'Choose...',
                                            disable: $root.mode().isReadOnly()"
@@ -82,28 +92,31 @@
                 <div class="form-group">
                     <label for="status" class="col-lg-2 control-label">TLP</label>
                     <!-- ko if: tlp.hasValidation -->
-                    <span class="validation-error" data-bind="visible: tlp.hasError, text: tlp.errorMessage"></span>
+                    <span class="validation-error" data-bind="visible: tlp.hasError, text: tlp.errorMessage, disable: $root.mode().isReadOnly()"></span>
                     <!-- /ko -->
                     <div class="col-lg-6">
-                        <select data-bind="options: tlps,
+                        <select class="form-control" data-bind="options: tlps,
                                            value: tlp,
                                            optionsCaption: 'Choose...',
                                            disable: $root.mode().isReadOnly()"
                                 id='tlp' name='tlp'></select>
                     </div>
                 </div>
+
                 <div class="form-group">
-                	<label for="markings" class="col-lg-2 control-label">Handling Caveats</label>
-                	<div class="col-lg-10">
-                		<textarea class="form-control"
-                				  rows="3"
-                				  name="markings"
-                				  id="markings"
-                				  data-bind="value: markings,
-                				  			 disable: $root.mode().isReadOnly()">
-                		</textarea>
-                		<p class="help-block"><span class="glyphicon glyphicon-info-sign"></span> Enter or paste one value per line.</p>
-                	</div>
+                    <label class="col-lg-2 control-label">Marking</label>
+                     <!-- ko if: markings.hasValidation -->
+                    <span class="validation-error" data-bind="visible: markings.hasError, text: markings.errorMessage, disable: $root.mode().isReadOnly()"></span>
+                    <!-- /ko -->
+                    <div class="col-lg-6">
+                        <select  class="form-control" data-bind="options: marking_priorities,
+                                           disable: $root.mode().isReadOnly(),
+                                           value: markings,
+                                           optionsCaption: 'Choose...'"
+                                id='markings'
+                                name='markings'>
+                        </select>
+                    </div>
                 </div>
                 {% block extra-fields %}{% endblock %}
             </fieldset>

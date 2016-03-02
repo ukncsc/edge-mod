@@ -1,19 +1,26 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/cert-build-list-selects",
-    "common/cert-build-functions"
-], function (declare, ko, listSelects, buildFunctions) {
+    "common/cert-build-list-selects"
+], function (declare, ko, listSelects) {
     "use strict";
 
-    function Effects() {
-        Effects.super.constructor.call(this, "Effects", {
-            selectChoice: 'effects_list',
-            saveKey: 'effects'
-        });
-    }
+    var Effects = declare(listSelects, {
+        declaredClass: "Effects",
 
-    buildFunctions.extend(Effects, listSelects);
+        constructor: declare.superCall(function (sup) {
+                return function () {
+                    sup.call(this, "Effects", {
+                        selectChoice: 'effects_list',
+                        saveKey: 'effects',
+                        required: true,
+                        displayName: 'Effect'
+                    });
 
-     return Effects;
+                }
+            }
+        )
+    });
+
+    return Effects;
 });

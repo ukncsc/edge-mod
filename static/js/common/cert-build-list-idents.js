@@ -2,60 +2,64 @@ define([
     "../dcl/dcl",
     "knockout",
     "common/cert-abstract-builder-form",
-    "common/cert-build-functions",
     "common/cert-identity"
-], function (declare, ko, AbstractBuilderForm, buildFunctions, CERTIdentity) {
+], function (declare, ko, AbstractBuilderForm, CERTIdentity) {
     "use strict";
 
-    function ListIdents(label, options) {
-        ListIdents.super.constructor.apply(this, [ label ]);
+    var ListIdents = declare(AbstractBuilderForm, {
+        declaredClass: "ListIdents",
 
-        this.saveKey = options['saveKey'];
+        constructor: declare.superCall(function (sup) {
+            return function (label, options) {
+                sup.call(this, [label]);
 
-        this.items = ko.observableArray([]);
-        this.count = ko.computed(function () {
-            return this.items().length || "";
-        }, this);
-    }
+                this.saveKey = options['saveKey'];
+                this.items = ko.observableArray([]).extend(
+                        {requiredGrouped:
+                            {required :options['required'], group: this.validationGroup, displayMessage: "Needs at least one " + options['displayName']}
+                        });
+                this.count = ko.computed(function () {
+                    return this.items().length || "";
+                }, this);
+            }
+        }),
 
-    buildFunctions.extend(ListIdents, AbstractBuilderForm);
 
-    ListIdents.prototype.add = function() {
-        var newItem = new CERTIdentity({name: 'Click to edit'});
-        var items = this.items;
-        newItem.ModelUI({viewModel:  newItem}).done(function(context, result){
-            items.unshift(newItem);
-        });
-    };
+        add: function () {
+            var newIdent = new CERTIdentity();
+            newIdent.ModelUI().done(function (context, result) {
+                this.items.unshift(newIdent);
+            }.bind(this));
+        },
 
-     ListIdents.prototype.show_ui = function(model, data) {
-         model.identity_model_ui({viewModel: data});
-     }
+        showUi: function (model, ident) {
+            ident.ModelUI();
+        },
 
-    ListIdents.prototype.load = function(data) {
-        this.items.removeAll();
-        var self = this;
-        if (this.saveKey in data) {
-            $.each(data[this.saveKey], function(i,v) {
-                self.items.push(new CERTIdentity(v['identity']));
-            });
+        load: function (data) {
+            this.items.removeAll();
+            var self = this;
+            if (this.saveKey in data) {
+                $.each(data[this.saveKey], function (i, v) {
+                    self.items.push(new CERTIdentity(v['identity']));
+                });
+            }
+        },
+
+        remove: function (a) {
+            this.items.remove(a);
+        },
+
+        save: function () {
+            var data = {};
+            data[this.saveKey] = [];
+            ko.utils.arrayForEach(this.items(), function (item) {
+                data[this.saveKey].push({'identity': item.to_json()});
+            }.bind(this));
+
+            return data;
         }
-    };
+    });
 
-    ListIdents.prototype.remove = function(a) {
-        this.items.remove(a);
-    };
-
-    ListIdents.prototype.save = function () {
-        var data = {};
-        var saveKey = this.saveKey;
-        data[saveKey] = [];
-        ko.utils.arrayForEach(this.items(), function(item) {
-        	data[saveKey].push({'identity' : item.to_json()});
-        });
-
-        return data;
-    };
-
-    return  ListIdents;
+    return ListIdents;
 });
