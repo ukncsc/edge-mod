@@ -5,8 +5,7 @@ define([
 ], function (declare, ko, Messages) {
     "use strict";
 
-    var AbstractBuilderForm = declare(null, {
-
+    return declare(null, {
         declaredClass: "AbstractBuilderForm",
         constructor: function (labelIn) {
             this.label = ko.observable(labelIn);
@@ -31,7 +30,6 @@ define([
         },
 
         counter: function() {
-            console.log("base");
             // stub - does nothing here
         },
 
@@ -64,6 +62,4 @@ define([
             return null;
         }
     });
-
-    return AbstractBuilderForm;
 });

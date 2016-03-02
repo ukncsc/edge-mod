@@ -1,5 +1,6 @@
 define([
     "knockout",
+    "dcl/dcl",
     "inc-build/cert-inc-build-attributed-actors",
     "inc-build/cert-inc-build-time-panel",
     "inc-build/cert-inc-build-categories",
@@ -16,7 +17,7 @@ define([
     "inc-build/cert-inc-build-responders",
     "inc-build/cert-inc-build-coordinators",
     "common/cert-messages"
-], function (ko, AttributedActors, Times, Categories, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Coordinators, Messages) {
+], function (ko, declare, AttributedActors, Times, Categories, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Coordinators, Messages) {
     "use strict";
     function indexBy(items, pname) {
         var indexed = {};
@@ -26,78 +27,80 @@ define([
         return indexed;
     }
 
-    function Section() {
-        this.options = ko.observableArray([
-            ko.observable(new General()),
-            ko.observable(new Times()),
-            ko.observable(new Categories()),
-            ko.observable(new TrustGroups()),
-            ko.observable(new Effects()),
-            ko.observable(new Coordinators()),
-            ko.observable(new Victims()),
-            ko.observable(new Responders()),
-            ko.observable(new DiscoveryMethods()),
-            ko.observable(new IntendedEffects()),
-            ko.observable(new RelatedIndicators()),
-            ko.observable(new RelatedObservables()),
-            ko.observable(new LeveragedTTPs()),
-            ko.observable(new AttributedActors()),
-            ko.observable(new RelatedIncidents()),
-        ]);
-        this._byLabel = indexBy(this.options, "label");
-        this.value = ko.observable(
-            this.options()[0]()
-        );
-    }
+    return declare(null, {
+        declaredClass: "Section",
+        constructor: function () {
+            this.options = ko.observableArray([
+                ko.observable(new General()),
+                ko.observable(new Times()),
+                ko.observable(new Categories()),
+                ko.observable(new TrustGroups()),
+                ko.observable(new Effects()),
+                ko.observable(new Coordinators()),
+                ko.observable(new Victims()),
+                ko.observable(new Responders()),
+                ko.observable(new DiscoveryMethods()),
+                ko.observable(new IntendedEffects()),
+                ko.observable(new RelatedIndicators()),
+                ko.observable(new RelatedObservables()),
+                ko.observable(new LeveragedTTPs()),
+                ko.observable(new AttributedActors()),
+                ko.observable(new RelatedIncidents()),
+            ]);
+            this._byLabel = indexBy(this.options, "label");
+            this.value = ko.observable(
+                this.options()[0]()
+            );
+        },
 
-    Section.prototype.loadStatic = function (optionLists) {
-        ko.utils.arrayForEach(this.options(), function (option) {
-            option().loadStatic(optionLists);
-        });
-    };
+        loadStatic: function (optionLists) {
+            ko.utils.arrayForEach(this.options(), function (option) {
+                option().loadStatic(optionLists);
+            });
+        },
 
-    Section.prototype.load = function (data) {
-        ko.utils.arrayForEach(this.options(), function (option) {
-            option().load(data);
-        });
-    };
+        load: function (data) {
+            ko.utils.arrayForEach(this.options(), function (option) {
+                option().load(data);
+            });
+        },
 
-    Section.prototype.doValidation = function () {
-        var msgs = new Messages();
-        ko.utils.arrayForEach(this.options(), function (option) {
-            var optionMsgs = option().doValidation();
-            if (optionMsgs instanceof Messages && optionMsgs.hasMessages()) {
-                msgs.addMessages(optionMsgs);
-            }
-        });
-        return msgs;
-    };
+        doValidation: function () {
+            var msgs = new Messages();
+            ko.utils.arrayForEach(this.options(), function (option) {
+                var optionMsgs = option().doValidation();
+                if (optionMsgs instanceof Messages && optionMsgs.hasMessages()) {
+                    msgs.addMessages(optionMsgs);
+                }
+            });
+            return msgs;
+        },
 
-    Section.prototype.save = function () {
-        var data = {};
-        ko.utils.arrayForEach(this.options(), function (option) {
-            var optionData = option().save();
-            if (optionData instanceof Object) {
-                ko.utils.objectForEach(optionData, function (name, value) {
-                    data[name] = value;
-                });
-            }
-        });
-        return data;
-    };
+        save: function () {
+            var data = {};
+            ko.utils.arrayForEach(this.options(), function (option) {
+                var optionData = option().save();
+                if (optionData instanceof Object) {
+                    ko.utils.objectForEach(optionData, function (name, value) {
+                        data[name] = value;
+                    });
+                }
+            });
+            return data;
+        },
 
-    Section.prototype.findByLabel = function (label) {
-        return this._byLabel[label];
-    };
+        findByLabel: function (label) {
+            return this._byLabel[label];
+        },
 
-    Section.prototype.select = function (item) {
-        this.value(item);
-    };
+        select: function (item) {
+            this.value(item);
+        },
 
 
-    Section.prototype.counts = function (item) {
-        return +(item.count()) || "";
-    };
+        counts: function (item) {
+            return +(item.count()) || "";
+        },
 
-    return  Section;
+    });
 });

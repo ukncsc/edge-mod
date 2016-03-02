@@ -304,5 +304,4 @@ define([
             return this.messages().hasMessages();
         }
     })
-})
-;
+});

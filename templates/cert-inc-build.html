@@ -38,7 +38,7 @@
             </div>
             <div class="col-sm-9">
 
-                <div class="alert alert-warning" data-bind="visible: isIncomplete()">
+                <div class="alert alert-warning" style = "display:none" data-bind="visible: isIncomplete()">
                     <h4 data-bind="visible: messages().hasErrors()">The Incident is incomplete:
                         <ul data-bind="foreach: messages().displayErrors">
                             <li data-bind="text: $data"></li>

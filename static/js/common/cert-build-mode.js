@@ -1,33 +1,36 @@
 define([
-    "knockout"
-], function (ko) {
+    "knockout",
+    "dcl/dcl"
+], function (ko, declare) {
     "use strict";
 
-    function BuildMode() {
-        this.value = ko.observable(
-            BuildMode.prototype.MODES.CREATE
-        );
-    }
+    return declare(null, {
+        declaredClass: "BuildMode",
 
-    BuildMode.prototype.MODES = Object.freeze({
-        CREATE: "Build",
-        EDIT: "Edit",
-        VIEW: "View"
+        MODES: Object.freeze({
+            CREATE: "Build",
+            EDIT: "Edit",
+            VIEW: "View"
+        }),
+
+        constructor: function BuildMode() {
+            this.value = ko.observable(
+                this.MODES.CREATE
+            );
+        },
+
+        isEditable: function () {
+            var currentValue = this.value();
+            return currentValue === this.MODES.CREATE
+                || currentValue === this.MODES.EDIT;
+        },
+
+        isReadOnly: function () {
+            return !this.isEditable();
+        },
+
+        isNew: function () {
+            return this.value() === this.MODES.CREATE;
+        }
     });
-
-    BuildMode.prototype.isEditable = function () {
-        var currentValue = this.value();
-        return currentValue === BuildMode.prototype.MODES.CREATE
-            || currentValue === BuildMode.prototype.MODES.EDIT;
-    };
-
-    BuildMode.prototype.isReadOnly = function () {
-        return !this.isEditable();
-    };
-
-    BuildMode.prototype.isNew = function () {
-        return this.value() === BuildMode.prototype.MODES.CREATE;
-    };
-
-    return  BuildMode;
 });

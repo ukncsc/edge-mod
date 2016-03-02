@@ -10,8 +10,7 @@ define([
         document.getElementById("content").scrollTop = 0;
     }
 
-    var RelatedItems = declare(AbstractBuilderForm, {
-
+    return declare(AbstractBuilderForm, {
         declaredClass: "RelatedItems",
 
         constructor: declare.superCall(function (sup) {
@@ -161,6 +160,4 @@ define([
             scrollToTop();
         }
     });
-
-    return RelatedItems;
 });
