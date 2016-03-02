@@ -6,25 +6,21 @@ define([
     "use strict";
 
     return declare(AbstractBuilderForm, {
-        declaredClass: "identity",
+        declaredClass: "Identity",
 
         constructor: function () {
             this.searchTerm = ko.observable();
             this.searchResults = ko.observableArray([]);
+
+            this.name = ko.observable();
             this.UUID = ko.observable();
             this.sector = ko.observable();
 
             this.haveQuery = ko.computed(function () {
                 return this.searchTerm() != null ? this.searchTerm().trim().length > 0 : false;
             }, this);
-
             this.search = ko.observable(false);
             this.selected = ko.observable(false);
-        },
-
-        load: function (data) {
-            this.UUID(data["uuid"] || "");
-            this.sector(data["sector"] || "");
         },
 
         buildCRMURL: function () {
@@ -39,8 +35,20 @@ define([
             return this.buildOrgCRMURL() + "find?organisation=";
         },
 
+        load: function (data) {
+            this.name(this.getName(data["uuid"]));
+            this.UUID(data["uuid"] || "");
+            this.sector(data["sector"] || "");
+        },
+
+        getName: function (id) {
+            getJSON(this.buildOrgCRMURL() + id, null, function(data) {
+                this.name(data["name"] || "");
+            }.bind(this));
+        },
+
         searchCRM: function () {
-            this.search(!this.search());
+            this.search(true);
             this.searchResults([]);
 
             var searchUrl = this.buildSearchCRMURL() + this.searchTerm();
@@ -49,14 +57,18 @@ define([
         },
 
         selectOrganisation: function (data) {
-            this.uuid(data["uuid"]);
+            this.name(data["name"]);
+            this.UUID(data["uuid"]);
             this.getSector(data["uuid"]);
+
+            this.selected(true);
+            this.search(false);
         },
 
         getSector: function(id) {
             getJSON(this.buildOrgCRMURL() + id, null, function(data) {
-                this.sector(data["sector"])
-            })
+                this.sector(data["industry"] || "");
+            }.bind(this));
         },
 
         createSnapshot: function () {
@@ -72,7 +84,7 @@ define([
         },
 
         okay: function () {
-            this.modal.close(this.newIdentity());
+            this.modal.close(this.clone());
         },
 
         cancel: function () {
@@ -89,10 +101,6 @@ define([
 
         to_json: function () {
             if (this.UUID()) {
-             /*   return {
-                    UUID: this.UUID(),
-                    sector: this.sector()
-                };  */
                 return this.clone();
             } else {
                 return undefined

@@ -41,7 +41,7 @@ define([
             var self = this;
             if (this.saveKey in data) {
                 $.each(data[this.saveKey], function (i, v) {
-                    self.items.push(new CERTIdentity(v['identity']));
+                    self.items.push(new CERTIdentity().load(v['identity']));
                 });
             }
         },

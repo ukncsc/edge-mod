@@ -62,15 +62,17 @@
                 <div class="form-group">
                     <label class="col-lg-2 control-label">Reporter</label>
                     <div class="col-lg-10" data-bind="value: reporter">
+
                         <!--ko if: $root.mode().isReadOnly() -->
-                        <span data-bind='text: reporter().name()'></span>
+                        <span data-bind='text: reporter().UUID()'></span>
                         <!--/ko -->
+
                         <!--ko ifnot: $root.mode().isReadOnly() -->
-                        <!-- ko if: reporter.hasValidation -->
-                        <span class="validation-error" data-bind="visible: reporter.hasError, text: reporter.errorMessage"></span>
-                        <!-- /ko -->
-                        <a data-bind='text: reporter().displayName(),
-                                      click: function() { generalShowModal() }'></a>
+                            <!-- ko if: reporter.hasValidation -->
+                            <span class="validation-error" data-bind="visible: reporter.hasError, text: reporter.errorMessage"></span>
+                            <!-- /ko -->
+                            <a data-bind='click: function() { generalShowModal() }'>Click to Edit</a>
+
                         <!--/ko -->
                        </div>
                 </div>

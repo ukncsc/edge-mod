@@ -52,8 +52,8 @@ define([
                     }
                 });
 
-                this.reporter = ko.observable(new CERTIdentity({name: ''}));
-                this.reporter().name.extend({
+                this.reporter = ko.observable(new CERTIdentity());
+                this.reporter().UUID.extend({
                     requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
@@ -92,12 +92,12 @@ define([
         load: function (data) {
             this.title(data["title"] || "");
             this.status(data["status"] || "");
-            this.short_description(data["short_description"] || "");
+            this.shortDescription(data["shortDescription"] || "");
             this.description(data["description"] || "");
             if ('reporter' in data) {
                 if ('identity' in data['reporter']) {
-                    if ('name' in data['reporter']['identity'])
-                        this.reporter(new CERTIdentity(data['reporter']['identity']))
+                    if ('UUID' in data['reporter']['identity'])
+                        this.reporter(new CERTIdentity().load(data['reporter']['identity']))
                 }
             }
 
@@ -116,7 +116,7 @@ define([
             return {
                 title: this.title(),
                 status: this.status(),
-                short_description: this.short_description(),
+                shortDescription: this.shortDescription(),
                 description: this.description(),
                 confidence: this.confidence(),
                 reporter: {'identity': this.reporter().to_json()},
