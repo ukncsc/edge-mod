@@ -1,4 +1,4 @@
 
 define(function () {
-  return window.EdgeIdentity = window.EdgeIdentity || {};
+  return window.EdgeIdentity = window.EdgeIdentity || null;
 });
