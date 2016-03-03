@@ -6,67 +6,67 @@
 {% block head-content %}
     <style type="text/css">
 
+        .container-fluid .full-height {
+            height: calc(100vh - 120px);
+        }
+
+        #graph-container {
+            padding-right: 0;
+        }
+
         g {
             cursor: pointer;
         }
 
         text.node {
-            font-size: 11px;
+            font-size: 14px;
             text-anchor: end;
         }
 
-        #tree-container {
-            background: transparent none;
-            position: fixed;
-            margin: 0;
-            top: 62px;
-            right: 0;
-            bottom: 24px;
-            left: 0;
+        svg {
+            border: 1px solid grey;
+            box-shadow: rgba(0, 0, 0, 0.3) 4px 4px 4px;
         }
+
     </style>
 {% endblock %}
 
 {% block body-content %}
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-md-2">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Details/Search/...</h3>
-                    </div>
-                    <div class="panel-body">
-                        Stuff goes here...
-                    </div>
-                </div>
-            </div>
-            <div class=col-md-10">
-                <div id="tree-container" class="panel">
-{#                  Ideally we want something like this: #}
-{#                    <svg data-bind="foreachGraphNode: { nodes: nodeData, links: linkData, linkWidth: 1, linkDistance: 200, charge: -500 }" width="800" height="600">#}
-{#                  We could make the nodes and links arguments above observables, then adding/removing nodes/links should refresh the graph  #}
+            <div id="graph-container" class="col-sm-8 full-height">
                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                         style="position:relative;width:100%;height:100%;"
-                         preserveAspectRatio="xMidYMid meet" viewBox="0 0 1000 1000"
+                         preserveAspectRatio="xMidYMid meet"
                          data-bind="foreachGraphNode: graph">
-                        <g data-bind="attr: { title: $data.id }, click: function () { alert('You clicked on ' + title + '.'); }">
+                        <g style="border:1px solid pink;" data-bind="attr: { title: $data.id }, click: function () { alert('You clicked on ' + title + '.'); }">
                             <image xlink:href="{% static 'img/hex/hex_.png'%}" data-bind="attr: {
                                         'xlink:href': '{% static 'img/hex/' %}hex_' + $data.type + '.png',
-                                        height: $data.isRoot ? 32 : 20,
-                                        width: $data.isRoot ? 32 : 20,
-                                        x: $data.isRoot ? -32 : -10,
-                                        y: $data.isRoot ? -16 : -10
+                                        height: $data.isRoot ? 64 : 40,
+                                        width: $data.isRoot ? 64 : 40,
+                                        x: $data.isRoot ? -32 : -20,
+                                        y: $data.isRoot ? -32 : -20
                                    }"></image>
+{% comment %}
                             <text class="node" data-bind="
                                 attr: {
-                                    x: $data.isRoot ? -32 : -8,
-                                    y: $data.isRoot ? -16 : -8
+                                    x: $data.isRoot ? -64 : -16,
+                                    y: $data.isRoot ? -32 : -16
                                 },
                                 text: title,
                                 style: { 'text-anchor': $data.isRoot ? 'start' : 'end' }
                                 "></text>
+{% endcomment %}
                         </g>
                     </svg>
+            </div>
+            <div class="col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Details</h3>
+                    </div>
+                    <div class="panel-body">
+                        Stuff goes here...
+                    </div>
                 </div>
             </div>
         </div>
@@ -74,13 +74,18 @@
 {% endblock %}
 
 {% block body-end %}
-    <script>
-    var stixId = "{{ id }}";
-    </script>
-    <script src="{% static "js/d3.js" %}"></script>
     <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
-    <script src="{% static 'js/visualiser/foreachGraphNodeBinding.js' %}"></script>
-    <script src="{% static 'js/visualiser/tempViewModel.js' %}"></script>
-{# Below is graph example lifted from D3 wiki #}
-{#    <script src="{% static 'js/visualiser/temp2.js' %}"></script>#}
+    <script>
+        var require = {
+            baseUrl: "/adapter/certuk_mod{% static 'js' %}",
+            paths: {
+                d3: "{% static "js/d3.min" %}",
+                jquery: "{% static "js/jquery-1.11.0.min" %}",
+                knockout: "common/knockout-shim"
+            },
+            urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
+        };
+        var rootId = "{{ id }}";
+    </script>
+    <script src="/adapter/certuk_mod{% static 'js/require.js'%}" data-main="visualiser/main"></script>
 {% endblock %}

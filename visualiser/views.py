@@ -1,12 +1,11 @@
-import json
 import re
 import urllib2
 
 from django.contrib.auth.decorators import login_required
-from django.http import StreamingHttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
-from users.decorators import json_body
+from users.decorators import login_required_ajax
 
 from edge.generic import EdgeObject
 
@@ -41,13 +40,13 @@ def visualiser_not_found(request):
     return render(request, "visualiser_not_found.html", {})
 
 
-@login_required
+@login_required_ajax
 def visualiser_get(request, id_):
     def build_title(node):
         node_type = node.summary.get("type")
         try:
             title = {
-                "ObservableComposition": "Observable composition: " + node.obj.observable_composition.operator
+                "ObservableComposition": node.obj.observable_composition.operator
             }.get(node_type, "(untitled)")
         except Exception as e:
             print e
@@ -91,8 +90,8 @@ def visualiser_get(request, id_):
     else:
         success = True
 
-    return StreamingHttpResponse(json.dumps({
+    return JsonResponse({
         "success": success,
         "error_message": error_message,
         "graph": graph
-    }), content_type="application/json")
+    }, status=200)
