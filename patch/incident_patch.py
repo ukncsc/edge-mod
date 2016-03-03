@@ -10,7 +10,7 @@ from django.conf import settings
 
 from stix.common import vocabs
 from stix.incident.time import Time as StixTime
-from stix.incident import IncidentCategories
+from stix.incident import IncidentCategories, IntendedEffects, DiscoveryMethods
 
 from incident import views
 
@@ -153,6 +153,12 @@ class DBIncidentPatch(incident.DBIncident):
         if update_obj.time:
             self.time = StixTime.from_dict(update_obj.time.to_dict())
         self.coordinators = update_obj.coordinators
+
+        self.intended_effects = IntendedEffects()
+        self.discovery_methods = DiscoveryMethods()
+
+        IntendedEffects.from_dict(update_obj.intended_effects.to_dict(), self.intended_effects)
+        DiscoveryMethods.from_dict(update_obj.discovery_methods.to_dict(), self.discovery_methods)
 
     @classmethod
     def api_from_dict(cls, data):

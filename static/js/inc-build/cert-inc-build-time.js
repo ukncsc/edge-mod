@@ -8,9 +8,9 @@ define([
     return declare(null, {
             declaredClass: "Times",
 
-            constructor: function (save_name, displayName) {
+            constructor: function (saveName, displayName) {
                 this.displayName = ko.observable(displayName);
-                this.saveName = ko.observable(save_name);
+                this.saveName = ko.observable(saveName);
                 this.timeString = ko.observable("");
             },
 

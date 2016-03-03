@@ -32,6 +32,11 @@ class IncidentValidationInfo(ObjectValidationInfo):
         #No check
         self.times = field_validation.get('times')
         self.markers = field_validation.get('markers')
+        self.responders = field_validation.get('responders')
+        self.attributed_actors = field_validation.get('attributed_actors')
+        self.related_incidents = field_validation.get('related_incidents')
+        self.related_indicators = field_validation.get('related_indicators')
+        self.related_observables = field_validation.get('related_observables')
 
         #At least 1
         self.reporter = field_validation.get('reporter')
@@ -39,14 +44,11 @@ class IncidentValidationInfo(ObjectValidationInfo):
         self.trustgroups = field_validation.get('trustgroups')
         self.effects = field_validation.get('effects')
         self.victims = field_validation.get('victims')
-        self.responders = field_validation.get('responders')
         self.discovery_methods = field_validation.get('discovery_methods')
         self.intended_effects = field_validation.get('intended_effects')
-        self.related_indicators = field_validation.get('related_indicators')
-        self.related_observables = field_validation.get('related_observables')
         self.leveraged_ttps = field_validation.get('leveraged_ttps')
-        self.attributed_actors = field_validation.get('attributed_actors')
-        self.related_incidents = field_validation.get('related_incidents')
+        self.coordinators = field_validation.get('coordinators')
+
 
     @classmethod
     def validate(cls, **incident_data):
@@ -81,15 +83,9 @@ class IncidentValidationInfo(ObjectValidationInfo):
             common_field_validation['discovery_methods'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Discovery Methods')
         if not incident_data.get('intended_effects'):
             common_field_validation['intended_effects'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Intended Effects')
-        if not incident_data.get('related_observables'):
-            common_field_validation['related_observables'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Related Observables')
-        if not incident_data.get('related_indicators'):
-            common_field_validation['related_indicators'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Related Indicators')
         if not incident_data.get('leveraged_ttps'):
             common_field_validation['leveraged_ttps'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Leveraged TTPs')
-        if not incident_data.get('attributed_actors'):
-            common_field_validation['attributed_actors'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Attributed Actors')
-        if not incident_data.get('related_incidents'):
-            common_field_validation['related_incidents'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Related Incidents')
+        if not incident_data.get('coordinators'):
+            common_field_validation['coordinators'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Coordinators')
 
         return cls(**common_field_validation)

@@ -2,7 +2,6 @@
 import json
 import requests
 
-
 def _get_file_contents(filename):
     with open(filename, 'r') as fd:
         return fd.read()
@@ -24,4 +23,9 @@ def post(endpoint_url, filename):
     print json.dumps(response.json(), indent=4)
 
 
-post("http://0.0.0.0:9000/adapter/certuk_mod/ajax/import/admin", '/home/andy/Downloads/obs_purplesecure_observable-108fb72e-ec78-4cea-956d-64cd54bb7f75.xml')
+def main():
+    post("http://0.0.0.0:9000/adapter/certuk_mod/ajax/import/admin", '/home/andy/Downloads/obs_purplesecure_observable-108fb72e-ec78-4cea-956d-64cd54bb7f75.xml')
+
+
+if __name__ == '__main__':
+    main()

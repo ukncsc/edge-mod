@@ -1,9 +1,6 @@
-
-
 {% extends "base.html" %} {% load site_tags %} {% load staticfiles %}
-{% block head-title %}{{ main_title }}{% endblock %} {% block head-content %}
 
-{% endblock %} {% block body-content %}
+{% block body-content %}
     {% include 'cert-identity.html' %}
     {% include 'candidate_modal.html' %}
     {% include 'related_items.html' %}
@@ -38,7 +35,7 @@
             </div>
             <div class="col-sm-9">
 
-                <div class="alert alert-warning" style = "display:none" data-bind="visible: isIncomplete()">
+                <div class="alert alert-warning" style="display:none" data-bind="visible: isIncomplete()">
                     <h4 data-bind="visible: messages().hasErrors()">The Incident is incomplete:
                         <ul data-bind="foreach: messages().displayErrors">
                             <li data-bind="text: $data"></li>
@@ -71,16 +68,26 @@
     </div><!-- container -->
 
 {% endblock %}
+
+
 {% block body-end %}
 
-        <!-- jquery & boostrap -->
+    <script>
+        var require = {
+            baseUrl: "/adapter/certuk_mod{% static 'js' %}",
+            paths: {
+                knockout: "common/knockout-shim"
+            },
+            urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
+        };
+    </script>
 
-    <script src="/adapter/certuk_mod/static/js/moment-with-locales.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/knockout-3.1.0.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/stickytape.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/shared/validation.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/shared/identity.js' %}"></script>
-    <script src="/adapter/certuk_mod/static/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
 
     {% include 'partials/builder_toolbar.html' %}
 
@@ -107,19 +114,7 @@
         incident_builder.marking_priorities = {{ marking_priorities|safe }};
     </script>
 
-
-    <script type="text/javascript" src="{% static 'js/shared/related_objects.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/shared/ko_templates_context.js' %}"></script>
-
-    <script>
-        var require = {
-            baseUrl: "/adapter/certuk_mod{% static 'js' %}",
-            paths: {
-                knockout: "common/knockout-shim"
-            },
-            urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
-        };
-    </script>
     <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="inc-build/cert-inc-build-ready"></script>
 
 {% endblock %}
