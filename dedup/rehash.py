@@ -2,6 +2,7 @@ import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 from django.conf import settings
 if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.py')
+import adapters.certuk_mod.builder.customizations as cert_builder
 
 from edge.generic import EdgeObject
 from mongoengine.connection import get_db
@@ -13,7 +14,6 @@ def main():
     """
     A script to recalculate all observable data hashes according to CERT requirements (can safely be run multiple times)
     """
-
     db = get_db()
     cursor = db.stix.find({
         'type': 'obs',
@@ -49,5 +49,5 @@ def main():
         pprint(bulk_result)
 
 if __name__ == '__main__':
-    import adapters.certuk_mod as only_needed_to_patch
+    cert_builder.apply_customizations()
     main()
