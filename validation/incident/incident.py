@@ -1,4 +1,5 @@
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
+from adapters.certuk_mod.patch.incident_patch import TIME_TYPES
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus, ObjectValidationInfo
 from adapters.certuk_mod.validation.common.validator import CommonFieldValidator
 from stix.common.vocabs import HighMediumLow
@@ -30,7 +31,6 @@ class IncidentValidationInfo(ObjectValidationInfo):
         self.confidence = field_validation.get('confidence')
 
         #No check
-        self.times = field_validation.get('times')
         self.markers = field_validation.get('markers')
         self.responders = field_validation.get('responders')
         self.attributed_actors = field_validation.get('attributed_actors')
@@ -48,6 +48,9 @@ class IncidentValidationInfo(ObjectValidationInfo):
         self.intended_effects = field_validation.get('intended_effects')
         self.leveraged_ttps = field_validation.get('leveraged_ttps')
         self.coordinators = field_validation.get('coordinators')
+
+        #Custom check
+        self.time = field_validation.get('time')
 
 
     @classmethod
@@ -87,5 +90,15 @@ class IncidentValidationInfo(ObjectValidationInfo):
             common_field_validation['leveraged_ttps'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Leveraged TTPs')
         if not incident_data.get('coordinators'):
             common_field_validation['coordinators'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Coordinators')
+
+        time_validation_string = ""
+        for (name, display_name, required) in TIME_TYPES:
+            if required:
+                for key, value in incident_data.get('time').iteritems():
+                    if key == name and value.get('value') == "":
+                        time_validation_string += display_name + " is required - "
+
+        if time_validation_string:
+            common_field_validation['time'] = FieldValidationInfo(ValidationStatus.ERROR, 'Time not reported')
 
         return cls(**common_field_validation)

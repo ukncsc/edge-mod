@@ -27,6 +27,7 @@ class IncidentValidationInfoTests(unittest.TestCase):
         self.assertEqual(validation_info.attributed_actors, None)
         self.assertEqual(validation_info.related_incidents, None)
         self.assertEqual(validation_info.coordinators.status, ValidationStatus.ERROR)
+        self.assertEqual(validation_info.coordinators.time, ValidationStatus.ERROR)
 
     def test_Validate_InvalidFields_Error(self):
         validation_info = IncidentValidationInfo.validate(
@@ -67,7 +68,8 @@ class IncidentValidationInfoTests(unittest.TestCase):
                 leveraged_ttps=['test'],
                 attributed_actors=['test'],
                 related_incidents=['test'],
-                coordinators=['test']
+                coordinators=['test'],
+                time={'incident_opened':{"value":"test"}}
         )
         self.assertIsNone(validation_info.title)
         self.assertIsNone(validation_info.description)
@@ -89,3 +91,4 @@ class IncidentValidationInfoTests(unittest.TestCase):
         self.assertIsNone(validation_info.attributed_actors)
         self.assertIsNone(validation_info.related_incidents)
         self.assertIsNone(validation_info.coordinators)
+        self.assertIsNone(validation_info.time)
