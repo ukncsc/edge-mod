@@ -113,8 +113,10 @@ def from_draft_wrapper(wrapped_func):
 
         target.time = StixTime()
         StixTime.from_dict(draft.get('time'), target.time)
-        target.coordinators = [ EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in draft.get('coordinators', []) ]
+        target.coordinators = [EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in
+                               draft.get('coordinators', [])]
         return target
+
     return classmethod(_w)
 
 
@@ -126,21 +128,22 @@ class DBIncidentPatch(incident.DBIncident):
     @classmethod
     def to_draft(cls, inc, tg, load_by_id, id_ns=''):
         draft = super(DBIncidentPatch, cls).to_draft(inc, tg, load_by_id, id_ns)
-        if 'responder' in draft: #fix unbalanced save / load keys in incident.py
+        if 'responder' in draft:  # fix unbalanced save / load keys in incident.py
             del draft['responder']
 
         draft['responders'] = [EdgeInformationSource.clone(responder).to_draft() for responder in inc.responders]
-        draft['coordinators'] = [EdgeInformationSource.clone(coordinator).to_draft() for coordinator in inc.coordinators]
+        draft['coordinators'] = [EdgeInformationSource.clone(coordinator).to_draft() for coordinator in
+                                 inc.coordinators]
 
         draft['categories'] = [c.value for c in rgetattr(inc, ['categories'], [])]
         if inc.time:
-            draft['time'] = inc.time.to_dict();
+            draft['time'] = inc.time.to_dict()
         return draft
 
     @staticmethod
     def append_timezone(time_dict):
         # Already has a timezone offset
-        if time_dict.get('value')[-6]  == '-' or time_dict.get('value')[-6] == '+':
+        if time_dict.get('value')[-6] == '-' or time_dict.get('value')[-6] == '+':
             return
 
         offset = datetime.datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime('%z')

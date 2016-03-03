@@ -10,13 +10,12 @@ define([
         declaredClass: "IndicatorViewModel",
 
         constructor: declare.superCall(function (sup) {
-                return function () {
-                    sup.call(this, indicator_builder['ajax_uri'], indicator_builder.Section, "Indicator", "create_indicator", "ind");
-                    this.compositionType = ko.observable("OR");
-                    this.builderMode = ko.observable(new indicator_builder.ObservableBuildMode());
-                }
+            return function () {
+                sup.call(this, indicator_builder['ajax_uri'], indicator_builder.Section, "Indicator", "create_indicator", "ind");
+                this.compositionType = ko.observable("OR");
+                this.builderMode = ko.observable(new indicator_builder.ObservableBuildMode());
             }
-        ),
+        }),
 
         selectBatchBuildMode: function () {
             var observables = this.section().findByLabel("Observables");
@@ -26,20 +25,18 @@ define([
         },
 
         _serialize: declare.superCall(function (sup) {
-                return function () {
-                    var data = sup.call(this);
-                    data.composition_type = this.compositionType();
-                    return data;
-                }
+            return function () {
+                var data = sup.call(this);
+                data.composition_type = this.compositionType();
+                return data;
             }
-        ),
+        }),
 
         _serializeFromServer: declare.superCall(function (sup) {
-                return function (dataItemName, response) {
-                    sup.call(this, dataItemName, response);
-                    this.compositionType(response[dataItemName]["composition_type"] || "OR");
-                }
+            return function (dataItemName, response) {
+                sup.call(this, dataItemName, response);
+                this.compositionType(response[dataItemName]["composition_type"] || "OR");
             }
-        )
+        })
     });
 });

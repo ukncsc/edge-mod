@@ -109,7 +109,7 @@
                     <span class="validation-error" data-bind="visible: markings.hasError, text: markings.errorMessage, disable: $root.mode().isReadOnly()"></span>
                     <!-- /ko -->
                     <div class="col-lg-6">
-                        <select  class="form-control" data-bind="options: marking_priorities,
+                        <select class="form-control" data-bind="options: marking_priorities,
                                            disable: $root.mode().isReadOnly(),
                                            value: markings,
                                            optionsCaption: 'Choose...'"
@@ -121,6 +121,6 @@
                 {% block extra-fields %}{% endblock %}
             </fieldset>
         </div>
-    </div><!-- panel body -->
+    </div>
 </div>
 </template>
