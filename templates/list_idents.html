@@ -22,9 +22,11 @@
                         </div>
                     </td>
                     <td>
+                        <!--ko ifnot: $root.mode().isReadOnly() -->
                         <span class="glyphicon glyphicon-remove" title="Remove this item"
                               data-bind="click: function() { $parent.remove($data) }, disable: $root.mode().isReadOnly()">
                         </span>
+                        <!--/ko -->
                     </td>
                 </tr>
                 </tbody>
