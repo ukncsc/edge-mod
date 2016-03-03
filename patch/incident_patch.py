@@ -21,15 +21,15 @@ from edge import IDManager, NamespaceNotConfigured, incident
 from rbac import user_can_edit
 
 CATEGORIES = vocabs.IncidentCategory._ALLOWED_VALUES
-TIME_TYPES = (("first_malicious_action", "First Malicious Action"),
-              ("initial_compromise", "Initial Compromise"),
-              ("first_data_exfiltration", "First Data Exfiltration"),
-              ("incident_discovery", "Incident Discovery"),
-              ("incident_opened", "Incident Opened"),
-              ("containment_achieved", "Containment Achieved"),
-              ("restoration_achieved", "Restoration Achieved"),
-              ("incident_reported", "Incident Reported"),
-              ("incident_closed", "Incident Closed"))
+TIME_TYPES = (("first_malicious_action", "First Malicious Action", False),
+              ("initial_compromise", "Initial Compromise", False),
+              ("first_data_exfiltration", "First Data Exfiltration", False),
+              ("incident_discovery", "Incident Discovery", False),
+              ("incident_opened", "Incident Opened", True),
+              ("containment_achieved", "Containment Achieved", False),
+              ("restoration_achieved", "Restoration Achieved", False),
+              ("incident_reported", "Incident Reported", False),
+              ("incident_closed", "Incident Closed", False))
 
 MARKING_PRIORITIES = ("UK HMG Priority: [C1]", "UK HMG Priority: [C2]", "UK HMG Priority: [C3]")
 

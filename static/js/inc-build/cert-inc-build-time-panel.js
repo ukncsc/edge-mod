@@ -29,7 +29,25 @@ define([
         loadStatic: function (optionsList) {
             this.timeTypes.removeAll();
             for (var i = 0; i < optionsList['time_types_list'].length; i++) {
-                this.timeTypes.push(new Time(optionsList['time_types_list'][i][0], optionsList['time_types_list'][i][1]));
+
+                var name = optionsList['time_types_list'][i][0]
+                var displayName = optionsList['time_types_list'][i][1]
+                var required = optionsList['time_types_list'][i][2]
+
+                var newTime = new Time(
+                        name,
+                        displayName
+                        )
+
+                newTime.timeString.extend({
+                            requiredGrouped: {
+                                required: required,
+                                group: this.validationGroup,
+                                displayMessage: displayName + " time is required for your indicator"
+                            }
+                        })
+
+                this.timeTypes.push(newTime);
             }
         },
 
@@ -68,6 +86,7 @@ define([
         }
     })
 });
+
 
 
 
