@@ -2,15 +2,15 @@ require([
     "knockout",
     "ind-build/builder-shim",
     "ind-build/indicator-builder-shim",
-    "ind-build/change-tracker",
-    "ind-build/custom-builder-sections",
+    "common/change-tracker",
+    "ind-build/cert-ind-build-viewmodel",
     "ind-build/custom-observables",
-    "ind-build/cert-ind-build-viewmodel"
-], function (ko, builder, indicator_builder, ChangeTracker) {
+    "ind-build/custom-builder-sections"
+], function (ko, builder, indicator_builder, ChangeTracker, ViewModel) {
     "use strict";
 
     // ind-build-viewmodel-setup
-    indicator_builder.vm = new indicator_builder.viewModel();
+    indicator_builder.vm = new ViewModel();
     indicator_builder.vm.tracker = ChangeTracker.create(indicator_builder.vm.section().options());
 
     // ind-build-ready

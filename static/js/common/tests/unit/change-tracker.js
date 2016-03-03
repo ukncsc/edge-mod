@@ -2,7 +2,7 @@ define([
     "intern!object",
     "intern/chai!assert",
     "knockout",
-    "ind-build/change-tracker"
+    "common/change-tracker"
 ], function (registerSuite, assert, ko, ChangeTracker) {
     "use strict";
 
@@ -13,7 +13,7 @@ define([
         // suite variables go here
 
         return {
-            name: "ind-build/change-tracker",
+            name: "common/change-tracker",
             "ko.ignoreComputeHash": {
                 "isTrue": function () {
                     assert.isTrue(ko.ignoreComputeHash({ignoreComputeHash: true}));
