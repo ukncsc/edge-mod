@@ -2,24 +2,18 @@ define([
     "dcl/dcl",
     "knockout",
     "d3",
-    "visualiser/foreachGraphNodeBinding"
-], function (declare, ko, d3) {
+    "./graph/Graph",
+    "./graph/forceGraphBinding"
+], function (declare, ko, d3, Graph) {
     "use strict";
-
-/*
-    var _yByDepth = [0];
-    function yByDepth(depth) {
-        return _yByDepth[depth] = (_yByDepth[depth] || 0) + 100;
-    }
-*/
 
     var ViewModel = declare(null, {
         declaredClass: "ViewModel",
-        constructor: function (rootId, graph) {
+        constructor: function (rootId, graphData) {
             this.rootId = ko.computed(function () {
                 return rootId;
             });
-            this.graph = ko.observable(graph);
+            this.graph = ko.observable(new Graph(graphData));
         }
     });
     ViewModel.loadById = function (/*String*/ rootId, /*function*/ onLoadedCallback) {
@@ -29,20 +23,7 @@ define([
                 if (error || !response.success) {
                     throw new Error(error || response.error_message);
                 }
-                var graph = response.graph;
-                var rootNode = graph.nodes[0];
-                rootNode.isRoot = true;
-/*
-                rootNode.fixed = true;
-                rootNode.x = 0;
-                rootNode.y = 0;
-                for (var i = 1, len = graph.nodes.length; i < len; i++) {
-                    var node = graph.nodes[i];
-                    node.x = node.depth * 100;
-                    node.y = yByDepth(node.depth);
-                }
-*/
-                onLoadedCallback(new ViewModel(rootId, graph));
+                onLoadedCallback(new ViewModel(rootId, response.graph));
             }
         );
     };

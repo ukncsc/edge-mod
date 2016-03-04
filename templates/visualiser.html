@@ -37,14 +37,15 @@
             <div id="graph-container" class="col-sm-8 full-height">
                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                          preserveAspectRatio="xMidYMid meet"
-                         data-bind="foreachGraphNode: graph">
-                        <g style="border:1px solid pink;" data-bind="attr: { title: $data.id }, click: function () { alert('You clicked on ' + title + '.'); }">
+                         style="display:none;"
+                         data-bind="forceGraph: graph, charge:-1500, friction:0.85, gravity:0.25, visible: true">
+                        <g data-bind="attr: { title: $data.id }, click: function () { alert('You clicked on ' + title + '.'); }">
                             <image xlink:href="{% static 'img/hex/hex_.png'%}" data-bind="attr: {
                                         'xlink:href': '{% static 'img/hex/' %}hex_' + $data.type + '.png',
                                         height: $data.isRoot ? 64 : 40,
-                                        width: $data.isRoot ? 64 : 40,
+                                        width: $data.isRoot ? 73.6 : 46,
                                         x: $data.isRoot ? -32 : -20,
-                                        y: $data.isRoot ? -32 : -20
+                                        y: $data.isRoot ? -36.8 : -23
                                    }"></image>
 {% comment %}
                             <text class="node" data-bind="
@@ -79,7 +80,7 @@
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
-                d3: "{% static "js/d3.min" %}",
+                d3: "{% static "js/d3" %}",
                 jquery: "{% static "js/jquery-1.11.0.min" %}",
                 knockout: "common/knockout-shim"
             },
