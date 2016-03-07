@@ -87,7 +87,7 @@ define([
 
 
             if ('time' in data) {
-                $.each(data['time'], function (i, v) {
+                ko.utils.objectForEach(data['time'], function (i, v) {
                     ko.utils.arrayForEach(self.timeTypes(), function (timeType) {
                         if (timeType.saveName() === i) {
                             timeType.load(v);

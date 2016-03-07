@@ -4,22 +4,23 @@
         <h3>Draft List</h3>
     </div>
 
-    <form id="form_draft_list" role="form"  class="form-horizontal">
-    {% csrf_token %}
-    <div class="modal-body">
-        <div class="form-group">
-            <label for="draft_list" class="col-sm-4 control-label">Drafts</label>
-            <div class="col-sm-8">
-                <p><select size=5 data-bind="options: draft_list, optionsText: 'title', value: draft_selected" id="draft_list" name="draft_list">
-            </select></p>
+    <form id="form_draft_list" role="form" class="form-horizontal">
+        {% csrf_token %}
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="draft_list" class="col-sm-4 control-label">Drafts</label>
+                <div class="col-sm-8">
+                    <p>
+                        <select size=5 data-bind="options: draft_list, optionsText: 'title', value: draft_selected" id="draft_list" name="draft_list">
+                        </select></p>
+                </div>
             </div>
         </div>
-    </div><!-- modal-body -->
 
-    <div class="modal-footer">
-        <button class="btn btn-default" data-bind="click:function(form){closeDraftList()}">Close</button>
-        <button type="submit" class="btn btn-primary" data-bind="click:function(form){loadDraftFromList()}">Load Draft</button>
-    </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" data-bind="click:function(form){closeDraftList()}">Close</button>
+            <button type="submit" class="btn btn-primary" data-bind="click:function(form){loadDraftFromList()}">Load Draft</button>
+        </div>
     </form>
 
 </div>

@@ -116,8 +116,11 @@ def from_draft_wrapper(wrapped_func):
 
         target.time = StixTime()
         StixTime.from_dict(draft.get('time'), target.time)
+
         target.coordinators = [ EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in draft.get('coordinators', [])]
+
         return target
+
     return classmethod(_w)
 
 
@@ -129,11 +132,12 @@ class DBIncidentPatch(incident.DBIncident):
     @classmethod
     def to_draft(cls, inc, tg, load_by_id, id_ns=''):
         draft = super(DBIncidentPatch, cls).to_draft(inc, tg, load_by_id, id_ns)
-        if 'responder' in draft: #fix unbalanced save / load keys in incident.py
+        if 'responder' in draft:  # fix unbalanced save / load keys in incident.py
             del draft['responder']
 
         draft['responders'] = [EdgeInformationSource.clone(responder).to_draft() for responder in inc.responders]
-        draft['coordinators'] = [EdgeInformationSource.clone(coordinator).to_draft() for coordinator in inc.coordinators]
+        draft['coordinators'] = [EdgeInformationSource.clone(coordinator).to_draft() for coordinator in
+                                 inc.coordinators]
 
         draft['categories'] = [c.value for c in rgetattr(inc, ['categories'], [])]
         if inc.time:
@@ -151,6 +155,7 @@ class DBIncidentPatch(incident.DBIncident):
     def append_config_timezone(time_dict):
         offset = datetime.datetime.now(settings.LOCAL_TZ).isoformat()[-6:]
         time_dict['value'] = time_dict.get('value') + offset
+
 
     @staticmethod
     def convert_to_and_strip_config_timezone(time_str):
