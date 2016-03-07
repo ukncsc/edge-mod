@@ -52,7 +52,8 @@ define([
             var container = d3.select(element);
             var nodeSelector = container
                 .selectAll("g." + ko.bindingHandlers.forceGraph.nodeClass)
-                .data(graphModel.nodes());
+                .data(graphModel.nodes())
+                .call(graphModel.d3Layout().drag);
 
             var linkSelector = container
                 .selectAll("g." + ko.bindingHandlers.forceGraph.linkClass)

@@ -14,6 +14,10 @@ define([
                 return rootId;
             });
             this.graph = ko.observable(new Graph(graphData));
+            this.selectedObject = ko.observable(null);
+        },
+        onNodeClicked: function (data, event) {
+            console.log("click", data, event);
         }
     });
     ViewModel.loadById = function (/*String*/ rootId, /*function*/ onLoadedCallback) {

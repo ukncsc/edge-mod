@@ -31,9 +31,6 @@ define([
         },
         imageY: function () {
             return -(this.imageHeight() / 2);
-        },
-        onClick: function () {
-            console.log("You clicked on", this);
         }
     });
 });

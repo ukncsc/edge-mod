@@ -47,10 +47,10 @@ def visualiser_get(request, id_):
         try:
             title = {
                 "ObservableComposition": node.obj.observable_composition.operator
-            }.get(node_type, "(untitled)")
+            }.get(node_type, node.id_)
         except Exception as e:
             print e
-            title = "(untitled)"
+            title = node.id_
         return title
 
     def depth_first_iterate(root_node):

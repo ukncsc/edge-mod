@@ -36,16 +36,26 @@
         <div class="row">
             <div id="graph-container" class="col-sm-8 full-height">
                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                     preserveAspectRatio="xMidYMid meet"
-                     style="display:none;"
-                     data-bind="forceGraph: graph, charge:-1500, friction:0.85, gravity:0.25, visible: true">
-                    <g data-bind="attr: { title: $data.id }, click: $data.onClick">
+                    preserveAspectRatio="xMidYMid meet"
+                    style="display:none;"
+                    data-bind="
+                        forceGraph: graph,
+                        charge:-2000,
+                        distance:64,
+                        friction:0.65,
+                        gravity:0.5,
+                        linkDistance:64,
+                        linkStrength:0.25,
+                        visible: true
+                    ">
+                    <g data-bind="attr: { title: title }, click: $root.onNodeClicked.bind($root)">
                         <image xlink:href="{% static 'img/hex/hex_.png' %}" data-bind="attr: {
-                            'xlink:href': '{% static 'img/hex/' %}hex_' + $data.type() + '.png',
-                            height: $data.imageHeight(),
-                            width: $data.imageWidth(),
-                            x: $data.imageX(),
-                            y: $data.imageY()
+                            id: id(),
+                            'xlink:href': '{% static 'img/hex/' %}hex_' + type() + '.png',
+                            height: imageHeight(),
+                            width: imageWidth(),
+                            x: imageX(),
+                            y: imageY()
                         }"></image>
                     </g>
                 </svg>
@@ -78,5 +88,5 @@
         };
         var rootId = "{{ id }}";
     </script>
-    <script src="/adapter/certuk_mod{% static 'js/require.js'%}" data-main="visualiser/main"></script>
+    <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="visualiser/main"></script>
 {% endblock %}
