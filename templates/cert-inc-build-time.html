@@ -2,7 +2,7 @@
 
 
     <div data-bind="if: $data == $parent.section().value()">
-        <div class="panel-heading">Time Types</div>
+        <div class="panel-heading">Time Types ( <span data-bind="text:$data.timeZone"></span> time zone)</div>
 
         <div class="panel-body">
             <div class="form-horizontal">

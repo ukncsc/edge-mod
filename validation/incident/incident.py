@@ -80,8 +80,6 @@ class IncidentValidationInfo(ObjectValidationInfo):
             common_field_validation['effects'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Effects')
         if not incident_data.get('victims'):
             common_field_validation['victims'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Victims')
-        if not incident_data.get('responders'):
-            common_field_validation['responders'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Responders')
         if not incident_data.get('discovery_methods'):
             common_field_validation['discovery_methods'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Discovery Methods')
         if not incident_data.get('intended_effects'):
@@ -92,13 +90,16 @@ class IncidentValidationInfo(ObjectValidationInfo):
             common_field_validation['coordinators'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Coordinators')
 
         time_validation_string = ""
-        for (name, display_name, required) in TIME_TYPES:
-            if required:
-                for key, value in incident_data.get('time').iteritems():
-                    if key == name and value.get('value') == "":
-                        time_validation_string += display_name + " is required - "
+        if not incident_data.get('time'):
+            time_validation_string = "no time data found"
+        else:
+            for (name, display_name, required) in TIME_TYPES:
+                if required:
+                    for key, value in incident_data.get('time').iteritems():
+                        if key == name and value.get('value') == "":
+                            time_validation_string += display_name + " is required - "
 
         if time_validation_string:
-            common_field_validation['time'] = FieldValidationInfo(ValidationStatus.ERROR, 'Time not reported')
+            common_field_validation['time'] = FieldValidationInfo(ValidationStatus.ERROR, time_validation_string)
 
         return cls(**common_field_validation)

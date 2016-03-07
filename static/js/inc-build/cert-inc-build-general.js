@@ -11,7 +11,8 @@ define([
         declaredClass: "General",
 
         constructor: declare.superCall(function (sup) {
-            return function () {
+            return function (pubsub) {
+                this.pubsub = pubsub;
                 sup.call(this, "General");
 
                 this.title = ko.observable().extend({
@@ -54,7 +55,7 @@ define([
                     requiredIdentity: {
                         required: true,
                         group: this.validationGroup,
-                        validateFunction: function() {
+                        validateFunction: function () {
                             return this.reporter().name() != "";
                         },
                         displayMessage: "You need to select a reporter for your indicator"
@@ -108,6 +109,10 @@ define([
             } else {
                 this.markings(data["markings"] || "");
             }
+
+            this.status.subscribe(function (data) {
+                this.pubsub.publish('status_changed', [data]);
+            }.bind(this));
         },
 
         save: function () {

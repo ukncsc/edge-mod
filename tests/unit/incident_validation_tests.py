@@ -18,7 +18,7 @@ class IncidentValidationInfoTests(unittest.TestCase):
         self.assertEqual(validation_info.trustgroups.status, ValidationStatus.ERROR)
         self.assertEqual(validation_info.effects.status, ValidationStatus.ERROR)
         self.assertEqual(validation_info.victims.status, ValidationStatus.ERROR)
-        self.assertEqual(validation_info.responders.status, ValidationStatus.ERROR)
+        self.assertEqual(validation_info.responders, None)
         self.assertEqual(validation_info.discovery_methods.status, ValidationStatus.ERROR)
         self.assertEqual(validation_info.intended_effects.status, ValidationStatus.ERROR)
         self.assertEqual(validation_info.related_indicators, None)
@@ -27,7 +27,7 @@ class IncidentValidationInfoTests(unittest.TestCase):
         self.assertEqual(validation_info.attributed_actors, None)
         self.assertEqual(validation_info.related_incidents, None)
         self.assertEqual(validation_info.coordinators.status, ValidationStatus.ERROR)
-        self.assertEqual(validation_info.coordinators.time, ValidationStatus.ERROR)
+        self.assertEqual(validation_info.time.status, ValidationStatus.ERROR)
 
     def test_Validate_InvalidFields_Error(self):
         validation_info = IncidentValidationInfo.validate(

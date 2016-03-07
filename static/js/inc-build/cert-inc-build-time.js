@@ -1,8 +1,7 @@
 define([
     "dcl/dcl",
-    "knockout",
-    "common/jquery-shim"
-], function (declare, ko, $) {
+    "knockout"
+], function (declare, ko) {
     "use strict";
 
     return declare(null, {
@@ -28,7 +27,7 @@ ko.bindingHandlers.dateTime = {
             format: "YYYY-MM-DD HH:mm:ss",
             defaultDate: valueAccessor()()
         }).on("dp.change", function (ev) {
-            valueAccessor()(ev.date?ev.date.format("YYYY-MM-DDTHH:mm:ss"): "");
+            valueAccessor()(ev.date ? ev.date.format("YYYY-MM-DDTHH:mm:ss") : "");
         });
         return ko.bindingHandlers.value.init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
     }
