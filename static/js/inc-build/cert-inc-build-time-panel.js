@@ -11,19 +11,20 @@ define([
 
         constructor: declare.superCall(function (sup) {
             return function (pubsub) {
-            return function (pubsub) {
-                this.timeTypes = ko.observableArray();
-                this.timeZone = ko.observable();
-                sup.call(this, "Times");
-                pubsub.subscribe('status_changed', function (data) {
-                    if (data === 'Closed') {
-                        postJSON("/adapter/certuk_mod/ajax/get_datetime/", {}, function (result) {
-                            this.set_closed_time(result['result']);
-                        }.bind(this));
-                    } else {
-                        this.set_closed_time("");
-                    }
-                }.bind(this));
+                return function (pubsub) {
+                    this.timeTypes = ko.observableArray();
+                    this.timeZone = ko.observable();
+                    sup.call(this, "Times");
+                    pubsub.subscribe('status_changed', function (data) {
+                        if (data === 'Closed') {
+                            postJSON("/adapter/certuk_mod/ajax/get_datetime/", {}, function (result) {
+                                this.set_closed_time(result['result']);
+                            }.bind(this));
+                        } else {
+                            this.set_closed_time("");
+                        }
+                    }.bind(this));
+                }
             }
         }),
 
