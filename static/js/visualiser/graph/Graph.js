@@ -18,14 +18,27 @@ define([
             this.d3Layout = ko.computed(function () {
                 return _d3Layout;
             });
-            // create observables for all [gs]etters on _d3Layout with the default value provided by D3
+            // create proxy observables for all [gs]etters on _d3Layout with the default value provided by D3
+            var _pendingUpdate = null;
             ko.utils.objectForEach(_d3Layout, function (name, value) {
                 if (isGetterSetter(value)) {
-                    this[name] = ko.observable(value());
+                    var proxy = ko.observable(value());
+                    proxy.subscribe(function (newValue) {
+                        _d3Layout[name](newValue);
+                        if (_pendingUpdate) {
+                            clearTimeout(_pendingUpdate);
+                        }
+                        _pendingUpdate = setTimeout(_d3Layout.start.bind(_d3Layout), 100);
+                    });
+                    this[name] = proxy;
                 }
             }.bind(this));
-            this.links = ko.observableArray(graphData.links);
-            this.nodes = ko.observableArray(graphData.nodes);
+            this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
+                return new Link(linkData);
+            }));
+            this.nodes(ko.utils.arrayMap(graphData.nodes, function (nodeData) {
+                return new Node(nodeData);
+            }));
         },
         applyBindingValues: function (bindingValues) {
             ko.utils.objectForEach(bindingValues, function (name, value) {
@@ -33,24 +46,6 @@ define([
                     this[name](value);
                 }
             }.bind(this));
-            // set up so that changes in our observables are propagated through to D3
-            var _d3Layout = this.d3Layout();
-            var _pendingUpdate = null;
-            ko.utils.objectForEach(this, function (name, value) {
-                if (ko.isObservable(value)) {
-                    value.subscribe(function (newValue) {
-                        _d3Layout[name](newValue);
-                        if (_pendingUpdate) {
-                            clearTimeout(_pendingUpdate);
-                        }
-                        _pendingUpdate = setTimeout(_d3Layout.start.bind(_d3Layout), 50);
-                    });
-                }
-            }.bind(this));
-        },
-        runModel: function () {
-            this.d3Layout().start();
-
         },
         appendData: function (graphData) {
             //TODO - will need to sort out indexes, etc

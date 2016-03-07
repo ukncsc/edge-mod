@@ -14,18 +14,18 @@
             padding-right: 0;
         }
 
-        g {
-            cursor: pointer;
-        }
-
-        text.node {
-            font-size: 14px;
-            text-anchor: end;
-        }
-
         svg {
             border: 1px solid grey;
             box-shadow: rgba(0, 0, 0, 0.3) 4px 4px 4px;
+        }
+
+        g.ko-d3-graph-node {
+            cursor: pointer;
+        }
+
+        line.ko-d3-graph-link {
+            stroke: #333;
+            stroke-width: 0.5;
         }
 
     </style>
@@ -35,30 +35,20 @@
     <div class="container-fluid">
         <div class="row">
             <div id="graph-container" class="col-sm-8 full-height">
-                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                         preserveAspectRatio="xMidYMid meet"
-                         style="display:none;"
-                         data-bind="forceGraph: graph, charge:-1500, friction:0.85, gravity:0.25, visible: true">
-                        <g data-bind="attr: { title: $data.id }, click: function () { alert('You clicked on ' + title + '.'); }">
-                            <image xlink:href="{% static 'img/hex/hex_.png'%}" data-bind="attr: {
-                                        'xlink:href': '{% static 'img/hex/' %}hex_' + $data.type + '.png',
-                                        height: $data.isRoot ? 64 : 40,
-                                        width: $data.isRoot ? 73.6 : 46,
-                                        x: $data.isRoot ? -32 : -20,
-                                        y: $data.isRoot ? -36.8 : -23
-                                   }"></image>
-{% comment %}
-                            <text class="node" data-bind="
-                                attr: {
-                                    x: $data.isRoot ? -64 : -16,
-                                    y: $data.isRoot ? -32 : -16
-                                },
-                                text: title,
-                                style: { 'text-anchor': $data.isRoot ? 'start' : 'end' }
-                                "></text>
-{% endcomment %}
-                        </g>
-                    </svg>
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                     preserveAspectRatio="xMidYMid meet"
+                     style="display:none;"
+                     data-bind="forceGraph: graph, charge:-1500, friction:0.85, gravity:0.25, visible: true">
+                    <g data-bind="attr: { title: $data.id }, click: $data.onClick">
+                        <image xlink:href="{% static 'img/hex/hex_.png' %}" data-bind="attr: {
+                            'xlink:href': '{% static 'img/hex/' %}hex_' + $data.type() + '.png',
+                            height: $data.imageHeight(),
+                            width: $data.imageWidth(),
+                            x: $data.imageX(),
+                            y: $data.imageY()
+                        }"></image>
+                    </g>
+                </svg>
             </div>
             <div class="col-sm-4">
                 <div class="panel panel-default">
@@ -80,7 +70,7 @@
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
-                d3: "{% static "js/d3" %}",
+                d3: "{% static "js/d3.min" %}",
                 jquery: "{% static "js/jquery-1.11.0.min" %}",
                 knockout: "common/knockout-shim"
             },

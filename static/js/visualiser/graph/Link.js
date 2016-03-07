@@ -7,9 +7,8 @@ define([
     return declare(null, {
         declaredClass: "Link",
         constructor: function (linkData) {
-            this.source = ko.observable(linkData.source);
-            this.target = ko.observable(linkData.target);
-            this.d3data = ko.observable({});
+            this.source = 0 + linkData.source;
+            this.target = 0 + linkData.target;
         }
     });
 });

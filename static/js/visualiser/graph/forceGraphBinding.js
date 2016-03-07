@@ -15,14 +15,12 @@ define([
             .attr("height", height)
             .attr("width", width);
         graphModel.size([width, height]);
-        graphModel.runModel();
     }
 
     ko.bindingHandlers.forceGraph = {
         nodeClass: "ko-d3-graph-node",
+        linkClass: "ko-d3-graph-link",
         init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-            // This will be called when the binding is first applied to an element
-            // Set up any initial state, event handlers, etc. here
             if (!(element.tagName === "svg")) {
                 throw new Error("The 'forceGraph' binding can only be applied to 'svg' elements.");
             }
@@ -47,9 +45,6 @@ define([
             }
         },
         update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-            // This will be called once when the binding is first applied to an element,
-            // and again whenever any observables/computeds that are accessed change
-            // Update the DOM element based on the supplied values here.
             var graphModel = valueAccessor()();
             var nodeContext = bindingContext.createChildContext(graphModel.nodes);
             ko.bindingHandlers.foreach.update(element, graphModel.nodes, allBindings, viewModel, nodeContext);
@@ -59,11 +54,42 @@ define([
                 .selectAll("g." + ko.bindingHandlers.forceGraph.nodeClass)
                 .data(graphModel.nodes());
 
-            graphModel.d3Layout().on("tick", function () {
-                nodeSelector.attr("transform", function (d) {
-                    return "translate(" + d.x + "," + d.y + ")";
-                })
-            });
+            var linkSelector = container
+                .selectAll("g." + ko.bindingHandlers.forceGraph.linkClass)
+                .data(graphModel.links());
+
+            linkSelector.exit().remove();
+            linkSelector.enter()
+                .append("line")
+                .attr("class", ko.bindingHandlers.forceGraph.linkClass);
+
+            // We need to reorder the nodes so they appear on top of the links
+            // Swapping the order of node/link creation has no effect...
+            container
+                .selectAll("g." + ko.bindingHandlers.forceGraph.nodeClass)[0]
+                .forEach(function (n) {
+                    n.parentNode.appendChild(n);
+                });
+
+            graphModel
+                .d3Layout()
+                .on("tick", function () {
+                    linkSelector.attr("x1", function (d) {
+                            return d.source.x;
+                        })
+                        .attr("y1", function (d) {
+                            return d.source.y;
+                        })
+                        .attr("x2", function (d) {
+                            return d.target.x;
+                        })
+                        .attr("y2", function (d) {
+                            return d.target.y;
+                        });
+                    nodeSelector.attr("transform", function (d) {
+                        return "translate(" + d.x + "," + d.y + ")";
+                    })
+                });
         }
     };
 });
