@@ -117,8 +117,8 @@ define([
             return data;
         }
     })
-})
-;
+});
+
 
 
 
