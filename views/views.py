@@ -71,6 +71,44 @@ def discover(request):
         return redirect("publisher_not_found")
 
 
+from users.models import Draft
+from edge.generic import EdgeObject
+from edge import IDManager
+
+from adapters.certuk_mod.patch import clone_views
+
+TYPE_TO_URL = {
+    'cam': 'campaign',
+    'coa': 'course_of_action',
+    'tgt': 'exploit_target',
+    'inc': 'incident',
+    'ind': 'indicator',
+    'obs': 'observable',
+    'act': 'threat_actor',
+    'ttp': 'ttp'
+}
+
+
+@login_required
+def clone(request):
+    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
+    match = objectid_matcher.match(referrer)
+    try:
+        if match is not None and len(match.groups()) == 1:
+            edge_object = EdgeObject.load(match.group(1))
+            if edge_object.ty == 'obs':
+                return not_clonable(request, "observables cannot currently be cloned")
+            new_id = IDManager().get_new_id(edge_object.ty)
+            draft = edge_object.to_draft()
+            draft['id'] = new_id
+            Draft.upsert(edge_object.ty, draft, request.user)
+            return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
+        else:
+            return not_clonable(request, "no id found")
+    except Exception as e:
+        return not_clonable(request, e.message)
+
+
 def _get_request_username(request):
     if hasattr(request, "user") and hasattr(request.user, "username"):
         return request.user.username
@@ -103,6 +141,11 @@ def review(request, id_):
 @login_required
 def not_found(request):
     return render(request, "publisher_not_found.html", {})
+
+
+@login_required
+def not_clonable(request, msg):
+    return render(request, "not_clonable.html", {"msg": msg})
 
 
 @login_required
@@ -141,7 +184,7 @@ def ajax_get_sites(request, data):
 def ajax_get_datetime(request, data):
     configuration = settings.ACTIVE_CONFIG
     current_date_time = datetime.datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime(
-        '%Y-%m-%dT%H:%M:%S')
+            '%Y-%m-%dT%H:%M:%S')
     return {'result': current_date_time}
 
 

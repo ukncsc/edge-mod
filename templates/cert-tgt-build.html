@@ -1,0 +1,9 @@
+{% extends "tgt-build.html" %} {% load site_tags %} {% load staticfiles %}
+
+{% block body-end %}
+   {{ block.super }}
+
+    {% include 'cert-clone-build.html' %}
+
+
+{% endblock %}

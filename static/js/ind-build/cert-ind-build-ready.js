@@ -28,6 +28,9 @@ require([
         indicator_builder.vm.mode().value(builder.BuildMode.prototype.MODES.CREATE);
         indicator_builder.vm.initDraft(indicator_builder["default_tlp"]);
         indicator_builder.vm.id_ns(indicator_builder.id_ns);
+        if (indicator_builder.draft_id) {
+            indicator_builder.vm.loadDraft(indicator_builder.draft_id);
+        }
     } else if (indicator_builder.mode == "Edit") {
         indicator_builder.vm.mode().value(builder.BuildMode.prototype.MODES.EDIT);
         indicator_builder.vm.loadObject(indicator_builder.id);

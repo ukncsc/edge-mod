@@ -21,6 +21,9 @@
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
         indicator_builder.kill_chain_phase_list = {{ kill_chain_phase_list|safe }};
+
+
+        indicator_builder.draft_id = '{{ draft_id }}';
     </script>
     <script src="/adapter/certuk_mod{% static 'js/require.js'%}" data-main="ind-build/cert-ind-build-ready"></script>
 {% endblock %}

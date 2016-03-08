@@ -113,6 +113,7 @@
 
         incident_builder.time_zone = '{{ time_zone }}';
         incident_builder.marking_priorities = {{ marking_priorities|safe }};
+        incident_builder.draft_id = '{{ draft_id }}';
     </script>
 
     <script type="text/javascript" src="{% static 'js/shared/ko_templates_context.js' %}"></script>
