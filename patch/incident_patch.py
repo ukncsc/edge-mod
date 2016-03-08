@@ -1,6 +1,6 @@
 import json
 import datetime
-from dateutil import tz
+from dateutil import parser as dtparser
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -17,19 +17,20 @@ from incident import views
 from edge.common import EdgeInformationSource
 from edge.generic import WHICH_DBOBJ, FROM_DICT_DISPATCH
 from edge.tools import cleanstrings, rgetattr
+
 from edge import IDManager, NamespaceNotConfigured, incident
 from rbac import user_can_edit
 
 CATEGORIES = vocabs.IncidentCategory._ALLOWED_VALUES
-TIME_TYPES = (("first_malicious_action", "First Malicious Action"),
-              ("initial_compromise", "Initial Compromise"),
-              ("first_data_exfiltration", "First Data Exfiltration"),
-              ("incident_discovery", "Incident Discovery"),
-              ("incident_opened", "Incident Opened"),
-              ("containment_achieved", "Containment Achieved"),
-              ("restoration_achieved", "Restoration Achieved"),
-              ("incident_reported", "Incident Reported"),
-              ("incident_closed", "Incident Closed"))
+TIME_TYPES = (("first_malicious_action", "First Malicious Action", False),
+              ("initial_compromise", "Initial Compromise", False),
+              ("first_data_exfiltration", "First Data Exfiltration", False),
+              ("incident_discovery", "Incident Discovery", False),
+              ("incident_opened", "Incident Opened", True),
+              ("containment_achieved", "Containment Achieved", False),
+              ("restoration_achieved", "Restoration Achieved", False),
+              ("incident_reported", "Incident Reported", False),
+              ("incident_closed", "Incident Closed", False))
 
 MARKING_PRIORITIES = ("UK HMG Priority: [C1]", "UK HMG Priority: [C2]", "UK HMG Priority: [C3]")
 
@@ -65,6 +66,7 @@ def incident_build(request):
         'intended_effects': json.dumps(static['intended_effects']),
         'ajax_uri': reverse('incident_ajax'),
         'object_type': "incident",
+        'time_zone':  datetime.datetime.now(settings.LOCAL_TZ).tzname()
     })
 
 
@@ -95,6 +97,7 @@ def incident_view(request, id, edit=False):
         'intended_effects': json.dumps(static['intended_effects']),
         'ajax_uri': reverse('incident_ajax'),
         'object_type': "incident",
+        'time_zone':  datetime.datetime.now(settings.LOCAL_TZ).tzname()
     })
 
 
@@ -109,12 +112,13 @@ def from_draft_wrapper(wrapped_func):
         target.categories = cleanstrings(draft.get('categories'))
 
         for key, value in draft.get('time').iteritems():
-            DBIncidentPatch.append_timezone(value)
+            DBIncidentPatch.append_config_timezone(value)
 
         target.time = StixTime()
         StixTime.from_dict(draft.get('time'), target.time)
-        target.coordinators = [EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in
-                               draft.get('coordinators', [])]
+
+        target.coordinators = [ EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in draft.get('coordinators', [])]
+
         return target
 
     return classmethod(_w)
@@ -137,17 +141,26 @@ class DBIncidentPatch(incident.DBIncident):
 
         draft['categories'] = [c.value for c in rgetattr(inc, ['categories'], [])]
         if inc.time:
-            draft['time'] = inc.time.to_dict()
+            draft['time'] = inc.time.to_dict();
+            for key, value in draft.get('time').iteritems():
+                if isinstance(value, basestring):
+                    new_value = DBIncidentPatch.convert_to_and_strip_config_timezone(value)
+                    draft.get('time')[key] = new_value
+                else:
+                    value['value'] = DBIncidentPatch.convert_to_and_strip_config_timezone(value['value'])
+
         return draft
 
     @staticmethod
-    def append_timezone(time_dict):
-        # Already has a timezone offset
-        if time_dict.get('value')[-6] == '-' or time_dict.get('value')[-6] == '+':
-            return
+    def append_config_timezone(time_dict):
+        offset = datetime.datetime.now(settings.LOCAL_TZ).isoformat()[-6:]
+        time_dict['value'] = time_dict.get('value') + offset
 
-        offset = datetime.datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime('%z')
-        time_dict['value'] = time_dict.get('value') + offset[0:3] + ":" + offset[3:5]
+
+    @staticmethod
+    def convert_to_and_strip_config_timezone(time_str):
+        dt_in = dtparser.parse(time_str)
+        return dt_in.astimezone(settings.LOCAL_TZ).isoformat()[:-6]
 
     def update_with(self, update_obj, update_timestamp=True):
         super(DBIncidentPatch, self).update_with(update_obj, update_timestamp)

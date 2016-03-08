@@ -24,7 +24,7 @@ def post(endpoint_url, filename):
 
 
 def main():
-    post("http://0.0.0.0:9000/adapter/certuk_mod/ajax/import/admin", '/home/andy/Downloads/obs_purplesecure_observable-108fb72e-ec78-4cea-956d-64cd54bb7f75.xml')
+    post("http://0.0.0.0:9000/adapter/certuk_mod/import/admin", '/home/andy/Downloads/obs_purplesecure_observable-108fb72e-ec78-4cea-956d-64cd54bb7f75.xml')
 
 
 if __name__ == '__main__':
