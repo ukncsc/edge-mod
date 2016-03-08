@@ -1,28 +1,21 @@
 define([
     "dcl/dcl",
-    "knockout",
     "common/cert-build-related"
-], function (declare, ko, buildRelated) {
+], function (declare, buildRelated) {
     "use strict";
 
-    var RelatedIncidents = declare(buildRelated, {
+    return declare(buildRelated, {
         declaredClass: "RelatedIncidents",
 
         constructor: declare.superCall(function (sup) {
             return function() {
                 sup.call(this, "Related Incidents", {
-                    resultsPerPage: 10,
                     itemType: 'inc',
                     saveKey: 'related_incidents',
-                    getUrl: '/catalog/ajax/load_catalog/',
-                    candidateItemsTemplate: 'candidateModal',
-                    itemTemplate: 'relatedItem',
-                    required: true,
+                    required: false,
                     displayName: 'Related Incident'
                 });
             }
         })
     });
-
-    return  RelatedIncidents;
 });

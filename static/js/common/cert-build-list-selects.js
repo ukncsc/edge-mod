@@ -10,23 +10,24 @@ define([
 
         constructor: declare.superCall(function (sup) {
             return function (label, options) {
+                this.items = ko.observableArray([]);
                 sup.call(this, [label]);
                 this.saveKey = options['saveKey'];
                 this.choiceListName = options['selectChoice'];
                 this.choices = ko.observableArray([]);
-                this.items = ko.observableArray([]).extend({
+                this.items.extend({
                     requiredGrouped: {
                         required: options['required'],
                         group: this.validationGroup,
                         displayMessage: "Needs at least one " + options['displayName']
                     }
                 });
-
-                this.count = ko.computed(function () {
-                    return this.items().length || "";
-                }, this).extend({rateLimit: 100});
             }
         }),
+
+        counter: function () {
+            return this.items().length || "";
+        },
 
         toggle: function (item) {
             if (this.isSelected(item)) {
@@ -45,8 +46,7 @@ define([
         },
 
         load: function (data) {
-            this.items.removeAll();
-            Array.prototype.push.apply(this.items(), data[this.saveKey]);
+            this.items(data[this.saveKey] || []);
         },
 
         save: function () {

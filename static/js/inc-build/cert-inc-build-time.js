@@ -1,22 +1,21 @@
 define([
     "dcl/dcl",
-    "knockout",
-    "common/jquery-shim"
-], function (declare, ko, $) {
+    "knockout"
+], function (declare, ko) {
     "use strict";
 
     return declare(null, {
             declaredClass: "Times",
 
-            constructor: function (save_name, display_name) {
-                this.display_name = ko.observable(display_name);
-                this.save_name = ko.observable(save_name);
-                this.time_string = ko.observable("");
+            constructor: function (saveName, displayName) {
+                this.displayName = ko.observable(displayName);
+                this.saveName = ko.observable(saveName);
+                this.timeString = ko.observable("");
             },
 
             load: function (data) {
                 //The backend encodes times differently depending on whether they contain non-second precision.
-                this.time_string(typeof data === "string" ? data : data['value']);
+                this.timeString(typeof data === "string" ? data : data['value']);
             }
         }
     );
@@ -28,8 +27,7 @@ ko.bindingHandlers.dateTime = {
             format: "YYYY-MM-DD HH:mm:ss",
             defaultDate: valueAccessor()()
         }).on("dp.change", function (ev) {
-            var observable = valueAccessor();
-            observable(ev.date.format("YYYY-MM-DDTHH:mm:ss"));
+            valueAccessor()(ev.date ? ev.date.format("YYYY-MM-DDTHH:mm:ss") : "");
         });
         return ko.bindingHandlers.value.init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
     }

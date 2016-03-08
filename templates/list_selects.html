@@ -21,7 +21,7 @@
 
 </style>
 
-<script type="text/html" id="listSelectsPanel">
+<script type="text/html" id="ListSelectsPanel">
     <div data-bind="if: $data == $parent.section().value()">
         <div class="panel-heading"><span data-bind="text: label"></span></div>
         <div class="panel-body">
@@ -33,7 +33,8 @@
                     css: {
                         'btn-default': !($parent.isSelected($data)),
                         'btn-selected': $parent.isSelected($data)
-                    }
+                    },
+                    disable: $root.mode().isReadOnly()
                 "></button>
                 <!-- /ko -->
             </div>

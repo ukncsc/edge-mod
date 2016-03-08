@@ -16,10 +16,10 @@
             name: "dedup/main"
         },
         {
-            name: "ind-build/cert-ind-build-ready"
+            name: "activity-log/main"
         },
         {
-            name: "cert-identity"
+            name: "ind-build/cert-ind-build-ready"
         }
     ],
     fileExclusionRegExp: /^\.|^tests$|^build.js$|\.md$|\.pyc$/,

@@ -1,6 +1,8 @@
 define([], function () {
     "use strict";
 
+    var ko = window.ko;
+
     ko.extenders.validate = function (target, options) {
         var isValidCallback = options['isValidCallback'];
         var failedValidationMessage = options['failedValidationMessage'];
@@ -39,9 +41,9 @@ define([], function () {
 
     ko.extenders.requiredGrouped = function (target, options) {
         if (options['required'] === true) {
-            options['group'].push(target);
+
             var displayMessage = options['displayMessage'];
-            return ko.extenders.validate(target, {
+            var val = ko.extenders.validate(target, {
                 isValidCallback: function (value) {
                     if (Array.isArray(value)) {
                         return value.length != 0;
@@ -52,12 +54,35 @@ define([], function () {
                 failedValidationDisplayMessage: displayMessage
             });
 
+            options['group'].push(target);
+
+            return val;
+
         }
 
 
         return target;
     };
 
+     ko.extenders.requiredGroupedCustom = function (target, options) {
+        if (options['required'] === true) {
+
+            var displayMessage = options['displayMessage'];
+            var val = ko.extenders.validate(target, {
+                isValidCallback: options['validateFunction'],
+                failedValidationMessage: "* (Required)",
+                failedValidationDisplayMessage: displayMessage
+            });
+
+            options['group'].push(target);
+
+            return val;
+
+        }
+
+
+        return target;
+    };
 
     ko.bindingHandlers.highlightedText = {
         update: function (element, valueAccessor) {

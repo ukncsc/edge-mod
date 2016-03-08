@@ -26,6 +26,8 @@ publisher_urls = [
     (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'publisher_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
     (r'^config/$', 'views.config', 'publisher_config'),
+    (r'^activity/$', 'views.activity_log', 'activity_log'),
+    (r'^ajax/activity_log/(?P<search>.*)$', 'views.ajax_activity_log', None),
     (r'^duplicates/$', 'views.duplicates_finder', 'duplicates_finder'),
     (r'^duplicates/(?P<typ>' + VALID_TYPES + ')$', 'views.ajax_load_duplicates', 'duplicates_duplicates_loader'),
     (r'^duplicates/object/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_load_object', 'duplicates_object_loader'),
@@ -37,9 +39,10 @@ publisher_urls = [
     (r'^ajax/get_retention_config/$', 'views.ajax_get_retention_config', None),
     (r'^ajax/set_retention_config/$', 'views.ajax_set_retention_config', None),
     (r'^ajax/reset_retention_config/$', 'views.ajax_reset_retention_config', None),
-    (r'^ajax/import/(?P<username>\S+)$', 'views.ajax_import', None),
+    (r'^import/(?P<username>\S+)$', 'views.ajax_import', None),
     (r'^ajax/get_purge_task_status/$', 'views.ajax_get_purge_task_status', None),
-    (r'^ajax/run_purge/$', 'views.ajax_run_purge', None)
+    (r'^ajax/run_purge/$', 'views.ajax_run_purge', None),
+    (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None)
 ]
 
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]
@@ -49,5 +52,6 @@ urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 navitems = [
     ('External Publisher', 'publisher_discover'),
     # ('Duplicates Finder', 'duplicates_finder'),
+    ('Activity Log', 'activity_log'),
     ('CERT-UK Configuration', 'publisher_config')
 ]

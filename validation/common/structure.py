@@ -141,49 +141,6 @@ class ObservableStructureConverter(object):
 
         return simple
 
-class IncidentStructureConverter(object):
-#ToDo
-    @staticmethod
-    def package_to_simple(package_dict, package_header_dict):
-        simple = package_dict.copy()
-        try:
-            simple['confidence'] = package_dict['confidence']['value']['value']
-        except KeyError:
-            simple['confidence'] = None
-
-        try:
-            kill_chain_phases = simple.pop('kill_chain_phases', {})
-            simple['phase_id'] = kill_chain_phases['kill_chain_phases'][0]['phase_id']
-        except LookupError:
-            simple['phase_id'] = None
-
-        try:
-            handling_structures = package_dict['handling']
-            marking_structure = handling_structures[0]['marking_structures'][0]
-            simple['tlp'] = marking_structure['color']
-        except LookupError:
-            try:
-                handling_structures = package_header_dict['handling']
-                marking_structure = handling_structures[0]['marking_structures'][0]
-                simple['tlp'] = marking_structure['color']
-            except LookupError:
-                simple['tlp'] = None
-
-        try:
-            simple['suggested_coas'] = simple['suggested_coas']['suggested_coas']
-        except KeyError:
-            simple['suggested_coas'] = None
-
-        return simple
-
-    @staticmethod
-    def builder_to_simple(builder_dict):
-        simple = builder_dict.copy()
-        simple['indicator_types'] = simple.pop('indicatorType', None)
-        simple['observable'] = simple.pop('observables', None)
-        simple['phase_id'] = simple.pop('kill_chain_phase', None)
-
-        return simple
 
 class IndicatorStructureConverter(object):
 

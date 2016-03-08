@@ -10,19 +10,22 @@ define([
         document.getElementById("content").scrollTop = 0;
     }
 
-    var RelatedItems = declare(AbstractBuilderForm, {
-
+    return declare(AbstractBuilderForm, {
         declaredClass: "RelatedItems",
 
         constructor: declare.superCall(function (sup) {
             return function (label, options) {
+
+                this.relatedItems = ko.observableArray([])
                 sup.call(this, [label]);
-
-                this.relatedItems = ko.observableArray([]).extend(
-                        {
-                            requiredGrouped:{required :options['required'], group: this.validationGroup, displayMessage: "Needs at least one " + options['displayName']}
-                        });
-
+                this.relatedItems.extend(
+                    {
+                        requiredGrouped: {
+                            required: options['required'],
+                            group: this.validationGroup,
+                            displayMessage: "Needs at least one " + options['displayName']
+                        }
+                    });
                 this.totalItems = ko.computed(function () {
                     return this.relatedItems().length;
                 }, this);
@@ -41,20 +44,22 @@ define([
                     var end = this.resultsPerPage * (currentPage + 1);
                     return this.relatedItems.slice(start, end);
                 }, this);
-                this.count = ko.computed(function () {
-                    return this.relatedItems().length || "";
-                }, this);
-                this.resultsPerPage = options['resultsPerPage'];
+
+
+                this.resultsPerPage = 10;
                 this.itemType = options['itemType'];
                 this.saveKey = options['saveKey'];
-                this.getUrl = options['getUrl'];
-                this.candidateItemsTemplate = options['candidateItemsTemplate'];
-                this.itemTemplate = options['itemTemplate'];
+                this.getUrl = '/catalog/ajax/load_catalog/';
+                this.candidateItemsTemplate = 'candidateModal';
+                this.itemTemplate = 'relatedItem';
                 this.modalWidth = options['modalWidth'] || 800;
                 this.modalHeight = options['modalHeight'] || 500;
             }
         }),
 
+        counter: function () {
+            return this.relatedItems().length || "";
+        },
 
         save: function () {
             var data = {};
@@ -155,6 +160,4 @@ define([
             scrollToTop();
         }
     });
-
-    return  RelatedItems;
 });

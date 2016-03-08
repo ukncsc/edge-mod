@@ -1,7 +1,8 @@
 define([
     "knockout",
+    "dcl/dcl",
     "inc-build/cert-inc-build-attributed-actors",
-    "inc-build/cert-inc-build-times",
+    "inc-build/cert-inc-build-time-panel",
     "inc-build/cert-inc-build-categories",
     "inc-build/cert-inc-build-discovery-methods",
     "inc-build/cert-inc-build-effects",
@@ -14,8 +15,11 @@ define([
     "inc-build/cert-inc-build-trust-groups",
     "inc-build/cert-inc-build-victims",
     "inc-build/cert-inc-build-responders",
-    "common/cert-messages"
-], function (ko, AttributedActors, Times, Categories, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Messages) {
+    "inc-build/cert-inc-build-coordinators",
+    "common/cert-messages",
+    "common/publish-subscribe"
+
+], function (ko, declare, AttributedActors, Times, Categories, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Coordinators, Messages, PubSub) {
     "use strict";
     function indexBy(items, pname) {
         var indexed = {};
@@ -25,80 +29,82 @@ define([
         return indexed;
     }
 
-    function Section() {
-        this.options = ko.observableArray([
-            ko.observable(new General()),
-            ko.observable(new Times()),
-            ko.observable(new Categories()),
-            ko.observable(new TrustGroups()),
-            ko.observable(new Effects()),
-            ko.observable(new Victims()),
-            ko.observable(new Responders()),
-            ko.observable(new DiscoveryMethods()),
-            ko.observable(new IntendedEffects()),
-            ko.observable(new RelatedIndicators()),
-            ko.observable(new RelatedObservables()),
-            ko.observable(new LeveragedTTPs()),
-            ko.observable(new AttributedActors()),
-            ko.observable(new RelatedIncidents())
-        ]);
-        this._byLabel = indexBy(this.options, "label");
-        this.value = ko.observable(
-            this.options()[0]()
-        );
-    }
+    return declare(null, {
+        declaredClass: "Section",
+        constructor: function () {
+            var pubsub = new PubSub();
+            this.options = ko.observableArray([
+                ko.observable(new General(pubsub)),
+                ko.observable(new Times(pubsub)),
+                ko.observable(new Categories()),
+                ko.observable(new TrustGroups()),
+                ko.observable(new Effects()),
+                ko.observable(new Coordinators()),
+                ko.observable(new Victims()),
+                ko.observable(new Responders()),
+                ko.observable(new DiscoveryMethods()),
+                ko.observable(new IntendedEffects()),
+                ko.observable(new RelatedIndicators()),
+                ko.observable(new RelatedObservables()),
+                ko.observable(new LeveragedTTPs()),
+                ko.observable(new AttributedActors()),
+                ko.observable(new RelatedIncidents()),
+            ]);
+            this._byLabel = indexBy(this.options, "label");
+            this.value = ko.observable(
+                this.options()[0]()
+            );
+        },
 
-    Section.prototype.loadStatic = function (optionLists) {
-        ko.utils.arrayForEach(this.options(), function (option) {
-            option().loadStatic(optionLists);
-        });
-    };
+        loadStatic: function (optionLists) {
+            ko.utils.arrayForEach(this.options(), function (option) {
+                option().loadStatic(optionLists);
+            });
+        },
 
-    Section.prototype.load = function (data) {
-        ko.utils.arrayForEach(this.options(), function (option) {
-            option().load(data);
-        });
-    };
+        load: function (data) {
+            ko.utils.arrayForEach(this.options(), function (option) {
+                option().load(data);
+            });
+        },
 
-    Section.prototype.doValidation = function () {
-        var msgs = new Messages();
-        ko.utils.arrayForEach(this.options(), function (option) {
-            var optionMsgs = option().doValidation();
-            if (optionMsgs instanceof Messages && optionMsgs.hasMessages()) {
-                msgs.addMessages(optionMsgs);
-            }
-        });
-        return msgs;
-    };
+        doValidation: function () {
+            var msgs = new Messages();
+            ko.utils.arrayForEach(this.options(), function (option) {
+                var optionMsgs = option().doValidation();
+                if (optionMsgs instanceof Messages && optionMsgs.hasMessages()) {
+                    msgs.addMessages(optionMsgs);
+                }
+            });
+            return msgs;
+        },
 
-    Section.prototype.save = function () {
-        var data = {};
-        ko.utils.arrayForEach(this.options(), function (option) {
-            var optionData = option().save();
-            if (optionData instanceof Object) {
-                ko.utils.objectForEach(optionData, function (name, value) {
-                    data[name] = value;
-                });
-            }
-        });
-        return data;
-    };
+        save: function () {
+            var data = {};
+            ko.utils.arrayForEach(this.options(), function (option) {
+                var optionData = option().save();
+                if (optionData instanceof Object) {
+                    ko.utils.objectForEach(optionData, function (name, value) {
+                        data[name] = value;
+                    });
+                }
+            });
+            return data;
+        },
 
-    Section.prototype.findByLabel = function (label) {
-        return this._byLabel[label];
-    };
+        findByLabel: function (label) {
+            return this._byLabel[label];
+        },
 
-    Section.prototype.select = function (item) {
-        //if (this.options.indexOf(item) === -1) {
-        //    throw new Error("Invalid selection: " + item);
-        //}
-        this.value(item);
-    };
+        select: function (item) {
+            this.value(item);
+        },
 
 
-    Section.prototype.counts = function (item) {
-        return +(item.count()) || "";
-    };
+        counts: function (item) {
+            return +(item.count()) || "";
+        },
 
-    return  Section;
-});
+    });
+})
+;

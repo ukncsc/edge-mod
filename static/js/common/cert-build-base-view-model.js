@@ -4,19 +4,23 @@ define([
     "common/modal/Modal",
     "kotemplate!builder-publish:./templates/builder-publish-modal.html",
     "common/cert-build-mode",
-    "common/cert-build-functions",
     "stix/ValidationInfo",
     "kotemplate!validation-results:../publisher/templates/validation-results.html",
     "common/modal/publish-modal-content",
-    "common/cert-build-base-view-model",
-    "common/change-tracker"
-], function (declare, ko, Modal, builderPublishModalTemplate, BuildMode, buildFunctions, ValidationInfo, ValidationResults, PublishModalContent, BaseViewModel, ChangeTracker) {
+    "common/change-tracker",
+    "common/jquery-shim"
+], function (declare, ko, Modal, builderPublishModalTemplate, BuildMode, ValidationInfo, ValidationResults, PublishModalContent, ChangeTracker, $) {
     "use strict";
 
-    var BaseViewModel = declare(null, {
+    return declare(null, {
         declaredClass: "BaseViewModel",
+        messageConfirmPublish: "Are you sure you want to publish?",
+        REDIRECT_DELAY: 2000,
 
-        constructor: function (ajax_uri, Section) {
+        constructor: function (ajax_uri, Section, type, CreatePath, stixtype) {
+            this.stixtype = ko.observable(stixtype);
+            this.type = type;
+            this.CreatePath = CreatePath;
             this.id = ko.observable();
             this.ajax_uri = ko.observable(ajax_uri);
             this.id_ns = ko.observable();
@@ -32,11 +36,21 @@ define([
             this.messages = ko.computed(function () {
                 return this.section().doValidation();
             }, this);
-            this.ct = ChangeTracker.create(this.section().options());
+            this.tracker = ChangeTracker.create(this.section().options());
         },
 
         buildRestUrl: function (/*String*/ path) {
             return this.ajax_uri() + path + "/";
+        },
+
+        _serializeFromServer: function (dataItemName, response) {
+            this.id(response[dataItemName]["id"]);
+            this.id_ns(response[dataItemName]["id_ns"]);
+            this.ko_view_url(response[dataItemName]["view_url"]);
+            this.ko_edit_url(response[dataItemName]["edit_url"]);
+            this.ko_detail_url(response[dataItemName]["detail_url"]);
+            this.section().load(response[dataItemName]);
+            this.tracker().markCurrentStateAsClean();
         },
 
         loadFromServer: function (path, id, dataItemName) {
@@ -45,18 +59,13 @@ define([
                 id: id
             }, function (response) {
                 if (response["success"]) {
-                    self.id(response[dataItemName]["id"]);
-                    self.id_ns(response[dataItemName]["id_ns"]);
-                    self.ko_view_url(response[dataItemName]["view_url"]);
-                    self.ko_edit_url(response[dataItemName]["edit_url"]);
-                    self.ko_detail_url(response[dataItemName]["detail_url"]);
-                    self.section().load(response[dataItemName]);
-                    self.tracker().markCurrentStateAsClean();
+                    self._serializeFromServer(dataItemName, response);
                 } else {
                     alert(response["message"]);
                 }
             });
         },
+
         loadStatic: function (optionLists) {
             this.section().loadStatic(optionLists);
         },
@@ -147,7 +156,7 @@ define([
         },
 
         _constructPublishModalContent: function () {
-            return new PublishModalContent();
+            return new PublishModalContent(this.type);
         },
 
         getValidationResult: function (data, onResponseCallback) {
@@ -230,7 +239,7 @@ define([
 
                     setTimeout(function () {
                         window.location.assign('/object/' + this.id());
-                    }, this.REDIRECT_DELAY);
+                    }.bind(this), this.REDIRECT_DELAY);
                 } else {
                     modal.contentData.status("FAILED");
                     modal.contentData.message(response["message"]);
@@ -240,7 +249,7 @@ define([
         },
 
         getPublishResult: function (data, onResponseCallback) {
-
+            postJSON(this.buildRestUrl(this.CreatePath), data, onResponseCallback);
         },
 
         publish: function () {
@@ -293,12 +302,6 @@ define([
 
         isIncomplete: function () {
             return this.messages().hasMessages();
-        },
-
-        tracker: function () {
-            return this.ct();
         }
     })
-    return BaseViewModel;
-})
-;
+});

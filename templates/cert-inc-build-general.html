@@ -1,8 +1,8 @@
 <template id="GeneralPanel">
-    <div data-bind="if: $data == $parent.section().value()">
-        <div class="panel-heading">General</div>
+<div data-bind="if: $data == $parent.section().value()">
+    <div class="panel-heading">General</div>
 
-        <div class="panel-body">
+    <div class="panel-body">
 
             <div class="form-horizontal">
                 <fieldset>
@@ -67,21 +67,21 @@
 
                     <div class="form-group">
                         <label for="reporter" class="col-lg-2 control-label">Reporter</label>
-                        <!-- ko if: reporter.hasValidation -->
-                        <span class="validation-error"
-                              data-bind="visible: reporter.hasError, text: reporter.errorMessage"></span>
-                        <!-- /ko -->
                         <div class="col-lg-6">
                             <!--ko if: $root.mode().isReadOnly() -->
                             <span data-bind='text: reporter().name'></span>
                             <!--/ko -->
                             <!--ko ifnot: $root.mode().isReadOnly() -->
+                            <!-- ko if: reporter.hasValidation -->
+                                <span class="validation-error"
+                                      data-bind="visible: reporter.hasError, text: reporter.errorMessage"></span>
+                                <!-- /ko -->
                                 <button class="btn btn-default btn-xs btn-add"
-                                        data-bind="visible: !(reporter().selected()), click: generalShowModal">
+                                        data-bind="visible: !(reporter().selected()), click: showReporterUiModal">
                                     <span class="glyphicon glyphicon-plus-sign green"></span> Add
                                 </button>
                                 <span class="form-control"
-                                      data-bind="visible: reporter().selected(), click: generalShowModal, text: reporter().name"></span>
+                                      data-bind="visible: reporter().selected(), click: showReporterUiModal, text: reporter().name"></span>
                             <!--/ko -->
                         </div>
                     </div>

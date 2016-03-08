@@ -1,4 +1,5 @@
 import unittest
+from adapters.certuk_mod.tests import unit
 from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.incident.incident import IncidentValidationInfo
 
@@ -17,14 +18,16 @@ class IncidentValidationInfoTests(unittest.TestCase):
         self.assertEqual(validation_info.trustgroups.status, ValidationStatus.ERROR)
         self.assertEqual(validation_info.effects.status, ValidationStatus.ERROR)
         self.assertEqual(validation_info.victims.status, ValidationStatus.ERROR)
-        self.assertEqual(validation_info.responders.status, ValidationStatus.ERROR)
+        self.assertEqual(validation_info.responders, None)
         self.assertEqual(validation_info.discovery_methods.status, ValidationStatus.ERROR)
         self.assertEqual(validation_info.intended_effects.status, ValidationStatus.ERROR)
-        self.assertEqual(validation_info.related_indicators.status, ValidationStatus.ERROR)
-        self.assertEqual(validation_info.related_observables.status, ValidationStatus.ERROR)
+        self.assertEqual(validation_info.related_indicators, None)
+        self.assertEqual(validation_info.related_observables, None)
         self.assertEqual(validation_info.leveraged_ttps.status, ValidationStatus.ERROR)
-        self.assertEqual(validation_info.attributed_actors.status, ValidationStatus.ERROR)
-        self.assertEqual(validation_info.related_incidents.status, ValidationStatus.ERROR)
+        self.assertEqual(validation_info.attributed_actors, None)
+        self.assertEqual(validation_info.related_incidents, None)
+        self.assertEqual(validation_info.coordinators.status, ValidationStatus.ERROR)
+        self.assertEqual(validation_info.time.status, ValidationStatus.ERROR)
 
     def test_Validate_InvalidFields_Error(self):
         validation_info = IncidentValidationInfo.validate(
@@ -64,7 +67,9 @@ class IncidentValidationInfoTests(unittest.TestCase):
                 related_observables=['test'],
                 leveraged_ttps=['test'],
                 attributed_actors=['test'],
-                related_incidents=['test']
+                related_incidents=['test'],
+                coordinators=['test'],
+                time={'incident_opened':{"value":"test"}}
         )
         self.assertIsNone(validation_info.title)
         self.assertIsNone(validation_info.description)
@@ -85,3 +90,5 @@ class IncidentValidationInfoTests(unittest.TestCase):
         self.assertIsNone(validation_info.leveraged_ttps)
         self.assertIsNone(validation_info.attributed_actors)
         self.assertIsNone(validation_info.related_incidents)
+        self.assertIsNone(validation_info.coordinators)
+        self.assertIsNone(validation_info.time)

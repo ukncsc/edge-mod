@@ -2,10 +2,13 @@ import os
 import re
 import urllib2
 import json
+import datetime
+from dateutil import tz
 
 from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 
 from users.decorators import superuser_or_staff_role, json_body
 
@@ -16,12 +19,17 @@ from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObj
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 import adapters.certuk_mod.builder.customizations as cert_builder
+
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
+from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.cron import setup as cron_setup
+
 from adapters.certuk_mod.cron.views import ajax_get_purge_task_status, ajax_run_purge
-from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, ajax_set_retention_config
-from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, ajax_load_parent_ids, ajax_import
+from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, \
+    ajax_set_retention_config
+from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, \
+    ajax_load_parent_ids, ajax_import
 from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
@@ -34,11 +42,10 @@ audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
 
-
 objectid_matcher = re.compile(
-    # {STIX/ID Alias}:{type}-{GUID}
-    r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
-    re.IGNORECASE  # | re.DEBUG
+        # {STIX/ID Alias}:{type}-{GUID}
+        r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
+        re.IGNORECASE  # | re.DEBUG
 )
 
 
@@ -47,7 +54,7 @@ def static(request, path):
     clean_path = urllib2.unquote(path)
     if "../" not in clean_path:
         return FileResponse(
-            open(os.path.dirname(__file__) + "/../static/" + clean_path, mode="rb")
+                open(os.path.dirname(__file__) + "/../static/" + clean_path, mode="rb")
         )
     else:
         return HttpResponseNotFound()
@@ -81,7 +88,8 @@ def review(request, id_):
         validation_info.validation_dict.update({id_: {"created_by":
                                                           {"status": ValidationStatus.WARN,
                                                            "message": "This object was created by %s not %s"
-                                                                     %(root_edge_object.created_by_username, req_user)}}})
+                                                                      % (root_edge_object.created_by_username,
+                                                                         req_user)}}})
 
     request.breadcrumbs([("Publisher", "")])
     return render(request, "publisher_review.html", {
@@ -126,6 +134,15 @@ def ajax_get_sites(request, data):
         'error_message': error_message,
         'sites': sites
     }
+
+
+@login_required
+@json_body
+def ajax_get_datetime(request, data):
+    configuration = settings.ACTIVE_CONFIG
+    current_date_time = datetime.datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime(
+        '%Y-%m-%dT%H:%M:%S')
+    return {'result': current_date_time}
 
 
 @login_required

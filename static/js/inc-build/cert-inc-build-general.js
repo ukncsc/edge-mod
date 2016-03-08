@@ -7,11 +7,12 @@ define([
 ], function (declare, ko, AbstractBuilderForm, Messages, CERTIdentity) {
     "use strict";
 
-    var General = declare(AbstractBuilderForm, {
+    return declare(AbstractBuilderForm, {
         declaredClass: "General",
 
         constructor: declare.superCall(function (sup) {
-            return function () {
+            return function (pubsub) {
+                this.pubsub = pubsub;
                 sup.call(this, "General");
 
                 this.title = ko.observable().extend({
@@ -43,7 +44,6 @@ define([
                         displayMessage: "You need to select a status for your indicator"
                     }
                 });
-
                 this.tlp = ko.observable().extend({
                     requiredGrouped: {
                         required: true,
@@ -57,9 +57,12 @@ define([
                     requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
+                        validateFunction: function () {
+                            return this.reporter().name() != "";
+                        },
                         displayMessage: "You need to select a reporter for your indicator"
                     }
-                })
+                });
 
                 this.markings = ko.observable().extend({
                     requiredGrouped: {
@@ -85,14 +88,14 @@ define([
             this.marking_priorities(optionLists.marking_priorities);
         },
 
-        generalShowModal: function () {
+        showReporterUiModal: function () {
             return this.reporter().ModelUI()
         },
 
         load: function (data) {
             this.title(data["title"] || "");
             this.status(data["status"] || "");
-            this.shortDescription(data["shortDescription"] || "");
+            this.shortDescription(data["short_description"] || "");
             this.description(data["description"] || "");
             if ('reporter' in data) {
                 if ('identity' in data['reporter']) {
@@ -101,7 +104,6 @@ define([
                 }
             }
 
-
             this.confidence(data["confidence"] || "");
             this.tlp(data["tlp"] || "");
             if ("markings" in data && data["markings"].length == 0) {
@@ -109,14 +111,17 @@ define([
             } else {
                 this.markings(data["markings"] || "");
             }
-        },
 
+            this.status.subscribe(function (data) {
+                this.pubsub.publish('status_changed', [data]);
+            }.bind(this));
+        },
 
         save: function () {
             return {
                 title: this.title(),
                 status: this.status(),
-                shortDescription: this.shortDescription(),
+                short_description: this.shortDescription(),
                 description: this.description(),
                 confidence: this.confidence(),
                 reporter: {'identity': this.reporter().to_json()},
@@ -126,5 +131,4 @@ define([
         }
     });
 
-    return General;
 });

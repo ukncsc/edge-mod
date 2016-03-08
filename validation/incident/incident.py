@@ -1,12 +1,12 @@
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
+from adapters.certuk_mod.patch.incident_patch import TIME_TYPES
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus, ObjectValidationInfo
 from adapters.certuk_mod.validation.common.validator import CommonFieldValidator
 from stix.common.vocabs import HighMediumLow
 from stix.common.vocabs import IncidentStatus
 
-class IncidentValidationInfo(ObjectValidationInfo):
 
-#ToDo, finish
+class IncidentValidationInfo(ObjectValidationInfo):
     CONFIDENCE_VALUES = (
         HighMediumLow.TERM_NONE,
         HighMediumLow.TERM_LOW,
@@ -19,34 +19,37 @@ class IncidentValidationInfo(ObjectValidationInfo):
 
     def __init__(self, **field_validation):
         super(IncidentValidationInfo, self).__init__(**field_validation)
-        #Common
+        # Common
         self.title = field_validation.get('title')
         self.tlp = field_validation.get('tlp')
         self.short_description = field_validation.get('short_description')
         self.description = field_validation.get('description')
 
-        #From list or valid values
+        # From list or valid values
         self.status = field_validation.get('status')
         self.confidence = field_validation.get('confidence')
 
-        #No check
-        self.times = field_validation.get('times')
+        # No check
         self.markers = field_validation.get('markers')
+        self.responders = field_validation.get('responders')
+        self.attributed_actors = field_validation.get('attributed_actors')
+        self.related_incidents = field_validation.get('related_incidents')
+        self.related_indicators = field_validation.get('related_indicators')
+        self.related_observables = field_validation.get('related_observables')
 
-        #At least 1
+        # At least 1
         self.reporter = field_validation.get('reporter')
         self.categories = field_validation.get('categories')
         self.trustgroups = field_validation.get('trustgroups')
         self.effects = field_validation.get('effects')
         self.victims = field_validation.get('victims')
-        self.responders = field_validation.get('responders')
         self.discovery_methods = field_validation.get('discovery_methods')
         self.intended_effects = field_validation.get('intended_effects')
-        self.related_indicators = field_validation.get('related_indicators')
-        self.related_observables = field_validation.get('related_observables')
         self.leveraged_ttps = field_validation.get('leveraged_ttps')
-        self.attributed_actors = field_validation.get('attributed_actors')
-        self.related_incidents = field_validation.get('related_incidents')
+        self.coordinators = field_validation.get('coordinators')
+
+        # Custom check
+        self.time = field_validation.get('time')
 
     @classmethod
     def validate(cls, **incident_data):
@@ -58,12 +61,12 @@ class IncidentValidationInfo(ObjectValidationInfo):
                                                                         'No valid Indicator confidence value')
         elif confidence == HighMediumLow.TERM_UNKNOWN:
             common_field_validation['confidence'] = FieldValidationInfo(
-                ValidationStatus.WARN, 'Indicator confidence value is set to \'Unknown\'')
+                    ValidationStatus.WARN, 'Indicator confidence value is set to \'Unknown\'')
 
         status = incident_data.get('status')
         if status not in cls.STATUS_VALUES:
             common_field_validation['status'] = FieldValidationInfo(ValidationStatus.ERROR,
-                                                                        'No valid Indicator status value')
+                                                                    'No valid Indicator status value')
 
         if not incident_data.get('reporter'):
             common_field_validation['reporter'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Reporter')
@@ -75,21 +78,28 @@ class IncidentValidationInfo(ObjectValidationInfo):
             common_field_validation['effects'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Effects')
         if not incident_data.get('victims'):
             common_field_validation['victims'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Victims')
-        if not incident_data.get('responders'):
-            common_field_validation['responders'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Responders')
         if not incident_data.get('discovery_methods'):
-            common_field_validation['discovery_methods'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Discovery Methods')
+            common_field_validation['discovery_methods'] = FieldValidationInfo(ValidationStatus.ERROR,
+                                                                               'No Discovery Methods')
         if not incident_data.get('intended_effects'):
-            common_field_validation['intended_effects'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Intended Effects')
-        if not incident_data.get('related_observables'):
-            common_field_validation['related_observables'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Related Observables')
-        if not incident_data.get('related_indicators'):
-            common_field_validation['related_indicators'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Related Indicators')
+            common_field_validation['intended_effects'] = FieldValidationInfo(ValidationStatus.ERROR,
+                                                                              'No Intended Effects')
         if not incident_data.get('leveraged_ttps'):
             common_field_validation['leveraged_ttps'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Leveraged TTPs')
-        if not incident_data.get('attributed_actors'):
-            common_field_validation['attributed_actors'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Attributed Actors')
-        if not incident_data.get('related_incidents'):
-            common_field_validation['related_incidents'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Related Incidents')
+        if not incident_data.get('coordinators'):
+            common_field_validation['coordinators'] = FieldValidationInfo(ValidationStatus.ERROR, 'No Coordinators')
+
+        time_validation_string = ""
+        if not incident_data.get('time'):
+            time_validation_string = "no time data found"
+        else:
+            for (name, display_name, required) in TIME_TYPES:
+                if required and name in incident_data.get('time'):
+                    value = incident_data.get('time').get(name)
+                    if value.get('value') == "":
+                        time_validation_string += display_name + " is required - "
+
+        if time_validation_string:
+            common_field_validation['time'] = FieldValidationInfo(ValidationStatus.ERROR, time_validation_string)
 
         return cls(**common_field_validation)

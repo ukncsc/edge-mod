@@ -13,7 +13,10 @@ PROPERTY_TYPE = ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE']
 PROPERTY_FILENAME = ['api_object', 'obj', 'object_', 'properties', 'file_name']
 PROPERTY_MD5 = ['api_object', 'obj', 'object_', 'properties', 'md5']
 PROPERTY_SHA1 = ['api_object', 'obj', 'object_', 'properties', 'sha1']
+PROPERTY_SHA224 = ['api_object', 'obj', 'object_', 'properties', 'sha224']
 PROPERTY_SHA256 = ['api_object', 'obj', 'object_', 'properties', 'sha256']
+PROPERTY_SHA384 = ['api_object', 'obj', 'object_', 'properties', 'sha384']
+PROPERTY_SHA512 = ['api_object', 'obj', 'object_', 'properties', 'sha512']
 
 
 def _get_sighting_count(obs):
@@ -23,12 +26,21 @@ def _get_sighting_count(obs):
     return sighting_count
 
 
-def _update_sighting_counts(additional_sightings, user):
+def _merge_properties(api_object, id_, count, additional_file_hashes):
+    api_object.obj.sighting_count = _get_sighting_count(api_object.obj) + count
+    if id_ in additional_file_hashes:
+        file_properties = rgetattr(api_object, ['obj', 'object_', 'properties'], None)
+        for hash_type, hash_value in additional_file_hashes[id_].iteritems():
+            if getattr(file_properties, hash_type, None) is None:
+                setattr(file_properties, hash_type, hash_value)
+
+
+def _update_existing_properties(additional_sightings, additional_file_hashes, user):
     inbox_processor = InboxProcessorForBuilders(user=user)
     for id_, count in additional_sightings.iteritems():
         edge_object = EdgeObject.load(id_)
         api_object = edge_object.to_ApiObject()
-        api_object.obj.sighting_count = _get_sighting_count(api_object.obj) + count
+        _merge_properties(api_object, id_, count, additional_file_hashes)
         inbox_processor.add(InboxItem(
             api_object=api_object,
             etlp=edge_object.etlp,
@@ -38,9 +50,17 @@ def _update_sighting_counts(additional_sightings, user):
     inbox_processor.run()
 
 
-def _coalesce_duplicates_to_sitings(contents, map_table):
+def _coalesce_duplicates(contents, map_table):
+    def add_missing_file_hash(inbox_object, file_hashes, property_name):
+        hash_type = property_name[-1]
+        if hash_type not in file_hashes:
+            hash_value = rgetattr(inbox_object, property_name, None)
+            if hash_value is not None:
+                file_hashes[hash_type] = hash_value
+
     out = {}
     additional_sightings = {}
+    additional_file_hashes = {}
     for id_, io in contents.iteritems():
         if id_ not in map_table:
             io.api_object = io.api_object.remap(map_table)
@@ -49,7 +69,16 @@ def _coalesce_duplicates_to_sitings(contents, map_table):
             existing_id = map_table[id_]
             sightings_for_duplicate = _get_sighting_count(io.api_object.obj)
             additional_sightings[existing_id] = additional_sightings.get(existing_id, 0) + sightings_for_duplicate
-    return out, additional_sightings
+            if rgetattr(io, PROPERTY_TYPE, None) == 'FileObjectType':
+                if existing_id not in additional_file_hashes:
+                    additional_file_hashes[existing_id] = {}
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_MD5)
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA1)
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA224)
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA256)
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA384)
+                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA512)
+    return out, additional_sightings, additional_file_hashes
 
 
 def _generate_message(template_text, contents, out):
@@ -66,7 +95,10 @@ def _find_matching_db_file_obs(db, new_file_obs):
     new_filenames = extract_properties(new_file_obs, PROPERTY_FILENAME)
     new_md5s = extract_properties(new_file_obs, PROPERTY_MD5)
     new_sha1s = extract_properties(new_file_obs, PROPERTY_SHA1)
+    new_sha224s = extract_properties(new_file_obs, PROPERTY_SHA224)
     new_sha256s = extract_properties(new_file_obs, PROPERTY_SHA256)
+    new_sha384s = extract_properties(new_file_obs, PROPERTY_SHA384)
+    new_sha512s = extract_properties(new_file_obs, PROPERTY_SHA512)
     existing_file_obs = db.stix.find({
         'type': 'obs',
         'data.api.object.properties.xsi:type': 'FileObjectType',
@@ -85,8 +117,23 @@ def _find_matching_db_file_obs(db, new_file_obs):
                 ]
             }, {
                 '$and': [
+                    {'data.api.object.properties.hashes.type': 'SHA224'},
+                    {'data.api.object.properties.hashes.simple_hash_value': {'$in': new_sha224s}}
+                ]
+            }, {
+                '$and': [
                     {'data.api.object.properties.hashes.type': 'SHA256'},
                     {'data.api.object.properties.hashes.simple_hash_value': {'$in': new_sha256s}}
+                ]
+            }, {
+                '$and': [
+                    {'data.api.object.properties.hashes.type': 'SHA384'},
+                    {'data.api.object.properties.hashes.simple_hash_value': {'$in': new_sha384s}}
+                ]
+            }, {
+                '$and': [
+                    {'data.api.object.properties.hashes.type': 'SHA512'},
+                    {'data.api.object.properties.hashes.simple_hash_value': {'$in': new_sha512s}}
                 ]
             }
         ]
@@ -96,14 +143,18 @@ def _find_matching_db_file_obs(db, new_file_obs):
 
 def _is_matching_file(existing_file, new_file):
     def matches(existing, new, property_path):
-        existing_value = rgetattr(existing, property_path, None)
-        new_value = rgetattr(new, property_path, None)
+        # NOTE: need to ignore the `api_object` part of the property path here - hence `[1:]`
+        existing_value = rgetattr(existing, property_path[1:], None)
+        new_value = rgetattr(new, property_path[1:], None)
         return existing_value is not None and new_value is not None and existing_value == new_value
 
     return matches(existing_file, new_file, PROPERTY_FILENAME) and (
         matches(existing_file, new_file, PROPERTY_MD5) or
         matches(existing_file, new_file, PROPERTY_SHA1) or
-        matches(existing_file, new_file, PROPERTY_SHA256)
+        matches(existing_file, new_file, PROPERTY_SHA224) or
+        matches(existing_file, new_file, PROPERTY_SHA256) or
+        matches(existing_file, new_file, PROPERTY_SHA384) or
+        matches(existing_file, new_file, PROPERTY_SHA512)
     )
 
 
@@ -150,10 +201,10 @@ def _existing_hash_dedup(contents, hashes, user):
     # file observable have more complex rules for duplicates, so simple hash matching isn't good enough
     _add_matching_file_observables(db, map_table, contents)
 
-    out, additional_sightings = _coalesce_duplicates_to_sitings(contents, map_table)
+    out, additional_sightings, additional_file_hashes = _coalesce_duplicates(contents, map_table)
 
     if additional_sightings:
-        _update_sighting_counts(additional_sightings, user)
+        _update_existing_properties(additional_sightings, additional_file_hashes, user)
 
     message = _generate_message("Remapped %d observables to existing observables based on hashes", contents, out)
 
@@ -173,13 +224,13 @@ def _new_hash_dedup(contents, hashes, user):
             for dup in ids[1:]:
                 map_table[dup] = master
 
-    out, additional_sightings = _coalesce_duplicates_to_sitings(contents, map_table)
+    out, additional_sightings, additional_file_hashes = _coalesce_duplicates(contents, map_table)
 
     for id_, count in additional_sightings.iteritems():
         inbox_item = contents.get(id_, None)
         if inbox_item is not None:
             api_object = inbox_item.api_object
-            api_object.obj.sighting_count = _get_sighting_count(api_object.obj) + count
+            _merge_properties(api_object, id_, count, additional_file_hashes)
 
     message = _generate_message("Merged %d observables in the supplied package based on hashes", contents, out)
 
