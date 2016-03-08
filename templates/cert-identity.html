@@ -2,47 +2,37 @@
 * use this with static/js/shared/identity.js
 {% endcomment %}
 <template id="cert-identity-element-popup" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
-	<div id="identityModal" class="modal">
+    <div id="identityModal" class="modal">
 
-    <div class="panel-heading modal-header">Organisation</div>
+        <div class="modal-header">Organisation</div>
 
-       <div class="panel-body">
-
-          <div class="form-horizontal" data-bind="ifnot: selected">
-                  <div class="input-group col-sm-offset-2">
-                      <input data-bind="value: searchTerm, valueUpdate: ['input','keyup']" type="text" class="form-control">
+        <div class="modal-body">
+            <div class="form-horizontal">
+                <div class="input-group col-sm-offset-2">
+                    <input data-bind="value: searchTerm, valueUpdate: ['input','keyup']" type="text"
+                           class="form-control">
                       <span class="input-group-btn">
-                          <button data-bind="click: searchCRM, enable: haveQuery" class="btn btn-default" type="button">Search</button>
+                          <button data-bind="click: searchCRM, enable: haveQuery" class="btn btn-default" type="button">
+                              Search
+                          </button>
                       </span>
-                  </div>
-          </div>
-           </br>
-            <table class="table" data-bind="if: search">
+                </div>
+            </div>
+            </br>
+            <table class="table table-striped table-condensed table-modal" data-bind="if: search">
                 <tbody role="form" data-bind="foreach: searchResults">
-                    <tr class="datarow">
-                        <td data-bind="text: name, click: $parent.selectOrganisation.bind($parent)" class="text-center"></td>
-                    </tr>
+                <tr class="datarow">
+                    <td data-bind="text: name, click: $parent.onSelect.bind($parent)" class="text-center"></td>
+                </tr>
                 </tbody>
             </table>
 
-           <div data-bind="if: (selected() && !search())">
-                <div class="form-group">
-                    <h4 class="col-lg-4 control-label">Name</h4>
-                    <span data-bind="text: name" id="identity_name" name="identity_name" style="font-size: 18px"></span>
-                </div>
 
-                <div class="form-group">
-                    <h4 class="col-lg-4 control-label">Sector</h4>
-                    <span data-bind="text: sector" id="identity_sector" name="identity_sector" style="font-size: 18px"></span>
-                </div>
-           </div>
-
-        <div class="modal-footer" style="float: right;">
-            <button class="btn btn-default"  data-bind="click: cancel">Cancel</button>
-            <button class="btn btn-default" data-bind="click: okay">Okay</button>
+            <div class="modal-footer" style="float: right;">
+                <button class="btn btn-default" data-bind="click: cancel">Cancel</button>
+            </div>
         </div>
 
-       </div>
-	</div>
+    </div>
 </template>
 

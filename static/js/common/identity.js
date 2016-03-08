@@ -12,9 +12,9 @@ define([
             this.searchTerm = ko.observable();
             this.searchResults = ko.observableArray([]);
 
-            this.name = ko.observable();
-            this.UUID = ko.observable();
-            this.sector = ko.observable();
+            this.name = ko.observable(null);
+            this.UUID = ko.observable(null);
+            this.sector = ko.observable(null);
 
             this.haveQuery = ko.computed(function () {
                 return this.searchTerm() != null ? this.searchTerm().trim().length > 0 : false;
@@ -36,13 +36,13 @@ define([
         },
 
         load: function (data) {
-            this.name(this.getName(data["uuid"]));
             this.UUID(data["uuid"] || "");
+            this.name(this.getName(this.UUID()));
             this.sector(data["sector"] || "");
         },
 
         getName: function (id) {
-            getJSON(this.buildOrgCRMURL() + id, null, function(data) {
+            getJSON(this.buildOrgCRMURL() + id, null, function (data) {
                 this.name(data["name"] || "");
             }.bind(this));
         },
@@ -65,8 +65,8 @@ define([
             this.search(false);
         },
 
-        getSector: function(id) {
-            getJSON(this.buildOrgCRMURL() + id, null, function(data) {
+        getSector: function (id) {
+            getJSON(this.buildOrgCRMURL() + id, null, function (data) {
                 this.sector(data["industry"] || "");
             }.bind(this));
         },
@@ -83,6 +83,12 @@ define([
             }
         },
 
+        onSelect: function (data) {
+            this.selectOrganisation(data);
+            this.searchTerm("");
+            this.okay();
+        },
+
         okay: function () {
             this.modal.close(this.clone());
         },
@@ -94,6 +100,7 @@ define([
 
         clone: function () {
             return {
+                name: this.name(),
                 UUID: this.UUID(),
                 sector: this.sector()
             };
