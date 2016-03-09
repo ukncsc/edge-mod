@@ -41,12 +41,12 @@ configuration = settings.ACTIVE_CONFIG
 
 
 @login_required
-def ind_build_from_clone(request, id_):
+def ind_build_from_clone(request, id):
     request.breadcrumbs([(ind_views.view_data_generator.title + ' Edit', "/indicator/build")])
 
     try:
         view_data = ind_views.view_data_generator.get_new_item_builder_template_data(request)
-        view_data['template_params']['draft_id'] = id_
+        view_data['template_params']['draft_id'] = id
     except NamespaceNotConfigured as e:
         messages.info(request, e.message)
         return redirect('/setup')
@@ -55,7 +55,7 @@ def ind_build_from_clone(request, id_):
 
 
 @login_required
-def inc_build_from_clone(request, id_):
+def inc_build_from_clone(request, id):
     request.breadcrumbs([("Incident Edit", "/incident/build/")])
     static = inc_views.get_static(request.user)
 
@@ -66,13 +66,13 @@ def inc_build_from_clone(request, id_):
         return redirect('/setup')
 
     template = inc_template(static, None, id_ns);
-    template['draft_id'] = id_
+    template['draft_id'] = id
 
     return render(request, 'cert-inc-build.html', template)
 
 
 @login_required
-def cam_build_from_clone(request, id_):
+def cam_build_from_clone(request, id):
     request.breadcrumbs([("Campaign Edit", "/campaign/build/")])
 
     static = cam_views.get_static(request.user)
@@ -94,12 +94,12 @@ def cam_build_from_clone(request, id_):
         'tlps': json.dumps(static['tlps']),
         'trustgroups': json.dumps(static['trustgroups']),
         'ajax_uri': reverse('campaign_ajax'),
-        'draft_id': id_
+        'draft_id': id
     })
 
 
 @login_required
-def coa_build_from_clone(request, id_):
+def coa_build_from_clone(request, id):
     request.breadcrumbs([("Course of Action Edit", "/course/build/")])
 
     static = coa_views.get_static(request.user)
@@ -123,12 +123,12 @@ def coa_build_from_clone(request, id_):
         'confidences': json.dumps(static['confidence_list']),
         'trustgroups': json.dumps(static['trustgroups']),
         'object_type': "course_of_action",
-        'draft_id': id_
+        'draft_id': id
     })
 
 
 @login_required
-def act_build_from_clone(request, id_):
+def act_build_from_clone(request, id):
     request.breadcrumbs([("Threat Actor Edit", "/threat_actor/build/")])
     static = act_views.get_static(request.user)
 
@@ -143,7 +143,7 @@ def act_build_from_clone(request, id_):
         'id_ns': id_ns,
         'mode': 'Build',
         'object_type': 'threat_actor',
-        'edit_allowed': user_can_edit(request.user, id_),
+        'edit_allowed': user_can_edit(request.user, id),
         'ajax_uri': reverse('threat_actor_ajax'),
         'default_tlp': configuration.by_key('default_tlp'),
         'tlps': json.dumps(static['tlps']),
@@ -154,7 +154,7 @@ def act_build_from_clone(request, id_):
         'act_type_list': json.dumps(static['act_type_list']),
         'sophistication': json.dumps(static['sophistication']),
         'intended_effects': json.dumps(static['intended_effects']),
-        'draft_id': id_
+        'draft_id': id
     })
 
 
@@ -184,7 +184,7 @@ def tgt_build_from_clone(request, id):
 
 
 @login_required
-def ttp_build_from_clone(request, id_):
+def ttp_build_from_clone(request, id):
     request.breadcrumbs([("TTP Edit", "/ttp/build/")])
 
     static = ttp_views.get_static(request.user)
@@ -193,14 +193,14 @@ def ttp_build_from_clone(request, id_):
         'id': None,
         'mode': 'Build',
         'object_type': 'ttp',
-        'edit_allowed': ttp_views.user_can_edit(request.user, id_),
+        'edit_allowed': ttp_views.user_can_edit(request.user, id),
         'ajax_uri': ttp_views.reverse('ttp_ajax'),
         'tlps': json.dumps(static['tlps']),
         'malware': json.dumps(static['malware']),
         'trustgroups': json.dumps(static['trustgroups']),
         'intended_effects': json.dumps(static['intended_effects']),
         'object_type': "ttp",
-        'draft_id': id_
+        'draft_id': id
     })
 
 
