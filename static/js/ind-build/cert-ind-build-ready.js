@@ -28,10 +28,12 @@ require([
 
     if (indicator_builder.mode == "Build") {
         vm.mode().value(builder.BuildMode.prototype.MODES.CREATE);
-        vm.initDraft(indicator_builder["default_tlp"]);
-        vm.id_ns(indicator_builder.id_ns);
+
         if (indicator_builder.draft_id) {
             vm.loadDraft(indicator_builder.draft_id);
+        } else {
+            vm.initDraft(indicator_builder["default_tlp"]);
+            vm.id_ns(indicator_builder.id_ns);
         }
     } else if (indicator_builder.mode == "Edit") {
         vm.mode().value(builder.BuildMode.prototype.MODES.EDIT);

@@ -45,6 +45,7 @@ def ind_build_from_clone(request, id):
     try:
         view_data = ind_views.view_data_generator.get_new_item_builder_template_data(request)
         view_data['template_params']['draft_id'] = id
+        view_data['template_params']['id'] = None
     except NamespaceNotConfigured as e:
         messages.info(request, e.message)
         return redirect('/setup')
@@ -65,6 +66,7 @@ def inc_build_from_clone(request, id):
 
     template = inc_template(static, None, id_ns);
     template['draft_id'] = id
+    template['id'] = None
 
     return render(request, 'cert-inc-build.html', template)
 

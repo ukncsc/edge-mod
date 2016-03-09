@@ -28,10 +28,12 @@ define([
 
     if (incident_builder.mode == "Build") {
         vm.mode().value(BuildMode.prototype.MODES.CREATE);
-        vm.initDraft(incident_builder["default_tlp"]);
-        vm.id_ns(incident_builder.id_ns);
+
         if (incident_builder.draft_id) {
             vm.loadDraft(incident_builder.draft_id);
+        } else {
+            vm.initDraft(incident_builder["default_tlp"]);
+            vm.id_ns(incident_builder.id_ns);
         }
     } else if (incident_builder.mode == "Edit") {
         vm.mode().value(BuildMode.prototype.MODES.EDIT);
