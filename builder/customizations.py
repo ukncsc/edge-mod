@@ -6,7 +6,6 @@ from indicator.indicator_builder import IndicatorBuilder
 from indicator import views as original_indicator_views
 
 
-
 def apply_customizations():
     indicator_patch.apply_patch()
     incident_patch.apply_patch()
@@ -18,5 +17,3 @@ def apply_customizations():
     original_indicator_views.view_data_generator = CERTIndicatorBuilderTemplateDataGenerator('Indicator', 'cert-ind-build.html',
                                                                                    original_indicator_views.indicator_builder)
     clone_views.apply_patch()
-
-
