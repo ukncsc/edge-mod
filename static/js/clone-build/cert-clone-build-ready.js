@@ -6,7 +6,5 @@ define([
 ], function (window, loadDraft) {
     "use strict";
 
-
-
     loadDraft(window.draft_id)
 });

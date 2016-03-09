@@ -9,8 +9,12 @@ from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.contrib import messages
 
 from users.decorators import superuser_or_staff_role, json_body
+from users.models import Draft
+from edge.generic import EdgeObject
+from edge import IDManager
 
 from adapters.certuk_mod.publisher.package_publisher import Publisher
 from adapters.certuk_mod.publisher.publisher_config import PublisherConfig
@@ -71,12 +75,6 @@ def discover(request):
         return redirect("publisher_not_found")
 
 
-from users.models import Draft
-from edge.generic import EdgeObject
-from edge import IDManager
-
-from adapters.certuk_mod.patch import clone_views
-
 TYPE_TO_URL = {
     'cam': 'campaign',
     'coa': 'course_of_action',
@@ -97,16 +95,25 @@ def clone(request):
         if match is not None and len(match.groups()) == 1:
             edge_object = EdgeObject.load(match.group(1))
             if edge_object.ty == 'obs':
-                return not_clonable(request, "observables cannot currently be cloned")
+                return not_clonable(request, "Observables cannot be cloned")
             new_id = IDManager().get_new_id(edge_object.ty)
             draft = edge_object.to_draft()
             draft['id'] = new_id
             Draft.upsert(edge_object.ty, draft, request.user)
             return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
         else:
-            return not_clonable(request, "no id found")
+            return not_clonable(request, "No clonable object found; please only choose the clone option from an object's summary or external publish page")
     except Exception as e:
-        return not_clonable(request, e.message)
+        ext_ref_error = "not found"
+        if e.message.endswith(ext_ref_error):
+            return not_clonable(request, "Unable to load object as some external references were not found: " + e.message[0:-len(ext_ref_error)])
+        else:
+            return not_clonable(request, e.message)
+
+
+@login_required
+def not_clonable(request, msg):
+    return render(request, "not_clonable.html", {"msg": msg})
 
 
 def _get_request_username(request):
@@ -141,11 +148,6 @@ def review(request, id_):
 @login_required
 def not_found(request):
     return render(request, "publisher_not_found.html", {})
-
-
-@login_required
-def not_clonable(request, msg):
-    return render(request, "not_clonable.html", {"msg": msg})
 
 
 @login_required
