@@ -6,31 +6,19 @@
             </button>
         </div>
         <div class="panel-body">
-            <table style="width: 100%">
-                <tbody role="form" data-bind="foreach: items">
-                <tr class="datarow">
-                    <td>
-                        <div class="form-horizontal">
-                            <div data-bind="value: $data">
-                                <!--ko if: $root.mode().isReadOnly() -->
-                                <span data-bind='text: name()'></span>
-                                <!--/ko -->
-                                <!--ko ifnot: $root.mode().isReadOnly() -->
-                                <a data-bind='text: name(), click: function() {$parent.showUi($parent, $data)}'></a>
-                                <!--/ko -->
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <!--ko ifnot: $root.mode().isReadOnly() -->
-                        <span class="glyphicon glyphicon-remove" title="Remove this item"
-                              data-bind="click: function() { $parent.remove($data) }, disable: $root.mode().isReadOnly()">
+            <div class="row" style="padding:0 2em;" data-bind="foreach:items">
+                <div class="form-group">
+                    <div class="input-group col-sm-12">
+                        <input class="form-control" data-bind="value:name(), click: function() {$parent.showUi($parent, $data)}, disable: $root.mode().isReadOnly()">
+                        <span class="input-group-btn" data-bind="ifnot: $root.mode().isReadOnly()">
+                            <button type="button" class="btn btn-default" title="Remove this item"
+                                  data-bind=" click: function() { $parent.remove($data) }">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
                         </span>
-                        <!--/ko -->
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>

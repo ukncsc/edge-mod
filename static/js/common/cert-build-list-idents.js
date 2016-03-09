@@ -51,7 +51,7 @@ define([
                         self.items.push(new CERTIdentity().load(v[saveGroup]));
                     }
                     else {
-                        self.items.push(new CERTIdentity(v));
+                        self.items.push(new CERTIdentity().load(v));
                     }
                 });
             }

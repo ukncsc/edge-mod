@@ -53,16 +53,16 @@ define([
                 });
 
                 this.reporter = ko.observable(new CERTIdentity());
-                this.reporter().UUID.extend({
+             /*   this.reporter().UUID.extend({
                     requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
                         validateFunction: function () {
-                            return this.reporter().name() != "";
+                            return this.reporter().name() !="";
                         },
                         displayMessage: "You need to select a reporter for your indicator"
                     }
-                });
+                });  */
 
                 this.markings = ko.observable().extend({
                     requiredGrouped: {
@@ -99,8 +99,7 @@ define([
             this.description(data["description"] || "");
             if ('reporter' in data) {
                 if ('identity' in data['reporter']) {
-                    if ('UUID' in data['reporter']['identity'])
-                        this.reporter(new CERTIdentity().load(data['reporter']['identity']))
+                    this.reporter(new CERTIdentity().load(data["reporter"]["identity"]))
                 }
             }
 

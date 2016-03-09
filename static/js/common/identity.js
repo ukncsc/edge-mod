@@ -9,6 +9,7 @@ define([
         declaredClass: "Identity",
 
         constructor: function () {
+            this.CRMURL = "http://10.1.10.65:8080/crmapi";
             this.searchTerm = ko.observable();
             this.searchResults = ko.observableArray([]);
 
@@ -23,12 +24,8 @@ define([
             this.selected = ko.observable(false);
         },
 
-        buildCRMURL: function () {
-            return "http://10.1.10.65:8080/crmapi";
-        },
-
         buildOrgCRMURL: function () {
-            return this.buildCRMURL() + "/organisations/"
+            return this.CRMURL + "/organisations/"
         },
 
         buildSearchCRMURL: function () {
@@ -36,9 +33,11 @@ define([
         },
 
         load: function (data) {
-            this.UUID(data["uuid"] || "");
+            this.UUID(data["name"] || "");
             this.name(this.getName(this.UUID()));
-            this.sector(data["sector"] || "");
+            this.sector(this.getSector(this.UUID()));
+            this.selected(true);
+            return this;
         },
 
         getName: function (id) {
@@ -108,7 +107,9 @@ define([
 
         to_json: function () {
             if (this.UUID()) {
-                return this.clone();
+                return {
+                    name: this.UUID()
+                }
             } else {
                 return undefined
             }
