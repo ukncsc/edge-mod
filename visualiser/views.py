@@ -5,9 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
+from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from users.decorators import login_required_ajax
-
-from edge.generic import EdgeObject
 
 
 objectid_matcher = re.compile(
@@ -78,20 +77,20 @@ def visualiser_get(request, id_):
 
         return dict(nodes=nodes, links=links)
 
-    success = False
-    error_message = None
-    graph = None
-
     try:
-        root_edge_object = EdgeObject.load(id_)
+        root_edge_object = PublisherEdgeObject.load(id_)
         graph = depth_first_iterate(root_edge_object)
+        return JsonResponse(graph, status=200)
     except Exception as e:
-        error_message = e.message
-    else:
-        success = True
+        return JsonResponse(dict(e), status=500)
 
-    return JsonResponse({
-        "success": success,
-        "error_message": error_message,
-        "graph": graph
-    }, status=200)
+
+@login_required_ajax
+def visualiser_item_get(request, id_):
+    try:
+        eo = PublisherEdgeObject.load(id_)
+        ao = eo.to_ApiObject()
+        return JsonResponse(ao.to_dict(), status=200)
+    except Exception as e:
+        print e
+        return JsonResponse(dict(e), status=500)
