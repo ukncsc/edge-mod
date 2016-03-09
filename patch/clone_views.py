@@ -1,5 +1,4 @@
 import json
-import json
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.conf import settings
@@ -25,7 +24,6 @@ from exploit_target.urls import urlpatterns as tgt_urls
 from threat_actor.urls import urlpatterns as act_urls
 
 from rbac import user_can_edit
-
 
 from adapters.certuk_mod.patch.incident_patch import get_build_template as inc_template
 
@@ -74,7 +72,6 @@ def inc_build_from_clone(request, id):
 @login_required
 def cam_build_from_clone(request, id):
     request.breadcrumbs([("Campaign Edit", "/campaign/build/")])
-
     static = cam_views.get_static(request.user)
 
     try:
@@ -83,7 +80,7 @@ def cam_build_from_clone(request, id):
         messages.info(request, e.message)
         return redirect('/setup')
 
-    return render(request, 'cert-cam-build.html', {
+    return render(request, 'cert-clone-build.html', {
         'mode': 'Build',
         'default_tlp': configuration.by_key('default_tlp'),
         'id': None,
@@ -94,14 +91,14 @@ def cam_build_from_clone(request, id):
         'tlps': json.dumps(static['tlps']),
         'trustgroups': json.dumps(static['trustgroups']),
         'ajax_uri': reverse('campaign_ajax'),
-        'draft_id': id
+        'draft_id': id,
+        'base_template': "cam-build.html"
     })
 
 
 @login_required
 def coa_build_from_clone(request, id):
     request.breadcrumbs([("Course of Action Edit", "/course/build/")])
-
     static = coa_views.get_static(request.user)
 
     try:
@@ -110,7 +107,7 @@ def coa_build_from_clone(request, id):
         messages.info(request, e.message)
         return redirect('/setup')
 
-    return render(request, 'cert-coa-build.html', {
+    return render(request, 'cert-clone-build.html', {
         'id': None,
         'mode': 'Build',
         'id_ns': id_ns,
@@ -123,7 +120,8 @@ def coa_build_from_clone(request, id):
         'confidences': json.dumps(static['confidence_list']),
         'trustgroups': json.dumps(static['trustgroups']),
         'object_type': "course_of_action",
-        'draft_id': id
+        'draft_id': id,
+        'base_template': "coa-build.html"
     })
 
 
@@ -131,14 +129,13 @@ def coa_build_from_clone(request, id):
 def act_build_from_clone(request, id):
     request.breadcrumbs([("Threat Actor Edit", "/threat_actor/build/")])
     static = act_views.get_static(request.user)
-
     try:
         id_ns = IDManager().get_namespace()
     except NamespaceNotConfigured as e:
         messages.info(request, e.message)
         return redirect('/setup')
 
-    return render(request, 'cert-act-build.html', {
+    return render(request, 'cert-clone-build.html', {
         'id': None,
         'id_ns': id_ns,
         'mode': 'Build',
@@ -154,14 +151,14 @@ def act_build_from_clone(request, id):
         'act_type_list': json.dumps(static['act_type_list']),
         'sophistication': json.dumps(static['sophistication']),
         'intended_effects': json.dumps(static['intended_effects']),
-        'draft_id': id
+        'draft_id': id,
+        'base_template': "act-build.html"
     })
 
 
 @login_required
 def tgt_build_from_clone(request, id):
     request.breadcrumbs([("Exploit Target Edit", "/exploit_target/build/")])
-
     static = tgt_views.get_static(request.user)
 
     try:
@@ -170,7 +167,7 @@ def tgt_build_from_clone(request, id):
         messages.info(request, e.message)
         return redirect('/setup')
 
-    return render(request, 'cert-tgt-build.html', {
+    return render(request, 'cert-clone-build.html', {
         'mode': 'Build',
         'default_tlp': configuration.by_key('default_tlp'),
         'object_type': "exploit_target",
@@ -179,17 +176,17 @@ def tgt_build_from_clone(request, id):
         'tlps': json.dumps(static['tlps']),
         'trustgroups': json.dumps(static['trustgroups']),
         'ajax_uri': reverse('exploit_target_ajax'),
-        'draft_id': id
+        'draft_id': id,
+        'base_template': "tgt-build.html"
     })
 
 
 @login_required
 def ttp_build_from_clone(request, id):
     request.breadcrumbs([("TTP Edit", "/ttp/build/")])
-
     static = ttp_views.get_static(request.user)
 
-    return render(request, 'cert-ttp-build.html', {
+    return render(request, 'cert-clone-build.html', {
         'id': None,
         'mode': 'Build',
         'object_type': 'ttp',
@@ -200,7 +197,8 @@ def ttp_build_from_clone(request, id):
         'trustgroups': json.dumps(static['trustgroups']),
         'intended_effects': json.dumps(static['intended_effects']),
         'object_type': "ttp",
-        'draft_id': id
+        'draft_id': id,
+        'base_template': "ttp-build.html"
     })
 
 
