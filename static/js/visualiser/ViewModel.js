@@ -25,7 +25,9 @@ define([
                 }
                 return root;
             }, this);
-            this.graph().selectNode(rootId);
+            setTimeout(function () {
+                this.graph().selectNode(rootId);
+            }.bind(this), 100);
         },
         onNodeClicked: function (data) {
             this.graph().selectNode(data.id());
@@ -50,7 +52,7 @@ define([
             var templateName = null;
             var selectedObject = this.selectedObject();
             if (selectedObject) {
-                templateName = 'root-' + selectedObject.type.code;
+                templateName = 'flat-' + selectedObject.type.code;
             }
             return templateName;
         }
