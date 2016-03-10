@@ -52,17 +52,16 @@ define([
                     }
                 });
 
-                this.reporter = ko.observable(new CERTIdentity());
-             /*   this.reporter().UUID.extend({
-                    requiredGrouped: {
+                this.reporter = ko.observable(new CERTIdentity()).extend({
+                    requiredIdentity: {
                         required: true,
                         group: this.validationGroup,
                         validateFunction: function () {
-                            return this.reporter().name() !="";
+                            return this.reporter().name() != "";
                         },
                         displayMessage: "You need to select a reporter for your indicator"
                     }
-                });  */
+                });
 
                 this.markings = ko.observable().extend({
                     requiredGrouped: {
