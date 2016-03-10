@@ -5,7 +5,7 @@ define([
     "use strict";
 
     return declare(null, {
-        declaredClass: "PubSub",
+        declaredClass: "PublishSubscribe",
 
         constructor: function()
         {
