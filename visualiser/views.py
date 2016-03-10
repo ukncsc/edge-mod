@@ -5,7 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
+from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
+from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
+from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from users.decorators import login_required_ajax
 
 
@@ -29,8 +32,10 @@ def visualiser_discover(request):
 
 @login_required
 def visualiser_view(request, id_):
+    request.breadcrumbs([("Visualiser", "")])
     return render(request, 'visualiser.html', {
-        "id": id_
+        "id": id_,
+        "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES}
     })
 
 
@@ -88,9 +93,14 @@ def visualiser_get(request, id_):
 @login_required_ajax
 def visualiser_item_get(request, id_):
     try:
-        eo = PublisherEdgeObject.load(id_)
-        ao = eo.to_ApiObject()
-        return JsonResponse(ao.to_dict(), status=200)
+        root_edge_object = PublisherEdgeObject.load(id_)
+        package = PackageGenerator.build_package(root_edge_object)
+        validation_info = PackageValidationInfo.validate(package)
+        return JsonResponse({
+            "root_id": id_,
+            "package": package.to_dict(),
+            "validation_info": validation_info.validation_dict
+        }, status=200)
     except Exception as e:
         print e
         return JsonResponse(dict(e), status=500)

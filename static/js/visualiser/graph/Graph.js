@@ -39,6 +39,7 @@ define([
             this.nodes(ko.utils.arrayMap(graphData.nodes, function (nodeData) {
                 return new Node(nodeData);
             }));
+            this.selectedNode = ko.observable(null);
         },
         applyBindingValues: function (bindingValues) {
             ko.utils.objectForEach(bindingValues, function (name, value) {
@@ -46,6 +47,21 @@ define([
                     this[name](value);
                 }
             }.bind(this));
+        },
+        selectNode: function (nodeId) {
+            var oldNode = this.selectedNode();
+            if (oldNode instanceof Node) {
+                oldNode.isSelected(false);
+            }
+            var newNode = this.nodes().filter(function (node) {
+                if (nodeId === node.id()) {
+                    return node;
+                }
+            })[0];
+            if (newNode instanceof Node) {
+                newNode.isSelected(true);
+                this.selectedNode(newNode);
+            }
         },
         appendData: function (graphData) {
             //TODO - will need to sort out indexes, etc

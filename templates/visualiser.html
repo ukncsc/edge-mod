@@ -23,6 +23,14 @@
             cursor: pointer;
         }
 
+        g.ko-d3-graph-node image.selected {
+            filter: drop-shadow(0 0 8px black) contrast(150%);
+        }
+
+        g.ko-d3-graph-node image.unselected {
+            filter: grayscale(50%);
+        }
+
         line.ko-d3-graph-link {
             stroke: #333;
             stroke-width: 0.5;
@@ -48,15 +56,23 @@
                         linkStrength:0.25,
                         visible: true
                     ">
-                    <g data-bind="attr: { title: title }, click: $root.onNodeClicked.bind($root)">
-                        <image xlink:href="{% static 'img/hex/hex_.png' %}" data-bind="attr: {
-                            id: id(),
-                            'xlink:href': '{% static 'img/hex/' %}hex_' + type() + '.png',
-                            height: imageHeight(),
-                            width: imageWidth(),
-                            x: imageX(),
-                            y: imageY()
-                        }"></image>
+                    <g data-bind="
+                        attr: {
+                            title: title
+                        },
+                        click: $root.onNodeClicked.bind($root)
+                    ">
+                        <image xlink:href="{% static 'img/hex/hex_.png' %}" class="" data-bind="
+                            attr: {
+                                id: id(),
+                                class: className(),
+                                'xlink:href': '{% static 'img/hex/' %}hex_' + type() + '.png',
+                                height: imageHeight(),
+                                width: imageWidth(),
+                                x: imageX(),
+                                y: imageY()
+                            }
+                        "></image>
                     </g>
                 </svg>
             </div>
@@ -66,7 +82,10 @@
                         <h3 class="panel-title">Details</h3>
                     </div>
                     <div class="panel-body">
-                        <pre data-bind="text:ko.toJSON(selectedObject, null, 2)"></pre>
+                        <!-- ko if: selectedTemplate() -->
+                        <div class="row" data-bind="template: { name: selectedTemplate(), data: selectedRoot }"></div>
+                        <!-- /ko -->
+                        <p data-bind="ifnot: selectedTemplate">Nothing selected</p>
                     </div>
                 </div>
             </div>
@@ -87,6 +106,7 @@
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
         var rootId = "{{ id }}";
+        var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
     </script>
     <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="visualiser/main"></script>
 {% endblock %}

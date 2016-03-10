@@ -16,6 +16,10 @@ define([
             this.type = ko.observable(nodeData.type);
             this.title = ko.observable(nodeData.title);
             this.depth = ko.observable(nodeData.depth);
+            this.isSelected = ko.observable(false);
+            this.className = ko.computed(function () {
+                return this.isSelected() ? "selected" : "unselected";
+            }, this);
         },
         isRoot: function () {
             return this.depth() === 0;
