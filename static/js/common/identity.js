@@ -1,7 +1,7 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/cert-abstract-builder-form",
+    "common/cert-abstract-builder-form"
 ], function (declare, ko, AbstractBuilderForm) {
     "use strict";
 
@@ -9,8 +9,8 @@ define([
         declaredClass: "Identity",
 
         constructor: function () {
-            this.CRMURL = "http://10.1.10.65:8080/crmapi";
-            this.searchTerm = ko.observable();
+            this.CRMURL = "http://10.1.10.65:8080/crmapi"        //getCRMURL
+            this.searchTerm = ko.observable(null);
             this.searchResults = ko.observableArray([]);
 
             this.name = ko.observable(null);
@@ -18,14 +18,14 @@ define([
             this.sector = ko.observable(null);
 
             this.haveQuery = ko.computed(function () {
-                return this.searchTerm() != null ? this.searchTerm().trim().length > 0 : false;
+                return typeof this.searchTerm() === "string" ? this.searchTerm().trim().length > 0 : false;
             }, this);
             this.search = ko.observable(false);
             this.selected = ko.observable(false);
         },
 
         buildOrgCRMURL: function () {
-            return this.CRMURL + "/organisations/"
+            return this.CRMURL + "/organisations/";
         },
 
         buildSearchCRMURL: function () {
@@ -75,11 +75,9 @@ define([
         },
 
         restoreSnapshot: function () {
-            for (var key in this.previousState) {
-                if (this.previousState.hasOwnProperty(key)) {
-                    this[key](this.previousState[key])
-                }
-            }
+            ko.utils.objectForEach(this.previousState, function (key, value) {
+                this[key] = value;
+            }.bind(this));
         },
 
         onSelect: function (data) {

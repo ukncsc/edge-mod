@@ -6,7 +6,7 @@
             </button>
         </div>
         <div class="panel-body">
-            <div class="row" style="padding:0 2em;" data-bind="foreach:items">
+            <div id="identity-element" class="row" data-bind="foreach:items">
                 <div class="form-group">
                     <div class="input-group col-sm-12">
                         <input class="form-control" data-bind="value:name(), click: function() {$parent.showUi($parent, $data)}, disable: $root.mode().isReadOnly()">
