@@ -46,7 +46,7 @@ define([
             )
         },
         onRowClicked: function () {
-            // do nothing
+            // implements a click handler required by the review template. Does nothing here.
         },
         selectedTemplate: function () {
             var templateName = null;

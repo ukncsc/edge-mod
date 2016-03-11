@@ -33,13 +33,33 @@ define([
                     this[name] = proxy;
                 }
             }.bind(this));
-            this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
-                return new Link(linkData);
-            }));
             this.nodes(ko.utils.arrayMap(graphData.nodes, function (nodeData) {
                 return new Node(nodeData);
             }));
+            var /*Node[]*/ _rawNodes = this.nodes.peek();
+            this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
+                return new Link(_rawNodes[linkData.source], _rawNodes[linkData.target]);
+            }.bind(this)));
             this.selectedNode = ko.observable(null);
+            this.selectedLinkedNodes = ko.computed(function () {
+                var selectedNode = this.selectedNode();
+                var linkedNodes = {
+                    parentOf: [],
+                    childOf: []
+                };
+                if (selectedNode instanceof Node) {
+                    var findIndex = selectedNode.index;
+                    ko.utils.arrayForEach(this.links(), function (link) {
+                        if (link.source.index === findIndex) {
+                            linkedNodes.parentOf.push(link.target);
+                        }
+                        if (link.target.index === findIndex) {
+                            linkedNodes.childOf.push(link.source);
+                        }
+                    });
+                }
+                return linkedNodes;
+            }, this).extend({rateLimit: 50});
         },
         applyBindingValues: function (bindingValues) {
             ko.utils.objectForEach(bindingValues, function (name, value) {

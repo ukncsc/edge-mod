@@ -12,10 +12,18 @@ define([
     return declare(null, {
         declaredClass: "Node",
         constructor: function (nodeData) {
-            this.id = ko.observable(nodeData.id);
-            this.type = ko.observable(nodeData.type);
-            this.title = ko.observable(nodeData.title);
-            this.depth = ko.observable(nodeData.depth);
+            this.id = ko.computed(function () {
+                return nodeData.id;
+            });
+            this.type = ko.computed(function () {
+                return nodeData.type;
+            });
+            this.title = ko.computed(function () {
+                return nodeData.title;
+            });
+            this.depth = ko.computed(function () {
+                return nodeData.depth;
+            });
             this.isSelected = ko.observable(false);
             this.className = ko.computed(function () {
                 return this.isSelected() ? "selected" : "unselected";

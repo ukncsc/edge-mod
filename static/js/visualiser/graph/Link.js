@@ -1,14 +1,13 @@
 define([
-    "dcl/dcl",
-    "knockout"
-], function (declare, ko) {
+    "dcl/dcl"
+], function (declare) {
     "use strict";
 
     return declare(null, {
         declaredClass: "Link",
-        constructor: function (linkData) {
-            this.source = 0 + linkData.source;
-            this.target = 0 + linkData.target;
+        constructor: function (/*Node*/ sourceNode, /*Node*/ targetNode) {
+            this.source = sourceNode;
+            this.target = targetNode;
         }
     });
 });
