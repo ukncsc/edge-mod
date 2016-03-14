@@ -3,3 +3,9 @@
 {% block extra-editable-observable-templates %}
     <div data-bind="template: { name: 'http-session-template', if: objectType()=='HTTP Session', data: observable() }"></div>
 {% endblock %}
+
+
+{% block extra-editable-batch-observable-templates %}
+    <div data-bind="template: { name: 'batch-file', if: objectType()=='File', data: observable() }"></div>
+{% endblock %}
+
