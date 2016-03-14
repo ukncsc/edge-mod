@@ -47,14 +47,19 @@ define([
                     parentOf: [],
                     childOf: []
                 };
+                ko.utils.arrayForEach(this.nodes(), function (node) {
+                    node.isRelated(false);
+                });
                 if (selectedNode instanceof Node) {
                     var findIndex = selectedNode.index;
                     ko.utils.arrayForEach(this.links(), function (link) {
                         if (link.source.index === findIndex) {
                             linkedNodes.parentOf.push(link.target);
+                            link.target.isRelated(true);
                         }
                         if (link.target.index === findIndex) {
                             linkedNodes.childOf.push(link.source);
+                            link.source.isRelated(true);
                         }
                     });
                 }
