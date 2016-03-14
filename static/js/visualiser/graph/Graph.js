@@ -73,16 +73,17 @@ define([
                 }
             }.bind(this));
         },
+        findNode: function (nodeId) {
+            return ko.utils.arrayFirst(this.nodes(), function (node) {
+                return nodeId === node.id();
+            });
+        },
         selectNode: function (nodeId) {
             var oldNode = this.selectedNode();
             if (oldNode instanceof Node) {
                 oldNode.isSelected(false);
             }
-            var newNode = this.nodes().filter(function (node) {
-                if (nodeId === node.id()) {
-                    return node;
-                }
-            })[0];
+            var newNode = this.findNode(nodeId);
             if (newNode instanceof Node) {
                 newNode.isSelected(true);
                 this.selectedNode(newNode);
