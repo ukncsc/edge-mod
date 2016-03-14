@@ -115,7 +115,12 @@
                                 <!-- ko if: parentOf.length > 0 -->
                                     <dt>References</dt>
                                     <!-- ko foreach: parentOf -->
-                                        <dd data-bind="click:$root.onNodeClicked.bind($root)">
+                                        <dd data-bind="
+                                            attr: {
+                                                title: id
+                                            },
+                                            click:$root.onNodeClicked.bind($root)
+                                        ">
                                             <img data-bind="attr: {
                                                 src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'
                                             }">&nbsp;<span data-bind="text:title"></span>
@@ -125,7 +130,12 @@
                                 <!-- ko if: childOf.length > 0 -->
                                     <dt>Referenced By</dt>
                                     <!-- ko foreach: childOf -->
-                                        <dd data-bind="click:$root.onNodeClicked.bind($root)">
+                                        <dd data-bind="
+                                            attr: {
+                                                title: id
+                                            },
+                                            click:$root.onNodeClicked.bind($root)
+                                        ">
                                             <img data-bind="attr: {
                                                 src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'
                                             }">&nbsp;<span data-bind="text:title"></span>
