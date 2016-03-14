@@ -8,10 +8,9 @@ from users.decorators import json_body, superuser_or_staff_role
 
 @login_required
 @superuser_or_staff_role
-@json_body
-def ajax_get_crm_url(request, data):
+def ajax_get_crm_url(request):
     try:
-        url = get_config()
+        url = get_config("crm-url")
         return JsonResponse({
             'message': "success",
             'config': url
@@ -24,7 +23,6 @@ def ajax_get_crm_url(request, data):
 
 @login_required
 @superuser_or_staff_role
-@json_body
 def ajax_set_crm_url(request, data):
     try:
         save_config(data)

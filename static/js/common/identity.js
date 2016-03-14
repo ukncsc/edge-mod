@@ -9,7 +9,9 @@ define([
         declaredClass: "Identity",
 
         constructor: function () {
-            this.CRMURL = "http://10.1.10.65:8080/crmapi"        //getCRMURL
+            //this.CRMURL(null)
+            //this.getCRMURL();
+            this.CRMURL = "http://10.1.10.65:8080/crmapi";
             this.searchTerm = ko.observable(null);
             this.searchResults = ko.observableArray([]);
 
@@ -18,11 +20,17 @@ define([
             this.sector = ko.observable(null);
 
             this.haveQuery = ko.computed(function () {
-                return typeof this.searchTerm() === "string" ? this.searchTerm().trim().length > 0 : false;
+                return typeof this.searchTerm() === "string" && this.searchTerm().trim().length > 0;
             }, this);
             this.search = ko.observable(false);
             this.selected = ko.observable(false);
         },
+
+        /*getCRMURL: function () {
+            getJSON("cert config url", null, function (data) {
+                this.CRMURL(data["name"] || "");
+            }.bind(this));
+        }, */
 
         buildOrgCRMURL: function () {
             return this.CRMURL + "/organisations/";

@@ -6,9 +6,9 @@ def _config():
 
 def save(field, value):
     if validate(value):
-    _config().save({
-        field: value
-    })
+        _config().save({
+            field: value
+        })
 
 
 def get(field):
@@ -20,3 +20,4 @@ def get(field):
 
 
 def validate(value):
+    return True;
