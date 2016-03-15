@@ -68,12 +68,26 @@ define([
             return title;
         },
 
+        bulkSave: declare.superCall(function (sup) {
+            return function () {
+                var items = sup.call(this);
+                if (items.length == 0){
+                     items[0] = coreFileObservable.prototype.save.bind(this)();
+                }
+                return items;
+            }
+        }),
+
         save: function (idx) {
             if (typeof idx === 'undefined') {
                 return coreFileObservable.prototype.save.bind(this)();
             }
 
             var value = this.getObjectValuesArray()[idx || 0];
+            if (typeof value === 'undefined') {
+                 return coreFileObservable.prototype.save.bind(this)();
+            }
+
             var childFile = new CERTObservableFile();
             childFile.objectTitle(this.getOrCreateTitle(value, idx));
 

@@ -160,6 +160,42 @@ define([
             },
 
             "save": {
+                "save non batch": function () {
+                    var obsFile = new CERTObservableFile();
+                    obsFile.objectTitle("123");
+                    var res = obsFile.save(0);
+                    var expectedResult = ko.toJSON({
+                        "getObjectValuesArray": [],
+                        "hashes": [],
+                        "selected_hash": "",
+                        "hash_value": "",
+                        "objectTitle": "123",
+                        "objectType": "File",
+                        "file_name": "",
+                        "file_extension": "",
+                        "declaredClass": "CERTObservableFile"
+                    });
+
+                    assert.isTrue(res === expectedResult)
+                },
+                "bulk save non batch": function () {
+                    var obsFile = new CERTObservableFile();
+                    obsFile.objectTitle("123");
+                    var res = obsFile.bulkSave(0)[0];
+                    var expectedResult = ko.toJSON({
+                        "getObjectValuesArray": [],
+                        "hashes": [],
+                        "selected_hash": "",
+                        "hash_value": "",
+                        "objectTitle": "123",
+                        "objectType": "File",
+                        "file_name": "",
+                        "file_extension": "",
+                        "declaredClass": "CERTObservableFile"
+                    });
+
+                    assert.isTrue(res === expectedResult)
+                },
                 "save no idx": function () {
                     var obsFile = new CERTObservableFile();
                     var precall = ko.toJSON(obsFile);
@@ -170,6 +206,24 @@ define([
                     var obsFile = new CERTObservableFile();
                     obsFile.getObjectValuesArray().push("\'hello.txt\';12345678901234567890123456789012345678901234567890123456");
                     var res = obsFile.save(0);
+                    var expectedResult = ko.toJSON({
+                        "getObjectValuesArray": [],
+                        "hashes": [],
+                        "selected_hash": "SHA224",
+                        "hash_value": "12345678901234567890123456789012345678901234567890123456",
+                        "objectTitle": "hello.txt",
+                        "objectType": "File",
+                        "file_name": "hello.txt",
+                        "file_extension": "txt",
+                        "declaredClass": "CERTObservableFile"
+                    });
+
+                    assert.isTrue(res === expectedResult)
+                },
+                "bulk save hash with name": function () {
+                    var obsFile = new CERTObservableFile();
+                    obsFile.getObjectValuesArray().push("\'hello.txt\';12345678901234567890123456789012345678901234567890123456");
+                    var res = obsFile.bulkSave(0)[0];
                     var expectedResult = ko.toJSON({
                         "getObjectValuesArray": [],
                         "hashes": [],

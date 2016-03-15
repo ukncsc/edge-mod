@@ -15,6 +15,14 @@ define([
 
         doValidation: function () {
             return new Messages()
+        },
+        bulkSave: function () {
+            var items = [];
+            var objectValuesCount = (this.getObjectValuesArray() || []).length;
+            for (var i = 0; i < objectValuesCount; i++) {
+                items[i] = this.save(i);
+            }
+            return items;
         }
     });
 
