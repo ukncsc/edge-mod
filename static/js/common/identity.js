@@ -1,17 +1,23 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/cert-abstract-builder-form"
-], function (declare, ko, AbstractBuilderForm) {
+    "common/cert-abstract-builder-form",
+    "text!crmConfig"/*,
+    "text!allConfig"              */
+], function (declare, ko, AbstractBuilderForm, configText, allTheConfig) {
     "use strict";
 
-    return declare(AbstractBuilderForm, {
+    var crmConfig = Object.freeze(JSON.parse(configText));
+    console.dir("crm-url endpoint" + JSON.stringify(crmConfig, null, 2));
+
+  /*  var allConfig = Object.freeze(JSON.parse(allTheConfig));
+    console.dir("all config endpoint" + allConfig);  */
+
+    var Identity = declare(AbstractBuilderForm, {
         declaredClass: "Identity",
 
         constructor: function () {
-            //this.CRMURL(null)
-            //this.getCRMURL();
-            this.CRMURL = "http://10.1.10.65:8080/crmapi";
+            this.CRMURL = crmConfig.crmURL;
             this.searchTerm = ko.observable(null);
             this.searchResults = ko.observableArray([]);
 
@@ -25,12 +31,6 @@ define([
             this.search = ko.observable(false);
             this.selected = ko.observable(false);
         },
-
-        /*getCRMURL: function () {
-            getJSON("cert config url", null, function (data) {
-                this.CRMURL(data["name"] || "");
-            }.bind(this));
-        }, */
 
         buildOrgCRMURL: function () {
             return this.CRMURL + "/organisations/";
@@ -120,5 +120,7 @@ define([
                 return undefined
             }
         }
-    })
+    });
+
+    return Identity;
 });

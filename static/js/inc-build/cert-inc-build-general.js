@@ -58,7 +58,7 @@ define([
                         group: this.validationGroup,
                         validateFunction: function () {
                             return this.reporter().name() != "";
-                        },
+                        }.bind(this),
                         displayMessage: "You need to select a reporter for your indicator"
                     }
                 });

@@ -1,23 +1,30 @@
 from mongoengine.connection import get_db
 
+
 def _config():
     return get_db().certuk_config
 
 
-def save(field, value):
-    if validate(value):
-        _config().save({
-            field: value
-        })
-
-
-def get(field):
-    return _config().findOne({
-        field: {
-            "$exists" : "true"
+def save(name, value):
+    _config().update({
+        'name': name
+    }, {
+        '$setOnInsert': {
+            'name': name,
+        },
+        '$set': {
+            'value': value
         }
-    });
+    }, True)
 
 
-def validate(value):
-    return True;
+def get(name):
+    return _config().find_one({
+        'name': name
+    }).get('value')
+
+
+def get_all():
+    return _config().find({}, {
+        '_id': 0
+    })

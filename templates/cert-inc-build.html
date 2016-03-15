@@ -76,7 +76,9 @@
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
-                knockout: "common/knockout-shim"
+                knockout: "common/knockout-shim",
+                crmConfig: "/adapter/certuk_mod/config/get_crm_url",
+                allConfig: "adapter/certuk_mod/config/get_config"
             },
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
