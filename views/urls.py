@@ -43,7 +43,7 @@ publisher_urls = [
     (r'^ajax/get_purge_task_status/$', 'views.ajax_get_purge_task_status', None),
     (r'^ajax/run_purge/$', 'views.ajax_run_purge', None),
     (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),
-    #(r'^config/get_config/$', 'views.ajax_get_cert_config', None),
+    (r'^config/get_cert_config/$', 'views.ajax_get_cert_config', None),
     (r'^config/get_crm_url/$', 'views.ajax_get_crm_url', None),
     (r'^config/set_crm_url/$', 'views.ajax_set_crm_url', None)
 ]

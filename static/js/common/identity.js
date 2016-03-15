@@ -2,22 +2,17 @@ define([
     "dcl/dcl",
     "knockout",
     "common/cert-abstract-builder-form",
-    "text!crmConfig"/*,
-    "text!allConfig"              */
-], function (declare, ko, AbstractBuilderForm, configText, allTheConfig) {
+    "text!config"
+], function (declare, ko, AbstractBuilderForm, configText) {
     "use strict";
 
-    var crmConfig = Object.freeze(JSON.parse(configText));
-    console.dir("crm-url endpoint" + JSON.stringify(crmConfig, null, 2));
-
-  /*  var allConfig = Object.freeze(JSON.parse(allTheConfig));
-    console.dir("all config endpoint" + allConfig);  */
+    var config = Object.freeze(JSON.parse(configText));
 
     var Identity = declare(AbstractBuilderForm, {
         declaredClass: "Identity",
 
         constructor: function () {
-            this.CRMURL = crmConfig.crmURL;
+            this.CRMURL = config.crmURL;
             this.searchTerm = ko.observable(null);
             this.searchResults = ko.observableArray([]);
 
@@ -50,7 +45,9 @@ define([
 
         getName: function (id) {
             getJSON(this.buildOrgCRMURL() + id, null, function (data) {
-                this.name(data["name"] || "");
+                this.name(data["name"]);
+            }.bind(this), function () {
+                this.name(id)
             }.bind(this));
         },
 

@@ -25,6 +25,11 @@ def get(name):
 
 
 def get_all():
-    return _config().find({}, {
+    cursor = _config().find({}, {
         '_id': 0
     })
+    results = {}
+    for doc in cursor:
+        results[doc["name"]] = doc["value"]
+
+    return results
