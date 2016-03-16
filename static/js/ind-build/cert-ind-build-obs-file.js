@@ -78,16 +78,7 @@ define([
             return items;
         },
 
-        save: function (idx) {
-            if (typeof idx === 'undefined') {
-                return coreFileObservable.prototype.save.bind(this)();
-            }
-
-            var value = this.getObjectValuesArray()[idx || 0];
-            if (typeof value === 'undefined') {
-                return coreFileObservable.prototype.save.bind(this)();
-            }
-
+        createChildFile: function (value, idx) {
             var childFile = new CERTObservableFile();
             childFile.objectTitle(this.getOrCreateTitle(value, idx));
 
@@ -110,6 +101,19 @@ define([
             return childFile.save();
         },
 
+        save: function (idx) {
+            if (typeof idx === 'undefined') {
+                return coreFileObservable.prototype.save.bind(this)();
+            }
+
+            var value = this.getObjectValuesArray()[idx || 0];
+            if (typeof value === 'undefined') {
+                return coreFileObservable.prototype.save.bind(this)();
+            }
+
+            return this.createChildFile(value, idx);
+        },
+
         addHash: function (observableFile) {
             coreFileObservable.prototype.addHash.bind(observableFile)(observableFile)
         },
@@ -122,12 +126,7 @@ define([
             return (value.indexOf('\'') == 0 || value.indexOf('\"') == 0 )
         },
 
-        doValidation: function () {
-            if (!indicator_builder.vm.builderMode().isBatchMode()) {
-                return coreFileObservable.prototype.doValidation.bind(this)();
-            }
-
-            var msgs = massObservable.prototype.doValidation.bind(this)();
+        validateHashes: function (msgs) {
             ko.utils.arrayForEach(this.getObjectValuesArray(), function (value) {
                 var hashes = value.split(';');
                 for (var i = 0, len = hashes.length; i < len; i++) {
@@ -136,11 +135,19 @@ define([
                     }
 
                     if (this.getHashType(hashes[i]) === "Other") {
-                        msgs.addError("Unable to parse the hash:" + hashes[i]);
+                        msgs.addError("Unable to parse the hash: " + hashes[i]);
                     }
                 }
             }.bind(this));
+        },
 
+        doValidation: function () {
+            if (!indicator_builder.vm.builderMode().isBatchMode()) {
+                return coreFileObservable.prototype.doValidation.bind(this)();
+            }
+
+            var msgs = massObservable.prototype.doValidation.bind(this)();
+            this.validateHashes(msgs);
             return msgs;
         }
     });
