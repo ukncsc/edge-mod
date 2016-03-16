@@ -248,6 +248,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
     ]
 
     def __init__(self, user, trustgroups=None, streams=None):
+        # TODO: extract STIX_Header from streams
         super(DedupInboxProcessor, self).__init__(user, trustgroups, streams)
         self.validation_result = {}
 
@@ -261,6 +262,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
             id_: inbox_item.api_object for id_, inbox_item in contents.iteritems() if inbox_item.api_object.ty != 'pkg'
         }
         # Wrap the contents in a package for convenience so they can be easily validated:
+        # TODO: STIX_Header is missing, so validation fails with package level only TLP/marking
         package_for_validation = create_package(contents_to_validate)
         validation_result = PackageValidationInfo.validate(package_for_validation)
 
