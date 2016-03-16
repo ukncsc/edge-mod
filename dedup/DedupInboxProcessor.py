@@ -1,13 +1,19 @@
 import pymongo
 
-from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong,\
-    drop_envelopes, INBOX_DROP_ENVELOPES
+from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong, \
+    drop_envelopes, INBOX_DROP_ENVELOPES, is_envelope
 from edge.generic import create_package, EdgeObject
 from mongoengine.connection import get_db
 from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from edge.tools import rgetattr
 from .edges import dedup_collections
+from stix.core.stix_header import STIXHeader
+from stix.data_marking import Marking, MarkingSpecification
+from stix.extensions.marking.tlp import TLPMarkingStructure
+from stix.extensions.marking.terms_of_use_marking import TermsOfUseMarkingStructure
+from stix.extensions.marking.simple_marking import SimpleMarkingStructure
+from itertools import chain
 
 PROPERTY_TYPE = ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE']
 PROPERTY_FILENAME = ['api_object', 'obj', 'object_', 'properties', 'file_name']
@@ -42,10 +48,10 @@ def _update_existing_properties(additional_sightings, additional_file_hashes, us
         api_object = edge_object.to_ApiObject()
         _merge_properties(api_object, id_, count, additional_file_hashes)
         inbox_processor.add(InboxItem(
-            api_object=api_object,
-            etlp=edge_object.etlp,
-            etou=edge_object.etou,
-            esms=edge_object.esms
+                api_object=api_object,
+                etlp=edge_object.etlp,
+                etou=edge_object.etou,
+                esms=edge_object.esms
         ))
     inbox_processor.run()
 
@@ -196,7 +202,7 @@ def _existing_hash_dedup(contents, hashes, user):
 
     map_table = {
         id_: hash_to_existing_ids[hash_] for id_, hash_ in hashes.iteritems() if hash_ in hash_to_existing_ids
-    }
+        }
 
     # file observable have more complex rules for duplicates, so simple hash matching isn't good enough
     _add_matching_file_observables(db, map_table, contents)
@@ -251,19 +257,44 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         # TODO: extract STIX_Header from streams
         super(DedupInboxProcessor, self).__init__(user, trustgroups, streams)
         self.validation_result = {}
+        self.envelope_header = DedupInboxProcessor.get_envelope_header(
+                DedupInboxProcessor.get_envelope(self.contents))
 
     @staticmethod
-    def _validate(contents):
+    def get_envelope_header(envelope):
+        if envelope:
+            return STIXHeader(
+                    handling=Marking([
+                        MarkingSpecification(
+                                marking_structures=list(chain(
+                                        (TLPMarkingStructure(item) for item in [envelope.etlp] if item != 'NULL'),
+                                        (TermsOfUseMarkingStructure(item) for item in envelope.etou),
+                                        (SimpleMarkingStructure(item) for item in envelope.esms),
+                                )),
+                        )
+                    ]))
+        return None
+
+    @staticmethod
+    def get_envelope(contents):
+        if contents:
+            for id_, inbox_item in contents.iteritems():
+                if inbox_item.api_object.ty == 'pkg' and is_envelope(inbox_item.api_object.obj):
+                    return inbox_item
+        return None
+
+    @staticmethod
+    def _validate(contents, envelope_header):
         if not contents:
             return None
         # At this point, only things that don't already exist in the database will be in contents...
         # We can exclude packages, as they only serve as containers for other objects.
         contents_to_validate = {
             id_: inbox_item.api_object for id_, inbox_item in contents.iteritems() if inbox_item.api_object.ty != 'pkg'
-        }
+            }
         # Wrap the contents in a package for convenience so they can be easily validated:
-        # TODO: STIX_Header is missing, so validation fails with package level only TLP/marking
         package_for_validation = create_package(contents_to_validate)
+        package_for_validation.stix_header = envelope_header
         validation_result = PackageValidationInfo.validate(package_for_validation)
 
         return validation_result.validation_dict
@@ -272,7 +303,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         super(DedupInboxProcessor, self).apply_filters()
         if not self.contents:
             return
-        self.validation_result = DedupInboxProcessor._validate(self.contents)
+        self.validation_result = DedupInboxProcessor._validate(self.contents, self.envelope_header)
         for id_, object_fields in self.validation_result.iteritems():
             for field_name in object_fields:
                 if object_fields[field_name]['status'] == ValidationStatus.ERROR:
