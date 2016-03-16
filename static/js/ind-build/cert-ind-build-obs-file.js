@@ -8,11 +8,13 @@ define([
     "use strict";
 
     var coreFileObservable = indicator_builder.ObservableFile;
-    var CERTObservableFile = declare(indicator_builder.AbstractMassObservable, {
+    var massObservable = indicator_builder.AbstractMassObservable;
+    var CERTObservableFile = declare([massObservable, coreFileObservable], {
         declaredClass: "CERTObservableFile",
-
-        constructor: coreFileObservable,
-
+        constructor: function () {
+            coreFileObservable.constructor.call(this, "File");
+            massObservable.constructor.call(this, "File");
+        },
         getSearchValue: function () {
             coreFileObservable.prototype.getSearchValue.bind(this)();
         },
@@ -68,15 +70,13 @@ define([
             return title;
         },
 
-        bulkSave: declare.superCall(function (sup) {
-            return function () {
-                var items = sup.call(this);
-                if (items.length == 0){
-                     items[0] = coreFileObservable.prototype.save.bind(this)();
-                }
-                return items;
+        bulkSave: function () {
+            var items = massObservable.prototype.bulkSave.bind(this)();
+            if (items.length == 0) {
+                items[0] = coreFileObservable.prototype.save.bind(this)();
             }
-        }),
+            return items;
+        },
 
         save: function (idx) {
             if (typeof idx === 'undefined') {
@@ -85,7 +85,7 @@ define([
 
             var value = this.getObjectValuesArray()[idx || 0];
             if (typeof value === 'undefined') {
-                 return coreFileObservable.prototype.save.bind(this)();
+                return coreFileObservable.prototype.save.bind(this)();
             }
 
             var childFile = new CERTObservableFile();
@@ -122,30 +122,27 @@ define([
             return (value.indexOf('\'') == 0 || value.indexOf('\"') == 0 )
         },
 
-        doValidation: declare.superCall(function (sup) {
-            return function () {
-
-                if (!indicator_builder.vm.builderMode().isBatchMode()) {
-                    return coreFileObservable.prototype.doValidation.bind(this)();
-                }
-
-                var msgs = sup.call(this);
-                ko.utils.arrayForEach(this.getObjectValuesArray(), function (value) {
-                    var hashes = value.split(';');
-                    for (var i = 0, len = hashes.length; i < len; i++) {
-                        if (this.looksLikeFileName(hashes[i]) && i == 0) {
-                            continue;
-                        }
-
-                        if (this.getHashType(hashes[i]) === "Other") {
-                            msgs.addError("Unable to parse the hash:" + hashes[i]);
-                        }
-                    }
-                }.bind(this));
-
-                return msgs;
+        doValidation: function () {
+            if (!indicator_builder.vm.builderMode().isBatchMode()) {
+                return coreFileObservable.prototype.doValidation.bind(this)();
             }
-        })
+
+            var msgs = massObservable.prototype.doValidation.bind(this)();
+            ko.utils.arrayForEach(this.getObjectValuesArray(), function (value) {
+                var hashes = value.split(';');
+                for (var i = 0, len = hashes.length; i < len; i++) {
+                    if (this.looksLikeFileName(hashes[i]) && i == 0) {
+                        continue;
+                    }
+
+                    if (this.getHashType(hashes[i]) === "Other") {
+                        msgs.addError("Unable to parse the hash:" + hashes[i]);
+                    }
+                }
+            }.bind(this));
+
+            return msgs;
+        }
     });
 
     indicator_builder.ObservableFile = CERTObservableFile;
