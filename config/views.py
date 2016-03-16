@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
 
@@ -18,7 +17,7 @@ def ajax_get_cert_config(request):
         }, status=500)
 
 
-@login_required
+@login_required_ajax
 @superuser_or_staff_role
 def ajax_get_crm_url(request):
     try:
