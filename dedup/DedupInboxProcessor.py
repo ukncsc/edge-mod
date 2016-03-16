@@ -299,7 +299,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         return validation_result.validation_dict
 
     def apply_filters(self):
-        # super(DedupInboxProcessor, self).apply_filters()
+        super(DedupInboxProcessor, self).apply_filters()
         if not self.contents:
             return
         self.validation_result = DedupInboxProcessor._validate(self.contents, self.envelope_header)
