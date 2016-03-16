@@ -254,7 +254,6 @@ class DedupInboxProcessor(InboxProcessorForPackages):
     ]
 
     def __init__(self, user, trustgroups=None, streams=None):
-        # TODO: extract STIX_Header from streams
         super(DedupInboxProcessor, self).__init__(user, trustgroups, streams)
         self.validation_result = {}
         self.envelope_header = DedupInboxProcessor.get_envelope_header(
@@ -300,7 +299,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         return validation_result.validation_dict
 
     def apply_filters(self):
-        super(DedupInboxProcessor, self).apply_filters()
+        # super(DedupInboxProcessor, self).apply_filters()
         if not self.contents:
             return
         self.validation_result = DedupInboxProcessor._validate(self.contents, self.envelope_header)
