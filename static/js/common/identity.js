@@ -38,12 +38,25 @@ define([
         load: function (data) {
             this.UUID(data["name"] || "");
             this.name(this.getName(this.UUID()));
-            this.sector(this.getSector(this.UUID()));
+            this.sector(data["specification"]["organisation_info"] || "");
             this.selected(true);
             return this;
         },
 
         getName: function (id) {
+            if (this.isCRMUUID(id)) {
+                this.getNameFromCRM(id);
+            } else {
+                this.name(id);
+            }
+        },
+
+        isCRMUUID: function (value) {
+            var isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+            return isUUID.test(value)
+        },
+
+        getNameFromCRM: function (id) {
             getJSON(this.buildOrgCRMURL() + id, null, function (data) {
                 this.name(data["name"]);
             }.bind(this), function () {
@@ -96,6 +109,7 @@ define([
         },
 
         cancel: function () {
+            this.search(false);
             this.restoreSnapshot(this.previousState);
             this.modal.close(this.previousState);
         },
@@ -111,7 +125,10 @@ define([
         to_json: function () {
             if (this.UUID()) {
                 return {
-                    name: this.UUID()
+                    name: this.UUID(),
+                    specification: {
+                        organisation_info: this.sector()
+                    }
                 }
             } else {
                 return undefined
