@@ -37,19 +37,8 @@ MARKING_PRIORITIES = ("UK HMG Priority: [C1]", "UK HMG Priority: [C2]", "UK HMG 
 configuration = settings.ACTIVE_CONFIG
 
 
-@login_required
-def incident_build(request):
-    request.breadcrumbs([("Incident Edit", "/incident/build/")])
-    static = views.get_static(request.user)
-
-    try:
-        id_ns = IDManager().get_namespace()
-        id_ = IDManager().get_new_id('incident')
-    except NamespaceNotConfigured as e:
-        messages.info(request, e.message)
-        return redirect('/setup')
-
-    return render(request, 'cert-inc-build.html', {
+def get_build_template(static, id_, id_ns):
+    return {
         'mode': 'Build',
         'id': id_,
         'id_ns': id_ns,
@@ -67,7 +56,21 @@ def incident_build(request):
         'ajax_uri': reverse('incident_ajax'),
         'object_type': "incident",
         'time_zone':  datetime.datetime.now(settings.LOCAL_TZ).tzname()
-    })
+    }
+
+@login_required
+def incident_build(request):
+    request.breadcrumbs([("Incident Edit", "/incident/build/")])
+    static = views.get_static(request.user)
+
+    try:
+        id_ns = IDManager().get_namespace()
+        id_ = IDManager().get_new_id('incident')
+    except NamespaceNotConfigured as e:
+        messages.info(request, e.message)
+        return redirect('/setup')
+
+    return render(request, 'cert-inc-build.html', get_build_template(static, id_, id_ns))
 
 
 @login_required

@@ -13,6 +13,9 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 
 from users.decorators import superuser_or_staff_role, json_body
+from users.models import Draft
+from edge.generic import EdgeObject
+from edge import IDManager
 
 from adapters.certuk_mod.publisher.package_publisher import Publisher
 from adapters.certuk_mod.publisher.publisher_config import PublisherConfig
@@ -172,6 +175,47 @@ def extract_upload(request):
         return render(request, "extract_upload_complete.html", { 'result' : json.dumps(dictify(xml_contents))});
 
 
+TYPE_TO_URL = {
+    'cam': 'campaign',
+    'coa': 'course_of_action',
+    'tgt': 'exploit_target',
+    'inc': 'incident',
+    'ind': 'indicator',
+    'obs': 'observable',
+    'act': 'threat_actor',
+    'ttp': 'ttp'
+}
+
+
+@login_required
+def clone(request):
+    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
+    match = objectid_matcher.match(referrer)
+    try:
+        if match is not None and len(match.groups()) == 1:
+            edge_object = EdgeObject.load(match.group(1))
+            if edge_object.ty == 'obs':
+                return not_clonable(request, "Observables cannot be cloned")
+            new_id = IDManager().get_new_id(edge_object.ty)
+            draft = edge_object.to_draft()
+            draft['id'] = new_id
+            Draft.upsert(edge_object.ty, draft, request.user)
+            return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
+        else:
+            return not_clonable(request, "No clonable object found; please only choose the clone option from an object's summary or external publish page")
+    except Exception as e:
+        ext_ref_error = "not found"
+        if e.message.endswith(ext_ref_error):
+            return not_clonable(request, "Unable to load object as some external references were not found: " + e.message[0:-len(ext_ref_error)])
+        else:
+            return not_clonable(request, e.message)
+
+
+@login_required
+def not_clonable(request, msg):
+    return render(request, "not_clonable.html", {"msg": msg})
+
+
 def _get_request_username(request):
     if hasattr(request, "user") and hasattr(request.user, "username"):
         return request.user.username
@@ -242,7 +286,7 @@ def ajax_get_sites(request, data):
 def ajax_get_datetime(request, data):
     configuration = settings.ACTIVE_CONFIG
     current_date_time = datetime.datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime(
-        '%Y-%m-%dT%H:%M:%S')
+            '%Y-%m-%dT%H:%M:%S')
     return {'result': current_date_time}
 
 
