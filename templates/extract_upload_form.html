@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block head-title %}
+{{ main_title }}
+{% endblock %}
+
+{% block body-content %}
+    <style>
+        .btn-file {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-file input[type=file] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            font-size: 100px;
+            text-align: right;
+            filter: alpha(opacity=0);
+            opacity: 0;
+            background: red;
+            cursor: inherit;
+            display: block;
+        }
+        input[readonly] {
+            background-color: white !important;
+            cursor: text !important;
+        }
+    </style>
+
+
+
+
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-9">
+                <h3>Upload STIX package</h3>
+                <p>Please upload STIX package for ingest into
+                    DeDuplication endpoint</p>
+            </div>
+        </div>
+
+
+        <form action="{% url 'extract_upload' %}" method="POST" id="extract_upload_form"
+              enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="input-group">
+                <span class="input-group-btn">
+                    <span class="btn btn-primary btn-file">
+                        Select File&hellip; <input type="file" accept=".pdf" name="import"
+                                                   data-bind="event: {change: onFileSelected}">
+                    </span>
+                </span>
+                        <input type="text" class="form-control" readonly data-bind="value:fileName">
+                        <span class="input-group-btn">
+                        <button class="btn btn-default" data-bind="enable:exists">Submit</button>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block body-end %}
+    <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/stickytape.js' %}"></script>
+    <script>
+        var require = {
+            baseUrl: "/adapter/certuk_template{% static 'js' %}",
+            paths: {
+                knockout: "knockout-shim"
+            },
+            urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
+        };
+    </script>
+    <script src="/adapter/certuk_template{% static 'js/require.js' %}" data-main="example_de_dup/main"></script>
+{% endblock %}

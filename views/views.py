@@ -4,11 +4,13 @@ import urllib2
 import json
 import datetime
 from dateutil import tz
+import requests
 
 from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
 from users.decorators import superuser_or_staff_role, json_body
 
@@ -69,6 +71,105 @@ def discover(request):
         return redirect("publisher_review", id_=id_)
     else:
         return redirect("publisher_not_found")
+
+from ioc_parser.iocp import IOC_Parser
+@login_required
+def extract(request):
+    request.breadcrumbs([("Extract Stix", "")])
+    return render(request, "extract_upload_form.html")
+
+from django.core.files.base import ContentFile
+
+import contextlib
+@contextlib.contextmanager
+def capture():
+    import sys
+    from cStringIO import StringIO
+    oldout,olderr = sys.stdout, sys.stderr
+    try:
+        out=[StringIO(), StringIO()]
+        sys.stdout,sys.stderr = out
+        yield out
+    finally:
+        sys.stdout,sys.stderr = oldout, olderr
+        out[0] = out[0].getvalue()
+        out[1] = out[1].getvalue()
+
+import xml.etree.ElementTree as ET
+from copy import copy
+
+def dictify(r,root=True):
+    if root:
+        return {r.tag : dictify(r, False)}
+    d=copy(r.attrib)
+    if r.text:
+        d["_text"]=r.text
+    for x in r.findall("./*"):
+        if x.tag not in d:
+            d[x.tag]=[]
+        d[x.tag].append(dictify(x,False))
+    return d
+
+from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
+from StringIO import StringIO
+from edge.inbox import InboxItem
+from edge import IDManager
+from users.models import Draft
+from stix.utils import set_id_namespace
+from edge.generic import EdgeObject
+
+@csrf_exempt
+@login_required
+def extract_upload(request):
+    file_import = request.FILES['import']
+    parser = IOC_Parser(None, 'pdf', True, "pypdf2", "stix");
+
+    xml_contents = None
+    with capture() as out:
+        NAMESPACE = {"http://www.cert.gov.uk" : "certuk"}
+        set_id_namespace(NAMESPACE)
+        parser.parse_pdf_pypdf2(file_import, "")
+        xml_contents = ET.fromstring(out[0].getvalue())
+        stream = StringIO(out[0].getvalue())
+        upload_id = 9999
+
+    ip = DedupInboxProcessor(user=request.user, streams=[(stream, None)])
+    ip.calculate_hashes()
+    items = ip.contents
+    draft_urls = []
+    for id, inbox_item in items.iteritems():
+        if inbox_item.api_object.ty == 'pkg':
+            continue
+        new_id = IDManager().get_new_id(inbox_item.api_object.ty)
+        doc = {}
+
+        doc['type'] = inbox_item.api_object.ty
+        data = {}
+        data['api'] = inbox_item.api_object.to_dict()
+        doc['_id'] = inbox_item.id
+        data['idns'] = inbox_item.api_object.obj.id_ns
+        data['etlp'] = inbox_item.etlp
+        data['etou'] = inbox_item.etou
+        data['esms'] = inbox_item.esms
+        data['summary'] = inbox_item.api_object.summarize()
+        data['hash'] = ip.hashes[id]
+        doc['cv'] = 1
+        doc['tg'] = ""
+        doc["id_"] = inbox_item.id
+        #data.get('actions') or []
+
+        doc['data'] = data
+        doc['created_by_organization'] = request.user.organization
+        eo = EdgeObject(doc)
+
+        draft = eo.to_draft()
+        draft['id'] = new_id
+        print "drafting:  " + id + "\n"
+
+        Draft.upsert(inbox_item.api_object.ty, draft, request.user)
+        draft_urls.append("/build/ajax/load_draft/" + new_id)
+
+        return render(request, "extract_upload_complete.html", { 'result' : json.dumps(dictify(xml_contents))});
 
 
 def _get_request_username(request):

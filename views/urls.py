@@ -23,6 +23,8 @@ VALID_TYPES = '|'.join(CLIPPY_TYPES.iterkeys())
 publisher_urls = [
     (r'^static/(?P<path>[\S]+)$', 'views.static', 'static_content'),
     (r'^review/$', 'views.discover', 'publisher_discover'),
+    (r'^extract/$', 'views.extract', 'extract_stix'),
+    (r'^extract_upload/$', 'views.extract_upload', 'extract_upload'),
     (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'publisher_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
     (r'^config/$', 'views.config', 'publisher_config'),
@@ -51,6 +53,7 @@ urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
 navitems = [
     ('External Publisher', 'publisher_discover'),
+    ('Extract Stix', 'extract_stix'),
     # ('Duplicates Finder', 'duplicates_finder'),
     ('Activity Log', 'activity_log'),
     ('CERT-UK Configuration', 'publisher_config')
