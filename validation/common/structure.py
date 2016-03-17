@@ -1,4 +1,3 @@
-
 from adapters.certuk_mod.validation.observable.address import AddressValidationInfo
 from adapters.certuk_mod.validation.observable.socket_type import SocketValidationInfo
 from adapters.certuk_mod.validation.observable.http_session import HTTPSessionValidationInfo
@@ -198,6 +197,8 @@ class OtherStructureConverter(object):
             simple['tlp'] = marking_structure['color']
         except LookupError:
             try:
+                if not package_header_dict:
+                    raise LookupError("package header not found")
                 handling_structures = package_header_dict['handling']
                 marking_structure = handling_structures[0]['marking_structures'][0]
                 simple['tlp'] = marking_structure['color']

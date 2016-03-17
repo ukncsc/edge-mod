@@ -1,13 +1,19 @@
 import pymongo
 
-from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong,\
-    drop_envelopes, INBOX_DROP_ENVELOPES
+from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong, \
+    drop_envelopes, INBOX_DROP_ENVELOPES, is_envelope
 from edge.generic import create_package, EdgeObject
 from mongoengine.connection import get_db
 from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from edge.tools import rgetattr
 from .edges import dedup_collections
+from stix.core.stix_header import STIXHeader
+from stix.data_marking import Marking, MarkingSpecification
+from stix.extensions.marking.tlp import TLPMarkingStructure
+from stix.extensions.marking.terms_of_use_marking import TermsOfUseMarkingStructure
+from stix.extensions.marking.simple_marking import SimpleMarkingStructure
+from itertools import chain
 
 PROPERTY_TYPE = ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE']
 PROPERTY_FILENAME = ['api_object', 'obj', 'object_', 'properties', 'file_name']
@@ -250,9 +256,34 @@ class DedupInboxProcessor(InboxProcessorForPackages):
     def __init__(self, user, trustgroups=None, streams=None):
         super(DedupInboxProcessor, self).__init__(user, trustgroups, streams)
         self.validation_result = {}
+        self.envelope_header = DedupInboxProcessor.get_envelope_header(
+                DedupInboxProcessor.get_envelope(self.contents))
 
     @staticmethod
-    def _validate(contents):
+    def get_envelope_header(envelope):
+        if envelope:
+            return STIXHeader(
+                handling=Marking([
+                    MarkingSpecification(
+                        marking_structures=list(chain(
+                            (TLPMarkingStructure(item) for item in [envelope.etlp] if item != 'NULL'),
+                            (TermsOfUseMarkingStructure(item) for item in envelope.etou),
+                            (SimpleMarkingStructure(item) for item in envelope.esms),
+                        )),
+                    )
+                ]))
+        return None
+
+    @staticmethod
+    def get_envelope(contents):
+        if contents:
+            for id_, inbox_item in contents.iteritems():
+                if inbox_item.api_object.ty == 'pkg' and is_envelope(inbox_item.api_object.obj):
+                    return inbox_item
+        return None
+
+    @staticmethod
+    def _validate(contents, envelope_header):
         if not contents:
             return None
         # At this point, only things that don't already exist in the database will be in contents...
@@ -262,6 +293,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         }
         # Wrap the contents in a package for convenience so they can be easily validated:
         package_for_validation = create_package(contents_to_validate)
+        package_for_validation.stix_header = envelope_header
         validation_result = PackageValidationInfo.validate(package_for_validation)
 
         return validation_result.validation_dict
@@ -270,7 +302,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         super(DedupInboxProcessor, self).apply_filters()
         if not self.contents:
             return
-        self.validation_result = DedupInboxProcessor._validate(self.contents)
+        self.validation_result = DedupInboxProcessor._validate(self.contents, self.envelope_header)
         for id_, object_fields in self.validation_result.iteritems():
             for field_name in object_fields:
                 if object_fields[field_name]['status'] == ValidationStatus.ERROR:
