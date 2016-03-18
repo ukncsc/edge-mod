@@ -36,8 +36,13 @@
         }
 
         line.ko-d3-graph-link {
-            stroke: #333;
+            stroke: #999;
             stroke-width: 0.5;
+        }
+
+        line.ko-d3-graph-link.related {
+            stroke: #A33;
+            stroke-width: 1.5;
         }
 
         dl.dl-horizontal dd {
@@ -81,16 +86,20 @@
                         linkStrength:0.25,
                         visible: true
                     ">
-                    <g data-bind="
-                        attr: {
-                            title: title
-                        },
+                    <!-- ko foreach: links -->
+                    <line class="ko-d3-graph-link" data-bind="
+                        attr: { class: className }
+                    "></line>
+                    <!-- /ko -->
+                    <!-- ko foreach: nodes -->
+                    <g class="ko-d3-graph-node" data-bind="
+                        attr: { title: title },
                         click: $root.onNodeClicked.bind($root)
                     ">
                         <image xlink:href="{% static 'img/hex/hex_.png' %}" class="" data-bind="
                             attr: {
                                 id: id(),
-                                class: className(),
+                                class: className,
                                 'xlink:href': '{% static 'img/hex/' %}hex_' + type() + '.png',
                                 height: imageHeight(),
                                 width: imageWidth(),
@@ -99,6 +108,8 @@
                             }
                         "></image>
                     </g>
+
+                    <!-- /ko -->
                 </svg>
             </div>
             <div class="col-sm-4">
@@ -160,7 +171,7 @@
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
-                d3: "{% static "js/d3.min" %}",
+                d3: "{% static "js/d3" %}",
                 jquery: "{% static "js/jquery-1.11.0.min" %}",
                 knockout: "common/knockout-shim"
             },
