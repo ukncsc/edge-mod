@@ -120,7 +120,9 @@ from edge import IDManager
 from users.models import Draft
 from stix.utils import set_id_namespace
 from edge.generic import EdgeObject
-
+from edge.generic import create_package
+from edge.inbox import InboxProcessorForBuilders
+from edge.inbox import InboxProcessorForPackages
 @csrf_exempt
 @login_required
 def extract_upload(request):
@@ -129,51 +131,69 @@ def extract_upload(request):
 
     xml_contents = None
     with capture() as out:
-        NAMESPACE = {"http://www.cert.gov.uk" : "certuk"}
+        NAMESPACE = {"http://www.purplesecure.com" : "pss"}
         set_id_namespace(NAMESPACE)
         parser.parse_pdf_pypdf2(file_import, "")
         xml_contents = ET.fromstring(out[0].getvalue())
         stream = StringIO(out[0].getvalue())
         upload_id = 9999
 
-    ip = DedupInboxProcessor(user=request.user, streams=[(stream, None)])
-    ip.calculate_hashes()
-    items = ip.contents
-    draft_urls = []
-    for id, inbox_item in items.iteritems():
-        if inbox_item.api_object.ty == 'pkg':
-            continue
-        new_id = IDManager().get_new_id(inbox_item.api_object.ty)
-        doc = {}
+    ip = InboxProcessorForPackages(user=request.user, streams=[(stream, None)])
+    indicators = [inbox_item for id, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
+    count = 0
+    urls = []
+    for indicator in indicators:
+        indicator.api_object.obj.title = "StixPDFExtract" + str(count)
+        count += 1
+        urls.append(request.META['HTTP_ORIGIN']+ "/" + TYPE_TO_URL[indicator.api_object.ty] + "/edit/" + indicator.id)
 
-        doc['type'] = inbox_item.api_object.ty
-        data = {}
-        data['api'] = inbox_item.api_object.to_dict()
-        doc['_id'] = inbox_item.id
-        data['idns'] = inbox_item.api_object.obj.id_ns
-        data['etlp'] = inbox_item.etlp
-        data['etou'] = inbox_item.etou
-        data['esms'] = inbox_item.esms
-        data['summary'] = inbox_item.api_object.summarize()
-        data['hash'] = ip.hashes[id]
-        doc['cv'] = 1
-        doc['tg'] = ""
-        doc["id_"] = inbox_item.id
-        #data.get('actions') or []
+    ip.run()
 
-        doc['data'] = data
-        doc['created_by_organization'] = request.user.organization
-        eo = EdgeObject(doc)
+    #draft_urls = []
 
-        draft = eo.to_draft()
-        draft['id'] = new_id
-        print "drafting:  " + id + "\n"
+    #ids_to_delete = [id for id, inbox_item in ip.contents.iteritems()]
 
-        Draft.upsert(inbox_item.api_object.ty, draft, request.user)
-        draft_urls.append("/build/ajax/load_draft/" + new_id)
+    #count = 0
+    #for indicator in indicators:
+    #
+    #    loaded_indicator = EdgeObject.load(indicator.id)
+    #    loaded_indicator.obj.title = "StixPDFExtract" + str(count)
+    #
+    #    #Draft.upsert('ind', loaded_indicator.to_draft(), request.user),
+    #
+    #    count += 1
+    #    print "drafting:  " + loaded_indicator.id_ + "\n"
+        #draft_urls.append(request.META['HTTP_ORIGIN']+ "/" + TYPE_TO_URL[loaded_indicator.ty] + "/build/" + loaded_indicator.id_)
 
-        return render(request, "extract_upload_complete.html", { 'result' : json.dumps(dictify(xml_contents))});
+    #for page_index in range(0, len(ids_to_delete), 10):
+    #    try:
+    #        chunk_ids = ids_to_delete[page_index: page_index + 10]
+    #        STIXPurge.remove(chunk_ids)
+    #    except Exception as e:
+    #        log_activity('system', 'AGEING', 'ERROR', e.message)
 
+
+    return render(request, "extract_upload_complete.html", { 'result' :urls});
+
+    #for inbox_item in sorted_items:
+    #    #inbox_item.api_object.obj.title = "test_obj"
+    #    indicator = {}
+    #    indicator['title'] = "stix_upload"
+    #    indicator['id_ns'] =  inbox_item.api_object.obj.id_ns
+    #    indicator['composition_type'] = inbox_item.api_object.obj.observable_composition_operator
+    #
+    #    observables = []
+    #    obs_comp = ip.contents.get(inbox_item.api_object.obj.observables[0].idref)
+    #    for obs in obs_comp.api_object.obj._observable_composition.observables:
+    #        actual_obs = ip.contents.get(obs._idref)
+    #
+    #        child_obs = {}
+    #        child_obs['description'] = actual_obs['description']
+    #        child_obs['title'] = actual_obs['title']
+    #
+    #        observables.append(child_obs)
+    #
+    #    indicator['observables'] = observables
 
 TYPE_TO_URL = {
     'cam': 'campaign',

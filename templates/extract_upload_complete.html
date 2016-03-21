@@ -15,7 +15,10 @@
             <h3 class="panel-title"></h3>
         </div>
         <div class="panel-body">
-            <pre>{{ result }}</pre>
+            {% for draft_link in result %}
+               <a href={{ draft_link }}>{{ draft_link }}</a>
+                <br>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}
