@@ -4,9 +4,7 @@ from edge import IDManager, LOCAL_ALIAS
 from stix.utils import set_id_namespace
 
 from ioc_parser.iocp import IOC_Parser
-NAMESPACE = {IDManager().get_namespace() : LOCAL_ALIAS}
-set_id_namespace(NAMESPACE)
-cybox_set_id_namespace(Namespace(IDManager().get_namespace(), LOCAL_ALIAS))
+
 from StringIO import StringIO
 import contextlib
 
@@ -27,9 +25,13 @@ def capture():
 
 
 def parse_file(file_to_parse):
+    NAMESPACE = {IDManager().get_namespace() : LOCAL_ALIAS}
+    set_id_namespace(NAMESPACE)
+    cybox_set_id_namespace(Namespace(IDManager().get_namespace(), LOCAL_ALIAS))
+
     parser = IOC_Parser(None, 'pdf', True, "pypdf2", "stix")
     with capture() as out:
-        parser.parse_pdf_pypdf2(file_to_parse, "")
+        parser.parse_pdf_pypdf2(file_to_parse, file_to_parse._name)
         res = StringIO(out[0].getvalue())
     print res.buf
     return res

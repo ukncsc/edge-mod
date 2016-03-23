@@ -33,7 +33,7 @@ define([
                 sizeToParent(element, graphModel);
             });
             sizeToParent(element, graphModel);
-            return { controlsDescendantBindings: true };
+            return { controlsDescendantBindings: true };  //Without this, ko complains we're binding the template multiple times.
         },
         update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             var graphModel = valueAccessor()();
