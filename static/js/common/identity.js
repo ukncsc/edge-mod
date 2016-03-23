@@ -37,7 +37,7 @@ define([
 
         load: function (data) {
             this.UUID(data["name"] || "");
-            this.name(this.getName(this.UUID()));
+            this.getName(this.UUID());
             this.sector(data["specification"]["organisation_info"] || "");
             this.selected(true);
             return this;
