@@ -3,24 +3,55 @@
 {% load staticfiles %}
 {% block head-title %}{{ main_title }}{% endblock %}
 {% block head-content %}
-
-<style type="text/css">
-</style>
-
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static "css/visualiser.css" %}" media="screen">
 {% endblock %}
 
 {% block body-content %}
-    <div class="panel panel-default panel-danger">
-        <div class="panel-heading">
-            <h3 class="panel-title"></h3>
-        </div>
-        <div class="panel-body">
-            {% for draft_link in result %}
-               <a href={{ draft_link }}>{{ draft_link }}</a>
-                <br>
+    {% include 'visualiser_graph.html' %}
+
+        <script>
+            var ids_only =
+                    {{ ids_only|safe }}
+
+            var ids =
+                    {{ ids|safe }}
+        </script>
+
+        <ul class="nav nav-tabs">
+            {% for stix_id, typename, typenamesafe in ids %}
+                <li><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}</a></li>
             {% endfor %}
-        </div>
-    </div>
+        </ul>
+
+        <div class="tab-content">
+            {% for stix_id, typename, typenamesafe in ids %}
+                <div id='{{ typenamesafe }}' class="tab-pane fade">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div data-bind="template: { name: 'Graph' , data: findByLabel('{{ stix_id }}')}"></div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+
+
+    <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
+    <script>
+        var require = {
+            baseUrl: "/adapter/certuk_mod{% static 'js' %}",
+            paths: {
+                d3: "{% static "js/d3" %}",
+                jquery: "{% static "js/jquery-1.11.0.min" %}",
+                knockout: "common/knockout-shim"
+            },
+            urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
+        };
+
+    </script>
+
+    <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="visualiser/multi-graph"></script>
 {% endblock %}
 
 {% block body-end %}

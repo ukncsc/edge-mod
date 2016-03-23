@@ -33,6 +33,7 @@ define([
                 sizeToParent(element, graphModel);
             });
             sizeToParent(element, graphModel);
+            return { controlsDescendantBindings: true };
         },
         update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             var graphModel = valueAccessor()();

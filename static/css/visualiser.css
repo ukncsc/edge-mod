@@ -1,0 +1,61 @@
+.container-fluid .full-height {
+    height: calc(100vh - 120px);
+}
+
+#graph-container {
+    padding-right: 0;
+}
+
+svg {
+    border: 1px solid grey;
+    box-shadow: rgba(0, 0, 0, 0.3) 4px 4px 4px;
+    width:100%;
+}
+
+g.ko-d3-graph-node {
+    cursor: pointer;
+}
+
+g.ko-d3-graph-node image.selected {
+    filter: drop-shadow(0 0 8px black) contrast(150%);
+}
+
+g.ko-d3-graph-node image.related {
+    filter: grayscale(33%);
+}
+
+g.ko-d3-graph-node image.unselected {
+    filter: grayscale(100%) brightness(150%);
+}
+
+line.ko-d3-graph-link {
+    stroke: #999;
+    stroke-width: 0.5;
+}
+
+line.ko-d3-graph-link.related {
+    stroke: #A33;
+    stroke-width: 1.5;
+}
+
+dl.dl-horizontal dd {
+    margin-left: 160px;
+    padding-left: 20px;
+    padding-right: 1px;
+    margin-right: 20px;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+
+dl.linkedNodes dd {
+    cursor: pointer;
+}
+
+dl.linkedNodes dd:hover span {
+    text-decoration: underline;
+}
+
+.value-missing:after {
+    content: "(missing)";
+    font-style: italic;
+}

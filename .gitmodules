@@ -1,3 +1,9 @@
 [submodule "static/js/dcl"]
 	path = static/js/dcl
 	url = https://github.com/uhop/dcl.git
+[submodule "lib/PyPDF2"]
+	path = lib/PyPDF2
+	url = https://github.com/mstamy2/PyPDF2.git
+[submodule "lib/ioc_parser"]
+	path = lib/ioc_parser
+	url = git@github.com:certuk/ioc_parser.git

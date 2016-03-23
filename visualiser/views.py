@@ -83,8 +83,8 @@ def visualiser_get(request, id_):
         return dict(nodes=nodes, links=links)
 
     try:
-        root_edge_object = PublisherEdgeObject.load(id_)
-        graph = depth_first_iterate(root_edge_object)
+        root_edge_objects = PublisherEdgeObject.load(id_)
+        graph = depth_first_iterate(root_edge_objects)
         return JsonResponse(graph, status=200)
     except Exception as e:
         return JsonResponse(dict(e), status=500)

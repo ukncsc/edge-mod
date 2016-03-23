@@ -47,7 +47,7 @@ publisher_urls = [
     (r'^ajax/get_purge_task_status/$', 'views.ajax_get_purge_task_status', None),
     (r'^ajax/run_purge/$', 'views.ajax_run_purge', None),
 
-    (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None)
+    (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),
 
     (r'^visualiser/$', 'views.visualiser_discover', 'visualiser_discover'),
     (r'^visualiser/missing/$', 'views.visualiser_not_found', 'visualiser_not_found'),

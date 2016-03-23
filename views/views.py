@@ -41,7 +41,8 @@ from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
 from adapters.certuk_mod.retention.purge import STIXPurge
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus
-from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser_not_found, visualiser_view, visualiser_get, \
+from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser_not_found, visualiser_view, \
+    visualiser_get, \
     visualiser_item_get
 from users.models import Repository_User
 
@@ -77,86 +78,76 @@ def discover(request):
     else:
         return redirect("publisher_not_found")
 
-from ioc_parser.iocp import IOC_Parser
+
 @login_required
 def extract(request):
     request.breadcrumbs([("Extract Stix", "")])
     return render(request, "extract_upload_form.html")
 
-from django.core.files.base import ContentFile
 
-import contextlib
-@contextlib.contextmanager
-def capture():
-    import sys
-    from cStringIO import StringIO
-    oldout,olderr = sys.stdout, sys.stderr
-    try:
-        out=[StringIO(), StringIO()]
-        sys.stdout,sys.stderr = out
-        yield out
-    finally:
-        sys.stdout,sys.stderr = oldout, olderr
-        out[0] = out[0].getvalue()
-        out[1] = out[1].getvalue()
+from django.core.files.base import ContentFile
 
 import xml.etree.ElementTree as ET
 from copy import copy
 
-def dictify(r,root=True):
+
+def dictify(r, root=True):
     if root:
-        return {r.tag : dictify(r, False)}
-    d=copy(r.attrib)
+        return {r.tag: dictify(r, False)}
+    d = copy(r.attrib)
     if r.text:
-        d["_text"]=r.text
+        d["_text"] = r.text
     for x in r.findall("./*"):
         if x.tag not in d:
-            d[x.tag]=[]
-        d[x.tag].append(dictify(x,False))
+            d[x.tag] = []
+        d[x.tag].append(dictify(x, False))
     return d
 
+
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
-from StringIO import StringIO
+
 from edge.inbox import InboxItem
-from edge import IDManager
+from edge import IDManager, LOCAL_ALIAS
 from users.models import Draft
 from stix.utils import set_id_namespace
 from edge.generic import EdgeObject
 from edge.generic import create_package
 from edge.inbox import InboxProcessorForBuilders
 from edge.inbox import InboxProcessorForPackages
+
+from adapters.certuk_mod.extract.ioc_wrapper import parse_file
+
+
 @csrf_exempt
 @login_required
 def extract_upload(request):
     file_import = request.FILES['import']
-    parser = IOC_Parser(None, 'pdf', True, "pypdf2", "stix");
+    stream = parse_file(file_import)
+    try:
+        ip = InboxProcessorForPackages(user=request.user, streams=[(stream, None)])
+    except Exception as e:
+        return not_clonable(request, "Error parsing file: " + e.message)
 
-    xml_contents = None
-    with capture() as out:
-        NAMESPACE = {"http://www.purplesecure.com" : "pss"}
-        set_id_namespace(NAMESPACE)
-        parser.parse_pdf_pypdf2(file_import, "")
-        xml_contents = ET.fromstring(out[0].getvalue())
-        stream = StringIO(out[0].getvalue())
-        upload_id = 9999
-
-    ip = InboxProcessorForPackages(user=request.user, streams=[(stream, None)])
     indicators = [inbox_item for id, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
     count = 0
-    urls = []
+    ids = []
+    typenames = []
+    typenamesafe = []
     for indicator in indicators:
         indicator.api_object.obj.title = "StixPDFExtract" + str(count)
         count += 1
-        urls.append(request.META['HTTP_ORIGIN']+ "/" + TYPE_TO_URL[indicator.api_object.ty] + "/edit/" + indicator.id)
+        ids.append(str(indicator.id))
+        typenames.append(str(indicator.api_object.obj._indicator_types._inner[0]))
+        typenamesafe.append(str(indicator.api_object.obj._indicator_types._inner[0]).replace(" ", ""))
 
     ip.run()
 
-    #draft_urls = []
+    # draft_urls = []
 
-    #ids_to_delete = [id for id, inbox_item in ip.contents.iteritems()]
+    # ids_to_delete = [id for id, inbox_item in ip.contents.iteritems()]
 
-    #count = 0
-    #for indicator in indicators:
+    # count = 0
+    # for indicator in indicators:
     #
     #    loaded_indicator = EdgeObject.load(indicator.id)
     #    loaded_indicator.obj.title = "StixPDFExtract" + str(count)
@@ -165,9 +156,9 @@ def extract_upload(request):
     #
     #    count += 1
     #    print "drafting:  " + loaded_indicator.id_ + "\n"
-        #draft_urls.append(request.META['HTTP_ORIGIN']+ "/" + TYPE_TO_URL[loaded_indicator.ty] + "/build/" + loaded_indicator.id_)
+    # draft_urls.append(request.META['HTTP_ORIGIN']+ "/" + TYPE_TO_URL[loaded_indicator.ty] + "/build/" + loaded_indicator.id_)
 
-    #for page_index in range(0, len(ids_to_delete), 10):
+    # for page_index in range(0, len(ids_to_delete), 10):
     #    try:
     #        chunk_ids = ids_to_delete[page_index: page_index + 10]
     #        STIXPurge.remove(chunk_ids)
@@ -175,9 +166,10 @@ def extract_upload(request):
     #        log_activity('system', 'AGEING', 'ERROR', e.message)
 
 
-    return render(request, "extract_upload_complete.html", { 'result' :urls});
+    return render(request, "extract_upload_complete.html",
+                  {'ids': zip(ids, typenames, typenamesafe), 'ids_only': json.dumps(ids)});
 
-    #for inbox_item in sorted_items:
+    # for inbox_item in sorted_items:
     #    #inbox_item.api_object.obj.title = "test_obj"
     #    indicator = {}
     #    indicator['title'] = "stix_upload"
@@ -196,6 +188,7 @@ def extract_upload(request):
     #        observables.append(child_obs)
     #
     #    indicator['observables'] = observables
+
 
 TYPE_TO_URL = {
     'cam': 'campaign',
@@ -224,11 +217,14 @@ def clone(request):
             Draft.upsert(edge_object.ty, draft, request.user)
             return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
         else:
-            return not_clonable(request, "No clonable object found; please only choose the clone option from an object's summary or external publish page")
+            return not_clonable(request,
+                                "No clonable object found; please only choose the clone option from an object's summary or external publish page")
     except Exception as e:
         ext_ref_error = "not found"
         if e.message.endswith(ext_ref_error):
-            return not_clonable(request, "Unable to load object as some external references were not found: " + e.message[0:-len(ext_ref_error)])
+            return not_clonable(request,
+                                "Unable to load object as some external references were not found: " + e.message[0:-len(
+                                    ext_ref_error)])
         else:
             return not_clonable(request, e.message)
 
