@@ -40,7 +40,7 @@ define([
                     var identity = new Identity();
 
                     //given
-                    mstickytape.getJSONReturnError = false;
+                    getJSONReturnError = false;
 
                     //when
                     identity.load(externalkBData);
@@ -54,7 +54,7 @@ define([
                     var identity = new Identity();
 
                     //given
-                    mstickytape.getJSONReturnError = false;
+                    getJSONReturnError = false;
 
                     //when
                     identity.load(crmKBData);
