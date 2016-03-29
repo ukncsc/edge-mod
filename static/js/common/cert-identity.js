@@ -15,12 +15,8 @@ define([
 
         ModelUI: function () {
             return EdgeIdentityShowModal({viewModel: this});
-        },
-
-        cancel: function () {
-            this.restoreSnapshot();
-            this.modal.close();
         }
+
     });
 
     return CERTIdentity;

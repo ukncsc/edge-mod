@@ -25,6 +25,7 @@ define([
             }, this);
             this.search = ko.observable(false);
             this.selected = ko.observable(false);
+            this.error = ko.observable(false);
         },
 
         buildOrgCRMURL: function () {
@@ -70,7 +71,11 @@ define([
 
             var searchUrl = this.buildSearchCRMURL() + this.searchTerm();
 
-            getJSON(searchUrl, null, this.searchResults);
+            getJSON(searchUrl, null, function (data) {
+                this.searchResults(data);
+            }.bind(this), function () {
+                this.error(true);
+            }.bind(this));
         },
 
         selectOrganisation: function (data) {
@@ -93,9 +98,11 @@ define([
         },
 
         restoreSnapshot: function () {
-            ko.utils.objectForEach(this.previousState, function (key, value) {
-                this[key] = value;
-            }.bind(this));
+            for (var key in this.previousState) {
+                if (this.previousState.hasOwnProperty(key)) {
+                    this[key](this.previousState[key])
+                }
+            }
         },
 
         onSelect: function (data) {
@@ -110,7 +117,7 @@ define([
 
         cancel: function () {
             this.search(false);
-            this.restoreSnapshot(this.previousState);
+            this.restoreSnapshot();
             this.modal.close(this.previousState);
         },
 
@@ -119,7 +126,7 @@ define([
                 name: this.name(),
                 UUID: this.UUID(),
                 sector: this.sector()
-            };
+            }
         },
 
         to_json: function () {

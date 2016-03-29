@@ -1,7 +1,8 @@
 {% comment %}
 * use this with static/js/shared/identity.js
 {% endcomment %}
-<script type="text/html" id="cert-identity-element-popup" id="cert-identity-element-popup" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<script type="text/html" id="cert-identity-element-popup" id="cert-identity-element-popup"
+        xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
     <div id="identityModal" class="modal">
 
         <div class="modal-header">Organisation</div>
@@ -17,6 +18,8 @@
                           </button>
                       </span>
                 </div>
+                </br>
+                <span data-bind="visible: error" class="col-lg-offset-2 validation-error">Can't connect to CRM, please contact your system admin</span>
             </div>
             </br>
             <table class="table table-striped table-condensed table-modal" data-bind="if: search">
