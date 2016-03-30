@@ -10,7 +10,6 @@ from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
 
 from users.decorators import superuser_or_staff_role, json_body
 from users.models import Draft
@@ -27,6 +26,7 @@ import adapters.certuk_mod.builder.customizations as cert_builder
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
+from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser_get, extract_visualiser_item_get
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.cron import setup as cron_setup
 
@@ -39,7 +39,7 @@ from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
-from adapters.certuk_mod.retention.purge import STIXPurge
+
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus
 from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser_not_found, visualiser_view, \
     visualiser_get, \
@@ -103,91 +103,11 @@ def dictify(r, root=True):
         d[x.tag].append(dictify(x, False))
     return d
 
-
-from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
-
-from edge.inbox import InboxItem
-from edge import IDManager, LOCAL_ALIAS
+from edge import IDManager
 from users.models import Draft
-from stix.utils import set_id_namespace
+
 from edge.generic import EdgeObject
-from edge.generic import create_package
-from edge.inbox import InboxProcessorForBuilders
-from edge.inbox import InboxProcessorForPackages
 
-from adapters.certuk_mod.extract.ioc_wrapper import parse_file
-
-
-@csrf_exempt
-@login_required
-def extract_upload(request):
-    file_import = request.FILES['import']
-    stream = parse_file(file_import)
-    try:
-        ip = InboxProcessorForPackages(user=request.user, streams=[(stream, None)])
-    except Exception as e:
-        return not_clonable(request, "Error parsing file: " + e.message)
-
-    indicators = [inbox_item for id, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
-    count = 0
-    ids = []
-    typenames = []
-    typenamesafe = []
-    for indicator in indicators:
-        indicator.api_object.obj.title = "StixPDFExtract" + str(count)
-        count += 1
-        ids.append(str(indicator.id))
-        typenames.append(str(indicator.api_object.obj._indicator_types._inner[0]))
-        typenamesafe.append(str(indicator.api_object.obj._indicator_types._inner[0]).replace(" ", ""))
-
-    ip.run()
-
-    # draft_urls = []
-
-    # ids_to_delete = [id for id, inbox_item in ip.contents.iteritems()]
-
-    # count = 0
-    # for indicator in indicators:
-    #
-    #    loaded_indicator = EdgeObject.load(indicator.id)
-    #    loaded_indicator.obj.title = "StixPDFExtract" + str(count)
-    #
-    #    #Draft.upsert('ind', loaded_indicator.to_draft(), request.user),
-    #
-    #    count += 1
-    #    print "drafting:  " + loaded_indicator.id_ + "\n"
-    # draft_urls.append(request.META['HTTP_ORIGIN']+ "/" + TYPE_TO_URL[loaded_indicator.ty] + "/build/" + loaded_indicator.id_)
-
-    # for page_index in range(0, len(ids_to_delete), 10):
-    #    try:
-    #        chunk_ids = ids_to_delete[page_index: page_index + 10]
-    #        STIXPurge.remove(chunk_ids)
-    #    except Exception as e:
-    #        log_activity('system', 'AGEING', 'ERROR', e.message)
-
-
-    return render(request, "extract_upload_complete.html",
-                  {'ids': zip(ids, typenames, typenamesafe), 'ids_only': json.dumps(ids)});
-
-    # for inbox_item in sorted_items:
-    #    #inbox_item.api_object.obj.title = "test_obj"
-    #    indicator = {}
-    #    indicator['title'] = "stix_upload"
-    #    indicator['id_ns'] =  inbox_item.api_object.obj.id_ns
-    #    indicator['composition_type'] = inbox_item.api_object.obj.observable_composition_operator
-    #
-    #    observables = []
-    #    obs_comp = ip.contents.get(inbox_item.api_object.obj.observables[0].idref)
-    #    for obs in obs_comp.api_object.obj._observable_composition.observables:
-    #        actual_obs = ip.contents.get(obs._idref)
-    #
-    #        child_obs = {}
-    #        child_obs['description'] = actual_obs['description']
-    #        child_obs['title'] = actual_obs['title']
-    #
-    #        observables.append(child_obs)
-    #
-    #    indicator['observables'] = observables
 
 
 TYPE_TO_URL = {
@@ -210,27 +130,27 @@ def clone(request):
         if match is not None and len(match.groups()) == 1:
             edge_object = EdgeObject.load(match.group(1))
             if edge_object.ty == 'obs':
-                return not_clonable(request, "Observables cannot be cloned")
+                return error_with_message(request, "Observables cannot be cloned")
             new_id = IDManager().get_new_id(edge_object.ty)
             draft = edge_object.to_draft()
             draft['id'] = new_id
             Draft.upsert(edge_object.ty, draft, request.user)
             return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
         else:
-            return not_clonable(request,
+            return error_with_message(request,
                                 "No clonable object found; please only choose the clone option from an object's summary or external publish page")
     except Exception as e:
         ext_ref_error = "not found"
         if e.message.endswith(ext_ref_error):
-            return not_clonable(request,
+            return error_with_message(request,
                                 "Unable to load object as some external references were not found: " + e.message[0:-len(
-                                    ext_ref_error)])
+                                        ext_ref_error)])
         else:
-            return not_clonable(request, e.message)
+            return error_with_message(request, e.message)
 
 
 @login_required
-def not_clonable(request, msg):
+def error_with_message(request, msg):
     return render(request, "not_clonable.html", {"msg": msg})
 
 

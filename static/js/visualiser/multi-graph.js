@@ -13,7 +13,7 @@ require([
             this.viewModelsById = {};
 
             for (var i = 0; i < rootIds.length; i++) {
-                ViewModel.loadById(rootIds[i], function (viewModel) {
+                ViewModel.loadById(rootIds[i], "/adapter/certuk_mod/ajax/extract_visualiser/", "/adapter/certuk_mod/ajax/extract_visualiser/item/", function (viewModel) {
                     this.viewModelsById[viewModel.rootId()] = viewModel;
                     this.viewModels.push(viewModel);
                 }.bind(this));
@@ -35,5 +35,5 @@ require([
         }
     });
 
-    return new MultiGraph(window['ids_only']);
+    return new MultiGraph(window['root_ids']);
 });

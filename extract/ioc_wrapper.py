@@ -23,15 +23,29 @@ def capture():
         out[0] = out[0].getvalue()
         out[1] = out[1].getvalue()
 
+class IOCParseException(Exception):
+    pass
+
+
+def parse_as_type(file_to_parse, parse_func_name):
+    parser = IOC_Parser(None, "txt", True, "pypdf2", "stix")
+    with capture() as out:
+        parser_func = getattr(parser, parse_func_name)
+        parser_func(file_to_parse, file_to_parse._name)
+        result = StringIO(out[0].getvalue())
+        error = StringIO(out[1].getvalue())
+
+        if error.buf:
+            raise IOCParseException(error.buf)
+    return result
+
 
 def parse_file(file_to_parse):
-    NAMESPACE = {IDManager().get_namespace() : LOCAL_ALIAS}
-    set_id_namespace(NAMESPACE)
+    set_id_namespace({IDManager().get_namespace(): LOCAL_ALIAS})
     cybox_set_id_namespace(Namespace(IDManager().get_namespace(), LOCAL_ALIAS))
 
-    parser = IOC_Parser(None, 'pdf', True, "pypdf2", "stix")
-    with capture() as out:
-        parser.parse_pdf_pypdf2(file_to_parse, file_to_parse._name)
-        res = StringIO(out[0].getvalue())
-    print res.buf
-    return res
+    parse_func = 'parse_txt'
+    if 'pdf' in file_to_parse.content_type:
+        parse_func = 'parse_pdf_pypdf2'
+
+    return parse_as_type(file_to_parse, parse_func)

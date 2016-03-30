@@ -28,7 +28,7 @@ define([
                         if (_pendingUpdate) {
                             clearTimeout(_pendingUpdate);
                         }
-                        _pendingUpdate = setTimeout(_d3Layout.start.bind(_d3Layout), 100);
+                        _pendingUpdate = setTimeout(_d3Layout.start.bind(_d3Layout), 50); //ToDo at 50 this works ok, with 100 or more, causes the issue below
                     });
                     this[name] = proxy;
                 }
@@ -54,15 +54,17 @@ define([
                     var findIndex = selectedNode.index;
                     ko.utils.arrayForEach(this.links(), function (link) {
                         var isRelatedLink = false;
-                        if (link.source.index === findIndex) {
-                            linkedNodes.parentOf.push(link.target);
-                            link.target.isRelated(true);
-                            isRelatedLink = true;
-                        }
-                        if (link.target.index === findIndex) {
-                            linkedNodes.childOf.push(link.source);
-                            link.source.isRelated(true);
-                            isRelatedLink = true;
+                        if (typeof findIndex != "undefined") { //ToDo there's some timing thing which results in nothing having a defined index when the code reaches here. See above
+                            if (link.source.index === findIndex) {
+                                linkedNodes.parentOf.push(link.target);
+                                link.target.isRelated(true);
+                                isRelatedLink = true;
+                            }
+                            if (link.target.index === findIndex) {
+                                linkedNodes.childOf.push(link.source);
+                                link.source.isRelated(true);
+                                isRelatedLink = true;
+                            }
                         }
                         link.isRelated(isRelatedLink);
                     });

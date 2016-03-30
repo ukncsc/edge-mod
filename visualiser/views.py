@@ -11,11 +11,10 @@ from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObj
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from users.decorators import login_required_ajax
 
-
 objectid_matcher = re.compile(
-    # {STIX/ID Alias}:{type}-{GUID}
-    r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
-    re.IGNORECASE  # | re.DEBUG
+        # {STIX/ID Alias}:{type}-{GUID}
+        r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
+        re.IGNORECASE  # | re.DEBUG
 )
 
 
@@ -39,9 +38,12 @@ def visualiser_view(request, id_):
     })
 
 
+
+
 @login_required
 def visualiser_not_found(request):
     return render(request, "visualiser_not_found.html", {})
+
 
 
 @login_required_ajax

@@ -3,38 +3,40 @@
 {% load staticfiles %}
 {% block head-title %}{{ main_title }}{% endblock %}
 {% block head-content %}
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
     <link rel="stylesheet" href="{% static "css/visualiser.css" %}" media="screen">
 {% endblock %}
 
 {% block body-content %}
     {% include 'visualiser_graph.html' %}
 
-        <script>
-            var ids_only =
-                    {{ ids_only|safe }}
+    <script>
+        var root_ids =
+        {{ indicator_ids|safe }}
 
-            var ids =
-                    {{ ids|safe }}
-        </script>
+        var indicator_information =
+        {{ indicator_information|safe }}
+    </script>
 
-        <ul class="nav nav-tabs">
-            {% for stix_id, typename, typenamesafe in ids %}
-                <li><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}</a></li>
-            {% endfor %}
-        </ul>
+    <ul class="nav nav-tabs">
+        {% for stix_id, typename, typenamesafe in indicator_information %}
+            <li><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}  </a> </li>
+        {% endfor %}
+    </ul>
 
-        <div class="tab-content">
-            {% for stix_id, typename, typenamesafe in ids %}
-                <div id='{{ typenamesafe }}' class="tab-pane fade">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div data-bind="template: { name: 'Graph' , data: findByLabel('{{ stix_id }}')}"></div>
-                        </div>
+    <div class="tab-content">
+        {% for stix_id, typename, typenamesafe in indicator_information %}
+
+            <div id='{{ typenamesafe }}' class="tab-pane fade">
+            <a href="/indicator/build/{{ stix_id }}"> Edit Indicator Draft: {{ stix_id }} </a>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div data-bind="template: { name: 'Graph' , data: findByLabel('{{ stix_id }}')}"></div>
                     </div>
                 </div>
-            {% endfor %}
-
+            </div>
+        {% endfor %}
+    </div>
 
 
     <script src="{% static 'js/knockout-3.1.0.js' %}"></script>

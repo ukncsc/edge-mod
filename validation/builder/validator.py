@@ -68,6 +68,7 @@ class BuilderValidationInfo(object):
                 validation_info = ObservableValidator.validate(**observable_properties)
                 validation_results['Observable ' + str(dummy_id)] = validation_info.validation_dict
             else:
+                #there is an id, is it a draft though?
                 namespace_validation = NamespaceValidationInfo.validate(r'obs', id_)
                 if namespace_validation.is_local():
                     real_observable = EdgeObject.load(id_)
