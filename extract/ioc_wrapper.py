@@ -35,8 +35,8 @@ def parse_as_type(file_to_parse, parse_func_name):
         result = StringIO(out[0].getvalue())
         error = StringIO(out[1].getvalue())
 
-        if error.buf:
-            raise IOCParseException(error.buf)
+        #if error.buf:
+        #    raise IOCParseException(error.buf)
     return result
 
 
