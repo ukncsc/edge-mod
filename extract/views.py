@@ -154,7 +154,7 @@ def format_draft_observable(d, indent=0):
                 else:
                     result += '\t' * (indent + 1) + str(item)
         elif value and value != 'None' and key != 'id' and key != 'id_ns' and key != 'objectType':
-            result += '\t' * (indent + 1) + str(value)
+            result += '\t' * (indent + 1) + value
     return result
 
 
@@ -241,10 +241,17 @@ def extract_visualiser_get(request, id_):
     try:
         draft_object = Draft.load(id_, request.user)
         graph = iterate_draft(draft_object)
-        return JsonResponse(graph, status=200)
+        return JsonResponse(graph, encoder=DjangoIgnoreNonAsciiJSONEncoder, status=200)
     except Exception as e:
         return
 
+from django.core.serializers.json import DjangoJSONEncoder
+
+class DjangoIgnoreNonAsciiJSONEncoder(DjangoJSONEncoder):
+    def __init__(self, **kwargs):
+        kwargs['ensure_ascii'] = False
+        kwargs['encoding'] = 'ascii'
+        super(DjangoJSONEncoder, self).__init__(**kwargs)
 
 def convert_to_viewable_obs(observable):
     new_obs = {'id': observable['id']}
