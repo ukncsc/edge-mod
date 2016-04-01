@@ -13,28 +13,44 @@
             <div data-bind="visible: results.loaded()">
                 <table class="table table-striped table-condensed">
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                        </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                    </tr>
                     </thead>
                     <tbody class="" data-bind="foreach: results">
-                        <tr data-bind="click: $parent.selectItem.bind($parent)" class="datarow">
-                            <td data-bind="text: id" class="text-left"></td>
-                            <td data-bind="text: title" class="text-left"></td>
-                        </tr>
+                    <tr data-bind="click: $parent.selectItem.bind($parent)" class="datarow">
+                        <td data-bind="text: id" class="text-left"></td>
+                        <td data-bind="text: title" class="text-left"></td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
             <div class="row control-bar">
                 <div class="col-sm-12"></div>
                 <ul class="pager">
-                    <li class="previous"><input type="button" class="btn btn-default" data-bind="click: goFirst, disable: currentPage()==1" value="&lt;&lt;"></li>
-                    <li class="previous"><input type="button" class="btn btn-default" data-bind="click: goPrev, disable: currentPage()==1" value="&lt;"></li>
-                    <li><small data-bind="text: currentPage"></small> of <small data-bind="text: totalPages"></small> (<small data-bind="text: totalResults"></small>
-                    <small data-bind="if: totalResults()!==1">rows</small><small data-bind="if: totalResults()==1">row</small>)</li>
-                    <li class="next"><button class="btn btn-default" data-bind="click: goNext, disable: currentPage() == totalPages()">&gt;</button></li>
-                    <li class="next"><button class="btn btn-default" data-bind="click: goLast, disable: currentPage() == totalPages()">&gt;&gt;</button></li>
+                    <li class="previous">
+                        <input type="button" class="btn btn-default" data-bind="click: goFirst, disable: currentPage()==1" value="&lt;&lt;">
+                    </li>
+                    <li class="previous">
+                        <input type="button" class="btn btn-default" data-bind="click: goPrev, disable: currentPage()==1" value="&lt;">
+                    </li>
+                    <li>
+                        <small data-bind="text: currentPage"></small>
+                        of
+                        <small data-bind="text: totalPages"></small>
+                        (
+                        <small data-bind="text: totalResults"></small>
+                        <small data-bind="if: totalResults()!==1">rows</small>
+                        <small data-bind="if: totalResults()==1">row</small>
+                        )
+                    </li>
+                    <li class="next">
+                        <button class="btn btn-default" data-bind="click: goNext, disable: currentPage() == totalPages()">&gt;</button>
+                    </li>
+                    <li class="next">
+                        <button class="btn btn-default" data-bind="click: goLast, disable: currentPage() == totalPages()">&gt;&gt;</button>
+                    </li>
                 </ul>
             </div>
         </div>

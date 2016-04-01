@@ -22,11 +22,13 @@ from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
+from adapters.certuk_mod.common.views import error_with_message
+
 import adapters.certuk_mod.builder.customizations as cert_builder
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
-from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser_get, extract_visualiser_item_get
+from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser_get, extract_visualiser_item_get, extract
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.cron import setup as cron_setup
 
@@ -77,12 +79,6 @@ def discover(request):
         return redirect("publisher_review", id_=id_)
     else:
         return redirect("publisher_not_found")
-
-
-@login_required
-def extract(request):
-    request.breadcrumbs([("Extract Stix", "")])
-    return render(request, "extract_upload_form.html")
 
 
 from django.core.files.base import ContentFile
@@ -147,11 +143,6 @@ def clone(request):
                                         ext_ref_error)])
         else:
             return error_with_message(request, e.message)
-
-
-@login_required
-def error_with_message(request, msg):
-    return render(request, "not_clonable.html", {"msg": msg})
 
 
 def _get_request_username(request):

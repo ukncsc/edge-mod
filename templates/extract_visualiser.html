@@ -3,7 +3,6 @@
 {% load staticfiles %}
 {% block head-title %}{{ main_title }}{% endblock %}
 {% block head-content %}
-
     <link rel="stylesheet" href="{% static "css/visualiser.css" %}" media="screen">
 {% endblock %}
 
@@ -20,14 +19,23 @@
 
     <ul class="nav nav-tabs">
         {% for stix_id, typename, typenamesafe in indicator_information %}
-            <li><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}  </a> </li>
+            {% if forloop.first %}
+                <li class="active"><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}  </a> </li>
+            {% endif %}
+            {% if not forloop.first %}
+                <li><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}  </a> </li>
+            {% endif %}
         {% endfor %}
     </ul>
 
     <div class="tab-content">
         {% for stix_id, typename, typenamesafe in indicator_information %}
-
-            <div id='{{ typenamesafe }}' class="tab-pane fade">
+            {% if forloop.first %}
+                <div id='{{ typenamesafe }}' class="tab-pane fade in active">
+            {% endif %}
+            {% if not forloop.first %}
+                <div id='{{ typenamesafe }}' class="tab-pane fade">
+            {% endif %}
             <a href="/indicator/build/{{ stix_id }}"> Edit Indicator Draft: {{ stix_id }} </a>
                 <div class="container-fluid">
                     <div class="row">

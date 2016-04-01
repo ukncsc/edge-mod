@@ -32,23 +32,18 @@
         }
     </style>
 
-
-
-
-
     <div class="container">
 
         <div class="row">
             <div class="col-sm-9">
-                <h3>Upload STIX package</h3>
-                <p>Please upload STIX package for ingest into
-                    DeDuplication endpoint</p>
+                <h3>Stix extractor</h3>
+                <p>Please upload a PDF or TXT file from which IOCs can be extracted</p>
             </div>
         </div>
 
 
         <form action="{% url 'extract_upload' %}" method="POST" id="extract_upload_form"
-              enctype="multipart/form-data">
+              enctype="multipart/form-data">{% csrf_token %}
             <div class="row">
                 <div class="col-lg-6">
                     <div class="input-group">
@@ -82,8 +77,6 @@
         };
 
     </script>
-
-
 
     <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="extract/main"></script>
 {% endblock %}

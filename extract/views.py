@@ -1,119 +1,39 @@
-from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 import json
-from edge.inbox import InboxItem
-from edge import IDManager, LOCAL_ALIAS
-from users.models import Draft
-from stix.utils import set_id_namespace
-from edge.generic import EdgeObject
-from edge.generic import create_package
-from edge.inbox import InboxProcessorForPackages
-from edge.tools import rgetattr
 
-from adapters.certuk_mod.extract.ioc_wrapper import parse_file, IOCParseException
-from django.views.decorators.csrf import csrf_exempt
+from users.decorators import login_required_ajax
+from users.models import Draft
+from mongoengine.connection import get_db
+
+from edge.inbox import InboxItem, InboxProcessorForBuilders, InboxError
+from edge.generic import EdgeObject, EdgeError
+from edge.tools import rgetattr
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-
-from adapters.certuk_mod.retention.purge import STIXPurge
-from adapters.certuk_mod.audit.handlers import log_activity
-from users.decorators import login_required_ajax
 from django.http import JsonResponse
 
-
-@csrf_exempt
-@login_required
-def extract_upload2(request):
-    file_import = request.FILES['import']
-    try:
-        stream = parse_file(file_import)
-        #print stream
-    except IOCParseException as e:
-        return error_with_message(request, "Error parsing file: " + e.message)
-    try:
-        ip = InboxProcessorForPackages(user=request.user, streams=[(stream, None)])
-    except Exception as e:
-        return error_with_message(request, "Error parsing stix xml: " + e.message)
-
-    indicators = [inbox_item for id, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
-    count = 0
-    ids = []
-    type_names = []
-    type_name_safe = []
-    for indicator in indicators:
-        indicator.api_object.obj.title = "StixPDFExtract" + str(count)
-        count += 1
-        ids.append(str(indicator.id))
-        try:
-            type_name = str(indicator.api_object.obj.indicator_types.pop())
-        except IndexError as e:
-            type_name = "Unknown"
-        type_names.append(type_name)
-        type_name_safe.append(type_name.replace(" ", ""))
-
-    ip.run()
-    return render(request, "extract_upload_complete.html",
-                  {'indicator_information': zip(ids, type_names, type_name_safe), 'indicator_ids': json.dumps(ids)});
-
+from adapters.certuk_mod.retention.purge import STIXPurge
+from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
+from adapters.certuk_mod.extract.ioc_wrapper import parse_file, IOCParseException
+from adapters.certuk_mod.publisher.package_generator import PackageGenerator
+from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
+from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
+from adapters.certuk_mod.common.views import error_with_message
 
 @login_required
-def error_with_message(request, msg):
-    return render(request, "not_clonable.html", {"msg": msg})
+def extract(request):
+    request.breadcrumbs([("Extract Stix", "")])
+    return render(request, "extract_upload_form.html")
 
-
-from edge.inbox import InboxProcessorForBuilders
-
-
-@csrf_exempt
 @login_required
 def extract_upload(request):
-    file_import = request.FILES['import']
-    try:
-        stream = parse_file(file_import)
-        #print stream.buf
-    except IOCParseException as e:
-        return error_with_message(request, "Error parsing file: " + e.message)
-    try:
-        ip = DedupInboxProcessor(validate=False, user=request.user, streams=[(stream, None)])
-    except Exception as e:
-        return error_with_message(request, "Error parsing stix xml: " + e.message)
-
-    ip.run()
-    indicators = [inbox_item for id, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
-    observables = [inbox_item for id, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'obs']
-    observable_ids = {id for id, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'obs'}
-
-    if not len(indicators):
-        return error_with_message(request, "No indicators found when parsing file " + str(file_import))
-
-    # for observable in observables:
-    #    loaded_obs = EdgeObject.load(observable.id)
-    #    Draft.upsert('obs', loaded_obs.to_draft(), request.user)
-
-    ids = []
-    type_names = []
-    type_name_safe = []
-    for indicator in indicators:
-        loaded_indicator = EdgeObject.load(indicator.id)
-
-        try:
-            type_name = str(loaded_indicator.obj.indicator_types.pop())
-        except IndexError as e:
-            type_name = "Unknown"
-
-        loaded_indicator.obj.title = str(
-            file_import) + ":" + type_name  # ToDo, remove this, ioc_parser should do this or similar. email sent to Jason
-
-        draft_indicator = loaded_indicator.to_draft()
+    def process_observables_for_draft():
         inbox_processor = InboxProcessorForBuilders(user=request.user)
-        empty_package = True
         for obs in draft_indicator['observables']:
-            # If de-duped, the id won't be in the observable_ids
             if obs['id'] in observable_ids:
-                del obs['id']
-            else:
-                empty_package = False
+                pass
+            else:  # If de-duped, the id won't be in the observable_ids
                 loaded_obs = EdgeObject.load(obs['id'])
-                loaded_obs.obj.sighting_count -= 1  # Sightings count was incremented. Do we want to do this? The builder won't reincrement sadly.
+                loaded_obs.obj.sighting_count -= 1  # Sightings count was incremented in dedup - undo
                 inbox_processor.add(InboxItem(
                         api_object=loaded_obs.to_ApiObject(),
                         etlp=loaded_obs.etlp,
@@ -121,36 +41,66 @@ def extract_upload(request):
                         esms=loaded_obs.esms
                 ))
 
-        if not empty_package:
+        if inbox_processor.contents:
             inbox_processor.run()
 
+    def remove_from_db(ids):
+        for page_index in range(0, len(ids), 10):
+            try:
+                chunk_ids = ids[page_index: page_index + 10]
+                STIXPurge.remove(chunk_ids)
+            except Exception as e:
+                pass
+
+    file_import = request.FILES['import']
+    try:
+        stream = parse_file(file_import)
+    except IOCParseException as e:
+        return error_with_message(request,
+                                  "Error parsing file: " + e.message + " content from parser was " + stream.buf)
+    try:
+        ip = DedupInboxProcessor(validate=False, user=request.user, streams=[(stream, None)])
+    except InboxError as e:
+        return error_with_message(request,
+                                  "Error parsing stix xml: " + e.message + " content from parser was " + stream.buf)
+
+    ip.run()
+
+    indicators = [inbox_item for _, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
+    if not len(indicators):
+        return error_with_message(request, "No indicators found when parsing file " + str(file_import))
+
+    indicator_ids = [id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
+    observable_ids = {id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'obs'}
+
+    type_names = []
+    for indicator in indicators:
+        loaded_indicator = EdgeObject.load(indicator.id)
+
+        types = loaded_indicator.apidata['indicator_types']
+        type_names.append(str(types[0]['value']) if types else "Unknown")
+
+        draft_indicator = loaded_indicator.to_draft()
+        process_observables_for_draft()
         Draft.upsert('ind', draft_indicator, request.user)
-        ids.append(str(indicator.id))
 
-        type_names.append(type_name)
-        type_name_safe.append(type_name.replace(" ", ""))
+    remove_from_db(indicator_ids + list(observable_ids))
 
-    ids_to_delete = [id for id, inbox_item in ip.contents.iteritems()]
-    for page_index in range(0, len(ids_to_delete), 10):
-        try:
-            chunk_ids = ids_to_delete[page_index: page_index + 10]
-            STIXPurge.remove(chunk_ids)
-        except Exception as e:
-            log_activity('system', 'AGEING', 'ERROR', e.message)
-
-    return render(request, "extract_upload_complete.html",
-                  {'indicator_information': zip(ids, type_names, type_name_safe), 'indicator_ids': json.dumps(ids)});
+    safe_type_names = [type_name.replace(" ", "") for type_name in type_names]
+    return render(request, "extract_visualiser.html",
+                  {'indicator_information': zip(indicator_ids, type_names, safe_type_names),
+                   'indicator_ids': json.dumps(indicator_ids)});
 
 
-def format_draft_observable(d, indent=0):
+def summarise_draft_observable(d, indent=0):
     result = ""
     for key, value in d.iteritems():
         if isinstance(value, dict):
-            result += format_draft_observable(value, indent + 1)
+            result += summarise_draft_observable(value, indent + 1)
         elif isinstance(value, list):
             for item in value:
                 if isinstance(item, dict):
-                    result += format_draft_observable(item, indent + 1)
+                    result += summarise_draft_observable(item, indent + 1)
                 else:
                     result += '\t' * (indent + 1) + str(item)
         elif value and value != 'None' and key != 'id' and key != 'id_ns' and key != 'objectType':
@@ -158,114 +108,136 @@ def format_draft_observable(d, indent=0):
     return result
 
 
-def observable_to_name(observable):
-    if 'id' in observable:
-        return observable['id']
-    return "draft: " + observable['objectType'] + ":" + format_draft_observable(observable, indent=1)
-
-from mongoengine.connection import get_db
+def observable_to_name(observable, is_draft):
+    if is_draft:
+        return "draft: " + observable['objectType'] + ":" + summarise_draft_observable(observable, indent=1)
+    return observable['id']
 
 
-def get_backlinks(id):
-    query = {
+def get_backlinks(id_, eo_filter):
+    ids = get_db().stix_backlinks.find({
         '_id': {
-            '$in': [id]
+            '$in': [id_]
         },
-    }
-
-    ids = get_db().stix_backlinks.find(query, {
+    }, {
         'value': 1
-        # stix_backlinks doesn't contain the hash unfortunately...
     })
 
-    id_result = []
+    bl_ids = []
     for doc in ids:
-        id_result.extend(doc['value'].keys())
+        bl_ids.extend(doc['value'].keys())
 
-    return id_result
+    def eo_filter_generator():
+        for eoId in bl_ids:
+            try:
+                eo = EdgeObject.load(eoId)
+            except EdgeError as _:
+                continue
+            if eo_filter(eo):
+                yield eo
+
+    return [x for x in eo_filter_generator()]
 
 
 @login_required_ajax
 def extract_visualiser_get(request, id_):
+    def is_observable_composition(eo):
+        try:
+            eo.obj.observable_composition
+        except AttributeError as _:
+            return False
+        return True
+
+    def is_indicator(eo):
+        return "ind" in eo.ty
+
     def build_title(node):
         node_type = node.summary.get("type")
         try:
             title = {
                 "ObservableComposition": node.obj.observable_composition.operator
             }.get(node_type, node.id_)
-        except Exception as e:
-            #print e
+        except AttributeError as e:
             title = node.id_
         return title
 
-    def iterate_draft(draft_object):
+    def iterate_draft():
+
+        class Counter:
+            idx = 0
+
+        def append_node(data):
+            nodes.append(data)
+            Counter.idx += 1
+
+        def is_draft(type_, obs_id):
+            return obs_id in {x['draft']['id'] for x in Draft.list(request.user, type_) if 'id' in x['draft']}
+
+        def is_deduped(obs_id):
+            return not is_draft('obs', obs_id)
+
         nodes = []
         links = []
-        nodes.append(dict(id=draft_object['id'], type='ind', title="draft: " + draft_object['title'], depth=0))
-        count = 1
+
+        append_node(dict(id=draft_object['id'], type='ind', title="draft: " + draft_object['title'], depth=0))
+
         id_to_idx = {}
         for observable in draft_object['observables']:
-            id_ = observable['id'] if 'id' in observable else count
-            nodes.append(dict(id=id_, type='obs', title=observable_to_name(observable), depth=1))
-            links.append({"source": 0, "target": count})
-            id_to_idx[id_] = count
+            obs_id = observable['id'] if is_deduped(observable['id']) else Counter.idx
+            id_to_idx[obs_id] = Counter.idx
+            append_node(dict(id=obs_id, type='obs', title=observable_to_name(observable, is_draft('obs', obs_id)), depth=1))
 
-            if 'id' in observable:
-                parent_count = count
-                backlink_ids = get_backlinks(observable['id'])
-                for back_link_id in backlink_ids: #Should be observable compositions
+            links.append({"source": 0, "target": id_to_idx[obs_id]})
 
-                    back_link_obj = EdgeObject.load(back_link_id)
-                    if back_link_id not in id_to_idx:
-                        count += 1
-                        nodes.append(dict(id=back_link_id, type=back_link_obj.ty, title=build_title(back_link_obj), depth=2))
-                        id_to_idx[back_link_id] = count
+            if is_deduped(obs_id):
+                for obs_composition in get_backlinks(observable['id'], is_observable_composition):
+                    if obs_composition.id_ not in id_to_idx:
+                        for indicator_obj in get_backlinks(obs_composition.id_, is_indicator):
+                            if indicator_obj.id_ not in id_to_idx:
+                                id_to_idx[indicator_obj.id_] = Counter.idx
+                                append_node(dict(id=indicator_obj.id_, type=indicator_obj.ty,
+                                                 title=build_title(indicator_obj), depth=2))
 
-                        second_backlink_ids = get_backlinks(back_link_id)
-                        second_parent_count = id_to_idx[back_link_id]
-
-                        for second_backlink_id in second_backlink_ids: #Probably indicators
-                            second_back_link_obj = EdgeObject.load(second_backlink_id)
-                            if second_backlink_id not in id_to_idx:
-                                count += 1
-                                nodes.append(dict(id=second_backlink_id, type=second_back_link_obj.ty, title=build_title(second_back_link_obj), depth=1))
-                                id_to_idx[second_backlink_id] = count
-
-                            links.append({"source": id_to_idx[second_backlink_id], "target": second_parent_count })
-                    links.append({"source":id_to_idx[back_link_id] , "target": parent_count })
-
-            count += 1
+                            links.append({"source": id_to_idx[indicator_obj.id_], "target": id_to_idx[obs_id]})
 
         return dict(nodes=nodes, links=links)
 
     try:
         draft_object = Draft.load(id_, request.user)
-        graph = iterate_draft(draft_object)
-        return JsonResponse(graph, encoder=DjangoIgnoreNonAsciiJSONEncoder, status=200)
-    except Exception as e:
-        return
+        graph = iterate_draft()
+        return JsonResponse(graph, status=200)
+    except EdgeError as e:
+        return JsonResponse(dict(e), status=500)
 
-from django.core.serializers.json import DjangoJSONEncoder
-
-class DjangoIgnoreNonAsciiJSONEncoder(DjangoJSONEncoder):
-    def __init__(self, **kwargs):
-        kwargs['ensure_ascii'] = False
-        kwargs['encoding'] = 'ascii'
-        super(DjangoJSONEncoder, self).__init__(**kwargs)
-
-def convert_to_viewable_obs(observable):
-    new_obs = {'id': observable['id']}
-    new_obs['object'] = {'properties': {'xsi:type': observable['objectType']}}
-    new_obs['description'] = observable_to_name(observable)  # Technically not description!
-    return new_obs
-
-from adapters.certuk_mod.publisher.package_generator import PackageGenerator
-from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
-from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 
 @login_required_ajax
 def extract_visualiser_item_get(request, id_):
-    try:
+    def build_ind_package_from_draft(ind):
+        return {'indicators': [ind]}
+
+    def get_draft_obs():
+        # For extracts, draft obs are contained within their indicator, not within the Draft obs list
+        for draft_ind in Draft.list(request.user, 'ind'):
+            obs_dict = {obs['id']: obs for obs in draft_ind['draft']['observables'] if 'id' in obs}
+            if id_ in obs_dict:
+                return obs_dict.get(id_)
+
+        return None
+
+    def convert_draft_to_viewable_obs(observable):
+        view_obs = dict(id=observable['id'])
+        view_obs['object'] = {'properties':
+                                  {'xsi:type': observable['objectType'],
+                                   'value': observable_to_name(observable, get_draft_obs())}}
+        return view_obs
+
+    def is_draft_ind():
+        return id_ in {x['draft']['id'] for x in Draft.list(request.user, 'ind') if 'id' in x['draft']}
+
+    def build_obs_package_from_draft(obs):
+        return {'observables': {'observables': [convert_draft_to_viewable_obs(obs)]}}
+
+    try:  # Non-draft
         root_edge_object = PublisherEdgeObject.load(id_)
         package = PackageGenerator.build_package(root_edge_object)
         validation_info = PackageValidationInfo.validate(package)
@@ -274,26 +246,23 @@ def extract_visualiser_item_get(request, id_):
             "package": package.to_dict(),
             "validation_info": validation_info.validation_dict
         }, status=200)
-    except Exception as e:
+    except EdgeError as e:
         pass
 
+    try:  # Draft
+        if is_draft_ind():
+            package = build_ind_package_from_draft(Draft.load(id_, request.user))
+        else:
+            draft_obs = get_draft_obs()
+            if draft_obs:
+                package = build_obs_package_from_draft(draft_obs)
+            else:
+                return JsonResponse({'value': 'not found'}, status=500)
 
-    try:
-        draft_object = Draft.load(id_, request.user)
-        package = {'indicators': [draft_object]}
         return JsonResponse({
             "root_id": id_,
             "package": package,
             "validation_info": {}
         }, status=200)
     except Exception as e:
-        drafts = Draft.list(request.user, 'ind')
-        for draft in drafts:
-            for obs in draft['draft']['observables']:
-                if 'id' in obs and obs['id'] == id_:
-                    return JsonResponse({
-                        "root_id": id_,
-                        "package": {'observables': {'observables': [convert_to_viewable_obs(obs)]}},
-                        "validation_info": {}
-                    }, status=200)
         return JsonResponse(dict(e), status=500)

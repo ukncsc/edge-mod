@@ -13,10 +13,13 @@ require([
             this.viewModelsById = {};
 
             for (var i = 0; i < rootIds.length; i++) {
-                ViewModel.loadById(rootIds[i], "/adapter/certuk_mod/ajax/extract_visualiser/", "/adapter/certuk_mod/ajax/extract_visualiser/item/", function (viewModel) {
-                    this.viewModelsById[viewModel.rootId()] = viewModel;
-                    this.viewModels.push(viewModel);
-                }.bind(this));
+                ViewModel.loadById(rootIds[i],
+                    "/adapter/certuk_mod/ajax/extract_visualiser/",
+                    "/adapter/certuk_mod/ajax/extract_visualiser/item/",
+                    function (viewModel) {
+                        this.viewModelsById[viewModel.rootId()] = viewModel;
+                        this.viewModels.push(viewModel);
+                    }.bind(this));
             }
 
             this.viewModels.subscribe(function () {
@@ -30,7 +33,7 @@ require([
             }.bind(this))
         },
 
-        findByLabel : function(label) {
+        findByLabel: function (label) {
             return this.viewModelsById[label]
         }
     });
