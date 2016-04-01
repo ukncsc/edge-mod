@@ -8,7 +8,7 @@ from adapters.certuk_mod.validation.indicator.indicator import IndicatorValidati
 from adapters.certuk_mod.validation.incident.incident import IncidentValidationInfo
 from adapters.certuk_mod.validation.observable.validator import ObservableValidator
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
-from edge.generic import EdgeObject
+from edge.generic import EdgeObject, EdgeError
 
 
 class BuilderValidationInfo(object):
@@ -57,18 +57,25 @@ class BuilderValidationInfo(object):
 
     @staticmethod
     def __validate_observables(observables):
+        def can_load(id_):
+            try:
+                EdgeObject.load(id_)
+                return True
+            except EdgeError as e:
+                return False
+
+
         validation_results = {}
         dummy_id = 1
         for observable in observables:
             id_ = observable.get('id')
             object_type = observable.get('objectType')
-            if not id_:
-                # No id, so we can safely assume this is something from the builder...
+            if not id_ or not can_load(id_):
+                # No id or perhaps a draft id, so we can safely assume this is something from the builder...
                 observable_properties = ObservableStructureConverter.builder_to_simple(object_type, observable)
                 validation_info = ObservableValidator.validate(**observable_properties)
                 validation_results['Observable ' + str(dummy_id)] = validation_info.validation_dict
             else:
-                #there is an id, is it a draft though?
                 namespace_validation = NamespaceValidationInfo.validate(r'obs', id_)
                 if namespace_validation.is_local():
                     real_observable = EdgeObject.load(id_)
