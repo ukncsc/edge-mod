@@ -1,26 +1,18 @@
-import urllib2
-
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
+from adapters.certuk_mod.common.objectid import discover as objectid_discover
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
-from adapters.certuk_mod.views.views import objectid_matcher
 from users.decorators import login_required_ajax
 
 
 @login_required
 def visualiser_discover(request):
-    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
-    match = objectid_matcher.match(referrer)
-    if match is not None and len(match.groups()) == 1:
-        id_ = match.group(1)
-        return redirect("visualiser_view", id_=id_)
-    else:
-        return redirect("visualiser_not_found")
+    return objectid_discover(request, "visualiser_view", "visualiser_not_found")
 
 
 @login_required

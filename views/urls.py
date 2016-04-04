@@ -47,7 +47,7 @@ publisher_urls = [
     (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),
     (r'^config/get_cert_config/$', 'views.ajax_get_cert_config', None),
     (r'^config/get_crm_url/$', 'views.ajax_get_crm_url', None),
-    (r'^config/set_crm_url/$', 'views.ajax_set_crm_url', None)
+    (r'^config/set_crm_url/$', 'views.ajax_set_crm_url', None),
     (r'^visualiser/$', 'views.visualiser_discover', 'visualiser_discover'),
     (r'^visualiser/missing/$', 'views.visualiser_not_found', 'visualiser_not_found'),
     (r'^visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_view', 'visualiser_view'),
