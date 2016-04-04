@@ -1,5 +1,9 @@
 {% extends "base.html" %} {% load site_tags %} {% load staticfiles %}
 
+{% block head-content %}
+<link rel="stylesheet" href="{% static 'css/inc-build.css' %}">
+{% endblock %}
+
 {% block body-content %}
     {% include 'cert-identity.html' %}
     {% include 'candidate_modal.html' %}
@@ -89,8 +93,6 @@
     <script type="text/javascript" src="{% static 'js/shared/validation.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/shared/identity.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/inc-build.css' %}">
-
 
     {% include 'partials/builder_toolbar.html' %}
 

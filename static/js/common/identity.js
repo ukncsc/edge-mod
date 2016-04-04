@@ -94,15 +94,13 @@ define([
         },
 
         createSnapshot: function () {
-            this.previousState = this.clone();
+            this.previousState = this.getState();
         },
 
         restoreSnapshot: function () {
-            for (var key in this.previousState) {
-                if (this.previousState.hasOwnProperty(key)) {
-                    this[key](this.previousState[key])
-                }
-            }
+            ko.utils.objectForEach(this.previousState, function (key, value){
+                this[key](value);
+            }.bind(this));
         },
 
         onSelect: function (data) {
@@ -112,7 +110,7 @@ define([
         },
 
         okay: function () {
-            this.modal.close(this.clone());
+            this.modal.close(this.getState());
         },
 
         cancel: function () {
@@ -121,7 +119,7 @@ define([
             this.modal.close(this.previousState);
         },
 
-        clone: function () {
+        getState: function () {
             return {
                 name: this.name(),
                 UUID: this.UUID(),
