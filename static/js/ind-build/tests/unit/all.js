@@ -1,8 +1,8 @@
 define([
     "./builder-shim",
-    "./change-tracker",
     "./indicator-builder-shim",
-    "./validation"
+    "./validation",
+    "./cert-ind-build-obs-file"
 ], function () {
 
 });

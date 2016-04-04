@@ -1,0 +1,32 @@
+<template type="text/html" id="TimePanel">
+
+
+    <div data-bind="if: $data == $parent.section().value()">
+        <div class="panel-heading">Time Types ( <span data-bind="text:$data.timeZone"></span> time zone)</div>
+
+        <div class="panel-body">
+            <div class="form-horizontal">
+
+                <!-- ko foreach: timeTypes -->
+
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" data-bind="text: $data.displayName()"></label>
+
+                    <div class="col-lg-5">
+                        <div class='input-group date' data-bind="dateTime: $data.timeString, disable: $root.mode().isReadOnly()">
+                            <input type='text' class="form-control" data-bind="disable: $root.mode().isReadOnly()"/>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3" style="color:red" data-bind=" text: $data.timeString.errorMessage"></div>
+                </div>
+                <!-- /ko -->
+
+            </div>
+        </div>
+    </div>
+
+</template>

@@ -2,12 +2,18 @@ import os
 import re
 import urllib2
 import json
+import datetime
+from dateutil import tz
 
 from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 
 from users.decorators import superuser_or_staff_role, json_body
+from users.models import Draft
+from edge.generic import EdgeObject
+from edge import IDManager
 
 from adapters.certuk_mod.publisher.package_publisher import Publisher
 from adapters.certuk_mod.publisher.publisher_config import PublisherConfig
@@ -23,8 +29,10 @@ from adapters.certuk_mod.common.logger import log_error, get_exception_stack_var
 from adapters.certuk_mod.cron import setup as cron_setup
 
 from adapters.certuk_mod.cron.views import ajax_get_purge_task_status, ajax_run_purge
-from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, ajax_set_retention_config
-from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, ajax_load_parent_ids, ajax_import
+from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, \
+    ajax_set_retention_config
+from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, \
+    ajax_load_parent_ids, ajax_import
 from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
@@ -40,9 +48,9 @@ cert_builder.apply_customizations()
 cron_setup.create_jobs()
 
 objectid_matcher = re.compile(
-    # {STIX/ID Alias}:{type}-{GUID}
-    r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
-    re.IGNORECASE  # | re.DEBUG
+        # {STIX/ID Alias}:{type}-{GUID}
+        r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
+        re.IGNORECASE  # | re.DEBUG
 )
 
 
@@ -51,7 +59,7 @@ def static(request, path):
     clean_path = urllib2.unquote(path)
     if "../" not in clean_path:
         return FileResponse(
-            open(os.path.dirname(__file__) + "/../static/" + clean_path, mode="rb")
+                open(os.path.dirname(__file__) + "/../static/" + clean_path, mode="rb")
         )
     else:
         return HttpResponseNotFound()
@@ -66,6 +74,47 @@ def discover(request):
         return redirect("publisher_review", id_=id_)
     else:
         return redirect("publisher_not_found")
+
+
+TYPE_TO_URL = {
+    'cam': 'campaign',
+    'coa': 'course_of_action',
+    'tgt': 'exploit_target',
+    'inc': 'incident',
+    'ind': 'indicator',
+    'obs': 'observable',
+    'act': 'threat_actor',
+    'ttp': 'ttp'
+}
+
+
+@login_required
+def clone(request):
+    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
+    match = objectid_matcher.match(referrer)
+    try:
+        if match is not None and len(match.groups()) == 1:
+            edge_object = EdgeObject.load(match.group(1))
+            if edge_object.ty == 'obs':
+                return not_clonable(request, "Observables cannot be cloned")
+            new_id = IDManager().get_new_id(edge_object.ty)
+            draft = edge_object.to_draft()
+            draft['id'] = new_id
+            Draft.upsert(edge_object.ty, draft, request.user)
+            return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
+        else:
+            return not_clonable(request, "No clonable object found; please only choose the clone option from an object's summary or external publish page")
+    except Exception as e:
+        ext_ref_error = "not found"
+        if e.message.endswith(ext_ref_error):
+            return not_clonable(request, "Unable to load object as some external references were not found: " + e.message[0:-len(ext_ref_error)])
+        else:
+            return not_clonable(request, e.message)
+
+
+@login_required
+def not_clonable(request, msg):
+    return render(request, "not_clonable.html", {"msg": msg})
 
 
 def _get_request_username(request):
@@ -85,7 +134,8 @@ def review(request, id_):
         validation_info.validation_dict.update({id_: {"created_by":
                                                           {"status": ValidationStatus.WARN,
                                                            "message": "This object was created by %s not %s"
-                                                                     %(root_edge_object.created_by_username, req_user)}}})
+                                                                      % (root_edge_object.created_by_username,
+                                                                         req_user)}}})
 
     request.breadcrumbs([("Publisher", "")])
     return render(request, "publisher_review.html", {
@@ -130,6 +180,15 @@ def ajax_get_sites(request, data):
         'error_message': error_message,
         'sites': sites
     }
+
+
+@login_required
+@json_body
+def ajax_get_datetime(request, data):
+    configuration = settings.ACTIVE_CONFIG
+    current_date_time = datetime.datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime(
+            '%Y-%m-%dT%H:%M:%S')
+    return {'result': current_date_time}
 
 
 @login_required
