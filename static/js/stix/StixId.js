@@ -4,8 +4,9 @@ define([
     "./Incident",
     "./Indicator",
     "./Observable",
-    "./TTP"
-], function (declare, CourseOfAction, Incident, Indicator, Observable, TTP) {
+    "./TTP",
+    "./ExploitTarget"
+], function (declare, CourseOfAction, Incident, Indicator, Observable, TTP, ExploitTarget) {
     "use strict";
 
     var TYPES = Object.freeze({
@@ -23,6 +24,9 @@ define([
         },
         "observable": {
             "class": Observable, "collection": "observables.observables", "label": "Observable", "code": "obs"
+        },
+        "tgt": {
+            "class": ExploitTarget, "collection": "exploit_targets", "label": "ExploitTarget", "code": "tgt"
         }
     });
 
