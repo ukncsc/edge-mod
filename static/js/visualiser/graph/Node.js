@@ -4,10 +4,9 @@ define([
 ], function (declare, ko) {
     "use strict";
 
-    // icon sizes
-    var aspectRatio = 1.15;
-    var root = 64;
-    var standard = 40;
+    var ICON_ASPECT_RATIO = 1.15;
+    var ICON_ROOT_SIZE = 64;
+    var ICON_STANDARD_SIZE = 40;
 
     return declare(null, {
         declaredClass: "Node",
@@ -34,10 +33,10 @@ define([
             return this.depth() === 0;
         },
         imageHeight: function () {
-            return this.isRoot() ? root : standard;
+            return this.isRoot() ? ICON_ROOT_SIZE : ICON_STANDARD_SIZE;
         },
         imageWidth: function () {
-            return this.imageHeight() * aspectRatio;
+            return this.imageHeight() * ICON_ASPECT_RATIO;
         },
         imageX: function () {
             return -(this.imageWidth() / 2);
