@@ -48,10 +48,10 @@ define([
             if (this.saveKey in data) {
                 $.each(data[this.saveKey], function (i, v) {
                     if (saveGroup) {
-                        self.items.push(new CERTIdentity(v[saveGroup]));
+                        self.items.push(new CERTIdentity().load(v[saveGroup]));
                     }
                     else {
-                        self.items.push(new CERTIdentity(v));
+                        self.items.push(new CERTIdentity().load(v));
                     }
                 });
             }

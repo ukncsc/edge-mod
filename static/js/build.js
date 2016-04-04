@@ -3,7 +3,8 @@
     baseUrl: "static/js",
     dir: "../../dist",
     paths: {
-        knockout: "common/knockout-shim"
+        knockout: "common/knockout-shim",
+        config: "empty:"
     },
     modules: [
         {

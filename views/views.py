@@ -33,6 +33,7 @@ from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_
     ajax_set_retention_config
 from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, \
     ajax_load_parent_ids, ajax_import
+from adapters.certuk_mod.config.views import ajax_get_crm_url, ajax_set_crm_url, ajax_get_cert_config
 from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity

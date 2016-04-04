@@ -46,7 +46,8 @@
 
                             <div class="col-sm-5">
                                 <div class="dropdown">
-                                    <button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <button class="btn btn-default btn-block dropdown-toggle" type="button"
+                                            data-toggle="dropdown">
                                         <!-- Candidate for template/component. The "generic" configuration pages could
                                          use this, icons indicate which is the saved option. -->
                                         <span class="btn-content pull-left glyphicon"
@@ -105,7 +106,8 @@
                             <div class="col-sm-5">
                                 <!--This dropdown is very similar to the one above, potential here for template/component-->
                                 <div class="dropdown">
-                                    <button class="btn btn-default btn-block dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <button class="btn btn-default btn-block dropdown-toggle" type="button"
+                                            data-toggle="dropdown">
                                         <span class="btn-content pull-left glyphicon"
                                               data-bind="css: {
                                               'glyphicon-ok': enabled(),
@@ -149,7 +151,8 @@
                             </div>
 
                             <div class="col-sm-5">
-                                <input type="number" min="1" placeholder="Maximum age" class="form-control" data-bind="enable: enabled, value: age, valueUpdate: ['input','keyup']">
+                                <input type="number" min="1" placeholder="Maximum age" class="form-control"
+                                       data-bind="enable: enabled, value: age, valueUpdate: ['input','keyup']">
                             </div>
                         </div>
 
@@ -159,7 +162,8 @@
                             </div>
 
                             <div class="col-sm-5">
-                                <input type="number" min="2" placeholder="Minimum sightings" class="form-control" data-bind="enable: enabled, value: sightings, valueUpdate: ['input','keyup']">
+                                <input type="number" min="2" placeholder="Minimum sightings" class="form-control"
+                                       data-bind="enable: enabled, value: sightings, valueUpdate: ['input','keyup']">
                             </div>
                         </div>
 
@@ -169,7 +173,8 @@
                             </div>
 
                             <div class="col-sm-5">
-                                <input type="number" min="1" placeholder="Minimum back links" class="form-control" data-bind="enable: enabled, value: backLinks, valueUpdate: ['input','keyup']">
+                                <input type="number" min="1" placeholder="Minimum back links" class="form-control"
+                                       data-bind="enable: enabled, value: backLinks, valueUpdate: ['input','keyup']">
                             </div>
                         </div>
 
@@ -195,6 +200,32 @@
 
                 </div>
 
+
+                <div class="panel panel-default" data-bind="with: crm">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">CRM </h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h5>Url: </h5>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <input class="form-control" data-bind="value: CRMURL">
+                            </div>
+
+                            <div class="col-sm-4">
+                                <button class="btn btn-default pull-right"
+                                        data-bind="click: onSave">Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
 
             <div class="col-sm-5">
@@ -216,5 +247,5 @@
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
     </script>
-    <script src="/adapter/certuk_mod{% static 'js/require.js'%}" data-main="config/config-main"></script>
+    <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="config/config-main"></script>
 {% endblock %}
