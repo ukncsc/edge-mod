@@ -10,9 +10,15 @@ define([
 
     var ViewModel = declare(null, {
         declaredClass: "ViewModel",
-        constructor: function (rootId, graphData) {
+        constructor: function (rootId, graphData, graph_url, item_url) {
             this.rootId = ko.computed(function () {
                 return rootId;
+            });
+            this.graph_url = ko.computed(function () {
+                return graph_url;
+            });
+            this.item_url = ko.computed(function () {
+                return item_url;
             });
             this.graph = ko.observable(new Graph(graphData));
             this.graph().selectedNode.subscribe(this.onSelectedNodeChanged.bind(this));
@@ -34,7 +40,7 @@ define([
         },
         onSelectedNodeChanged: function (newNode) {
             d3.json(
-                "/adapter/certuk_mod/ajax/visualiser/item/" + encodeURIComponent(newNode.id()),
+                this.item_url() + encodeURIComponent(newNode.id()),
                 function (error, response) {
                     if (error) {
                         throw new Error(error);
@@ -57,14 +63,16 @@ define([
             return templateName;
         }
     });
-    ViewModel.loadById = function (/*String*/ rootId, /*function*/ onLoadedCallback) {
+    ViewModel.loadById = function (
+        /*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*function*/ onLoadedCallback
+    ) {
         d3.json(
-            "/adapter/certuk_mod/ajax/visualiser/" + encodeURIComponent(rootId),
+            graph_url + encodeURIComponent(rootId),
             function (error, response) {
                 if (error) {
                     throw new Error(error);
                 }
-                onLoadedCallback(new ViewModel(rootId, response));
+                onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url));
             }
         );
     };

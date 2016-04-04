@@ -6,12 +6,16 @@ require([
     "domReady!"
 ], function (ko, Modal, ViewModel, errorContentTemplate) {
     try {
-        ViewModel.loadById(window["rootId"], function (viewModel) {
-            ko.applyBindings(
-                viewModel,
-                document.getElementById("content")
-            );
-        });
+        ViewModel.loadById(
+            window["rootId"],
+            "/adapter/certuk_mod/ajax/visualiser/",
+            "/adapter/certuk_mod/ajax/visualiser/item/",
+            function (viewModel) {
+                ko.applyBindings(
+                    viewModel,
+                    document.getElementById("content")
+                );
+            });
     } catch (e) {
         var errorModal = new Modal({
             title: "Error",
