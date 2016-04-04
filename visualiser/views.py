@@ -1,4 +1,3 @@
-import re
 import urllib2
 
 from django.contrib.auth.decorators import login_required
@@ -9,14 +8,8 @@ from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
+from adapters.certuk_mod.views.views import objectid_matcher
 from users.decorators import login_required_ajax
-
-
-objectid_matcher = re.compile(
-    # {STIX/ID Alias}:{type}-{GUID}
-    r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
-    re.IGNORECASE  # | re.DEBUG
-)
 
 
 @login_required
@@ -53,7 +46,6 @@ def visualiser_get(request, id_):
                 "ObservableComposition": node.obj.observable_composition.operator
             }.get(node_type, node.id_)
         except Exception as e:
-            print e
             title = node.id_
         return title
 
@@ -102,5 +94,4 @@ def visualiser_item_get(request, id_):
             "validation_info": validation_info.validation_dict
         }, status=200)
     except Exception as e:
-        print e
         return JsonResponse(dict(e), status=500)
