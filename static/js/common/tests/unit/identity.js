@@ -6,10 +6,10 @@ define([
 ], function (registerSuite, assert, mstickytape, Identity) {
     "use strict";
 
-    var testORG = "test-org";
-    var testORG2 = "test-org2";
-    var uuid = "54163ff2-9431-4eb0-a4ea-5e41500d30d4";
-    var it = "IT";
+    var testORG = 'test-org';
+    var testORG2 = 'test-org2';
+    var uuid = '54163ff2-9431-4eb0-a4ea-5e41500d30d4';
+    var it = 'IT';
 
     var crmKBData = {
         name: uuid,
@@ -77,6 +77,62 @@ define([
                     assert.equal(identity.sector(), it);
                     assert.equal(identity.UUID(), uuid);
                     assert.equal(identity.name(), uuid);
+                }
+            },
+           "return json": {
+                 "to_json will return the correct data": function () {
+                    var identity = new Identity();
+
+                    //given
+                    getJSONReturnError = false;
+
+                    //when
+                    identity.load(externalkBData);
+
+                    var json = identity.to_json();
+
+                    var expectedJson = {
+                        name: testORG2,
+                        specification: {
+                            organisation_info: it
+                        }
+                    };
+
+                    //assert
+                    assert.deepEqual(expectedJson, json);
+
+                },
+                "to_json will return undefined if no UUID": function () {
+                    var identity = new Identity();
+
+                    var json = identity.to_json();
+
+                    //assert
+                    assert.equal(json, undefined);
+
+                }
+            },
+            "return the correct state": {
+                "getState will return the state of the object": function () {
+                    var identity = new Identity();
+
+                    //given
+                    getJSONReturnError = false;
+
+                    //when
+                    identity.load(crmKBData);
+
+                    var json = identity.getState();
+
+                    var expectedJSON = {
+                        name: testORG,
+                        UUID: uuid,
+                        sector: it
+                    };
+
+                    //assert
+                    assert.deepEqual(json, expectedJSON);
+
                 }
             }
         }
