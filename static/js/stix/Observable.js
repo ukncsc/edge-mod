@@ -9,6 +9,7 @@ define([
     "./objectTypes/SocketAddress",
     "./objectTypes/WindowsRegistryKey",
     "kotemplate!root-obs:./templates/root-Observable.html",
+    "kotemplate!flat-obs:./templates/flat-Observable.html",
     "kotemplate!list-obs:./templates/list-Observables.html"
 ], function (declare, ko, StixObject, StixObjectType, EmailMessageObjectType, FileObjectType, HTTPSessionObjectType,
              SocketAddressObjectType, WindowsRegistryKeyObjectType) {

@@ -4,6 +4,7 @@ define([
     "./ReviewValue",
     "./StixObjectTLP",
     "kotemplate!root-ind:./templates/root-Indicator.html",
+    "kotemplate!flat-ind:./templates/flat-Indicator.html",
     "kotemplate!list-ind:./templates/list-Indicators.html"
 ], function (declare, ko, ReviewValue, StixObjectTLP) {
     "use strict";

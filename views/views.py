@@ -1,5 +1,4 @@
 import os
-import re
 import urllib2
 import json
 import datetime
@@ -38,20 +37,16 @@ from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
+from adapters.certuk_mod.common.objectid import discover as objectid_discover
 from adapters.certuk_mod.retention.purge import STIXPurge
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus
+from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser_not_found, visualiser_view, visualiser_get, \
+    visualiser_item_get
 from users.models import Repository_User
 
 audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
-
-objectid_matcher = re.compile(
-        # {STIX/ID Alias}:{type}-{GUID}
-        r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
-        re.IGNORECASE  # | re.DEBUG
-)
-
 
 @login_required
 def static(request, path):
@@ -66,13 +61,7 @@ def static(request, path):
 
 @login_required
 def discover(request):
-    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
-    match = objectid_matcher.match(referrer)
-    if match is not None and len(match.groups()) == 1:
-        id_ = match.group(1)
-        return redirect("publisher_review", id_=id_)
-    else:
-        return redirect("publisher_not_found")
+    return objectid_discover(request, "publisher_review", "publisher_not_found")
 
 
 TYPE_TO_URL = {
@@ -90,7 +79,7 @@ TYPE_TO_URL = {
 @login_required
 def clone(request):
     referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
-    match = objectid_matcher.match(referrer)
+    match = objectid_matcher(referrer)
     try:
         if match is not None and len(match.groups()) == 1:
             edge_object = EdgeObject.load(match.group(1))
