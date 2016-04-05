@@ -31,7 +31,8 @@ define([
     });
 
     var TYPE_ALIASES = Object.freeze({
-        "courseofaction": "coa"
+        "courseofaction": "coa",
+        "et": "tgt"
     });
 
     var PATTERN = Object.freeze({
