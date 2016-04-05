@@ -2,7 +2,7 @@ define([
     "dcl/dcl",
     "knockout",
     "common/cert-abstract-builder-form",
-    "text!config"
+    "text!config-service"
 ], function (declare, ko, AbstractBuilderForm, configText) {
     "use strict";
 

@@ -4,7 +4,7 @@
     dir: "../../dist",
     paths: {
         knockout: "common/knockout-shim",
-        config: "empty:"
+        "config-service": "empty:"
     },
     modules: [
         {

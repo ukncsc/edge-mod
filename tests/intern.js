@@ -41,7 +41,7 @@ define({
     loaderOptions: {
         // Packages that should be registered with the loader in each testing environment
         packages: [
-            {name: "config", location: "static/js/common/tests/unit", main:"mock-config.json"},
+            {name: "config-service", location: "static/js/common/tests/unit", main: "mock-config.json"},
             {name: "ind-build", location: "static/js/ind-build"},
             {name: "inc-build", location: "static/js/inc-build"},
             {name: "common", location: "static/js/common"},
