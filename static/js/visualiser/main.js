@@ -6,7 +6,9 @@ require([
     "domReady!"
 ], function (ko, Modal, ViewModel, errorContentTemplate) {
     try {
-        ViewModel.loadById(window["rootId"],
+
+        ViewModel.loadById(
+            window["rootId"],
             "/adapter/certuk_mod/ajax/visualiser/",
             "/adapter/certuk_mod/ajax/visualiser/item/",
             function (viewModel) {

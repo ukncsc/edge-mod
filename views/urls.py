@@ -52,6 +52,9 @@ publisher_urls = [
     (r'^ajax/run_purge/$', 'views.ajax_run_purge', None),
 
     (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),
+    (r'^config/get_cert_config/$', 'views.ajax_get_cert_config', None),
+    (r'^config/get_crm_url/$', 'views.ajax_get_crm_url', None),
+    (r'^config/set_crm_url/$', 'views.ajax_set_crm_url', None),
 
     (r'^visualiser/$', 'views.visualiser_discover', 'visualiser_discover'),
     (r'^visualiser/missing/$', 'views.visualiser_not_found', 'visualiser_not_found'),
@@ -67,6 +70,7 @@ urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
 navitems = [
     ('External Publisher', 'publisher_discover'),
+
 
     ('Extract Stix', 'extract_stix'),
     ('Clone to Draft', 'clone_to_draft'),

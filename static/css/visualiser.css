@@ -9,7 +9,6 @@
 svg {
     border: 1px solid grey;
     box-shadow: rgba(0, 0, 0, 0.3) 4px 4px 4px;
-    width:100%;
 }
 
 g.ko-d3-graph-node {
@@ -29,13 +28,8 @@ g.ko-d3-graph-node image.unselected {
 }
 
 line.ko-d3-graph-link {
-    stroke: #999;
+    stroke: #333;
     stroke-width: 0.5;
-}
-
-line.ko-d3-graph-link.related {
-    stroke: #A33;
-    stroke-width: 1.5;
 }
 
 dl.dl-horizontal dd {
