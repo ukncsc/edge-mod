@@ -1,4 +1,3 @@
-import re
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -10,12 +9,6 @@ from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObj
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from users.decorators import login_required_ajax
 
-
-objectid_matcher = re.compile(
-        # {STIX/ID Alias}:{type}-{GUID}
-        r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
-        re.IGNORECASE  # | re.DEBUG
-)
 
 @login_required
 def visualiser_discover(request):
@@ -31,12 +24,9 @@ def visualiser_view(request, id_):
     })
 
 
-
-
 @login_required
 def visualiser_not_found(request):
     return render(request, "visualiser_not_found.html", {})
-
 
 
 @login_required_ajax
@@ -77,8 +67,8 @@ def visualiser_get(request, id_):
         return dict(nodes=nodes, links=links)
 
     try:
-        root_edge_objects = PublisherEdgeObject.load(id_)
-        graph = depth_first_iterate(root_edge_objects)
+        root_edge_object = PublisherEdgeObject.load(id_)
+        graph = depth_first_iterate(root_edge_object)
         return JsonResponse(graph, status=200)
     except Exception as e:
         return JsonResponse(dict(e), status=500)

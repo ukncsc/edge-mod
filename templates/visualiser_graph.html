@@ -15,11 +15,15 @@
                 linkStrength:0.25,
                 visible: true
             ">
+
+
+
             <g data-bind="
                 attr: {
                     title: title
                 },
-                click:$parents[2].onNodeClicked.bind($parents[2])
+
+                click: $parents[1].onNodeClicked.bind($parents[1])
             ">
                 <image xlink:href="{% static 'img/hex/hex_.png' %}" class="" data-bind="
                     attr: {
@@ -35,5 +39,53 @@
             </g>
         </svg>
     </div>
-
+    <div class="col-sm-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Details</h3>
+            </div>
+            <div class="panel-body">
+                <!-- ko if: selectedTemplate() -->
+                <div class="row" data-bind="template: { name: selectedTemplate(), data: selectedRoot }"></div>
+                <!-- ko with: graph -->
+                <dl data-bind="visible:true" class="linkedNodes" style="display:none">
+                    <!-- ko with: selectedLinkedNodes -->
+                    <!-- ko if: parentOf.length > 0 -->
+                    <dt>References</dt>
+                    <!-- ko foreach: parentOf -->
+                    <dd data-bind="
+                        attr: {
+                            title: id
+                        },
+                        click:$parents[2].onNodeClicked.bind($parents[2])
+                    ">
+                        <img data-bind="attr: {
+                            src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'
+                        }">&nbsp;<span data-bind="text:title"></span>
+                    </dd>
+                    <!-- /ko -->
+                    <!-- /ko -->
+                    <!-- ko if: childOf.length > 0 -->
+                    <dt>Referenced By</dt>
+                    <!-- ko foreach: childOf -->
+                    <dd data-bind="
+                        attr: {
+                            title: id
+                        },
+                        click:$parents[2].onNodeClicked.bind($parents[2])
+                    ">
+                        <img data-bind="attr: {
+                            src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'
+                        }">&nbsp;<span data-bind="text:title"></span>
+                    </dd>
+                    <!-- /ko -->
+                    <!-- /ko -->
+                    <!-- /ko -->
+                </dl>
+                <!-- /ko -->
+                <!-- /ko -->
+                <p data-bind="ifnot: selectedTemplate">Nothing selected</p>
+            </div>
+        </div>
+    </div>
 </template>

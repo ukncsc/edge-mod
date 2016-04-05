@@ -9,6 +9,7 @@
 svg {
     border: 1px solid grey;
     box-shadow: rgba(0, 0, 0, 0.3) 4px 4px 4px;
+    width:100%
 }
 
 g.ko-d3-graph-node {
