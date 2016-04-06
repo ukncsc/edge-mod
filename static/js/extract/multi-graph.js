@@ -1,5 +1,5 @@
 require([
-    "dcl/dcl",
+    "../dcl/dcl",
     "knockout",
     "d3",
     "common/modal/Modal",
@@ -19,7 +19,6 @@ require([
             }
 
             this.viewModels.subscribe(function () {
-
                 if (this.viewModels().length == rootIds.length) {
                     ko.applyBindings(
                         this,
@@ -31,18 +30,19 @@ require([
 
 
         initViewModel: function (id) {
+            var base_url = "/adapter/certuk_mod/ajax/extract_visualiser/"
             ViewModel.loadById(id,
-                "/adapter/certuk_mod/ajax/extract_visualiser/",
-                "/adapter/certuk_mod/ajax/extract_visualiser/item/",
+                base_url,
+                base_url + "item/",
                 new PanelActions(function (type) {
                         return type === "obs";
                     }, function (type) {
                         return false;
                     }, function () {
-                        var list_obs_ids_to_merge = []
+                        var obs_ids_to_merge = []
                         ko.utils.arrayForEach(this.graph().nodes(), function (node) {
                             if (node.isChecked()) {
-                                list_obs_ids_to_merge.push(node.id());
+                                obs_ids_to_merge.push(node.id());
                             }
                         })
 
@@ -57,15 +57,15 @@ require([
                             errorModal.show();
                         }
 
-                        postJSON("/adapter/certuk_mod/ajax/extract_visualiser/merge_observables/", {
+                        postJSON("base_url" + "merge_observables/", {
                             'id': this.selectedObject()._rootId._id,
-                            'ids': list_obs_ids_to_merge
+                            'ids': obs_ids_to_merge
                         }, function (result) {
                             if ('message' in result) {
                                 showErrorModal(result['message'])
                             } else {
                                 d3.json(
-                                    "/adapter/certuk_mod/ajax/extract_visualiser/" + encodeURIComponent(id),
+                                    base_url + encodeURIComponent(id),
                                     function (error, response) {
                                         if (error) {
                                             showErrorModal(error);
