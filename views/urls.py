@@ -23,11 +23,13 @@ VALID_TYPES = '|'.join(CLIPPY_TYPES.iterkeys())
 publisher_urls = [
     (r'^static/(?P<path>[\S]+)$', 'views.static', 'static_content'),
     (r'^review/$', 'views.discover', 'publisher_discover'),
-    (r'^extract/$', 'views.extract', 'extract_stix'),
 
-    (r'^extract_upload/$', 'views.extract_upload', 'extract_upload'),
-    (r'^ajax/extract_visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.extract_visualiser_get', 'extract_visualiser_ajax_view'),
-    (r'^ajax/extract_visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.extract_visualiser_item_get', 'extract_visualiser_ajax_item'),
+    (r'^extract/$', 'views.extract', 'extract_stix'),
+    (r'^extract_upload/$', 'views.extract_upload', None),
+    (r'^extract_visualiser/(?P<ids>.*)$', 'views.extract_visualiser', None),
+    (r'^ajax/extract_visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.extract_visualiser_get', None),
+    (r'^ajax/extract_visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.extract_visualiser_item_get', None),
+    (r'^ajax/extract_visualiser/merge_observables/$', 'views.extract_visualiser_merge_observables', None),
 
     (r'^clone/$', 'views.clone', 'clone_to_draft'),
     (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'publisher_review'),

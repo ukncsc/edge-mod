@@ -17,7 +17,6 @@
             ">
 
 
-
             <g data-bind="
                 attr: {
                     title: title
@@ -53,18 +52,28 @@
                     <!-- ko if: parentOf.length > 0 -->
                     <dt>References</dt>
                     <!-- ko foreach: parentOf -->
-                    <dd data-bind="
-                        attr: {
-                            title: id
-                        },
-                        click:$parents[2].onNodeClicked.bind($parents[2])
-                    ">
-                        <img data-bind="attr: {
-                            src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'
-                        }">&nbsp;<span data-bind="text:title"></span>
+                    <dd data-bind=" attr: {title: id} ">
+                        <!-- ko if: $parents[2].panel_actions().references()(type()) -->
+                        <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
+                        <!-- /ko -->
+
+                        <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
+                        &nbsp;<span data-bind="text:title,
+                        click:$parents[2].onNodeClicked.bind($parents[2])"></span>
+
+                    </dd>
+
+                    <!-- /ko -->
+                    <!-- ko if: $parents[1].panel_actions().action -->
+                    <br>
+                    <dd>
+                        <button type="button" class="btn btn-default" aria-label="Left Align" data-bind="click:$parents[1].panel_actions().action().bind($parents[1])">
+                            <span aria-hidden="true" data-bind="text:$parents[1].panel_actions().action_name"></span>
+                        </button>
                     </dd>
                     <!-- /ko -->
                     <!-- /ko -->
+
                     <!-- ko if: childOf.length > 0 -->
                     <dt>Referenced By</dt>
                     <!-- ko foreach: childOf -->
@@ -74,10 +83,10 @@
                         },
                         click:$parents[2].onNodeClicked.bind($parents[2])
                     ">
-                        <img data-bind="attr: {
-                            src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'
-                        }">&nbsp;<span data-bind="text:title"></span>
+                        <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'
+                                            }">&nbsp;<span data-bind="text:title"></span>
                     </dd>
+
                     <!-- /ko -->
                     <!-- /ko -->
                     <!-- /ko -->

@@ -28,7 +28,7 @@ define([
                         if (_pendingUpdate) {
                             clearTimeout(_pendingUpdate);
                         }
-                        _pendingUpdate = setTimeout(_d3Layout.start.bind(_d3Layout), 100);
+                        _pendingUpdate = setTimeout(_d3Layout.start.bind(_d3Layout), 50);
                     });
                     this[name] = proxy;
                 }
@@ -42,6 +42,7 @@ define([
                 };
                 ko.utils.arrayForEach(this.nodes(), function (node) {
                     node.isRelated(false);
+                    node.isChecked(false);
                 });
                 if (selectedNode instanceof Node) {
                     var findIndex = selectedNode.index;
@@ -65,9 +66,10 @@ define([
                 return new Node(nodeData);
             }));
             var /*Node[]*/ _rawNodes = this.nodes.peek();
-            this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
+                this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
                 return new Link(_rawNodes[linkData.source], _rawNodes[linkData.target]);
             }.bind(this)));
+
         },
         applyBindingValues: function (bindingValues) {
             ko.utils.objectForEach(bindingValues, function (name, value) {

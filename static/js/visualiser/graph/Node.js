@@ -24,6 +24,8 @@ define([
                 return nodeData.depth;
             });
             this.isSelected = ko.observable(false);
+            this.isChecked = ko.observable(false);
+
             this.isRelated = ko.observable(false);
             this.className = ko.computed(function () {
                 return this.isSelected() ? "selected" : this.isRelated() ? "related" : "unselected";

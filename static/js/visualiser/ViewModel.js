@@ -10,13 +10,18 @@ define([
 
     var ViewModel = declare(null, {
         declaredClass: "ViewModel",
-        constructor: function (rootId, graphData, graph_url, item_url) {
+        constructor: function (rootId, graphData, graph_url, item_url, panel_actions) {
             this.rootId = ko.computed(function () {
                 return rootId;
             });
             this.graph_url = ko.computed(function () {
                 return graph_url;
             });
+
+            this.panel_actions = ko.computed(function () {
+                return panel_actions;
+            })
+
             this.item_url = ko.computed(function () {
                 return item_url;
             });
@@ -60,19 +65,23 @@ define([
             if (selectedObject) {
                 templateName = 'flat-' + selectedObject.type.code;
             }
-            return templateName;
+            return templateName
+        },
+        updateGraphData: function (graphData) {
+            this.graph().loadData(graphData);
+
         }
     });
-    ViewModel.loadById = function (
-        /*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*function*/ onLoadedCallback
-    ) {
+
+    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*function*/ ref_action, /*function*/ onLoadedCallback) {
+
         d3.json(
             graph_url + encodeURIComponent(rootId),
             function (error, response) {
                 if (error) {
                     throw new Error(error);
                 }
-                onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url));
+                onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url, ref_action));
             }
         );
     };

@@ -8,7 +8,7 @@ from edge.inbox import InboxItem, InboxProcessorForBuilders, InboxError
 from edge.generic import EdgeObject, EdgeError
 from edge.tools import rgetattr
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 
 from adapters.certuk_mod.retention.purge import STIXPurge
@@ -19,10 +19,12 @@ from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObj
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.common.views import error_with_message
 
+
 @login_required
 def extract(request):
     request.breadcrumbs([("Extract Stix", "")])
     return render(request, "extract_upload_form.html")
+
 
 @login_required
 def extract_upload(request):
@@ -49,7 +51,7 @@ def extract_upload(request):
             try:
                 chunk_ids = ids[page_index: page_index + 10]
                 STIXPurge.remove(chunk_ids)
-            except Exception as e:
+            except Exception as _:
                 pass
 
     file_import = request.FILES['import']
@@ -73,23 +75,31 @@ def extract_upload(request):
     indicator_ids = [id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
     observable_ids = {id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'obs'}
 
-    type_names = []
     for indicator in indicators:
         loaded_indicator = EdgeObject.load(indicator.id)
-
-        types = loaded_indicator.apidata['indicator_types']
-        type_names.append(str(types[0]['value']) if types else "Unknown")
-
         draft_indicator = loaded_indicator.to_draft()
         process_observables_for_draft()
         Draft.upsert('ind', draft_indicator, request.user)
 
     remove_from_db(indicator_ids + list(observable_ids))
 
+    return redirect("extract_visualiser",
+                    ids=json.dumps(indicator_ids))
+
+
+@login_required_ajax
+def extract_visualiser(request, ids):
+    type_names = []
+    indicator_ids = json.loads(ids)
+    for id_ in indicator_ids:
+        ind = Draft.load(id_, request.user)
+        type_names.append(str(ind['indicatorType']))
+
     safe_type_names = [type_name.replace(" ", "") for type_name in type_names]
+    safe_ids = [str(id_) for id_ in indicator_ids]
     return render(request, "extract_visualiser.html",
-                  {'indicator_information': zip(indicator_ids, type_names, safe_type_names),
-                   'indicator_ids': json.dumps(indicator_ids)});
+                  {'indicator_information': zip(safe_ids, type_names, safe_type_names),
+                   'indicator_ids': safe_ids})
 
 
 def summarise_draft_observable(d, indent=0):
@@ -170,11 +180,17 @@ def extract_visualiser_get(request, id_):
             nodes.append(data)
             Counter.idx += 1
 
-        def is_draft(type_, obs_id):
-            return obs_id in {x['draft']['id'] for x in Draft.list(request.user, type_) if 'id' in x['draft']}
+        def is_draft_obs(obs_id):
+            try:
+                PublisherEdgeObject.load(obs_id)
+                return False
+            except EdgeError as _:
+                pass
+
+            return True
 
         def is_deduped(obs_id):
-            return not is_draft('obs', obs_id)
+            return not is_draft_obs(obs_id)
 
         nodes = []
         links = []
@@ -183,9 +199,10 @@ def extract_visualiser_get(request, id_):
 
         id_to_idx = {}
         for observable in draft_object['observables']:
-            obs_id = observable['id'] if is_deduped(observable['id']) else Counter.idx
+            obs_id = observable['id']
             id_to_idx[obs_id] = Counter.idx
-            append_node(dict(id=obs_id, type='obs', title=observable_to_name(observable, is_draft('obs', obs_id)), depth=1))
+            append_node(
+                    dict(id=obs_id, type='obs', title=observable_to_name(observable, is_draft_obs(obs_id)), depth=1))
 
             links.append({"source": 0, "target": id_to_idx[obs_id]})
 
@@ -208,6 +225,63 @@ def extract_visualiser_get(request, id_):
         return JsonResponse(graph, status=200)
     except EdgeError as e:
         return JsonResponse(dict(e), status=500)
+
+
+def can_merge_observables(draft_obs, draft_ind, hash_types):
+    if len(draft_obs) <= 1:
+        return False, "Unable to merge these observables, at least 2 observables should be selected for a merge"
+
+    types = {draft_ob['objectType'] for draft_ob in draft_obs}
+    if len(types) == 0 or (len(types) == 1 and 'File' not in types) or len(types) != 1:
+        return False, "Unable to merge these observables, merge is only supported by 'File' type observables"
+
+    file_names = {draft_ob['file_name'] for draft_ob in draft_obs if draft_ob['file_name']}
+    if len(file_names) > 1:
+        return False, "Unable to merge these observables, multiple observables with file names selected"
+
+    for hash_type in hash_types:
+        hash_values = []
+        for draft_ob in draft_obs:
+            hash_values.extend([hash_['hash_value'] for hash_ in draft_ob['hashes'] if hash_['hash_type'] == hash_type])
+        if len(set(hash_values)) > 1:
+            return False, "Unable to merge these observables, multiple hashes of type '" + hash_type + "' selected"
+    return True, ""
+
+
+def merge_draft_file_observables(draft_obs, draft_ind, hash_types):
+    obs_to_keep = draft_obs[0]
+    obs_to_dump = draft_obs[1:]
+    for draft_ob in obs_to_dump:
+        if draft_ob['file_name']:
+            obs_to_keep['file_name'] = draft_ob['file_name']
+        for hash_type in hash_types:
+            hash_value = [hash_['hash_value'] for hash_ in draft_ob['hashes'] if hash_['hash_type'] == hash_type]
+            if hash_value:
+                obs_to_keep['hashes'].append({'hash_type': hash_type, 'hash_value': hash_value[0]})
+
+    draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
+
+
+@login_required_ajax
+def extract_visualiser_merge_observables(request, data):
+    def get_draft_obs(obs_id):
+        # For extract drafts, draft obs are contained within their indicator, not within the Draft obs' list
+        return {obs['id']: obs for obs in draft_ind['observables'] if 'id' in obs}.get(obs_id, None)
+
+    # ToDo ids in merge_data
+
+    merge_data = json.loads(request.body)
+    draft_ind = Draft.load(merge_data['id'], request.user)
+    draft_obs = [get_draft_obs(id_) for id_ in merge_data['ids']]
+    hash_types = ['md5', 'md6', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'ssdeep']
+
+    (can_merge, message) = can_merge_observables(draft_obs, draft_ind, hash_types)
+    if not can_merge:
+        return JsonResponse({'message': message}, status=200)
+
+    merge_draft_file_observables(draft_obs, draft_ind, hash_types)
+    Draft.upsert('ind', draft_ind, request.user)
+    return JsonResponse({'result': "success"}, status=200)
 
 
 @login_required_ajax
