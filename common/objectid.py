@@ -5,14 +5,9 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 
 # {STIX/ID Alias}:{type}-{GUID}
-_OBJECT_ID_MATCHER = re.compile(
-    r"[a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$",
-    re.IGNORECASE
-)
-_URL_OBJECT_ID_MATCHER = re.compile(
-    r".*/([a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12})/?$",
-    re.IGNORECASE
-)
+_STIX_ID_REGEX = r"[a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}"
+_OBJECT_ID_MATCHER = re.compile("%s$" % _STIX_ID_REGEX, re.IGNORECASE)
+_URL_OBJECT_ID_MATCHER = re.compile(r".*/(%s)/?$" % _STIX_ID_REGEX, re.IGNORECASE)
 
 
 def is_valid_stix_id(candidate_stix_id):
