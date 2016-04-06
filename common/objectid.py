@@ -1,7 +1,7 @@
 import re
 import urllib2
 
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 
 _OBJECT_ID_MATCHER = re.compile(
@@ -11,9 +11,29 @@ _OBJECT_ID_MATCHER = re.compile(
 )
 
 
-def discover(request, matched_to, failed_to):
+def find_id(request):
     """
         Discovers a STIX id from the request's referrer.
+
+    Args:
+        request (HttpRequest): the request to inspect
+
+    Returns:
+        string: A STIX id
+    """
+    def has_single_match(match):
+        return match is not None and len(match.groups()) == 1
+    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
+    match = _OBJECT_ID_MATCHER.match(referrer)
+    id_ = None
+    if has_single_match(match):
+        id_ = match.group(1)
+    return id_
+
+
+def discover(request, matched_to, failed_to):
+    """
+        Discovers a STIX id from the request's referrer, returning an appropriate redirect response.
 
     Args:
         request (HttpRequest): the request to inspect
@@ -21,12 +41,11 @@ def discover(request, matched_to, failed_to):
         failed_to (Any): model, view name or url redirected to if discovery fails
 
     Returns:
-        A redirect response
+        HttpResponse: A redirect response
     """
-    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
-    match = _OBJECT_ID_MATCHER.match(referrer)
-    if match is not None and len(match.groups()) == 1:
-        id_ = match.group(1)
-        return redirect(matched_to, id_=id_)
+    id_ = find_id(request)
+    if id_:
+        response = redirect(matched_to, id_=id_)
     else:
-        return redirect(failed_to)
+        response = redirect(failed_to)
+    return response

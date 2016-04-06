@@ -37,7 +37,7 @@ from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
-from adapters.certuk_mod.common.objectid import discover as objectid_discover
+from adapters.certuk_mod.common.objectid import discover as objectid_discover, find_id as objectid_find
 from adapters.certuk_mod.retention.purge import STIXPurge
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus
 from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser_not_found, visualiser_view, visualiser_get, \
@@ -47,6 +47,7 @@ from users.models import Repository_User
 audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
+
 
 @login_required
 def static(request, path):
@@ -78,11 +79,10 @@ TYPE_TO_URL = {
 
 @login_required
 def clone(request):
-    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
-    match = objectid_matcher(referrer)
+    stix_id = objectid_find(request)
     try:
-        if match is not None and len(match.groups()) == 1:
-            edge_object = EdgeObject.load(match.group(1))
+        if stix_id:
+            edge_object = EdgeObject.load(stix_id)
             if edge_object.ty == 'obs':
                 return not_clonable(request, "Observables cannot be cloned")
             new_id = IDManager().get_new_id(edge_object.ty)
