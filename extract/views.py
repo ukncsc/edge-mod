@@ -6,7 +6,6 @@ from mongoengine.connection import get_db
 
 from edge.inbox import InboxItem, InboxProcessorForBuilders, InboxError
 from edge.generic import EdgeObject, EdgeError
-from edge.tools import rgetattr
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -32,7 +31,7 @@ def extract_upload(request):
         inbox_processor = InboxProcessorForBuilders(user=request.user)
         for obs in draft_indicator['observables']:
             if obs['id'] in observable_ids:
-                pass
+                del obs['id']
             else:  # If de-duped, the id won't be in the observable_ids
                 loaded_obs = EdgeObject.load(obs['id'])
                 loaded_obs.obj.sighting_count -= 1  # Sightings count was incremented in dedup - undo
@@ -89,6 +88,7 @@ def extract_upload(request):
 
 @login_required_ajax
 def extract_visualiser(request, ids):
+    request.breadcrumbs([("Extract Visualiser", "")])
     type_names = []
     indicator_ids = json.loads(ids)
     for id_ in indicator_ids:
@@ -180,17 +180,11 @@ def extract_visualiser_get(request, id_):
             nodes.append(data)
             Counter.idx += 1
 
-        def is_draft_obs(obs_id):
-            try:
-                PublisherEdgeObject.load(obs_id)
-                return False
-            except EdgeError as _:
-                pass
+        def is_draft_obs(observable):
+            return 'id' not in observable
 
-            return True
-
-        def is_deduped(obs_id):
-            return not is_draft_obs(obs_id)
+        def is_deduped(observable):
+            return 'id' in observable
 
         nodes = []
         links = []
@@ -199,14 +193,17 @@ def extract_visualiser_get(request, id_):
 
         id_to_idx = {}
         for observable in draft_object['observables']:
-            obs_id = observable['id']
+            obs_id = observable.get('id', draft_object['id'].replace('indicator', 'observable') + ":draft:" + str(
+                    Counter.idx - 1))
             id_to_idx[obs_id] = Counter.idx
+
             append_node(
-                    dict(id=obs_id, type='obs', title=observable_to_name(observable, is_draft_obs(obs_id)), depth=1))
+                    dict(id=obs_id, type='obs', title=observable_to_name(observable, is_draft_obs(observable)),
+                         depth=1))
 
             links.append({"source": 0, "target": id_to_idx[obs_id]})
 
-            if is_deduped(obs_id):
+            if is_deduped(observable):
                 for obs_composition in get_backlinks(observable['id'], is_observable_composition):
                     if obs_composition.id_ not in id_to_idx:
                         for indicator_obj in get_backlinks(obs_composition.id_, is_indicator):
@@ -227,9 +224,11 @@ def extract_visualiser_get(request, id_):
         return JsonResponse(dict(e), status=500)
 
 
-def can_merge_observables(draft_obs, draft_ind, hash_types):
-    if len(draft_obs) <= 1:
-        return False, "Unable to merge these observables, at least 2 observables should be selected for a merge"
+def can_merge_observables(draft_obs_offsets, draft_ind, hash_types):
+    if len(draft_obs_offsets) <= 1:
+        return False, "Unable to merge these observables, at least 2 draft observables should be selected for a merge"
+
+    draft_obs = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets]
 
     types = {draft_ob['objectType'] for draft_ob in draft_obs}
     if len(types) == 0 or (len(types) == 1 and 'File' not in types) or len(types) != 1:
@@ -248,7 +247,9 @@ def can_merge_observables(draft_obs, draft_ind, hash_types):
     return True, ""
 
 
-def merge_draft_file_observables(draft_obs, draft_ind, hash_types):
+def merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types):
+    draft_obs = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets]
+
     obs_to_keep = draft_obs[0]
     obs_to_dump = draft_obs[1:]
     for draft_ob in obs_to_dump:
@@ -262,24 +263,62 @@ def merge_draft_file_observables(draft_obs, draft_ind, hash_types):
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
 
 
+def delete_file_observables(draft_obs_offsets, draft_ind):
+    obs_to_dump = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets]
+    draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
+
+
+def get_draft_obs_offset(draft_id):
+    return int(draft_id.split(':')[-1])
+
+
+def get_draft_obs(draft_id, user):
+    # For extracts, draft obs are contained within their indicator, not within the Draft obs list
+    obs_id = draft_id.split(':')[-1]
+    ind_id = ':'.join(draft_id.split(':')[0:2]).replace('observable', 'indicator')
+    draft_ind = Draft.load(ind_id, user)
+    return draft_ind['observables'][int(obs_id)]
+
+
+@login_required_ajax
+def extract_visualiser_delete_observables(request, data):
+    # ToDo validate ids in merge_data
+
+    delete_data = json.loads(request.body)
+    draft_obs_offsets = [get_draft_obs_offset(id_) for id_ in delete_data['ids'] if ":draft:" in id_]
+    draft_ind = Draft.load(delete_data['id'], request.user)
+    delete_file_observables(draft_obs_offsets, draft_ind)
+
+    def get_ref_obs_offset(id_):
+        observables = draft_ind['observables']
+        for i in xrange(len(observables)):
+            if observables[i]['id'] == id_:
+                return i
+
+    ref_obs_offsets = [get_ref_obs_offset(id_) for id_ in delete_data['ids'] if ":draft:" not in id_]
+
+    delete_file_observables(ref_obs_offsets, draft_ind)
+    Draft.upsert('ind', draft_ind, request.user)
+    return JsonResponse({'result': "success"}, status=200)
+
+
 @login_required_ajax
 def extract_visualiser_merge_observables(request, data):
-    def get_draft_obs(obs_id):
-        # For extract drafts, draft obs are contained within their indicator, not within the Draft obs' list
-        return {obs['id']: obs for obs in draft_ind['observables'] if 'id' in obs}.get(obs_id, None)
-
-    # ToDo ids in merge_data
+    # ToDo validate ids in merge_data
 
     merge_data = json.loads(request.body)
+
+    # draft_obs = [get_draft_obs(id_, request.user) for id_ in merge_data['ids']]
+    draft_obs_offsets = [get_draft_obs_offset(id_) for id_ in merge_data['ids'] if ":draft:" in id_]
     draft_ind = Draft.load(merge_data['id'], request.user)
-    draft_obs = [get_draft_obs(id_) for id_ in merge_data['ids']]
+
     hash_types = ['md5', 'md6', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'ssdeep']
 
-    (can_merge, message) = can_merge_observables(draft_obs, draft_ind, hash_types)
+    (can_merge, message) = can_merge_observables(draft_obs_offsets, draft_ind, hash_types)
     if not can_merge:
         return JsonResponse({'message': message}, status=200)
 
-    merge_draft_file_observables(draft_obs, draft_ind, hash_types)
+    merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types)
     Draft.upsert('ind', draft_ind, request.user)
     return JsonResponse({'result': "success"}, status=200)
 
@@ -289,20 +328,11 @@ def extract_visualiser_item_get(request, id_):
     def build_ind_package_from_draft(ind):
         return {'indicators': [ind]}
 
-    def get_draft_obs():
-        # For extracts, draft obs are contained within their indicator, not within the Draft obs list
-        for draft_ind in Draft.list(request.user, 'ind'):
-            obs_dict = {obs['id']: obs for obs in draft_ind['draft']['observables'] if 'id' in obs}
-            if id_ in obs_dict:
-                return obs_dict.get(id_)
-
-        return None
-
     def convert_draft_to_viewable_obs(observable):
-        view_obs = dict(id=observable['id'])
+        view_obs = {'id': id_}
         view_obs['object'] = {'properties':
                                   {'xsi:type': observable['objectType'],
-                                   'value': observable_to_name(observable, get_draft_obs())}}
+                                   'value': observable_to_name(observable, ':draft:' in id_)}}
         return view_obs
 
     def is_draft_ind():
@@ -311,32 +341,24 @@ def extract_visualiser_item_get(request, id_):
     def build_obs_package_from_draft(obs):
         return {'observables': {'observables': [convert_draft_to_viewable_obs(obs)]}}
 
-    try:  # Non-draft
-        root_edge_object = PublisherEdgeObject.load(id_)
-        package = PackageGenerator.build_package(root_edge_object)
-        validation_info = PackageValidationInfo.validate(package)
-        return JsonResponse({
-            "root_id": id_,
-            "package": package.to_dict(),
-            "validation_info": validation_info.validation_dict
-        }, status=200)
-    except EdgeError as e:
-        pass
+    package_dict = {}
+    validation_dict = {}
+    if ':draft:' in id_:  # draft obs
+        package_dict = build_obs_package_from_draft(get_draft_obs(id_, request.user))
+    elif is_draft_ind():
+        package_dict = build_ind_package_from_draft(Draft.load(id_, request.user))
+    else:
+        try:  # Non-draft
+            root_edge_object = PublisherEdgeObject.load(id_)
+            root_edge_object = PublisherEdgeObject.load(id_)
+            package = PackageGenerator.build_package(root_edge_object)
+            validation_dict = PackageValidationInfo.validate(package).validation_dict
+            package_dict = package.to_dict()
+        except EdgeError as e:
+            pass
 
-    try:  # Draft
-        if is_draft_ind():
-            package = build_ind_package_from_draft(Draft.load(id_, request.user))
-        else:
-            draft_obs = get_draft_obs()
-            if draft_obs:
-                package = build_obs_package_from_draft(draft_obs)
-            else:
-                return JsonResponse({'value': 'not found'}, status=500)
-
-        return JsonResponse({
-            "root_id": id_,
-            "package": package,
-            "validation_info": {}
-        }, status=200)
-    except Exception as e:
-        return JsonResponse(dict(e), status=500)
+    return JsonResponse({
+        "root_id": id_,
+        "package": package_dict,
+        "validation_info": validation_dict
+    }, status=200)

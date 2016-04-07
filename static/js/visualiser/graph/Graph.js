@@ -66,7 +66,7 @@ define([
                 return new Node(nodeData);
             }));
             var /*Node[]*/ _rawNodes = this.nodes.peek();
-                this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
+            this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
                 return new Link(_rawNodes[linkData.source], _rawNodes[linkData.target]);
             }.bind(this)));
 
@@ -93,6 +93,16 @@ define([
                 newNode.isSelected(true);
                 this.selectedNode(newNode);
             }
+        },
+        call_action: function (action) {
+            var checked_obs_ids = []
+            ko.utils.arrayForEach(this.nodes(), function (node) {
+                if (node.isChecked()) {
+                    checked_obs_ids.push(node.id());
+                }
+            })
+
+            action(checked_obs_ids, this);
         },
         appendData: function (graphData) {
             //TODO - will need to sort out indexes, etc

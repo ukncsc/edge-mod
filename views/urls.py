@@ -28,8 +28,9 @@ publisher_urls = [
     (r'^extract_upload/$', 'views.extract_upload', 'extract_upload'),
     (r'^extract_visualiser/(?P<ids>.*)$', 'views.extract_visualiser', 'extract_visualiser'),
     (r'^ajax/extract_visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.extract_visualiser_get', 'extract_visualiser_ajax_view'),
-    (r'^ajax/extract_visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.extract_visualiser_item_get', 'extract_visualiser_ajax_item'),
+    (r'^ajax/extract_visualiser/item/(?P<id_>.*)$', 'views.extract_visualiser_item_get', 'extract_visualiser_ajax_item'),
     (r'^ajax/extract_visualiser/merge_observables/(?P<data>)$', 'views.extract_visualiser_merge_observables', 'extract_visualiser_ajax_merge_observables'),
+    (r'^ajax/extract_visualiser/delete_observables/(?P<data>)$', 'views.extract_visualiser_delete_observables', 'extract_visualiser_ajax_delete_observables'),
 
     (r'^clone/$', 'views.clone', 'clone_to_draft'),
     (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'publisher_review'),

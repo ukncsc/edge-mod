@@ -6,22 +6,31 @@ define([
 
     return declare(null, {
         declaredClass: "PanelActions",
-        constructor: function (references, referenced_by, action, action_name) {
-            this.references = ko.computed(function () {
-                return references;
-            });
+        constructor: function () {
+            this.actions = ko.observableArray([])
+        },
+        addAction: function(newAction){
+            this.actions.push(newAction);
+        },
+        show_reference_check:function(type) {
+            var result = false;
+            ko.utils.arrayForEach(this.actions(), function(action) {
+                if (action.references()(type)) {
+                    result = true;
+                }
+            })
 
-            this.referenced_by = ko.computed(function () {
-                return referenced_by;
-            });
+            return result;
+        },
+        show_referenced_by_check:function(type) {
+           var result = false;
+            ko.utils.arrayForEach(this.actions(), function(action) {
+                if (action.referenced_by()(type)) {
+                    result = true;
+                }
+            })
 
-            this.action_name = ko.computed(function () {
-                return action_name;
-            });
-
-            this.action = ko.computed(function () {
-                return action;
-            });
+            return result;
         }
     })
 });

@@ -1,13 +1,15 @@
 require([
-    "../dcl/dcl",
+    "dcl/dcl",
     "knockout",
     "d3",
     "common/modal/Modal",
     "visualiser/ViewModel",
     "visualiser/PanelActions",
+    "visualiser/PanelActionsBuilder",
+    "visualiser/PanelAction",
     "kotemplate!modal-error-content:publisher/templates/error-modal-content.html",
     "domReady!"
-], function (declare, ko, d3, Modal, ViewModel, PanelActions, errorContentTemplate) {
+], function (declare, ko, d3, Modal, ViewModel, PanelActions, PanelActionsBuilder, PanelAction, errorContentTemplate) {
     var MultiGraph = declare(null, {
         declaredClass: "Modal",
         constructor: function (rootIds) {
@@ -34,51 +36,10 @@ require([
             ViewModel.loadById(id,
                 base_url,
                 base_url + "item/",
-                new PanelActions(function (type) {
-                        return type === "obs";
-                    }, function (type) {
-                        return false;
-                    }, function () {
-                        var obs_ids_to_merge = []
-                        ko.utils.arrayForEach(this.graph().nodes(), function (node) {
-                            if (node.isChecked()) {
-                                obs_ids_to_merge.push(node.id());
-                            }
-                        })
-
-                        function showErrorModal(message) {
-                            var errorModal = new Modal({
-                                title: "Error",
-                                titleIcon: "glyphicon-warning-sign",
-                                contentData: message,
-                                contentTemplate: errorContentTemplate.id,
-                                width: "90%"
-                            });
-                            errorModal.show();
-                        }
-
-                        postJSON("base_url" + "merge_observables/", {
-                            'id': this.selectedObject()._rootId._id,
-                            'ids': obs_ids_to_merge
-                        }, function (result) {
-                            if ('message' in result) {
-                                showErrorModal(result['message'])
-                            } else {
-                                d3.json(
-                                    base_url + encodeURIComponent(id),
-                                    function (error, response) {
-                                        if (error) {
-                                            showErrorModal(error);
-                                        }
-
-                                        this.updateGraphData(response);
-                                    }.bind(this)
-                                );
-                            }
-                        }.bind(this));
-
-                    },
-                    "merge"),
+                (new PanelActionsBuilder()).
+                    addAction(create_merge_action(base_url, id)).
+                    addAction(create_delete_action(base_url, id)).
+                    build(),
 
                 function (viewModel) {
                     this.viewModelsById[viewModel.rootId()] = viewModel;
@@ -90,6 +51,105 @@ require([
             return this.viewModelsById[label]
         }
     });
+
+    function create_delete_action(base_url, id) {
+        return new PanelAction(
+            function (type) {
+                return type === "obs";
+            },
+
+            function (type) {
+                return false;
+            },
+
+            function (obs_ids_to_delete, graph) {
+
+
+                function showErrorModal(message) {
+                    var errorModal = new Modal({
+                        title: "Error",
+                        titleIcon: "glyphicon-warning-sign",
+                        contentData: message,
+                        contentTemplate: errorContentTemplate.id,
+                        width: "90%"
+                    });
+                    errorModal.show();
+                }
+
+                postJSON(base_url + "delete_observables/", {
+                    'id': id,
+                    'ids': obs_ids_to_delete
+                }, function (result) {
+                    if ('message' in result) {
+                        showErrorModal(result['message'])
+                    } else {
+                        d3.json(
+                            base_url + encodeURIComponent(id),
+                            function (error, response) {
+                                if (error) {
+                                    showErrorModal(error);
+                                }
+
+                                //location.reload();
+                                graph.loadData(response);
+                            }
+                        );
+                    }
+                });
+
+            },
+        "delete",
+        "trash");
+    }
+
+    function create_merge_action(base_url, id) {
+        return new PanelAction(
+            function (type) {
+                return type === "obs";
+            },
+
+            function (type) {
+                return false;
+            },
+
+            function (obs_ids_to_merge, graph) {
+
+                function showErrorModal(message) {
+                    var errorModal = new Modal({
+                        title: "Error",
+                        titleIcon: "glyphicon-warning-sign",
+                        contentData: message,
+                        contentTemplate: errorContentTemplate.id,
+                        width: "90%"
+                    });
+                    errorModal.show();
+                }
+
+                postJSON(base_url + "merge_observables/", {
+                    'id': id,
+                    'ids': obs_ids_to_merge
+                }, function (result) {
+                    if ('message' in result) {
+                        showErrorModal(result['message'])
+                    } else {
+                        d3.json(
+                            base_url + encodeURIComponent(id),
+                            function (error, response) {
+                                if (error) {
+                                    showErrorModal(error);
+                                }
+
+                                //location.reload();
+                                graph.loadData(response);
+                            }
+                        );
+                    }
+                });
+
+            },
+        "merge",
+        "resize-small");
+    }
 
     return new MultiGraph(window['root_ids']);
 });

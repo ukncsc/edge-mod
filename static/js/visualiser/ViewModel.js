@@ -66,10 +66,6 @@ define([
                 templateName = 'flat-' + selectedObject.type.code;
             }
             return templateName
-        },
-        updateGraphData: function (graphData) {
-            this.graph().loadData(graphData);
-
         }
     });
 

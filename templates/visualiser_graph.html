@@ -53,7 +53,7 @@
                     <dt>References</dt>
                     <!-- ko foreach: parentOf -->
                     <dd data-bind=" attr: {title: id} ">
-                        <!-- ko if: $parents[2].panel_actions().references()(type()) -->
+                        <!-- ko if: $parents[2].panel_actions().show_reference_check(type()) -->
                         <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
                         <!-- /ko -->
 
@@ -64,14 +64,19 @@
                     </dd>
 
                     <!-- /ko -->
-                    <!-- ko if: $parents[1].panel_actions().action -->
                     <br>
-                    <dd>
-                        <button type="button" class="btn btn-default" aria-label="Left Align" data-bind="click:$parents[1].panel_actions().action().bind($parents[1])">
-                            <span aria-hidden="true" data-bind="text:$parents[1].panel_actions().action_name"></span>
-                        </button>
-                    </dd>
-                    <!-- /ko -->
+                    <div class="btn-group" role="group">
+                        <!-- ko foreach: $parents[1].panel_actions().actions -->
+                            <button type="button" data-toggle="tooltip"  class="btn btn-default" data-bind="attr: {title:action_name}, click:$parents[1].call_action.bind($parents[1], $data.action())">
+                                <!-- ko if: glyphicon_name -->
+                                    <span data-bind="css: glyphicon_name"></span>
+                                <!-- /ko -->
+                                <!-- ko ifnot: glyphicon_name -->
+                                    <!--ko text: action_name--><!--/ko-->
+                                <!-- /ko -->
+                            </button>
+                        <!-- /ko -->
+                    </div>
                     <!-- /ko -->
 
                     <!-- ko if: childOf.length > 0 -->
@@ -97,4 +102,5 @@
             </div>
         </div>
     </div>
+
 </template>

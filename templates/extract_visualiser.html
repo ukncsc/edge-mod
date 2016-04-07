@@ -48,6 +48,8 @@
 
 
     <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/stickytape.js' %}"></script>
     <script>
         var require = {
 
@@ -69,7 +71,7 @@
 
     </script>
 
-    <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="visualiser/multi-graph"></script>
+    <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="extract/multi-graph"></script>
 {% endblock %}
 
 {% block body-end %}
