@@ -15,24 +15,30 @@
                 linkStrength:0.25,
                 visible: true
             ">
-            <g data-bind="
-                attr: {
-                    title: title
-                },
-                click: $root.onNodeClicked.bind($root)
-            ">
+            <!-- ko foreach: links -->
+            <line class="ko-d3-graph-link" data-bind="
+                        attr: { class: className }
+                    "></line>
+            <!-- /ko -->
+            <!-- ko foreach: nodes -->
+            <g class="ko-d3-graph-node" data-bind="
+                        attr: { title: title },
+                        click: $root.onNodeClicked.bind($root)
+                    ">
                 <image xlink:href="{% static 'img/hex/hex_.png' %}" class="" data-bind="
-                    attr: {
-                        id: id(),
-                        class: className(),
-                        'xlink:href': '{% static 'img/hex/' %}hex_' + type() + '.png',
-                        height: imageHeight(),
-                        width: imageWidth(),
-                        x: imageX(),
-                        y: imageY()
-                    }
-                "></image>
+                            attr: {
+                                id: id(),
+                                class: className,
+                                'xlink:href': '{% static 'img/hex/' %}hex_' + type() + '.png',
+                                height: imageHeight(),
+                                width: imageWidth(),
+                                x: imageX(),
+                                y: imageY()
+                            }
+                        "></image>
             </g>
+
+            <!-- /ko -->
         </svg>
     </div>
     <div class="col-sm-4">
