@@ -56,25 +56,24 @@
                         <!-- ko if: $parents[2].panel_actions().show_reference_check(type()) -->
                         <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
                         <!-- /ko -->
-
                         <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
                         &nbsp;<span data-bind="text:title,
                         click:$parents[2].onNodeClicked.bind($parents[2])"></span>
-
                     </dd>
 
                     <!-- /ko -->
                     <br>
                     <div class="btn-group" role="group">
                         <!-- ko foreach: $parents[1].panel_actions().actions -->
-                            <button type="button" data-toggle="tooltip"  class="btn btn-default" data-bind="attr: {title:action_name}, click:$parents[1].call_action.bind($parents[1], $data.action())">
-                                <!-- ko if: glyphicon_name -->
-                                    <span data-bind="css: glyphicon_name"></span>
-                                <!-- /ko -->
-                                <!-- ko ifnot: glyphicon_name -->
-                                    <!--ko text: action_name--><!--/ko-->
-                                <!-- /ko -->
-                            </button>
+                        <button type="button" data-toggle="tooltip" class="btn btn-default" data-bind="attr: {title:action_name},
+                            click:$parents[1].call_action.bind($parents[1], $data.action())">
+                            <!-- ko if: glyphicon_name -->
+                            <span data-bind="css: glyphicon_name"></span>
+                            <!-- /ko -->
+                            <!-- ko ifnot: glyphicon_name -->
+                            <!--ko text: action_name--><!--/ko-->
+                            <!-- /ko -->
+                        </button>
                         <!-- /ko -->
                     </div>
                     <!-- /ko -->
