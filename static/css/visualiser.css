@@ -28,8 +28,13 @@ g.ko-d3-graph-node image.unselected {
 }
 
 line.ko-d3-graph-link {
-    stroke: #333;
+    stroke: #999;
     stroke-width: 0.5;
+}
+
+line.ko-d3-graph-link.related {
+    stroke: #A33;
+    stroke-width: 1.5;
 }
 
 dl.dl-horizontal dd {
