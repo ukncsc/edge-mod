@@ -277,7 +277,6 @@ def get_draft_obs_offset(draft_id):
 
 @login_required_ajax
 def extract_visualiser_merge_observables(request, data):
-
     merge_data = json.loads(request.body)
     if not is_valid_stix_id(merge_data['id']):
         return JsonResponse({'message': "Invalid stix id: " + merge_data['id']}, status=200)
@@ -336,7 +335,7 @@ def extract_visualiser_item_get(request, node_id):
         return {'indicators': [ind]}
 
     def convert_draft_to_viewable_obs(observable):
-        view_obs = dir(id = node_id)
+        view_obs = dict(id=node_id)
         view_obs['object'] = {'properties':
                                   {'xsi:type': observable['objectType'],
                                    'value': observable_to_name(observable, DRAFT_ID_SEPARATOR in node_id)}}
