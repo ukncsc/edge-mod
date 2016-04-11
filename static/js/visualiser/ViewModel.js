@@ -64,15 +64,16 @@ define([
         }
     });
     ViewModel.loadById = function (
-        /*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*function*/ onLoadedCallback
+        /*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*function*/ onLoadedCallback, /*function*/ onErrorCallback
     ) {
         d3.json(
             graph_url + encodeURIComponent(rootId),
             function (error, response) {
                 if (error) {
-                    throw new Error(error);
+                    onErrorCallback(error);
+                } else {
+                    onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url));
                 }
-                onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url));
             }
         );
     };

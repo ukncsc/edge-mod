@@ -7,6 +7,8 @@ define([
 ], function (declare, ko, d3, Link, Node) {
     "use strict";
 
+    var RATE_LIMIT = {rateLimit: {timeout: 50, method: "notifyWhenChangesStop"}};
+
     function isGetterSetter(value) {
         return typeof value === "function" && value.length === 1;
     }
@@ -46,18 +48,22 @@ define([
                 if (selectedNode instanceof Node) {
                     var findIndex = selectedNode.index;
                     ko.utils.arrayForEach(this.links(), function (link) {
+                        var isRelatedLink = false;
                         if (link.source.index === findIndex) {
                             linkedNodes.parentOf.push(link.target);
                             link.target.isRelated(true);
+                            isRelatedLink = true;
                         }
                         if (link.target.index === findIndex) {
                             linkedNodes.childOf.push(link.source);
                             link.source.isRelated(true);
+                            isRelatedLink = true;
                         }
+                        link.isRelated(isRelatedLink);
                     });
                 }
                 return linkedNodes;
-            }, this).extend({rateLimit: 50});
+            }, this).extend(RATE_LIMIT);
             this.loadData(graphData);
         },
         loadData: function (graphData) {

@@ -24,14 +24,9 @@ define([
             if (!(element.tagName === "svg")) {
                 throw new Error("The 'forceGraph' binding can only be applied to 'svg' elements.");
             }
-            if (!(element.firstElementChild && element.firstElementChild.tagName === "g")) {
-                throw new Error("The node template must be a 'g' element.");
-            }
-            element.firstElementChild.setAttribute("class", ko.bindingHandlers.forceGraph.nodeClass);
 
             var graphModel = valueAccessor()();
-            var nodeContext = bindingContext.createChildContext(graphModel.nodes);
-            ko.bindingHandlers.foreach.init(element, graphModel.nodes, allBindings, viewModel, nodeContext);
+            ko.bindingHandlers["with"].init(element, valueAccessor, allBindings, viewModel, bindingContext)
             graphModel.applyBindingValues(allBindings());
 
             d3.select(window).on("resize", function () {
@@ -46,31 +41,16 @@ define([
         },
         update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             var graphModel = valueAccessor()();
-            var nodeContext = bindingContext.createChildContext(graphModel.nodes);
-            ko.bindingHandlers.foreach.update(element, graphModel.nodes, allBindings, viewModel, nodeContext);
 
             var container = d3.select(element);
             var nodeSelector = container
-                .selectAll("g." + ko.bindingHandlers.forceGraph.nodeClass)
+                .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
                 .data(graphModel.nodes())
                 .call(graphModel.d3Layout().drag);
 
             var linkSelector = container
-                .selectAll("g." + ko.bindingHandlers.forceGraph.linkClass)
+                .selectAll("." + ko.bindingHandlers.forceGraph.linkClass)
                 .data(graphModel.links());
-
-            linkSelector.exit().remove();
-            linkSelector.enter()
-                .append("line")
-                .attr("class", ko.bindingHandlers.forceGraph.linkClass);
-
-            // We need to reorder the nodes so they appear on top of the links
-            // Swapping the order of node/link creation has no effect...
-            container
-                .selectAll("g." + ko.bindingHandlers.forceGraph.nodeClass)[0]
-                .forEach(function (n) {
-                    n.parentNode.appendChild(n);
-                });
 
             graphModel
                 .d3Layout()
