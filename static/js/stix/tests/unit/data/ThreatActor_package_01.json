@@ -1,0 +1,274 @@
+{
+  "stix_header": {
+    "handling": [
+      {
+        "controlled_structure": "../../../../descendant-or-self::node() | ../../../../descendant-or-self::node()/@*",
+        "marking_structures": [
+          {
+            "color": "AMBER",
+            "xsi:type": "tlpMarking:TLPMarkingStructureType"
+          },
+          {
+            "xsi:type": "simpleMarking:SimpleMarkingStructureType",
+            "statement": "Handling caveats"
+          }
+        ]
+      }
+    ]
+  },
+  "timestamp": "2016-04-11T08:38:18.466128+00:00",
+  "ttps": {
+    "ttps": [
+      {
+        "victim_targeting": {
+          "targeted_information": [
+            {
+              "xsi:type": "stixVocabs:InformationTypeVocab-1.0",
+              "value": "Information Assets - User Credentials"
+            }
+          ],
+          "targeted_technical_details": {
+            "observables": [
+              {
+                "idref": "opensource:Observable-8ef1988e-9b3d-44ce-a3ee-622e42720b0d"
+              }
+            ],
+            "major_version": 2,
+            "update_version": 0,
+            "minor_version": 1
+          },
+          "identity": {
+            "name": "Verizon Wireless",
+            "id": "opensource:Identity-9cb163f6-8a8c-41ff-b83a-08a04bf9e08c"
+          },
+          "targeted_systems": [
+            {
+              "xsi:type": "stixVocabs:SystemTypeVocab-1.0",
+              "value": "Users"
+            }
+          ]
+        },
+        "timestamp": "2015-03-03T18:01:15.989973+00:00",
+        "id": "opensource:ttp-70fe9862-02f1-4561-9892-209023f2b42c",
+        "title": "Targeting: Verizon Wireless"
+      }
+    ]
+  },
+  "campaigns": [
+    {
+      "timestamp": "2016-03-30T08:54:12.482339+00:00",
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "id": "pss:campaign-658d8c83-b38b-4979-8ec9-125653e680c7",
+      "title": "asdfsadf"
+    }
+  ],
+  "version": "1.1.1",
+  "threat_actors": [
+    {
+      "motivations": [
+        {
+          "timestamp": "2016-04-05T12:09:15.608972+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.608962+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "High"
+            }
+          },
+          "description": "Dollar",
+          "value": {
+            "xsi:type": "stixVocabs:MotivationVocab-1.1",
+            "value": "Financial or Economic"
+          },
+          "source": {
+            "description": "PSS"
+          }
+        }
+      ],
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            },
+            {
+              "xsi:type": "simpleMarking:SimpleMarkingStructureType",
+              "statement": "Handling caveats"
+            }
+          ]
+        }
+      ],
+      "description": "LONG Description",
+      "associated_campaigns": {
+        "campaigns": [
+          {
+            "campaign": {
+              "idref": "pss:campaign-658d8c83-b38b-4979-8ec9-125653e680c7"
+            }
+          }
+        ]
+      },
+      "title": "Exemplar",
+      "timestamp": "2016-04-05T12:09:15.608715+00:00",
+      "intended_effects": [
+        {
+          "timestamp": "2016-04-05T12:09:15.609048+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.609038+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "High"
+            }
+          },
+          "description": "Break stuff",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Degradation of Service"
+          },
+          "source": {
+            "description": "cert"
+          }
+        }
+      ],
+      "associated_actors": {
+        "threat_actors": [
+          {
+            "threat_actor": {
+              "idref": "pss:threatactor-377173e0-08c4-4ce4-aa7d-347cdbc69775"
+            }
+          }
+        ]
+      },
+      "observed_ttps": {
+        "ttps": [
+          {
+            "ttp": {
+              "idref": "opensource:ttp-70fe9862-02f1-4561-9892-209023f2b42c"
+            }
+          }
+        ]
+      },
+      "planning_and_operational_supports": [
+        {
+          "timestamp": "2016-04-05T12:09:15.609083+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.609073+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "Medium"
+            }
+          },
+          "description": "help",
+          "value": {
+            "xsi:type": "stixVocabs:PlanningAndOperationalSupportVocab-1.0.1",
+            "value": "Data Exploitation"
+          },
+          "source": {
+            "description": "cert"
+          }
+        }
+      ],
+      "types": [
+        {
+          "timestamp": "2016-04-05T12:09:15.608851+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.608830+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "High"
+            }
+          },
+          "description": "type 2",
+          "value": {
+            "xsi:type": "stixVocabs:ThreatActorTypeVocab-1.0",
+            "value": "Hacktivist"
+          },
+          "source": {
+            "description": "Cert UK"
+          }
+        },
+        {
+          "timestamp": "2016-04-05T12:09:15.608929+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.608916+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "High"
+            }
+          },
+          "description": "type 1",
+          "value": {
+            "xsi:type": "stixVocabs:ThreatActorTypeVocab-1.0",
+            "value": "Hacker"
+          },
+          "source": {
+            "description": "PSS"
+          }
+        }
+      ],
+      "short_description": "short description",
+      "id": "pss:threatactor-0bdab62c-3a6b-46ff-b3ce-59507b1aa4ed",
+      "identity": {
+        "name": "Exemplar threat actor"
+      },
+      "sophistications": [
+        {
+          "timestamp": "2016-04-05T12:09:15.609009+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.608999+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "Medium"
+            }
+          },
+          "description": "Very Sophisticated",
+          "value": {
+            "xsi:type": "stixVocabs:ThreatActorSophisticationVocab-1.0",
+            "value": "Expert"
+          },
+          "source": {
+            "description": "PSS"
+          }
+        }
+      ]
+    },
+    {
+      "timestamp": "2016-03-04T09:42:35.258683+00:00",
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "id": "pss:threatactor-377173e0-08c4-4ce4-aa7d-347cdbc69775",
+      "types": [
+        {
+          "timestamp": "2016-03-04T09:42:35.258803+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:ThreatActorTypeVocab-1.0",
+            "value": "Hacker - Black hat"
+          }
+        }
+      ],
+      "title": "actor"
+    }
+  ],
+  "id": "pss:Package-200f632b-b519-409d-9594-08ffd32445a7"
+}

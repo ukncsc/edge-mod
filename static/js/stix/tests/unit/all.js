@@ -6,7 +6,10 @@ define([
     "./Indicator",
     "./ReviewValue",
     "./TTP",
-    "./ValidationInfo"
+    "./ValidationInfo",
+    "./ThreatActor",
+    "./ExploitTarget",
+    "./Campaign"
 ], function () {
 
 });
