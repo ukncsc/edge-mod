@@ -17,8 +17,6 @@ from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.common.views import error_with_message
-
-from adapters.certuk_mod.common.objectid import is_valid_stix_id
 from adapters.certuk_mod.common.objectid import is_valid_stix_id
 
 DRAFT_ID_SEPARATOR = ":draft:"
@@ -355,7 +353,6 @@ def extract_visualiser_item_get(request, node_id):
         package_dict = build_ind_package_from_draft(Draft.load(node_id, request.user))
     else:
         try:  # Non-draft
-            root_edge_object = PublisherEdgeObject.load(node_id)
             root_edge_object = PublisherEdgeObject.load(node_id)
             package = PackageGenerator.build_package(root_edge_object)
             validation_dict = PackageValidationInfo.validate(package).validation_dict

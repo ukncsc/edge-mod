@@ -11,6 +11,7 @@ def activity_log(request):
     request.breadcrumbs([("Activity Log", "")])
     return render(request, "activity_log.html", {})
 
+
 @login_required
 def error_with_message(request, msg):
     return render(request, "error.html", {"msg": msg})

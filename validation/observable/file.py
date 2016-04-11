@@ -83,7 +83,7 @@ class FileValidationInfo(ObservableValidationInfo):
         if hashes:
             for hash_ in hashes:
                 hash_type = hash_.get(r'type')
-                regex, msg = HASHES.get(hash_type.upper())
+                regex, msg = HASHES.get(hash_type)
                 if not regex.match(hash_.get(r'simple_hash_value')):
                     msgs[hash_type] = FieldValidationInfo(ValidationStatus.WARN, msg)
         return msgs

@@ -3,7 +3,6 @@ import urllib2
 import json
 import datetime
 from dateutil import tz
-import requests
 
 from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
@@ -27,7 +26,8 @@ import adapters.certuk_mod.builder.customizations as cert_builder
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
-from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser, extract_visualiser_get, extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables
+from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser, extract_visualiser_get, \
+    extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.cron import setup as cron_setup
 
@@ -71,31 +71,6 @@ def static(request, path):
 @login_required
 def discover(request):
     return objectid_discover(request, "publisher_review", "publisher_not_found")
-
-
-from django.core.files.base import ContentFile
-
-import xml.etree.ElementTree as ET
-from copy import copy
-
-
-def dictify(r, root=True):
-    if root:
-        return {r.tag: dictify(r, False)}
-    d = copy(r.attrib)
-    if r.text:
-        d["_text"] = r.text
-    for x in r.findall("./*"):
-        if x.tag not in d:
-            d[x.tag] = []
-        d[x.tag].append(dictify(x, False))
-    return d
-
-from edge import IDManager
-from users.models import Draft
-
-from edge.generic import EdgeObject
-
 
 
 TYPE_TO_URL = {
