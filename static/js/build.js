@@ -32,6 +32,9 @@
         },
         {
             name: "visualiser/main"
+        },
+        {
+            name: "extract/main"
         }
     ],
     fileExclusionRegExp: /^\.|^tests$|^build.js$|\.md$|\.pyc$/,
