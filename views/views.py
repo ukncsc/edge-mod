@@ -3,6 +3,7 @@ import urllib2
 import json
 import datetime
 from dateutil import tz
+import mimetypes
 
 from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
@@ -47,14 +48,17 @@ from users.models import Repository_User
 audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
+mimetypes.init()
 
 
 @login_required
 def static(request, path):
     clean_path = urllib2.unquote(path)
     if "../" not in clean_path:
+        content_type, _ = mimetypes.guess_type(clean_path)
         return FileResponse(
-                open(os.path.dirname(__file__) + "/../static/" + clean_path, mode="rb")
+                open(os.path.dirname(__file__) + "/../static/" + clean_path, mode="rb"),
+                content_type=content_type
         )
     else:
         return HttpResponseNotFound()
