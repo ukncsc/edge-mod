@@ -1,9 +1,6 @@
 import unittest
 
-from adapters.certuk_mod.tests.support import view_loader
-
-objectid_matcher = view_loader.get_views_module(__name__).objectid_matcher
-
+from adapters.certuk_mod.common.objectid import _URL_OBJECT_ID_MATCHER
 
 class MatchTests(unittest.TestCase):
 
@@ -21,7 +18,7 @@ class MatchTests(unittest.TestCase):
         self.empty_object_type = '/PurpleSecureSystems:-4a75d646-97e5-4002-9d24-038eacdaa06d/'
         self.non_az_object_type = '/PurpleSecureSystems:indicat0r-4a75d646-97e5-4002-9d24-038eacdaa06d/'
 
-        self.regex_under_test = objectid_matcher
+        self.regex_under_test = _URL_OBJECT_ID_MATCHER
 
     def assertIsMatch(self, candidate_string):
         match = self.regex_under_test.match(candidate_string)
