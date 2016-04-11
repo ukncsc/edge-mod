@@ -13,11 +13,10 @@ from django.http import JsonResponse
 from adapters.certuk_mod.retention.purge import STIXPurge
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.extract.ioc_wrapper import parse_file, IOCParseException
-from adapters.certuk_mod.publisher.package_generator import PackageGenerator
-from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
-from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.common.views import error_with_message
 from adapters.certuk_mod.common.objectid import is_valid_stix_id
+
+from adapters.certuk_mod.visualiser.views import visualiser_item_get
 
 DRAFT_ID_SEPARATOR = ":draft:"
 
@@ -345,20 +344,13 @@ def extract_visualiser_item_get(request, node_id):
     def build_obs_package_from_draft(obs):
         return {'observables': {'observables': [convert_draft_to_viewable_obs(obs)]}}
 
-    package_dict = {}
     validation_dict = {}
     if DRAFT_ID_SEPARATOR in node_id:  # draft obs
         package_dict = build_obs_package_from_draft(get_draft_obs(node_id, request.user))
     elif is_draft_ind():
         package_dict = build_ind_package_from_draft(Draft.load(node_id, request.user))
-    else:
-        try:  # Non-draft
-            root_edge_object = PublisherEdgeObject.load(node_id)
-            package = PackageGenerator.build_package(root_edge_object)
-            validation_dict = PackageValidationInfo.validate(package).validation_dict
-            package_dict = package.to_dict()
-        except EdgeError as e:
-            pass
+    else:  # Non-draft
+        return visualiser_item_get(request, node_id);
 
     return JsonResponse({
         "root_id": node_id,

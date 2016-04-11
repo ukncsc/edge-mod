@@ -1,7 +1,7 @@
 define([
-    "dcl/dcl",
+    "../../dcl/dcl",
     "knockout"
-], function (declare, ko, d3, Graph, StixPackage) {
+], function (declare, ko) {
     "use strict";
 
     return declare(null, {
@@ -9,12 +9,9 @@ define([
         constructor: function () {
             this.actions = ko.observableArray([])
         },
-        addAction: function(newAction){
-            this.actions.push(newAction);
-        },
-        show_reference_check:function(type) {
+        show_reference_check: function (type) {
             var result = false;
-            ko.utils.arrayForEach(this.actions(), function(action) {
+            ko.utils.arrayForEach(this.actions(), function (action) {
                 if (action.references()(type)) {
                     result = true;
                 }
@@ -22,9 +19,9 @@ define([
 
             return result;
         },
-        show_referenced_by_check:function(type) {
-           var result = false;
-            ko.utils.arrayForEach(this.actions(), function(action) {
+        show_referenced_by_check: function (type) {
+            var result = false;
+            ko.utils.arrayForEach(this.actions(), function (action) {
                 if (action.referenced_by()(type)) {
                     result = true;
                 }

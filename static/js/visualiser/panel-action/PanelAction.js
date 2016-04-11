@@ -1,12 +1,13 @@
 define([
-    "dcl/dcl",
+    "../../dcl/dcl",
     "knockout"
-], function (declare, ko, d3, Graph, StixPackage) {
+], function (declare, ko) {
     "use strict";
 
     return declare(null, {
         declaredClass: "PanelAction",
-        constructor: function (references, referenced_by, action, action_name, glyphicon_name) {
+        constructor: function (references/*function*/, referenced_by/*function*/,
+                               action/*function*/, action_name/*String*/, glyphicon_name/*String*/) {
             this.references = ko.computed(function () {
                 return references;
             });

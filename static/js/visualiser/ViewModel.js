@@ -69,9 +69,9 @@ define([
         }
     });
 
-    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url,  panel_actions, /*function*/ onLoadedCallback, /*function*/ onErrorCallback) {
-
-
+    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url,
+                                   /*PanelActions*/panel_actions, /*function*/ onLoadedCallback,
+                                   /*function*/ onErrorCallback) {
         d3.json(
             graph_url + encodeURIComponent(rootId),
             function (error, response) {

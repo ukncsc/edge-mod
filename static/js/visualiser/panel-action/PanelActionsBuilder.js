@@ -1,8 +1,8 @@
 define([
-    "dcl/dcl",
+    "../../dcl/dcl",
     "knockout",
-    "visualiser/PanelAction",
-    "visualiser/PanelActions"
+    "visualiser/panel-action/PanelAction",
+    "visualiser/panel-action/PanelActions"
 ], function (declare, ko, PanelAction, PanelActions) {
     "use strict";
 
@@ -17,9 +17,7 @@ define([
         },
         build: function(){
             var pa = new PanelActions()
-            ko.utils.arrayForEach(this.actions(), function(item) {
-                pa.addAction(item);
-            })
+            pa.actions(this.actions());
             return pa;
         }
     })

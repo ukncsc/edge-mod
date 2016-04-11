@@ -4,18 +4,18 @@ require([
     "d3",
     "common/modal/Modal",
     "visualiser/ViewModel",
-    "visualiser/PanelActionsBuilder",
-    "visualiser/PanelAction",
+    "visualiser/panel-action/PanelActionsBuilder",
+    "visualiser/panel-action/PanelAction",
     "kotemplate!modal-error-content:publisher/templates/error-modal-content.html",
     "domReady!"
 ], function (declare, ko, d3, Modal, ViewModel, PanelActionsBuilder, PanelAction, errorContentTemplate) {
 
-    var base_url = "/adapter/certuk_mod/ajax/extract_visualiser/"
+    var base_url = "/adapter/certuk_mod/ajax/extract_visualiser/";
 
     var ExtractViewModel = declare(null, {
         declaredClass: "ExtractViewModel",
         constructor: function (rootIds) {
-            this.viewModels = ko.observableArray([])
+            this.viewModels = ko.observableArray([]);
             this.viewModelsById = {};
 
             for (var i = 0; i < rootIds.length; i++) {
@@ -32,9 +32,7 @@ require([
             }.bind(this))
         },
 
-
         initViewModel: function (id) {
-
             ViewModel.loadById(id,
                 base_url,
                 base_url + "item/",
@@ -86,7 +84,7 @@ require([
         })).show();
     }
 
-    function no(_) {
+    function no(type) {
         return false;
     }
 

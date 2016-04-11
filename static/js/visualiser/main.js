@@ -2,26 +2,21 @@ require([
     "knockout",
     "common/modal/Modal",
     "visualiser/ViewModel",
-    "visualiser/PanelActions",
+    "visualiser/panel-action/PanelActionsBuilder",
     "kotemplate!modal-error-content:publisher/templates/error-modal-content.html",
     "domReady!"
 
-], function (ko, Modal, ViewModel, PanelActions, errorContentTemplate) {
+], function (ko, Modal, ViewModel, PanelActionsBuilder, errorContentTemplate) {
     ViewModel.loadById(
         window["rootId"],
         "/adapter/certuk_mod/ajax/visualiser/",
         "/adapter/certuk_mod/ajax/visualiser/item/",
-        new PanelActions(function (type) {
-            return false;
-        }, function (type) {
-            return false;
-        }, undefined, ""),
+        (new PanelActionsBuilder()).build(),
         function (viewModel) {
             ko.applyBindings(
                 viewModel,
                 document.getElementById("content")
             );
-
         }, function (error) {
             var errorModal = new Modal({
                 title: "Error",
@@ -29,7 +24,7 @@ require([
                 contentData: error.message,
                 contentTemplate: errorContentTemplate.id,
                 width: "90%"
-            })
+            });
 
             errorModal.getButtonByLabel("OK").callback = history.back.bind(history);
             errorModal.show();
