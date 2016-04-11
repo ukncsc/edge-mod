@@ -69,15 +69,17 @@ define([
         }
     });
 
-    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*function*/ ref_action, /*function*/ onLoadedCallback) {
+    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url,  panel_actions, /*function*/ onLoadedCallback, /*function*/ onErrorCallback) {
+
 
         d3.json(
             graph_url + encodeURIComponent(rootId),
             function (error, response) {
                 if (error) {
-                    throw new Error(error);
+                    onErrorCallback(error);
+                } else {
+                    onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url, panel_actions));
                 }
-                onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url, ref_action));
             }
         );
     };
