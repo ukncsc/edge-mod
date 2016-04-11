@@ -85,7 +85,7 @@ define([
                                /*String?*/ valueKey, /*String?*/ validationPath, /*String?*/ delimiter) {
             var itemPropertyPath = valueKey || "value";
             var listValue = (this.safeArrayGet(object, propertyPath, function (item) {
-                return this.safeGet(item, itemPropertyPath);
+                return (itemPropertyPath === ".") ? item : this.safeGet(item, itemPropertyPath);
             }, this) || []).join(delimiter || ", ");
             var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
             return new ReviewValue(listValue, validation.state, validation.message);

@@ -3,6 +3,8 @@
     baseUrl: "static/js",
     dir: "../../dist",
     paths: {
+        d3: "empty:",
+        jquery: "common/jquery-shim",
         knockout: "common/knockout-shim",
         "config-service": "empty:"
     },
@@ -20,7 +22,16 @@
             name: "activity-log/main"
         },
         {
+            name: "inc-build/cert-inc-build-ready"
+        },
+        {
             name: "ind-build/cert-ind-build-ready"
+        },
+        {
+            name: "clone-build/cert-clone-build-ready"
+        },
+        {
+            name: "visualiser/main"
         }
     ],
     fileExclusionRegExp: /^\.|^tests$|^build.js$|\.md$|\.pyc$/,
