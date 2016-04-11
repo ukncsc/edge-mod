@@ -159,6 +159,7 @@
         <div class="container">
             <div class="row">
                 <form class="col-sm-12 form-horizontal">
+                    {% csrf_token %}
                     <div class="form-group">
                         <label for="filter-search" class="control-label sr-only">Search</label>
                         <div class="input-group">
