@@ -5,16 +5,21 @@ define([
     "./Indicator",
     "./Observable",
     "./TTP",
-    "./ExploitTarget"
-], function (declare, CourseOfAction, Incident, Indicator, Observable, TTP, ExploitTarget) {
+    "./ExploitTarget",
+    "./ThreatActor",
+    "./Campaign"
+], function (declare, CourseOfAction, Incident, Indicator, Observable, TTP, ExploitTarget, ThreatActor, Campaign) {
     "use strict";
 
     var TYPES = Object.freeze({
+        "act": {
+            "class": ThreatActor, "collection": "threat_actors", "label": "ThreatActor", "code": "act"
+        },
+        "cam": {
+            "class": Campaign, "collection": "campaigns", "label": "Campaign", "code": "cam"
+        },
         "coa": {
             "class": CourseOfAction, "collection": "courses_of_action", "label": "Course Of Action", "code": "coa"
-        },
-        "ttp": {
-            "class": TTP, "collection": "ttps.ttps", "label": "TTP", "code": "ttp"
         },
         "incident": {
             "class": Incident, "collection": "incidents", "label": "Incident", "code": "inc"
@@ -27,12 +32,17 @@ define([
         },
         "tgt": {
             "class": ExploitTarget, "collection": "exploit_targets", "label": "ExploitTarget", "code": "tgt"
+        },
+        "ttp": {
+            "class": TTP, "collection": "ttps.ttps", "label": "TTP", "code": "ttp"
         }
     });
 
     var TYPE_ALIASES = Object.freeze({
+        "campaign": "cam",
         "courseofaction": "coa",
-        "et": "tgt"
+        "et": "tgt",
+        "threatactor": "act"
     });
 
     var PATTERN = Object.freeze({

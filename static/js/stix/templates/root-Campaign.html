@@ -1,0 +1,24 @@
+<dl class="dl-horizontal">
+    <!-- ko template: { name: "common-fields-TLP" } --><!-- /ko -->
+    <!-- ko template: {
+        name: "optional-labelled-field", data: { label: "Names", value: names }
+    } --><!-- /ko -->
+    <!-- ko template: {
+        name: "optional-labelled-field", data: { label: "Intended Effects", value: intendedEffects }
+    } --><!-- /ko -->
+    <!-- ko template: {
+        name: "list-ttp", data: { label: "Related TTPs", value: relatedTTPs, template: "labelled-list-field" }
+    } --><!-- /ko -->
+    <!-- ko template: {
+        name: "list-cam", data: { label: "Associated Campaigns", value: associatedCampaigns, template: "labelled-list-field" }
+    } --><!-- /ko -->
+    <!-- ko template: {
+        name: "list-inc", data: { label: "Related Incidents", value: relatedIncidents, template: "labelled-list-field" }
+    } --><!-- /ko -->
+    <!-- ko template: {
+        name: "list-ind", data: { label: "Related Indicators", value: relatedIndicators, template: "labelled-list-field" }
+    } --><!-- /ko -->
+    <!-- ko template: {
+        name: "list-act", data: { label: "Related Actors", value: relatedActors, template: "labelled-list-field" }
+    } --><!-- /ko -->
+</dl>

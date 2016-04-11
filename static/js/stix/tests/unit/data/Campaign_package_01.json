@@ -1,0 +1,911 @@
+{
+  "stix_header": {
+    "handling": [
+      {
+        "controlled_structure": "../../../../descendant-or-self::node() | ../../../../descendant-or-self::node()/@*",
+        "marking_structures": [
+          {
+            "color": "WHITE",
+            "xsi:type": "tlpMarking:TLPMarkingStructureType"
+          },
+          {
+            "xsi:type": "simpleMarking:SimpleMarkingStructureType",
+            "statement": "handling caveats"
+          }
+        ]
+      }
+    ]
+  },
+  "courses_of_action": [
+    {
+      "timestamp": "2016-01-28T14:48:45.395557+00:00",
+      "stage": {
+        "xsi:type": "stixVocabs:COAStageVocab-1.0",
+        "value": "Remedy"
+      },
+      "id": "pss:coa-fe21c01f-6e20-41d3-b6a4-16c16ca7a3a6",
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "title": "adsafasdf"
+    },
+    {
+      "timestamp": "2016-01-14T16:05:30.712545+00:00",
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "id": "pss:coa-20d3614a-d117-4e7a-8233-37db29bb2c30",
+      "title": "dummy coa"
+    }
+  ],
+  "timestamp": "2016-04-11T10:10:48.703218+00:00",
+  "ttps": {
+    "ttps": [
+      {
+        "information_source": {
+          "identity": {
+            "name": "http://www.phishtank.com/",
+            "id": "opensource:Identity-13907755-bd3c-49fe-b880-7e7462edd21b"
+          }
+        },
+        "description": "Target Users via Email by adding a malicious URL",
+        "title": "Email Emmbedded URL",
+        "timestamp": "2015-03-03T17:26:10.992441+00:00",
+        "intended_effects": [
+          {
+            "timestamp": "2015-03-03T17:26:10.992590+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+              "value": "Theft - Credential Theft"
+            }
+          }
+        ],
+        "behavior": {
+          "attack_patterns": [
+            {
+              "id": "opensource:attackpattern-3cd411e4-e11a-4afb-81c4-1cf10470df65",
+              "title": "URL embedded in Email"
+            }
+          ]
+        },
+        "short_description": "Target Users via Email by adding a malicious URL",
+        "id": "opensource:ttp-c819f3ef-fbc3-4077-8d56-bf619c8d9b29"
+      },
+      {
+        "victim_targeting": {
+          "targeted_information": [
+            {
+              "xsi:type": "stixVocabs:InformationTypeVocab-1.0",
+              "value": "Information Assets - User Credentials"
+            }
+          ],
+          "targeted_technical_details": {
+            "observables": [
+              {
+                "idref": "opensource:Observable-8a121e12-1114-4d64-aa55-173809a72abe"
+              }
+            ],
+            "major_version": 2,
+            "update_version": 0,
+            "minor_version": 1
+          },
+          "identity": {
+            "name": "Cartasi",
+            "id": "opensource:Identity-b73ed8e4-09b9-4a38-abf3-3f868cf11c20"
+          },
+          "targeted_systems": [
+            {
+              "xsi:type": "stixVocabs:SystemTypeVocab-1.0",
+              "value": "Users"
+            }
+          ]
+        },
+        "timestamp": "2015-03-03T17:33:18.661728+00:00",
+        "id": "opensource:ttp-c699b4f0-a811-4b89-aab6-972012ab42ee",
+        "title": "Targeting: Cartasi"
+      },
+      {
+        "victim_targeting": {
+          "targeted_information": [
+            {
+              "xsi:type": "stixVocabs:InformationTypeVocab-1.0",
+              "value": "Information Assets - User Credentials"
+            }
+          ],
+          "targeted_technical_details": {
+            "observables": [
+              {
+                "idref": "opensource:Observable-8ef1988e-9b3d-44ce-a3ee-622e42720b0d"
+              }
+            ],
+            "major_version": 2,
+            "update_version": 0,
+            "minor_version": 1
+          },
+          "identity": {
+            "name": "Verizon Wireless",
+            "id": "opensource:Identity-9cb163f6-8a8c-41ff-b83a-08a04bf9e08c"
+          },
+          "targeted_systems": [
+            {
+              "xsi:type": "stixVocabs:SystemTypeVocab-1.0",
+              "value": "Users"
+            }
+          ]
+        },
+        "timestamp": "2015-03-03T18:01:15.989973+00:00",
+        "id": "opensource:ttp-70fe9862-02f1-4561-9892-209023f2b42c",
+        "title": "Targeting: Verizon Wireless"
+      }
+    ]
+  },
+  "campaigns": [
+    {
+      "status": {
+        "xsi:type": "stixVocabs:CampaignStatusVocab-1.0",
+        "value": "Ongoing"
+      },
+      "confidence": {
+        "timestamp": "2016-04-11T09:07:49.108277+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*",
+          "marking_structures": [
+            {
+              "color": "WHITE",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            },
+            {
+              "xsi:type": "simpleMarking:SimpleMarkingStructureType",
+              "statement": "handling caveats"
+            }
+          ]
+        }
+      ],
+      "attribution": [
+        {
+          "threat_actors": [
+            {
+              "threat_actor": {
+                "idref": "pss:threatactor-0bdab62c-3a6b-46ff-b3ce-59507b1aa4ed"
+              }
+            }
+          ]
+        }
+      ],
+      "description": "long description",
+      "associated_campaigns": {
+        "campaigns": [
+          {
+            "campaign": {
+              "idref": "pss:campaign-658d8c83-b38b-4979-8ec9-125653e680c7"
+            }
+          }
+        ]
+      },
+      "title": "Test campaign",
+      "timestamp": "2016-04-11T09:07:49.108171+00:00",
+      "intended_effects": [
+        {
+          "timestamp": "2016-04-11T09:07:49.108373+00:00",
+          "confidence": {
+            "timestamp": "2016-04-11T09:07:49.108323+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "High"
+            }
+          },
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Advantage"
+          },
+          "source": {
+            "description": "Purple secure Systems"
+          }
+        }
+      ],
+      "related_incidents": {
+        "incidents": [
+          {
+            "incident": {
+              "idref": "pss:incident-4ac9bbd1-99c4-48b0-adfb-593e3ef384cd"
+            }
+          }
+        ]
+      },
+      "related_ttps": {
+        "ttps": [
+          {
+            "ttp": {
+              "idref": "opensource:ttp-70fe9862-02f1-4561-9892-209023f2b42c"
+            }
+          }
+        ]
+      },
+      "related_indicators": {
+        "indicators": [
+          {
+            "indicator": {
+              "idref": "pss:indicator-019ac66c-131e-4f7d-9ad2-a7afa5c1640a"
+            }
+          }
+        ]
+      },
+      "names": {
+        "names": [
+          "Joe Bloggs"
+        ]
+      },
+      "short_description": "short description",
+      "id": "pss:campaign-a7bc3ff3-2d60-4d11-9a91-09ea9f6feb9c"
+    },
+    {
+      "timestamp": "2016-03-30T08:54:12.482339+00:00",
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "id": "pss:campaign-658d8c83-b38b-4979-8ec9-125653e680c7",
+      "title": "asdfsadf"
+    }
+  ],
+  "version": "1.1.1",
+  "incidents": [
+    {
+      "status": {
+        "xsi:type": "stixVocabs:IncidentStatusVocab-1.0",
+        "value": "New"
+      },
+      "confidence": {
+        "timestamp": "2016-04-04T08:56:50.999579+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*",
+          "marking_structures": [
+            {
+              "color": "GREEN",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            },
+            {
+              "xsi:type": "simpleMarking:SimpleMarkingStructureType",
+              "statement": "UK HMG Priority: [C1]"
+            }
+          ]
+        }
+      ],
+      "victims": [
+        {
+          "xsi:type": "ciqIdentity:CIQIdentity3.0InstanceType",
+          "specification": {
+            "party_name": {
+              "name_lines": [
+                {
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "name": "7296ff19-62ae-4b77-a637-60f9787ee96e",
+          "id": "pss:identity-685d281b-6eb8-4eea-ac63-06b2d0fc6311"
+        }
+      ],
+      "description": "testing missing",
+      "title": "test-load missing",
+      "timestamp": "2016-04-04T08:56:51.002965+00:00",
+      "intended_effects": [
+        {
+          "timestamp": "2016-04-04T08:56:50.999789+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Theft - Intellectual Property"
+          }
+        }
+      ],
+      "leveraged_ttps": {
+        "ttps": [
+          {
+            "ttp": {
+              "idref": "opensource:ttp-c699b4f0-a811-4b89-aab6-972012ab42ee"
+            }
+          }
+        ]
+      },
+      "discovery_methods": [
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Agent Disclosure"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Unrelated Party"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Audit"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "Antivirus"
+        },
+        {
+          "xsi:type": "stixVocabs:DiscoveryMethodVocab-1.0",
+          "value": "IT Audit"
+        }
+      ],
+      "impact_assessment": {
+        "effects": [
+          {
+            "xsi:type": "stixVocabs:IncidentEffectVocab-1.0",
+            "value": "Brand or Image Degradation"
+          }
+        ]
+      },
+      "coordinators": [
+        {
+          "identity": {
+            "xsi:type": "ciqIdentity:CIQIdentity3.0InstanceType",
+            "specification": {
+              "party_name": {
+                "name_lines": [
+                  {
+                    "value": ""
+                  }
+                ]
+              }
+            },
+            "name": "86491933-ef46-4314-9047-b6eca4a01ace",
+            "id": "pss:identity-6aa70e2b-295e-4b12-9cea-6df3d30aac42"
+          }
+        }
+      ],
+      "related_indicators": {
+        "indicators": [
+          {
+            "indicator": {
+              "idref": "opensource:indicator-ccd691fd-b9b2-466f-9d69-b92494e5d958"
+            }
+          }
+        ]
+      },
+      "time": {
+        "incident_opened": "2016-03-22T10:55:34+01:00"
+      },
+      "short_description": "asdfsadf",
+      "responders": [
+        {
+          "identity": {
+            "xsi:type": "ciqIdentity:CIQIdentity3.0InstanceType",
+            "specification": {
+              "party_name": {
+                "name_lines": [
+                  {
+                    "value": ""
+                  }
+                ]
+              }
+            },
+            "name": "7296ff19-62ae-4b77-a637-60f9787ee96e",
+            "id": "pss:identity-1601443e-3399-4af6-a8a1-f929cf7f7e09"
+          }
+        }
+      ],
+      "reporter": {
+        "identity": {
+          "xsi:type": "ciqIdentity:CIQIdentity3.0InstanceType",
+          "specification": {
+            "party_name": {
+              "name_lines": [
+                {
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "name": "3edad4ab-802f-4f25-a8fd-b2daf3d37a94",
+          "id": "pss:identity-7327e54d-b7c6-4f97-8063-d266f38bbef3"
+        }
+      },
+      "id": "pss:incident-4ac9bbd1-99c4-48b0-adfb-593e3ef384cd",
+      "categories": [
+        {
+          "xsi:type": "stixVocabs:IncidentCategoryVocab-1.0",
+          "value": "Exercise/Network Defense Testing"
+        }
+      ],
+      "related_observables": {
+        "observables": [
+          {
+            "observable": {
+              "idref": "opensource:Observable-e62c99e7-3e82-4adb-908f-7f98f84463ff"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "indicators": [
+    {
+      "observable": {
+        "idref": "opensource:Observable-387b658d-8778-4133-b9f5-abded4fa0635"
+      },
+      "confidence": {
+        "timestamp": "2016-01-27T16:05:15.884820+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "URL Watchlist"
+        }
+      ],
+      "description": "This URL:[http://hbtjzx.com/js/] was identified by phishtank.com as part of a phishing email. This URL appears to still be online as of 2016-01-27T09:47:12+00:00. More detailed infomation can be found at http://www.phishtank.com/phish_detail.php?phish_id=3776321",
+      "producer": {
+        "identity": {
+          "name": "http://www.phishtank.com/",
+          "id": "opensource:Identity-07ed19cc-2a37-487a-863e-07a372181c4e"
+        },
+        "time": {
+          "produced_time": "2016-01-27T09:47:12+00:00",
+          "received_time": "2016-01-27T16:05:07+00:00"
+        }
+      },
+      "title": "phishTank.com id:3776321 with malicious URL:http://hbtjzx.com/js/...",
+      "timestamp": "2016-01-27T16:05:15.884808+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "opensource:ttp-c819f3ef-fbc3-4077-8d56-bf619c8d9b29",
+            "version": "1.1.1"
+          }
+        }
+      ],
+      "version": "2.1.1",
+      "short_description": "phishTank.com id:3776321 with malicious URL:http://hbtjzx.com/js/...",
+      "id": "opensource:indicator-ccd691fd-b9b2-466f-9d69-b92494e5d958"
+    },
+    {
+      "observable": {
+        "idref": "pss:observable-854c5bf3-56eb-4515-9642-e82f8bd302e4"
+      },
+      "confidence": {
+        "timestamp": "2016-03-30T14:55:11.287563+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "Malicious E-mail"
+        }
+      ],
+      "description": "adsfasdf",
+      "producer": {
+        "identity": {
+          "name": "adsfdf",
+          "id": "pss:identity-05561042-8464-41a6-89b3-ebe266d6d0a5"
+        }
+      },
+      "title": "COAS added",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "pss:coa-fe21c01f-6e20-41d3-b6a4-16c16ca7a3a6"
+            }
+          },
+          {
+            "course_of_action": {
+              "idref": "pss:coa-20d3614a-d117-4e7a-8233-37db29bb2c30"
+            }
+          }
+        ]
+      },
+      "timestamp": "2016-03-30T14:55:11.287401+00:00",
+      "kill_chain_phases": {
+        "kill_chain_phases": [
+          {
+            "phase_id": "stix:TTP-e1e4e3f7-be3b-4b39-b80a-a593cfd99a4f",
+            "kill_chain_id": "stix:TTP-af3e707f-2fb9-49e5-8c37-14026ca0a5ff"
+          }
+        ]
+      },
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "opensource:ttp-70fe9862-02f1-4561-9892-209023f2b42c"
+          }
+        }
+      ],
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*",
+          "marking_structures": [
+            {
+              "color": "GREEN",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            },
+            {
+              "xsi:type": "simpleMarking:SimpleMarkingStructureType",
+              "statement": "adsfdsaf"
+            }
+          ]
+        }
+      ],
+      "related_indicators": {
+        "related_indicators": [
+          {
+            "indicator": {
+              "idref": "opensource:indicator-cac26858-a151-4c31-81ca-f3eda54c169a"
+            }
+          }
+        ]
+      },
+      "short_description": "asdfsadf",
+      "id": "pss:indicator-019ac66c-131e-4f7d-9ad2-a7afa5c1640a"
+    },
+    {
+      "observable": {
+        "idref": "opensource:Observable-4b75360f-98fc-45b9-a0d0-13ec7ee9b1b9"
+      },
+      "confidence": {
+        "timestamp": "2016-01-27T16:05:16.077940+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "URL Watchlist"
+        }
+      ],
+      "description": "This URL:[http://niemiecki-tarnow.net/uploads/images/well.htm] was identified by phishtank.com as part of a phishing email. This URL appears to still be online as of 2015-02-18T16:18:26+00:00. More detailed infomation can be found at http://www.phishtank.com/phish_detail.php?phish_id=2999740",
+      "producer": {
+        "identity": {
+          "name": "http://www.phishtank.com/",
+          "id": "opensource:Identity-56784e10-011b-4a67-a6a4-6c0316f06d62"
+        },
+        "time": {
+          "produced_time": "2015-02-18T16:18:26+00:00",
+          "received_time": "2016-01-27T16:05:07+00:00"
+        }
+      },
+      "title": "phishTank.com id:2999740 with malicious URL:http://niemiecki-tarnow.ne...",
+      "timestamp": "2016-01-27T16:05:16.077929+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "opensource:ttp-c819f3ef-fbc3-4077-8d56-bf619c8d9b29",
+            "version": "1.1.1"
+          }
+        }
+      ],
+      "version": "2.1.1",
+      "short_description": "phishTank.com id:2999740 with malicious URL:http://niemiecki-tarnow.ne...",
+      "id": "opensource:indicator-cac26858-a151-4c31-81ca-f3eda54c169a"
+    }
+  ],
+  "observables": {
+    "observables": [
+      {
+        "description": "URL: http://hbtjzx.com/js/| isOnline:yes| dateVerified:2016-01-27T09:47:12+00:00",
+        "object": {
+          "id": "opensource:URI-5e9f8504-28ea-4626-8818-fa5d36902fbb",
+          "properties": {
+            "xsi:type": "URIObjectType",
+            "type": "URL",
+            "value": {
+              "condition": "Equals",
+              "value": "http://hbtjzx.com/js/"
+            }
+          }
+        },
+        "sighting_count": 1,
+        "id": "opensource:Observable-387b658d-8778-4133-b9f5-abded4fa0635",
+        "title": "URL: http://hbtjzx.com/js/..."
+      },
+      {
+        "description": "URL: http://www.chipbrite.net/wellsfargo/account/verify/9ba3f2f1149d44f8883ee89be022596b/| isOnline:yes| dateVerified:2015-02-21T02:17:47+00:00",
+        "object": {
+          "id": "opensource:URI-02c7b69a-5484-4953-bb50-6e42f035499f",
+          "properties": {
+            "xsi:type": "URIObjectType",
+            "type": "URL",
+            "value": {
+              "condition": "Equals",
+              "value": "http://www.chipbrite.net/wellsfargo/account/verify/9ba3f2f1149d44f8883ee89be022596b/"
+            }
+          }
+        },
+        "sighting_count": 1,
+        "id": "opensource:Observable-e62c99e7-3e82-4adb-908f-7f98f84463ff",
+        "title": "URL: http://www.chipbrite.net/wellsfargo/account/verify/9ba3f2f1149d44f8883..."
+      },
+      {
+        "id": "pss:observable-854c5bf3-56eb-4515-9642-e82f8bd302e4",
+        "observable_composition": {
+          "operator": "OR",
+          "observables": [
+            {
+              "idref": "opensource:Observable-69a364ac-9205-47e5-a3ed-5464a421fbec"
+            }
+          ]
+        }
+      },
+      {
+        "description": "URL: http://www.vedprecast.com/~floatsto/update-paypal-security/| isOnline:yes| dateVerified:2015-01-02T00:28:21+00:00",
+        "object": {
+          "id": "opensource:URI-4d2eb5e7-dbfc-4ab2-afa5-76bcbf7fac8c",
+          "properties": {
+            "xsi:type": "URIObjectType",
+            "type": "URL",
+            "value": {
+              "condition": "Equals",
+              "value": "http://www.vedprecast.com/~floatsto/update-paypal-security/"
+            }
+          }
+        },
+        "sighting_count": 1,
+        "id": "opensource:Observable-69a364ac-9205-47e5-a3ed-5464a421fbec",
+        "title": "URL: http://www.vedprecast.com/~floatsto/update-paypal-security/..."
+      },
+      {
+        "description": "URL: http://niemiecki-tarnow.net/uploads/images/well.htm| isOnline:yes| dateVerified:2015-02-18T16:18:26+00:00",
+        "object": {
+          "id": "opensource:URI-9c034408-dbe3-4b6b-beb8-608c39a76ef6",
+          "properties": {
+            "xsi:type": "URIObjectType",
+            "type": "URL",
+            "value": {
+              "condition": "Equals",
+              "value": "http://niemiecki-tarnow.net/uploads/images/well.htm"
+            }
+          }
+        },
+        "sighting_count": 1,
+        "id": "opensource:Observable-4b75360f-98fc-45b9-a0d0-13ec7ee9b1b9",
+        "title": "URL: http://niemiecki-tarnow.net/uploads/images/well.htm..."
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "threat_actors": [
+    {
+      "motivations": [
+        {
+          "timestamp": "2016-04-05T12:09:15.608972+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.608962+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "High"
+            }
+          },
+          "description": "Dollar",
+          "value": {
+            "xsi:type": "stixVocabs:MotivationVocab-1.1",
+            "value": "Financial or Economic"
+          },
+          "source": {
+            "description": "PSS"
+          }
+        }
+      ],
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            },
+            {
+              "xsi:type": "simpleMarking:SimpleMarkingStructureType",
+              "statement": "Handling caveats"
+            }
+          ]
+        }
+      ],
+      "description": "LONG Description",
+      "associated_campaigns": {
+        "campaigns": [
+          {
+            "campaign": {
+              "idref": "pss:campaign-658d8c83-b38b-4979-8ec9-125653e680c7"
+            }
+          }
+        ]
+      },
+      "title": "Exemplar",
+      "timestamp": "2016-04-05T12:09:15.608715+00:00",
+      "intended_effects": [
+        {
+          "timestamp": "2016-04-05T12:09:15.609048+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.609038+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "High"
+            }
+          },
+          "description": "Break stuff",
+          "value": {
+            "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+            "value": "Degradation of Service"
+          },
+          "source": {
+            "description": "cert"
+          }
+        }
+      ],
+      "associated_actors": {
+        "threat_actors": [
+          {
+            "threat_actor": {
+              "idref": "pss:threatactor-377173e0-08c4-4ce4-aa7d-347cdbc69775"
+            }
+          }
+        ]
+      },
+      "observed_ttps": {
+        "ttps": [
+          {
+            "ttp": {
+              "idref": "opensource:ttp-70fe9862-02f1-4561-9892-209023f2b42c"
+            }
+          }
+        ]
+      },
+      "planning_and_operational_supports": [
+        {
+          "timestamp": "2016-04-05T12:09:15.609083+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.609073+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "Medium"
+            }
+          },
+          "description": "help",
+          "value": {
+            "xsi:type": "stixVocabs:PlanningAndOperationalSupportVocab-1.0.1",
+            "value": "Data Exploitation"
+          },
+          "source": {
+            "description": "cert"
+          }
+        }
+      ],
+      "types": [
+        {
+          "timestamp": "2016-04-05T12:09:15.608851+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.608830+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "High"
+            }
+          },
+          "description": "type 2",
+          "value": {
+            "xsi:type": "stixVocabs:ThreatActorTypeVocab-1.0",
+            "value": "Hacktivist"
+          },
+          "source": {
+            "description": "Cert UK"
+          }
+        },
+        {
+          "timestamp": "2016-04-05T12:09:15.608929+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.608916+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "High"
+            }
+          },
+          "description": "type 1",
+          "value": {
+            "xsi:type": "stixVocabs:ThreatActorTypeVocab-1.0",
+            "value": "Hacker"
+          },
+          "source": {
+            "description": "PSS"
+          }
+        }
+      ],
+      "short_description": "short description",
+      "id": "pss:threatactor-0bdab62c-3a6b-46ff-b3ce-59507b1aa4ed",
+      "identity": {
+        "name": "Exemplar threat actor"
+      },
+      "sophistications": [
+        {
+          "timestamp": "2016-04-05T12:09:15.609009+00:00",
+          "confidence": {
+            "timestamp": "2016-04-05T12:09:15.608999+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+              "value": "Medium"
+            }
+          },
+          "description": "Very Sophisticated",
+          "value": {
+            "xsi:type": "stixVocabs:ThreatActorSophisticationVocab-1.0",
+            "value": "Expert"
+          },
+          "source": {
+            "description": "PSS"
+          }
+        }
+      ]
+    },
+    {
+      "timestamp": "2016-03-04T09:42:35.258683+00:00",
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "id": "pss:threatactor-377173e0-08c4-4ce4-aa7d-347cdbc69775",
+      "types": [
+        {
+          "timestamp": "2016-03-04T09:42:35.258803+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:ThreatActorTypeVocab-1.0",
+            "value": "Hacker - Black hat"
+          }
+        }
+      ],
+      "title": "actor"
+    }
+  ],
+  "id": "pss:Package-2b32f4ed-2b29-404b-985c-bca698965737"
+}
