@@ -56,10 +56,10 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch(EdgeObject.__module__ + '.' + EdgeObject.__name__ + '.load', new=mock.Mock())
     @mock.patch('adapters.certuk_mod.common.objectid.find_id')
     @mock.patch('django.http.request.HttpRequest')
-    def test_Review_IfIdOK_RenderReviewPage(self, mock_request, find_id, mock_package_builder, mock_validate,
+    def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_find_id, mock_package_builder, mock_validate,
                                             mock_render):
         mock_id = 'Dummy ID'
-        find_id.return_value = mock_id
+        mock_find_id.return_value = mock_id
 
         mock_render.return_value = 'Mock render'
 
