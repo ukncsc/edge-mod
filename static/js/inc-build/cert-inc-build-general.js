@@ -51,13 +51,14 @@ define([
                         displayMessage: "You need to select a TLP for your indicator"
                     }
                 });
-                this.reporter = ko.observable(new CERTIdentity({name: ''})).extend({
+
+                this.reporter = ko.observable(new CERTIdentity()).extend({
                     requiredIdentity: {
                         required: true,
                         group: this.validationGroup,
                         validateFunction: function () {
                             return this.reporter().name() != "";
-                        },
+                        }.bind(this),
                         displayMessage: "You need to select a reporter for your indicator"
                     }
                 });
@@ -97,8 +98,7 @@ define([
             this.description(data["description"] || "");
             if ('reporter' in data) {
                 if ('identity' in data['reporter']) {
-                    if ('name' in data['reporter']['identity'])
-                        this.reporter(new CERTIdentity(data['reporter']['identity']))
+                    this.reporter(new CERTIdentity().load(data["reporter"]["identity"]))
                 }
             }
 

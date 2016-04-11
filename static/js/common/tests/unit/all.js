@@ -1,6 +1,8 @@
 define([
     "./change-tracker",
-    "./publish-subscribe"
+    "./publish-subscribe",
+    "./identity",
+    "./cert-messages"
 ], function () {
 
 });

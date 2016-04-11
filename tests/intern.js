@@ -17,14 +17,14 @@ define({
     // OnDemand. Options that will be permutated are browserName, version, platform, and platformVersion; any other
     // capabilities options specified for an environment will be copied as-is
     environments: [
-/*
-        {browserName: "internet explorer", version: "11", platform: "WIN8"},
-        {browserName: "internet explorer", version: "10", platform: "WIN8"},
-        {browserName: "internet explorer", version: "9", platform: "WINDOWS"},
-        {browserName: "firefox", version: "37", platform: ["WINDOWS", "MAC"]},
-        {browserName: "chrome", version: "39", platform: ["WINDOWS", "MAC"]},
-        {browserName: "safari", version: "8", platform: "MAC"}
-*/
+        /*
+         {browserName: "internet explorer", version: "11", platform: "WIN8"},
+         {browserName: "internet explorer", version: "10", platform: "WIN8"},
+         {browserName: "internet explorer", version: "9", platform: "WINDOWS"},
+         {browserName: "firefox", version: "37", platform: ["WINDOWS", "MAC"]},
+         {browserName: "chrome", version: "39", platform: ["WINDOWS", "MAC"]},
+         {browserName: "safari", version: "8", platform: "MAC"}
+         */
     ],
 
     // Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
@@ -41,12 +41,13 @@ define({
     loaderOptions: {
         // Packages that should be registered with the loader in each testing environment
         packages: [
+            {name: "config-service", location: "static/js/common/tests/unit", main: "mock-config.json"},
             {name: "ind-build", location: "static/js/ind-build"},
             {name: "inc-build", location: "static/js/inc-build"},
             {name: "common", location: "static/js/common"},
             {name: "dcl", location: "static/js/dcl"},
-            {name: "knockout", location: "tests/support", main:"knockout-3.1.0.debug"},
-            {name: "kotemplate", location: "static/js", main:"kotemplate"},
+            {name: "knockout", location: "tests/support", main: "knockout-3.1.0.debug"},
+            {name: "kotemplate", location: "static/js", main: "kotemplate"},
             {name: "publisher", location: "static/js/publisher"},
             {name: "stix", location: "static/js/stix"},
             {name: "text", location: "static/js", main: "text"}
@@ -65,7 +66,7 @@ define({
     excludeInstrumentation: /(?:(?:tests|node_modules|dcl)\/|js\/(?:kotemplate|text).js$)/,
 
     reporters: [
-        { id: "JUnit", filename: "tests/junit.xml" },
-        { id: "Cobertura", filename: "tests/cobertura.xml" }
+        {id: "JUnit", filename: "tests/junit.xml"},
+        {id: "Cobertura", filename: "tests/cobertura.xml"}
     ]
 });

@@ -17,19 +17,15 @@ with mock.patch('django.contrib.auth.decorators.login_required', lambda func: fu
 
 class ViewHandlerTests(unittest.TestCase):
 
-    @mock.patch.object(views, 'redirect')
+    @mock.patch('adapters.certuk_mod.common.objectid.redirect')
     @mock.patch(EdgeObject.__module__ + '.' + EdgeObject.__name__ + '.load', new=mock.Mock())
-    @mock.patch.object(views, 'objectid_matcher')
+    @mock.patch('adapters.certuk_mod.common.objectid.find_id')
     @mock.patch('django.http.request.HttpRequest')
-    def test_Discover_IfIdMatch_RedirectToReviewPage(self, mock_request, mock_regex, mock_redirect):
+    def test_Discover_IfIdMatch_RedirectToReviewPage(self, mock_request, mock_find_id, mock_redirect):
         type(mock_request).META = mock.PropertyMock(return_value={})
 
         mock_id = 'Dummy ID'
-        mock_regex.match.return_value = mock.MagicMock(
-            group=mock.Mock(return_value=mock_id),
-            groups=mock.Mock(
-                return_value=(mock_id,))
-        )
+        mock_find_id.return_value = mock_id
 
         mock_redirect.return_value = 'Mock redirect'
 
@@ -39,13 +35,13 @@ class ViewHandlerTests(unittest.TestCase):
 
         self.assertEqual(response, mock_redirect.return_value)
 
-    @mock.patch.object(views, 'redirect')
-    @mock.patch.object(views, 'objectid_matcher')
+    @mock.patch('adapters.certuk_mod.common.objectid.redirect')
+    @mock.patch('adapters.certuk_mod.common.objectid.find_id')
     @mock.patch('django.http.request.HttpRequest')
-    def test_Discover_IfNoIdMatch_RedirectToMissingPage(self, mock_request, mock_regex, mock_redirect):
+    def test_Discover_IfNoIdMatch_RedirectToMissingPage(self, mock_request, mock_find_id, mock_redirect):
         type(mock_request).META = mock.PropertyMock(return_value={})
 
-        mock_regex.match.return_value = None
+        mock_find_id.return_value = None
 
         mock_redirect.return_value = 'Mock redirect'
 
@@ -58,16 +54,12 @@ class ViewHandlerTests(unittest.TestCase):
     @mock.patch('adapters.certuk_mod.validation.package.validator.PackageValidationInfo.validate')
     @mock.patch('adapters.certuk_mod.publisher.package_generator.PackageGenerator.build_package')
     @mock.patch(EdgeObject.__module__ + '.' + EdgeObject.__name__ + '.load', new=mock.Mock())
-    @mock.patch.object(views, 'objectid_matcher')
+    @mock.patch('adapters.certuk_mod.common.objectid.find_id')
     @mock.patch('django.http.request.HttpRequest')
-    def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_regex, mock_package_builder, mock_validate,
+    def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_find_id, mock_package_builder, mock_validate,
                                             mock_render):
         mock_id = 'Dummy ID'
-        mock_regex.match.return_value = mock.MagicMock(
-            group=mock.Mock(return_value=mock_id),
-            groups=mock.Mock(
-                return_value=(mock_id,))
-        )
+        mock_find_id.return_value = mock_id
 
         mock_render.return_value = 'Mock render'
 

@@ -44,7 +44,15 @@ publisher_urls = [
     (r'^import/(?P<username>\S+)$', 'views.ajax_import', None),
     (r'^ajax/get_purge_task_status/$', 'views.ajax_get_purge_task_status', None),
     (r'^ajax/run_purge/$', 'views.ajax_run_purge', None),
-    (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None)
+    (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),
+    (r'^config/get_cert_config/$', 'views.ajax_get_cert_config', None),
+    (r'^config/get_crm_url/$', 'views.ajax_get_crm_url', None),
+    (r'^config/set_crm_url/$', 'views.ajax_set_crm_url', None),
+    (r'^visualiser/$', 'views.visualiser_discover', 'visualiser_discover'),
+    (r'^visualiser/missing/$', 'views.visualiser_not_found', 'visualiser_not_found'),
+    (r'^visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_view', 'visualiser_view'),
+    (r'^ajax/visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_get', 'visualiser_ajax_view'),
+    (r'^ajax/visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_item_get', 'visualiser_ajax_item')
 ]
 
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]
@@ -53,6 +61,7 @@ urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
 navitems = [
     ('External Publisher', 'publisher_discover'),
+    ('Visualiser', 'visualiser_discover'),
     ('Clone to Draft', 'clone_to_draft'),
     # ('Duplicates Finder', 'duplicates_finder'),
     ('Activity Log', 'activity_log'),

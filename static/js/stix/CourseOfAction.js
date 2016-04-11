@@ -4,6 +4,7 @@ define([
     "./ReviewValue",
     "./StixObjectTLP",
     "kotemplate!root-coa:./templates/root-COA.html",
+    "kotemplate!flat-coa:./templates/flat-COA.html",
     "kotemplate!list-coa:./templates/list-COAs.html"
 ], function (declare, ko, ReviewValue, StixObjectTLP) {
     "use strict";

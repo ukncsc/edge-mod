@@ -1,5 +1,9 @@
 {% extends "base.html" %} {% load site_tags %} {% load staticfiles %}
 
+{% block head-content %}
+<link rel="stylesheet" href="{% static 'css/inc-build.css' %}">
+{% endblock %}
+
 {% block body-content %}
     {% include 'cert-identity.html' %}
     {% include 'candidate_modal.html' %}
@@ -76,7 +80,8 @@
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
-                knockout: "common/knockout-shim"
+                knockout: "common/knockout-shim",
+                "config-service": "/adapter/certuk_mod/config/get_cert_config"
             },
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
