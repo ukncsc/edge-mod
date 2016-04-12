@@ -57,7 +57,7 @@
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
                 d3: "{% static "js/d3" %}",
-                jquery: "common/jquery-shim",
+                jquery: "{% static "js/jquery-1.11.0.min" %}",
                 knockout: "common/knockout-shim"
             },
             // See http://requirejs.org/docs/jquery.html#noconflictmap

@@ -81,6 +81,7 @@ def extract_upload(request):
         process_observables_for_draft()
         Draft.upsert('ind', draft_indicator, request.user)
 
+
     remove_from_db(indicator_ids + list(observable_ids))
 
     return redirect("extract_visualiser",
@@ -208,14 +209,13 @@ def extract_visualiser_get(request, id_):
                     continue
 
                 for indicator_obj in get_backlinks(obs_composition.id_, is_indicator):
-                    if indicator_obj.id_ in id_to_idx:
-                        continue
-
-                    id_to_idx[indicator_obj.id_] = Counter.idx
-                    append_node(dict(id=indicator_obj.id_, type=indicator_obj.ty,
+                    if indicator_obj.id_ not in id_to_idx:
+                        id_to_idx[indicator_obj.id_] = Counter.idx
+                        append_node(dict(id=indicator_obj.id_, type=indicator_obj.ty,
                                      title=build_title(indicator_obj), depth=2))
 
-                links.append({"source": id_to_idx[indicator_obj.id_], "target": id_to_idx[obs_id]})
+                    links.append({"source": id_to_idx[indicator_obj.id_], "target": id_to_idx[obs_id]})
+
 
         return dict(nodes=nodes, links=links)
 
@@ -273,7 +273,7 @@ def get_draft_obs_offset(draft_id):
 
 
 @login_required_ajax
-def extract_visualiser_merge_observables(request, data):
+def extract_visualiser_merge_observables(request):
     merge_data = json.loads(request.body)
     if not is_valid_stix_id(merge_data['id']):
         return JsonResponse({'message': "Invalid stix id: " + merge_data['id']}, status=200)
@@ -288,33 +288,34 @@ def extract_visualiser_merge_observables(request, data):
         return JsonResponse({'message': message}, status=200)
 
     merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types)
+    Draft.maybe_delete(draft_ind['id'], request.user)
     Draft.upsert('ind', draft_ind, request.user)
     return JsonResponse({'result': "success"}, status=200)
 
 
 def delete_file_observables(draft_obs_offsets, draft_ind):
-    obs_to_dump = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets]
+    obs_to_dump = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
+                   if len(draft_ind['observables']) > draft_offset >= 0]
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
 
 
 @login_required_ajax
-def extract_visualiser_delete_observables(request, data):
-    # ToDo validate ids in merge_data
-
+def extract_visualiser_delete_observables(request):
     delete_data = json.loads(request.body)
     draft_obs_offsets = [get_draft_obs_offset(id_) for id_ in delete_data['ids'] if DRAFT_ID_SEPARATOR in id_]
     draft_ind = Draft.load(delete_data['id'], request.user)
     delete_file_observables(draft_obs_offsets, draft_ind)
 
-    def get_ref_obs_offset(id_):
-        observables = draft_ind['observables']
-        for i in xrange(len(observables)):
-            if observables[i]['id'] == id_:
-                return i
+    def ref_obs_generator():
+        obs_id_map = {draft_ind['observables'][i]['id']: i for i in xrange(len(draft_ind['observables'])) if 'id' in draft_ind['observables'][i]}
+        ref_obs_ids = [obs_id for obs_id in delete_data['ids'] if DRAFT_ID_SEPARATOR not in obs_id]
+        for obs_id in ref_obs_ids:
+            offset = obs_id_map.get(obs_id, None)
+            if offset is not None:
+                yield offset
 
-    ref_obs_offsets = [get_ref_obs_offset(id_) for id_ in delete_data['ids'] if DRAFT_ID_SEPARATOR not in id_]
-
-    delete_file_observables(ref_obs_offsets, draft_ind)
+    delete_file_observables([id_ for id_ in ref_obs_generator()], draft_ind)
+    Draft.maybe_delete(draft_ind['id'], request.user)
     Draft.upsert('ind', draft_ind, request.user)
     return JsonResponse({'result': "success"}, status=200)
 
