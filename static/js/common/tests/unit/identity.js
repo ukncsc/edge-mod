@@ -157,6 +157,26 @@ define([
                         assert.equal(identity.sector(), "");
                     }
                 },
+                "select an identity": {
+                    "select the identity": function() {
+                        var identity = new Identity();
+
+                        var data = {
+                            name: testOrg,
+                            uuid: uuid
+                        };
+
+                        identity.onSelect(data);
+
+                        assert.equal(identity.searchTerm(), "");
+                        assert.equal(identity.name(), testORG);
+                        assert.equal(identity.UUID(), uuid);
+                        assert.equal(identity.selected(), true);
+                        assert.equal(identity.search(), false);
+                        assert.equal(identity.sector(), "");
+
+                    }
+                },
                 "can manipulate snapshots": {
                     "creates snapshot": function () {
                         var identity = new Identity();
@@ -246,6 +266,12 @@ define([
                         identity.CRMURL = crmURL;
 
                         assert.equal(identity.buildSearchCRMURL(), crmURL + "/organisations/find?organisation=");
+                    }
+                },
+                "passing test": {
+                    "pass test": function() {
+                        var result = 2+ 3
+                        assert.equal(result, 5, "Addition should add numbers together")
                     }
                 }
             }
