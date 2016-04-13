@@ -99,7 +99,7 @@ def summarise_draft_observable(d):
                     result += " " + summarise_draft_observable(item)
                 else:
                     result += " " + str(item)
-        elif value and value != 'None' and key != 'id' and key != 'id_ns' and key != 'objectType' and key != 'title':
+        elif value and value != 'None' and key != 'id' and key != 'id_ns' and key != 'objectType':
             result += value
     return result
 
@@ -246,6 +246,7 @@ def merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types):
             if hash_value:
                 obs_to_keep['hashes'].append({'hash_type': hash_type, 'hash_value': hash_value[0]})
 
+    obs_to_keep['title'] = ''
     obs_to_keep['title'] = summarise_draft_observable(obs_to_keep)
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
 
