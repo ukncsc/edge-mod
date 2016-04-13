@@ -78,7 +78,11 @@ class URIValidationInfo(ObservableValidationInfo):
 
     @classmethod
     def __is_valid_url(cls, url):
-        url_parse_result = urlparse(url)
+        try:
+            url_parse_result = urlparse(url)
+        except (ValueError, TypeError):
+            return False
+
         return url_parse_result.scheme and cls.SCHEME_MATCHER.match(url_parse_result.scheme) and \
             (url_parse_result.netloc or url_parse_result.path)
 

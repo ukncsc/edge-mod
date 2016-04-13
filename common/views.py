@@ -2,8 +2,8 @@ import re
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
 from adapters.certuk_mod.common.activity import find
+from users.decorators import login_required_ajax
 
 
 @login_required
@@ -17,7 +17,7 @@ def error_with_message(request, msg):
     return render(request, "error.html", {"msg": msg})
 
 
-@csrf_exempt
+@login_required_ajax
 def ajax_activity_log(request, search):
     try:
         pattern = re.compile(
