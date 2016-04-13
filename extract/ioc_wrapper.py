@@ -19,8 +19,6 @@ def capture():
         yield out
     finally:
         sys.stdout, sys.stderr = old_out, old_err
-        out[0] = out[0].getvalue()
-        out[1] = out[1].getvalue()
 
 
 class IOCParseException(Exception):

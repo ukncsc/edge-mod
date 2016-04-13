@@ -1,4 +1,4 @@
-require([
+define([
     "dcl/dcl",
     "knockout",
     "d3",
@@ -6,8 +6,7 @@ require([
     "visualiser/ViewModel",
     "visualiser/panel-action/PanelActionsBuilder",
     "visualiser/panel-action/PanelAction",
-    "kotemplate!modal-error-content:publisher/templates/error-modal-content.html",
-    "domReady!"
+    "kotemplate!modal-error-content:publisher/templates/error-modal-content.html"
 ], function (declare, ko, d3, Modal, ViewModel, PanelActionsBuilder, PanelAction, errorContentTemplate) {
 
     var base_url = "/adapter/certuk_mod/ajax/extract_visualiser/";
@@ -114,5 +113,6 @@ require([
             "resize-small");
     }
 
-    return new ExtractViewModel(window['root_ids']);
+    return ExtractViewModel;
+
 });

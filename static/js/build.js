@@ -34,7 +34,10 @@
             name: "visualiser/main"
         },
         {
-            name: "extract/main"
+            name: "extract/upload/main"
+        },
+        {
+            name: "extract/visualise/main"
         }
     ],
     fileExclusionRegExp: /^\.|^tests$|^build.js$|\.md$|\.pyc$/,

@@ -5,7 +5,7 @@ define([
     "use strict";
 
     return declare(null, {
-        declaredClass: "ExtractModel",
+        declaredClass: "ExtractUploadModel",
         constructor: function () {
             this.results = ko.observableArray([]);
             this.exists = ko.observable(false);

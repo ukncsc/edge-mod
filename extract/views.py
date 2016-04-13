@@ -1,21 +1,20 @@
 import json
-
-from users.decorators import login_required_ajax
-from users.models import Draft
 from mongoengine.connection import get_db
 
-from edge.inbox import InboxItem, InboxProcessorForBuilders, InboxError
-from edge.generic import EdgeObject, EdgeError
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+
+from users.decorators import login_required_ajax
+from users.models import Draft
+from edge.inbox import InboxError
+from edge.generic import EdgeObject, EdgeError
 
 from adapters.certuk_mod.retention.purge import STIXPurge
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.extract.ioc_wrapper import parse_file, IOCParseException
 from adapters.certuk_mod.common.views import error_with_message
 from adapters.certuk_mod.common.objectid import is_valid_stix_id
-
 from adapters.certuk_mod.visualiser.views import visualiser_item_get
 
 DRAFT_ID_SEPARATOR = ":draft:"
@@ -27,25 +26,12 @@ def extract(request):
     return render(request, "extract_upload_form.html")
 
 
-@login_required
+@login_required_ajax
 def extract_upload(request):
-    def process_observables_for_draft():
-        inbox_processor = InboxProcessorForBuilders(user=request.user)
+    def remove_draft_ids():
         for obs in draft_indicator['observables']:
             if obs['id'] in observable_ids:
                 del obs['id']
-            else:  # If de-duped, the id won't be in the observable_ids
-                loaded_obs = EdgeObject.load(obs['id'])
-                loaded_obs.obj.sighting_count -= 1  # Sightings count was incremented in dedup - undo
-                inbox_processor.add(InboxItem(
-                        api_object=loaded_obs.to_ApiObject(),
-                        etlp=loaded_obs.etlp,
-                        etou=loaded_obs.etou,
-                        esms=loaded_obs.esms
-                ))
-
-        if inbox_processor.contents:
-            inbox_processor.run()
 
     def remove_from_db(ids):
         for page_index in range(0, len(ids), 10):
@@ -66,7 +52,6 @@ def extract_upload(request):
     except InboxError as e:
         return error_with_message(request,
                                   "Error parsing stix xml: " + e.message + " content from parser was " + stream.buf)
-
     ip.run()
 
     indicators = [inbox_item for _, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
@@ -78,9 +63,8 @@ def extract_upload(request):
 
     for indicator in indicators:
         draft_indicator = EdgeObject.load(indicator.id).to_draft()
-        process_observables_for_draft()
+        remove_draft_ids()
         Draft.upsert('ind', draft_indicator, request.user)
-
 
     remove_from_db(indicator_ids + list(observable_ids))
 
@@ -88,7 +72,7 @@ def extract_upload(request):
                     ids=json.dumps(indicator_ids))
 
 
-@login_required_ajax
+@login_required
 def extract_visualiser(request, ids):
     request.breadcrumbs([("Extract Visualiser", "")])
 
@@ -169,17 +153,13 @@ def extract_visualiser_get(request, id_):
 
         class Counter:
             idx = 0
-            obs_id = 0
 
         def append_node(data):
             nodes.append(data)
             Counter.idx += 1
 
-        def create_draft_observable_id():
-            Counter.obs_id += 1
-            return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + str(Counter.obs_id - 1)
-
-            return id
+        def create_draft_observable_id(index):
+            return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + str(index)
 
         def is_draft_obs():
             return not is_deduped()
@@ -193,12 +173,12 @@ def extract_visualiser_get(request, id_):
         append_node(dict(id=draft_object['id'], type='ind', title="draft: " + draft_object['title'], depth=0))
 
         id_to_idx = {}
-        for observable in draft_object['observables']:
-            obs_id = observable.get('id', create_draft_observable_id())
+        for i in xrange(len(draft_object['observables'])):
+            observable = draft_object['observables'][i]
+            obs_id = observable.get('id', create_draft_observable_id(i))
             id_to_idx[obs_id] = Counter.idx
 
             append_node(dict(id=obs_id, type='obs', title=observable_to_name(observable, is_draft_obs()), depth=1))
-
             links.append({"source": 0, "target": id_to_idx[obs_id]})
 
             if not is_deduped():
@@ -212,10 +192,9 @@ def extract_visualiser_get(request, id_):
                     if indicator_obj.id_ not in id_to_idx:
                         id_to_idx[indicator_obj.id_] = Counter.idx
                         append_node(dict(id=indicator_obj.id_, type=indicator_obj.ty,
-                                     title=build_title(indicator_obj), depth=2))
+                                         title=build_title(indicator_obj), depth=2))
 
                     links.append({"source": id_to_idx[indicator_obj.id_], "target": id_to_idx[obs_id]})
-
 
         return dict(nodes=nodes, links=links)
 
@@ -307,7 +286,8 @@ def extract_visualiser_delete_observables(request):
     delete_file_observables(draft_obs_offsets, draft_ind)
 
     def ref_obs_generator():
-        obs_id_map = {draft_ind['observables'][i]['id']: i for i in xrange(len(draft_ind['observables'])) if 'id' in draft_ind['observables'][i]}
+        obs_id_map = {draft_ind['observables'][i]['id']: i for i in xrange(len(draft_ind['observables'])) if
+                      'id' in draft_ind['observables'][i]}
         ref_obs_ids = [obs_id for obs_id in delete_data['ids'] if DRAFT_ID_SEPARATOR not in obs_id]
         for obs_id in ref_obs_ids:
             offset = obs_id_map.get(obs_id, None)
@@ -345,16 +325,20 @@ def extract_visualiser_item_get(request, node_id):
     def build_obs_package_from_draft(obs):
         return {'observables': {'observables': [convert_draft_to_viewable_obs(obs)]}}
 
-    validation_dict = {}
-    if DRAFT_ID_SEPARATOR in node_id:  # draft obs
-        package_dict = build_obs_package_from_draft(get_draft_obs(node_id, request.user))
-    elif is_draft_ind():
-        package_dict = build_ind_package_from_draft(Draft.load(node_id, request.user))
-    else:  # Non-draft
-        return visualiser_item_get(request, node_id);
+    try:
+        validation_dict = {}
+        if DRAFT_ID_SEPARATOR in node_id:  # draft obs
+            package_dict = build_obs_package_from_draft(get_draft_obs(node_id, request.user))
+        elif is_draft_ind():
+            package_dict = build_ind_package_from_draft(Draft.load(node_id, request.user))
+        else:  # Non-draft
+            return visualiser_item_get(request, node_id);
 
-    return JsonResponse({
-        "root_id": node_id,
-        "package": package_dict,
-        "validation_info": validation_dict
-    }, status=200)
+        return JsonResponse({
+            "root_id": node_id,
+            "package": package_dict,
+            "validation_info": validation_dict
+        }, status=200)
+    except Exception as e:
+        return JsonResponse(dict(e), status=500)
+
