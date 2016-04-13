@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block head-title %}
+    {{ main_title }}
+{% endblock %}
+
+{% block body-content %}
+    <link rel="stylesheet" href="{% static "css/extract_upload_form.css" %}" media="screen">
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-9">
+                <h3>Stix extractor</h3>
+                <p>Please upload a PDF or TXT file from which IOCs can be extracted</p>
+            </div>
+        </div>
+
+
+        <form action="{% url 'extract_upload' %}" method="POST" id="extract_upload_form"
+              enctype="multipart/form-data">{% csrf_token %}
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="input-group">
+                <span class="input-group-btn">
+                    <span class="btn btn-primary btn-file">
+                        Select File&hellip; <input type="file" accept=".pdf,.txt" name="import"
+                                                   data-bind="event: {change: onFileSelected}">
+                    </span>
+                </span>
+                        <input type="text" class="form-control" readonly data-bind="value:fileName">
+                        <span class="input-group-btn">
+                        <button class="btn btn-default" data-bind="enable:exists">Submit</button>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block body-end %}
+    <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
+    <script>
+        var require = {
+            baseUrl: "/adapter/certuk_mod{% static 'js' %}",
+            paths: {
+                knockout: "common/knockout-shim"
+            },
+            urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
+        };
+
+    </script>
+
+    <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="extract/upload/main"></script>
+{% endblock %}

@@ -12,6 +12,11 @@ def activity_log(request):
     return render(request, "activity_log.html", {})
 
 
+@login_required
+def error_with_message(request, msg):
+    return render(request, "error.html", {"msg": msg})
+
+
 @login_required_ajax
 def ajax_activity_log(request, search):
     try:

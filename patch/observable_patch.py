@@ -39,7 +39,13 @@ def generate_db_observable_patch(custom_draft_handler_map):
         @classmethod
         def to_draft(cls, observable, tg, load_by_id, id_ns=''):
             try:
-                return super(DBObservablePatch, cls).to_draft(observable, tg, load_by_id, id_ns=id_ns)
+                draft = super(DBObservablePatch, cls).to_draft(observable, tg, load_by_id, id_ns=id_ns)
+                #When creating a draft from a fully formed object with None for some fields, the draft contains
+                #fields with string 'None' which can cause parsing issues e.g. vlan_num
+                for attr, value in draft.iteritems():
+                    if value == 'None':
+                        draft[attr] = ''
+                return draft
             except ValueError, v:
                 if v.__class__ != ValueError:
                     raise

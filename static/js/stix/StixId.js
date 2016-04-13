@@ -48,7 +48,8 @@ define([
     var PATTERN = Object.freeze({
         namespace: "[a-z][\\w\\d-]+",
         type: "[a-z]+",
-        uuid: "[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}"
+        uuid: "[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}",
+        draft: ":draft:\\d{1,5}"
     });
 
     function resolveAlias(type) {
@@ -60,7 +61,7 @@ define([
             throw new TypeError("Identifier must be a string");
         }
         var pattern = new RegExp(
-            "^(" + PATTERN.namespace + "):(" + PATTERN.type + ")-" + PATTERN.uuid + "$",
+            "^(" + PATTERN.namespace + "):(" + PATTERN.type + ")-" + PATTERN.uuid + "(" + PATTERN.draft + ")?$",
             "i"
         );
         var match = pattern.exec(id);

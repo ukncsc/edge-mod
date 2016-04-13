@@ -253,11 +253,11 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 
-    def __init__(self, user, trustgroups=None, streams=None):
+    def __init__(self, user, trustgroups=None, streams=None, validate=True):
         super(DedupInboxProcessor, self).__init__(user, trustgroups, streams)
         self.validation_result = {}
-        self.envelope_header = DedupInboxProcessor.get_envelope_header(
-                DedupInboxProcessor.get_envelope(self.contents))
+        self.envelope_header = DedupInboxProcessor.get_envelope_header(DedupInboxProcessor.get_envelope(self.contents))
+        self.validate = validate
 
     @staticmethod
     def get_envelope_header(envelope):
@@ -300,7 +300,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
 
     def apply_filters(self):
         super(DedupInboxProcessor, self).apply_filters()
-        if not self.contents:
+        if not self.contents or not self.validate:
             return
         self.validation_result = DedupInboxProcessor._validate(self.contents, self.envelope_header)
         for id_, object_fields in self.validation_result.iteritems():

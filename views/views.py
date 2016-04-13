@@ -21,10 +21,14 @@ from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
+from adapters.certuk_mod.common.views import error_with_message
+
 import adapters.certuk_mod.builder.customizations as cert_builder
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
+from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser, extract_visualiser_get, \
+    extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.cron import setup as cron_setup
 
@@ -38,10 +42,14 @@ from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
+
 from adapters.certuk_mod.common.objectid import discover as objectid_discover, find_id as objectid_find
+
 from adapters.certuk_mod.retention.purge import STIXPurge
+
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus
-from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser_not_found, visualiser_view, visualiser_get, \
+from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser_not_found, visualiser_view, \
+    visualiser_get, \
     visualiser_item_get
 from users.models import Repository_User
 
@@ -88,25 +96,23 @@ def clone(request):
         if stix_id:
             edge_object = EdgeObject.load(stix_id)
             if edge_object.ty == 'obs':
-                return not_clonable(request, "Observables cannot be cloned")
+                return error_with_message(request, "Observables cannot be cloned")
             new_id = IDManager().get_new_id(edge_object.ty)
             draft = edge_object.to_draft()
             draft['id'] = new_id
             Draft.upsert(edge_object.ty, draft, request.user)
             return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
         else:
-            return not_clonable(request, "No clonable object found; please only choose the clone option from an object's summary or external publish page")
+            return error_with_message(request,
+                                "No clonable object found; please only choose the clone option from an object's summary or external publish page")
     except Exception as e:
         ext_ref_error = "not found"
         if e.message.endswith(ext_ref_error):
-            return not_clonable(request, "Unable to load object as some external references were not found: " + e.message[0:-len(ext_ref_error)])
+            return error_with_message(request,
+                                "Unable to load object as some external references were not found: " + e.message[0:-len(
+                                        ext_ref_error)])
         else:
-            return not_clonable(request, e.message)
-
-
-@login_required
-def not_clonable(request, msg):
-    return render(request, "not_clonable.html", {"msg": msg})
+            return error_with_message(request, e.message)
 
 
 def _get_request_username(request):
