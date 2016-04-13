@@ -28,10 +28,12 @@ def extract(request):
 
 @login_required_ajax
 def extract_upload(request):
-    def remove_draft_ids():
+    def process_draft_ids():
         for obs in draft_indicator['observables']:
-            if obs['id'] in observable_ids:
+            if obs['id'] in observable_ids:  # Is it a draft?
                 del obs['id']
+                if not obs['title']:
+                    obs['title'] = summarise_draft_observable(obs, indent=1)
 
     def remove_from_db(ids):
         for page_index in range(0, len(ids), 10):
@@ -63,7 +65,7 @@ def extract_upload(request):
 
     for indicator in indicators:
         draft_indicator = EdgeObject.load(indicator.id).to_draft()
-        remove_draft_ids()
+        process_draft_ids()
         Draft.upsert('ind', draft_indicator, request.user)
 
     remove_from_db(indicator_ids + list(observable_ids))
@@ -104,7 +106,7 @@ def summarise_draft_observable(d, indent=0):
 
 def observable_to_name(observable, is_draft):
     if is_draft:
-        return "draft: " + observable['objectType'] + ":" + summarise_draft_observable(observable, indent=1)
+        return "draft: " + observable['objectType'] + ":" + observable['title']
     return observable['id']
 
 
@@ -341,4 +343,3 @@ def extract_visualiser_item_get(request, node_id):
         }, status=200)
     except Exception as e:
         return JsonResponse(dict(e), status=500)
-

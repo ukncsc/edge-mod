@@ -17,10 +17,6 @@ define([
             this.viewModels = ko.observableArray([]);
             this.viewModelsById = {};
 
-            for (var i = 0; i < rootIds.length; i++) {
-                this.initViewModel(rootIds[i])
-            }
-
             this.viewModels.subscribe(function () {
                 if (this.viewModels().length == rootIds.length) {
                     ko.applyBindings(
@@ -29,10 +25,15 @@ define([
                     );
                 }
             }.bind(this))
+
+            for (var i = 0; i < rootIds.length; i++) {
+                this.initViewModel(rootIds[i])
+            }
         },
 
         initViewModel: function (id) {
-            ViewModel.loadById(id,
+            ViewModel.loadById(
+                id,
                 base_url,
                 base_url + "item/",
                 (new PanelActionsBuilder())
@@ -43,7 +44,11 @@ define([
                 function (viewModel) {
                     this.viewModelsById[viewModel.rootId()] = viewModel;
                     this.viewModels.push(viewModel);
-                }.bind(this));
+                }.bind(this),
+
+                function (error) {
+                    showErrorModal(error.message)
+                });
         },
 
         findByLabel: function (label) {
@@ -114,5 +119,4 @@ define([
     }
 
     return ExtractViewModel;
-
 });

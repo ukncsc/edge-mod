@@ -12,7 +12,7 @@ define([
         show_reference_check: function (type) {
             var result = false;
             ko.utils.arrayForEach(this.actions(), function (action) {
-                if (action.references()(type)) {
+                if (action.applies_to_references()(type)) {
                     result = true;
                 }
             })
@@ -22,7 +22,7 @@ define([
         show_referenced_by_check: function (type) {
             var result = false;
             ko.utils.arrayForEach(this.actions(), function (action) {
-                if (action.referenced_by()(type)) {
+                if (action.applies_to_referenced_by()(type)) {
                     result = true;
                 }
             })
