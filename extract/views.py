@@ -99,7 +99,7 @@ def summarise_draft_observable(d):
                     result += " " + summarise_draft_observable(item)
                 else:
                     result += " " + str(item)
-        elif value and value != 'None' and key != 'id' and key != 'id_ns' and key != 'objectType':
+        elif value and value != 'None' and key != 'id' and key != 'id_ns' and key != 'objectType' and key != 'title':
             result += value
     return result
 
