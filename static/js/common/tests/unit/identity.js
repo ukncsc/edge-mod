@@ -2,8 +2,9 @@ define([
     "intern!object",
     "intern/chai!assert",
     "common/mock-stickytape",
+    "common/mock-modal-close",
     "common/identity"
-], function (registerSuite, assert, mstickytape, Identity) {
+], function (registerSuite, assert, mstickytape, mmodalclose, Identity) {
     "use strict";
 
     var testORG = "test-org";
@@ -102,7 +103,6 @@ define([
 
                         //assert
                         assert.deepEqual(expectedJson, json);
-
                     },
                     "to_json will return undefined if no UUID": function () {
                         var identity = new Identity();
@@ -155,26 +155,6 @@ define([
                         assert.equal(identity.selected(), true);
                         assert.equal(identity.search(), false);
                         assert.equal(identity.sector(), "");
-                    }
-                },
-                "select an identity": {
-                    "select the identity": function() {
-                        var identity = new Identity();
-
-                        var data = {
-                            name: testOrg,
-                            uuid: uuid
-                        };
-
-                        identity.onSelect(data);
-
-                        assert.equal(identity.searchTerm(), "");
-                        assert.equal(identity.name(), testORG);
-                        assert.equal(identity.UUID(), uuid);
-                        assert.equal(identity.selected(), true);
-                        assert.equal(identity.search(), false);
-                        assert.equal(identity.sector(), "");
-
                     }
                 },
                 "can manipulate snapshots": {
@@ -268,10 +248,49 @@ define([
                         assert.equal(identity.buildSearchCRMURL(), crmURL + "/organisations/find?organisation=");
                     }
                 },
-                "passing test": {
-                    "pass test": function() {
-                        var result = 2+ 3
-                        assert.equal(result, 5, "Addition should add numbers together")
+                "selecting correct id": {
+                    "selects id and closes modal view": function () {
+                        var identity = new Identity();
+
+                        var data = {
+                            name: testORG,
+                            uuid: uuid
+                        };
+
+                        identity.onSelect(data);
+
+                        assert.equal(identity.searchTerm(), "");
+                    },
+                    "cancels correctly from modal view": function() {
+                        var identity = new Identity();
+
+                        identity.cancel();
+
+                        assert.isFalse(identity.search);
+                    }
+                },
+                "searches crm": {
+                    "search crm correctly": function() {
+                        var identity = new Identity();
+
+                        getJSONReturnError = false;
+                        identity.searchTerm(crmURL);
+                        identity.searchCRM();
+
+                        assert.isTrue(identity.search());
+                        assert.equal(identity.searchResults(), {name: "test-org"})
+                        assert.isFalse(identity.error());
+                    },
+                    "error in searching crm": function() {
+                        var identity = new Identity();
+
+                        getJSONReturnError = true;
+                        identity.searchTerm(crmURL);
+                        identity.searchCRM();
+
+                        assert.isTrue(identity.search());
+                        assert.isTrue(identity.error());
+                        assert.equal(identity.searchResults(), []);
                     }
                 }
             }
