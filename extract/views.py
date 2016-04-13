@@ -33,7 +33,7 @@ def extract_upload(request):
             if obs['id'] in observable_ids:  # Is it a draft?
                 del obs['id']
                 if not obs['title']:
-                    obs['title'] = summarise_draft_observable(obs, indent=1)
+                    obs['title'] = summarise_draft_observable(obs)
 
     def remove_from_db(ids):
         for page_index in range(0, len(ids), 10):
@@ -88,19 +88,19 @@ def extract_visualiser(request, ids):
                    'indicator_ids': str_ids})
 
 
-def summarise_draft_observable(d, indent=0):
+def summarise_draft_observable(d):
     result = ""
     for key, value in d.iteritems():
         if isinstance(value, dict):
-            result += summarise_draft_observable(value, indent + 1)
+            result += " " + summarise_draft_observable(value)
         elif isinstance(value, list):
             for item in value:
                 if isinstance(item, dict):
-                    result += summarise_draft_observable(item, indent + 1)
+                    result += " " + summarise_draft_observable(item)
                 else:
-                    result += '\t' * (indent + 1) + str(item)
+                    result += " " + str(item)
         elif value and value != 'None' and key != 'id' and key != 'id_ns' and key != 'objectType':
-            result += '\t' * (indent + 1) + value
+            result += value
     return result
 
 
@@ -246,6 +246,7 @@ def merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types):
             if hash_value:
                 obs_to_keep['hashes'].append({'hash_type': hash_type, 'hash_value': hash_value[0]})
 
+    obs_to_keep['title'] = summarise_draft_observable(obs_to_keep)
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
 
 

@@ -35,8 +35,8 @@ class ExtractMergeTests(unittest.TestCase):
     def init_stix_objects(self):
         self.draft_obs_id0 = 'observable:123:draft:0'
         self.draft_obs_id1 = 'observable:123:draft:1'
-        self.draft_obs0 = {'id': self.draft_obs_id0, 'title': 'test0', 'objectType': 'File', 'file_name': "abc.txt", 'hashes':[]}
-        self.draft_obs1 = {'id': self.draft_obs_id1, 'title': 'test1', 'objectType': 'File', 'file_name':'',
+        self.draft_obs0 = {'id': self.draft_obs_id0, 'title': '', 'objectType': 'File', 'file_name': "abc.txt", 'hashes':[]}
+        self.draft_obs1 = {'id': self.draft_obs_id1, 'title': '', 'objectType': 'File', 'file_name':'',
                       'hashes': [{'hash_type': 'md5', 'hash_value': '123123123'}]}
 
         self.draft_ind_id = 'indicator:123'
@@ -44,8 +44,8 @@ class ExtractMergeTests(unittest.TestCase):
 
         self.obs_id0 = 'observable:123'
         self.obs_id1 = 'observable:1234'
-        self.obs0 = {'id': self.obs_id0, 'title': 'test0', 'objectType': 'File', 'file_name': "abc.txt", 'hashes':[]}
-        self.obs1 = {'id': self.obs_id1, 'title': 'test1', 'objectType': 'File', 'file_name':'',
+        self.obs0 = {'id': self.obs_id0, 'title': '', 'objectType': 'File', 'file_name': "abc.txt", 'hashes':[]}
+        self.obs1 = {'id': self.obs_id1, 'title': '', 'objectType': 'File', 'file_name':'',
                       'hashes': [{'hash_type': 'md5', 'hash_value': '123123123'}]}
 
         self.obs0_NotFile = {'id': self.obs_id0, 'title': 'test0', 'objectType': 'NotFile', 'file_name': "abc.txt", 'hashes':[]}
@@ -53,7 +53,7 @@ class ExtractMergeTests(unittest.TestCase):
         self.draft_ind_with_obs = {'id': self.draft_ind_id, 'observables': [self.obs0, self.obs1]}
 
     def test_merge_observable(self):
-        merged_obs = {'id': self.draft_obs_id0, 'title': 'test0', 'file_name': "abc.txt", 'objectType': 'File',
+        merged_obs = {'id': self.draft_obs_id0, 'title': 'abc.txt 123123123md5', 'file_name': "abc.txt", 'objectType': 'File',
                       'hashes': [{'hash_type': 'md5', 'hash_value': '123123123'}]}
 
         self.mock_draft_load.return_value = self.draft_ind_with_draft_obs
