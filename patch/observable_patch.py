@@ -40,8 +40,8 @@ def generate_db_observable_patch(custom_draft_handler_map):
         def to_draft(cls, observable, tg, load_by_id, id_ns=''):
             try:
                 draft = super(DBObservablePatch, cls).to_draft(observable, tg, load_by_id, id_ns=id_ns)
-                #When creating a draft from a fully formed object with None for some fields, the draft contains
-                #fields with string 'None' which can cause parsing issues e.g. vlan_num
+                # When creating a draft from a fully formed object with None for some fields, the draft contains
+                # fields with string 'None' which can cause parsing issues e.g. vlan_num
                 for attr, value in draft.iteritems():
                     if value == 'None':
                         draft[attr] = ''
@@ -63,8 +63,6 @@ def generate_db_observable_patch(custom_draft_handler_map):
             object_type = rgetattr(observable, ['_object', '_properties', '_XSI_TYPE'], 'None')
             draft_handler = DBObservablePatch._get_custom_to_draft_handler(object_type)
             return draft_handler(observable, tg, load_by_id, id_ns)
-
-
 
         @classmethod
         def dupehash(cls, apiobj):
