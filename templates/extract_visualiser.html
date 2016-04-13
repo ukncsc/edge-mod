@@ -10,50 +10,44 @@
     {% include 'visualiser_graph.html' %}
 
     <script>
-        var root_ids =
-        {{ indicator_ids|safe }}
-
-        var indicator_information =
-        {{ indicator_information|safe }}
+        var root_ids ={{ indicator_ids|safe }};
+        var indicator_information ={{ indicator_information|safe }};
     </script>
 
     <ul class="nav nav-tabs">
         {% for stix_id, typename, typenamesafe in indicator_information %}
             {% if forloop.first %}
-                <li class="active"><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}  </a> </li>
+                <li class="active"><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
             {% endif %}
             {% if not forloop.first %}
-                <li><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}  </a> </li>
+                <li><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
             {% endif %}
         {% endfor %}
     </ul>
 
     <div class="tab-content">
-        {% for stix_id, typename, typenamesafe in indicator_information %}
-            {% if forloop.first %}
-                <div id='{{ typenamesafe }}' class="tab-pane fade in active">
-            {% endif %}
-            {% if not forloop.first %}
-                <div id='{{ typenamesafe }}' class="tab-pane fade">
-            {% endif %}
-            <a href="/indicator/build/{{ stix_id }}"> Edit Indicator Draft: {{ stix_id }} </a>
-                <div class="container-fluid">
-                    <div class="row">
-                        <div data-bind="template: { name: 'Graph' , data: findByLabel('{{ stix_id }}')}"></div>
-                    </div>
-                </div>
+    {% for stix_id, typename, typenamesafe in indicator_information %}
+        {% if forloop.first %}
+            <div id='{{ typenamesafe }}' class="tab-pane fade in active">
+        {% endif %}
+        {% if not forloop.first %}
+            <div id='{{ typenamesafe }}' class="tab-pane fade">
+        {% endif %}
+        <a href="/indicator/build/{{ stix_id }}"> Edit Indicator Draft: {{ stix_id }} </a>
+        <div class="container-fluid">
+            <div class="row">
+                <div data-bind="template: { name: 'Graph' , data: findByLabel('{{ stix_id }}')}"></div>
             </div>
-        {% endfor %}
+        </div>
+        </div>
+    {% endfor %}
     </div>
-
 
     <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/stickytape.js' %}"></script>
     <script>
         var require = {
-
-
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
                 d3: "{% static "js/d3" %}",
@@ -62,15 +56,13 @@
             },
             // See http://requirejs.org/docs/jquery.html#noconflictmap
             map: {
-                '*': {'jquery': 'jquery-private' },
-              'jquery-private': { 'jquery': 'jquery' }
+                '*': {'jquery': 'jquery-private'},
+                'jquery-private': {'jquery': 'jquery'}
 
             },
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
-
     </script>
-
     <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="extract/visualise/main"></script>
 {% endblock %}
 

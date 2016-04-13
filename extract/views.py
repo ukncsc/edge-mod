@@ -40,7 +40,7 @@ def extract_upload(request):
             try:
                 chunk_ids = ids[page_index: page_index + 10]
                 STIXPurge.remove(chunk_ids)
-            except Exception as _:
+            except Exception:
                 pass
 
     file_import = request.FILES['import']
@@ -125,7 +125,7 @@ def extract_visualiser_get(request, id_):
             for eoId in [val for doc in ids for val in doc['value'].keys()]:
                 try:
                     eo = EdgeObject.load(eoId)
-                except EdgeError as _:
+                except EdgeError:
                     continue
                 if eo_filter(eo):
                     yield eo
@@ -135,7 +135,7 @@ def extract_visualiser_get(request, id_):
     def is_observable_composition(eo):
         try:
             eo.obj.observable_composition
-        except AttributeError as _:
+        except AttributeError:
             return False
         return True
 
@@ -148,7 +148,7 @@ def extract_visualiser_get(request, id_):
             return {
                 "ObservableComposition": node.obj.observable_composition.operator
             }.get(node_type, node.id_)
-        except AttributeError as _:
+        except AttributeError:
             return node.id_
 
     def iterate_draft():
@@ -267,7 +267,7 @@ def extract_visualiser_merge_observables(request):
 
     (can_merge, message) = can_merge_observables(draft_obs_offsets, draft_ind, hash_types)
     if not can_merge:
-        return JsonResponse({'message': message}, status=200)
+        return JsonResponse({'Error': message}, status=400)
 
     merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types)
     Draft.maybe_delete(draft_ind['id'], request.user)

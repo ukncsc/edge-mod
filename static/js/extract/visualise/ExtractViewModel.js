@@ -57,13 +57,10 @@ define([
     });
 
     function postAndReloadGraph(url, id, ids, graph) {
-        postJSON(base_url + url, {
-            'id': id,
-            'ids': ids
-        }, function (result) {
-            if ('message' in result) {
-                showErrorModal(result['message'])
-            } else {
+        _postJSON(base_url + url, { // Calling _ version as error callback required
+                'id': id,
+                'ids': ids
+            }, function (result) {
                 d3.json(
                     base_url + encodeURIComponent(id),
                     function (error, response) {
@@ -74,8 +71,11 @@ define([
                         graph.loadData(response);
                     }
                 );
+            },
+            function (result) {
+                showErrorModal(JSON.parse(result.responseText)['Error'])
             }
-        });
+        );
     }
 
     function showErrorModal(message) {
