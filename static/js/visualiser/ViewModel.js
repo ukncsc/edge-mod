@@ -65,7 +65,7 @@ define([
             if (selectedObject) {
                 templateName = 'flat-' + selectedObject.type.code;
             }
-            return templateName
+            return templateName;
         }
     });
 

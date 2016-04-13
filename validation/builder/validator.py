@@ -9,7 +9,6 @@ from adapters.certuk_mod.validation.incident.incident import IncidentValidationI
 from adapters.certuk_mod.validation.observable.validator import ObservableValidator
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from edge.generic import EdgeObject
-from edge.generic import EdgeObject
 
 
 class BuilderValidationInfo(object):

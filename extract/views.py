@@ -28,7 +28,7 @@ def extract(request):
 
 @login_required_ajax
 def extract_upload(request):
-    def process_draft_ids():
+    def process_draft_obs():
         for obs in draft_indicator['observables']:
             if obs['id'] in observable_ids:  # Is it a draft?
                 del obs['id']
@@ -65,7 +65,7 @@ def extract_upload(request):
 
     for indicator in indicators:
         draft_indicator = EdgeObject.load(indicator.id).to_draft()
-        process_draft_ids()
+        process_draft_obs()
         Draft.upsert('ind', draft_indicator, request.user)
 
     remove_from_db(indicator_ids + list(observable_ids))

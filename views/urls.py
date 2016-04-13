@@ -73,13 +73,9 @@ urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
 navitems = [
     ('External Publisher', 'publisher_discover'),
-
-
     ('Extract Stix', 'extract_stix'),
     ('Clone to Draft', 'clone_to_draft'),
-
     ('Visualiser', 'visualiser_discover'),
-
     # ('Duplicates Finder', 'duplicates_finder'),
     ('Activity Log', 'activity_log'),
     ('CERT-UK Configuration', 'publisher_config')
