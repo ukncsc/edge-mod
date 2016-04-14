@@ -2,7 +2,8 @@ define([
     "./change-tracker",
     "./publish-subscribe",
     "./identity",
-    "./cert-messages"
+    "./cert-messages",
+    "./topic"
 ], function () {
 
 });
