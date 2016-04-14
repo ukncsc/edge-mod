@@ -40,11 +40,21 @@ def generate_db_observable_patch(custom_draft_handler_map):
         def to_draft(cls, observable, tg, load_by_id, id_ns=''):
             try:
                 draft = super(DBObservablePatch, cls).to_draft(observable, tg, load_by_id, id_ns=id_ns)
-                #When creating a draft from a fully formed object with None for some fields, the draft contains
-                #fields with string 'None' which can cause parsing issues e.g. vlan_num
+                # When creating a draft from a fully formed object with None for some fields, the draft contains
+                # fields with string 'None' which can cause parsing issues e.g. vlan_num
                 for attr, value in draft.iteritems():
                     if value == 'None':
                         draft[attr] = ''
+
+                # to_draft sets the hash_type to lower case. This is not what is expected during Inboxing or Validation!
+                hash_type_map = {'md5': 'MD5', 'md6': 'MD6', 'sha1': 'SHA1', 'sha224': 'SHA224',
+                                 'sha256': 'SHA256', 'sha384': 'SHA384', 'sha512': 'SHA512',
+                                 'ssdeep': 'SSDeep', 'other': 'Other'}
+
+                if 'hashes' in draft:
+                    for hash_ in draft['hashes']:
+                        hash_['hash_type'] = hash_type_map.get(hash_['hash_type'].lower(), 'Other')
+
                 return draft
             except ValueError, v:
                 if v.__class__ != ValueError:
@@ -65,7 +75,8 @@ def generate_db_observable_patch(custom_draft_handler_map):
                         cls.SHORT_NAME,
                         obs_type,
                         '|'.join(
-                            [str(rgetattr(properties, str(path).split('.'), '')) for path in OBS_HASH_PATHS[obs_type]]
+                                [str(rgetattr(properties, str(path).split('.'), '')) for path in
+                                 OBS_HASH_PATHS[obs_type]]
                         )
                     )
                     hash_ = "certuk:%s" % hashlib.sha1(to_hash).hexdigest()
@@ -89,6 +100,7 @@ def generate_custom_get_obs_value(custom_object_value_map):
         if custom_type_handler is None:
             return original_get_obs_value(obj)
         return custom_type_handler(obj)
+
     return custom_get_obs_value
 
 

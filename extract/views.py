@@ -264,8 +264,7 @@ def extract_visualiser_merge_observables(request):
     draft_obs_offsets = [get_draft_obs_offset(id_) for id_ in merge_data['ids'] if DRAFT_ID_SEPARATOR in id_]
     draft_ind = Draft.load(merge_data['id'], request.user)
 
-    hash_types = ['md5', 'md6', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'ssdeep']
-
+    hash_types = ['MD5', 'MD6', 'SHA1', 'SHA224', 'SHA256', 'SHA384', 'SHA512', 'SSDeep', 'Other']
     (can_merge, message) = can_merge_observables(draft_obs_offsets, draft_ind, hash_types)
     if not can_merge:
         return JsonResponse({'Error': message}, status=400)
