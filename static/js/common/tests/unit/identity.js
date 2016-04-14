@@ -2,9 +2,8 @@ define([
     "intern!object",
     "intern/chai!assert",
     "common/mock-stickytape",
-    "common/mock-modal-close",
     "common/identity"
-], function (registerSuite, assert, mstickytape, mmodalclose, Identity) {
+], function (registerSuite, assert, mstickytape, Identity) {
     "use strict";
 
     var testORG = "test-org";
@@ -12,7 +11,7 @@ define([
     var uuid = "54163ff2-9431-4eb0-a4ea-5e41500d30d4";
     var it = "IT";
 
-    var crmURL = "http://10.1.1.65:8080/crmapi"
+    var crmURL = "http://10.1.1.65:8080/crmapi";
 
     var crmKBData = {
         name: uuid,
@@ -80,6 +79,22 @@ define([
                         assert.equal(identity.sector(), it);
                         assert.equal(identity.UUID(), uuid);
                         assert.equal(identity.name(), uuid);
+                    },
+                    "will provide empty string for UUID and sector if not supplied in data": function() {
+                        var identity = new Identity();
+
+                        getJSONReturnError = false;
+                        var data = {
+                            name: null,
+                            specification: {
+                                organisation_info: null
+                            }
+                        };
+                        identity.load(data);
+
+                        assert.equal(identity.UUID(), "");
+                        assert.equal(identity.sector(), "");
+                        assert.equal(identity.name(). testORG);
                     }
                 },
                 "return json": {
@@ -165,7 +180,7 @@ define([
                         identity.UUID(uuid);
                         identity.sector(it);
 
-                        identity.createSnapshot()
+                        identity.createSnapshot();
 
                         var expectedState = {
                             name: testORG,
@@ -182,7 +197,7 @@ define([
                         identity.UUID(uuid);
                         identity.sector(it);
 
-                        identity.createSnapshot()
+                        identity.createSnapshot();
 
                         identity.name("new name");
                         identity.UUID("new uuid");
@@ -217,7 +232,7 @@ define([
 
                         var invalidUUID = "38b9555cgarbage";
 
-                        identity.getName(invalidUUID)
+                        identity.getName(invalidUUID);
 
                         assert.equal(identity.name(), invalidUUID);
                     },
@@ -248,15 +263,19 @@ define([
                         assert.equal(identity.buildSearchCRMURL(), crmURL + "/organisations/find?organisation=");
                     }
                 },
-                "selecting correct id": {
+                "closes the modal view": {
                     "selects id and closes modal view": function () {
                         var identity = new Identity();
-
                         var data = {
                             name: testORG,
                             uuid: uuid
                         };
 
+                        identity.modal = {
+                            close: function() {
+                            return true;
+                            }
+                        };
                         identity.onSelect(data);
 
                         assert.equal(identity.searchTerm(), "");
@@ -264,9 +283,14 @@ define([
                     "cancels correctly from modal view": function() {
                         var identity = new Identity();
 
+                        identity.modal = {
+                            close: function() {
+                            return true;
+                            }
+                        };
                         identity.cancel();
 
-                        assert.isFalse(identity.search);
+                        assert.isFalse(identity.search());
                     }
                 },
                 "searches crm": {
@@ -278,7 +302,7 @@ define([
                         identity.searchCRM();
 
                         assert.isTrue(identity.search());
-                        assert.equal(identity.searchResults(), {name: "test-org"})
+                        assert.deepEqual(identity.searchResults(), {name: 'test-org'});
                         assert.isFalse(identity.error());
                     },
                     "error in searching crm": function() {
@@ -289,8 +313,8 @@ define([
                         identity.searchCRM();
 
                         assert.isTrue(identity.search());
+                        assert.deepEqual(identity.searchResults(), []);
                         assert.isTrue(identity.error());
-                        assert.equal(identity.searchResults(), []);
                     }
                 }
             }
