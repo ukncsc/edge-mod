@@ -3,47 +3,38 @@
 ## Prerequisites
 
 * `sudo yum install node npm`
-* `sudo npm install -g intern nodemon`
+* `sudo npm install -g intern`
 
 ## Running the tests manually
 
-* from the root of your project, run: `nodemon /usr/bin/intern-runner config=tests/intern`
-* point you browser at [http://localhost:9000/__intern/client.html?initialBaseUrl=/&config=tests/intern](http://localhost:9000/__intern/client.html?initialBaseUrl=/&config=tests/intern)
-
-You can also run the unit tests and view coverage from the command line by
-typing the following in the root of the project directory:
+You can run the unit tests and view coverage from the command line by typing the following in the root of the project directory:
 
 * `intern-client config=tests/intern reporters=Console`
+
+To have coverage information output to an HTML file in a directory in the root of the project named `html-report`:
+
+* `intern-client config=tests/intern reporters=LcovHtml`
+
+To run an individual test rather than the whole suite:
+
+* `intern-client config=tests/intern reporters=Console suites=amd/path/to/test`
 
 ## Integration with PyCharm
 
 * install the `NodeJS` plugin
-* _optionally install the `Markdown` plugin to more easily view this document_
+* _optionally install the `Markdown support` plugin to more easily view this document_
 * restart PyCharm
 * create a `Node.js` run configuration as follows:
     * Configuration
         <table><tbody>
-        <tr><td>Node interpreter</td><td>`/usr/bin/nodemon`</td></tr>
+        <tr><td>Node interpreter</td><td><code>/usr/bin/node</code></td></tr>
         <tr><td>Node parameters</td><td><em>leave blank</em></td></tr>
-        <tr><td>Working directory</td><td><em>project root</em></td></tr>
-        <tr><td>JavaScript file</td><td>`/usr/bin/intern-runner`</td></tr>
-        <tr><td>Application parameters</td><td>`config=tests/intern proxyOnly=true`</td></tr>
+        <tr><td>Working directory</td><td><em>project root (the directory containing the top-level <code>tests</code> directory in which this file sits)</em></td></tr>
+        <tr><td>JavaScript file</td><td><code>/usr/bin/intern-client</code></td></tr>
+        <tr><td>Application parameters</td><td><code>config=tests/intern reporters=Console</code></td></tr>
         <tr><td>Environment variables</td><td><em>leave blank</em></td></tr>
         </tbody></table>
-    * Browser / Live Edit
-        * tick `After launch`
-        * select your preferred browser
-        * set URL to: `http://localhost:9000/__intern/client.html?initialBaseUrl=/&config=tests/intern`
-* create a `Node.js` run configuration as follows:
-    * Configuration
-        <table><tbody>
-        <tr><td>Node interpreter</td><td>`/usr/bin/node`</td></tr>
-        <tr><td>Node parameters</td><td><em>leave blank</em></td></tr>
-        <tr><td>Working directory</td><td><em>project root</em></td></tr>
-        <tr><td>JavaScript file</td><td>`/usr/bin/intern-client`</td></tr>
-        <tr><td>Application parameters</td><td>`config=tests/intern reporters=Console`</td></tr>
-        <tr><td>Environment variables</td><td><em>leave blank</em></td></tr>
-        </tbody></table>
+    * NOTE: the `Application parameters` entry can be changed per the options for running tests manually
 
 ## Useful links
 
