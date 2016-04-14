@@ -4,6 +4,11 @@ define([
     "use strict";
 
     var subscriptions = {};
+    function isFreezable(obj) {
+        return typeof obj === "object"
+            && obj !== null
+            && Object.isFrozen(obj) === false;
+    }
 
     return Object.freeze({
         /**
@@ -13,8 +18,9 @@ define([
          */
         publish: function (/*String*/ topic, /*Object*/ message) {
             if (topic in subscriptions) {
+                var frozenMessage = isFreezable(message) ? Object.freeze(message) : message;
                 ko.utils.arrayForEach(subscriptions[topic], function (callback) {
-                    setTimeout(callback.listener.apply(callback.scope, [message]), 0);
+                    setTimeout(callback.listener.call(callback.scope, frozenMessage), 0);
                 });
             }
         },
@@ -27,7 +33,7 @@ define([
          * @returns Object handle with a `remove()` function
          */
         subscribe: function (/*String*/ topic, /*function*/ listener, /*Object?*/ scope) {
-            if (!(subscriptions.hasOwnProperty(topic))) {
+            if (!(topic in subscriptions)) {
                 subscriptions[topic] = [];
             }
             var topicSubscriptions = subscriptions[topic];

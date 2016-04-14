@@ -12,7 +12,13 @@ define([
     });
     var MESSAGES = Object.freeze({
         A: "message for A",
-        B: "message for B"
+        NULL: null,
+        OBJECT: {
+            message: "unfrozen message"
+        },
+        FROZEN: Object.freeze({
+            message: "frozen message"
+        })
     });
 
     return registerSuite(function () {
@@ -52,6 +58,38 @@ define([
                         topic.subscribe(TOPICS.B, dfd.reject)
                     );
                     topic.publish(TOPICS.A, MESSAGES.A);
+                    return dfd;
+                },
+                "null message can be sent": function () {
+                    var dfd = this.async();
+                    subscriptions.push(
+                        topic.subscribe(TOPICS.A, dfd.callback(function (message) {
+                            assert.equal(message, MESSAGES.NULL);
+                        }))
+                    );
+                    topic.publish(TOPICS.A, MESSAGES.NULL);
+                    return dfd;
+                },
+                "unfrozen object message can be sent": function () {
+                    var dfd = this.async();
+                    subscriptions.push(
+                        topic.subscribe(TOPICS.A, dfd.callback(function (message) {
+                            assert.equal(message, MESSAGES.OBJECT);
+                            assert.isTrue(Object.isFrozen(message));
+                        }))
+                    );
+                    topic.publish(TOPICS.A, MESSAGES.OBJECT);
+                    return dfd;
+                },
+                "frozen object message can be sent": function () {
+                    var dfd = this.async();
+                    subscriptions.push(
+                        topic.subscribe(TOPICS.A, dfd.callback(function (message) {
+                            assert.equal(message, MESSAGES.FROZEN);
+                            assert.isTrue(Object.isFrozen(message));
+                        }))
+                    );
+                    topic.publish(TOPICS.A, MESSAGES.FROZEN);
                     return dfd;
                 }
             },
