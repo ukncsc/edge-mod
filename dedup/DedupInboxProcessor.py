@@ -256,22 +256,15 @@ class DedupInboxProcessor(InboxProcessorForPackages):
     def __init__(self, user, trustgroups=None, streams=None, validate=True):
         super(DedupInboxProcessor, self).__init__(user, trustgroups, streams)
         self.validation_result = {}
-        self.envelope_header = DedupInboxProcessor.get_envelope_header(DedupInboxProcessor.get_envelope(self.contents))
+        self.package_header = DedupInboxProcessor.get_package_header(self.contents)
         self.validate = validate
 
     @staticmethod
-    def get_envelope_header(envelope):
-        if envelope:
-            return STIXHeader(
-                    handling=Marking([
-                        MarkingSpecification(
-                                marking_structures=list(chain(
-                                        (TLPMarkingStructure(item) for item in [envelope.etlp] if item != 'NULL'),
-                                        (TermsOfUseMarkingStructure(item) for item in envelope.etou),
-                                        (SimpleMarkingStructure(item) for item in envelope.esms),
-                                )),
-                        )
-                    ]))
+    def get_package_header(contents):
+        if contents:
+            for id_, inbox_item in contents.iteritems():
+                if inbox_item.api_object.ty == 'pkg' and inbox_item.api_object.obj.stix_header:
+                    return inbox_item.api_object.obj.stix_header
         return None
 
     @staticmethod
@@ -283,7 +276,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         return None
 
     @staticmethod
-    def _validate(contents, envelope_header):
+    def _validate(contents, package_header):
         if not contents:
             return None
         # At this point, only things that don't already exist in the database will be in contents...
@@ -293,7 +286,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
             }
         # Wrap the contents in a package for convenience so they can be easily validated:
         package_for_validation = create_package(contents_to_validate)
-        package_for_validation.stix_header = envelope_header
+        package_for_validation.stix_header = package_header
         validation_result = PackageValidationInfo.validate(package_for_validation)
 
         return validation_result.validation_dict
@@ -302,7 +295,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         super(DedupInboxProcessor, self).apply_filters()
         if not self.contents or not self.validate:
             return
-        self.validation_result = DedupInboxProcessor._validate(self.contents, self.envelope_header)
+        self.validation_result = DedupInboxProcessor._validate(self.contents, self.package_header)
         for id_, object_fields in self.validation_result.iteritems():
             for field_name in object_fields:
                 if object_fields[field_name]['status'] == ValidationStatus.ERROR:
