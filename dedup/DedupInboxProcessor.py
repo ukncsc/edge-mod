@@ -259,14 +259,14 @@ class DedupInboxProcessor(InboxProcessorForPackages):
             package_items = {id_: inbox_item for id_, inbox_item in contents.iteritems() if
                              inbox_item.api_object.ty == 'pkg'}
 
-            related_item_ids = set()
+            related_package_ids = set()
             for package_item in package_items.values():
                 if package_item.api_object.obj.related_packages:
                     related_packages = package_item.api_object.obj.related_packages
-                    related_item_ids = related_item_ids.union(
-                            {related_item.item.idref for related_item in related_packages})
+                    related_package_ids = related_package_ids.union(
+                            {related_package.item.idref for related_package in related_packages})
 
-            top_level_package_ids = set(package_items.keys()).difference(related_item_ids)
+            top_level_package_ids = set(package_items.keys()).difference(related_package_ids)
             if len(top_level_package_ids) > 1:
                 raise InboxError("Multiple top level packages are not expected")
             if len(top_level_package_ids) == 0:
