@@ -37,5 +37,8 @@ class DedupFunctionalTests(edge_test.TestCase):
     def test_DedupInboxProcessor_validate_IndicatorPackageWithNoTopLevelTLP(self):
         self.assert_load_file_ok('IndicatorPackageWithNoTopLevelTLP.xml')
 
+    def test_DedupInboxProcessor_validate_IndicatorPackageWithNoTLPs(self):
+        self.assert_raises_inbox_error('IndicatorPackageWithNoTLPs.xml')
+
     def test_DedupInboxProcessor_validate_IndicatorPackageNoTTPs(self):
         self.assert_raises_inbox_error('IndicatorPackageNoTTPs.xml')
