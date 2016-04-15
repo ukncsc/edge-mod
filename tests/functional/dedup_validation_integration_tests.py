@@ -10,19 +10,18 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'repository.settings'
 
 
 class DedupFunctionalTests(edge_test.TestCase):
-
     def assert_load_file_ok(self, file_name):
-        input_stream = io.open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data',
-                                            file_name))
-        ip = DedupInboxProcessor( user=Repository_User(), streams=[(input_stream, None)])
+        ip = self.create_inbox_from_file(file_name)
         ip.run()
         self.assertEqual(ip.message, 'Package Saved')
 
-    def assert_raises_inbox_error(self, file_name):
+    def create_inbox_from_file(self, file_name):
         input_stream = io.open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data',
                                             file_name))
-        ip = DedupInboxProcessor( user=Repository_User(), streams=[(input_stream, None)])
+        return DedupInboxProcessor(user=Repository_User(), streams=[(input_stream, None)])
 
+    def assert_raises_inbox_error(self, file_name):
+        ip = self.create_inbox_from_file(file_name)
         self.assertRaises(InboxError, ip.run)
 
     def test_DedupInboxProcessor_validate_IndicatorPackageWithTitleInHeaderNoChildTLP(self):
