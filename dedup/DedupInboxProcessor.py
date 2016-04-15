@@ -1,19 +1,13 @@
 import pymongo
 
 from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong, \
-    drop_envelopes, INBOX_DROP_ENVELOPES, is_envelope
+    drop_envelopes, INBOX_DROP_ENVELOPES
 from edge.generic import create_package, EdgeObject
 from mongoengine.connection import get_db
 from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from edge.tools import rgetattr
 from .edges import dedup_collections
-from stix.core.stix_header import STIXHeader
-from stix.data_marking import Marking, MarkingSpecification
-from stix.extensions.marking.tlp import TLPMarkingStructure
-from stix.extensions.marking.terms_of_use_marking import TermsOfUseMarkingStructure
-from stix.extensions.marking.simple_marking import SimpleMarkingStructure
-from itertools import chain
 
 PROPERTY_TYPE = ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE']
 PROPERTY_FILENAME = ['api_object', 'obj', 'object_', 'properties', 'file_name']
@@ -262,17 +256,25 @@ class DedupInboxProcessor(InboxProcessorForPackages):
     @staticmethod
     def get_package_header(contents):
         if contents:
-            for id_, inbox_item in contents.iteritems():
-                if inbox_item.api_object.ty == 'pkg' and inbox_item.api_object.obj.stix_header:
-                    return inbox_item.api_object.obj.stix_header
-        return None
+            package_items = {id_: inbox_item for id_, inbox_item in contents.iteritems() if
+                             inbox_item.api_object.ty == 'pkg'}
 
-    @staticmethod
-    def get_envelope(contents):
-        if contents:
-            for id_, inbox_item in contents.iteritems():
-                if inbox_item.api_object.ty == 'pkg' and is_envelope(inbox_item.api_object.obj):
-                    return inbox_item
+            related_item_ids = set()
+            for package_item in package_items.values():
+                if package_item.api_object.obj.related_packages:
+                    related_packages = package_item.api_object.obj.related_packages
+                    related_item_ids = related_item_ids.union(
+                            {related_item.item.idref for related_item in related_packages})
+
+            top_level_package_ids = set(package_items.keys()).difference(related_item_ids)
+            if len(top_level_package_ids) > 1:
+                raise InboxError("Multiple top level packages are not expected")
+            if len(top_level_package_ids) == 0:
+                return None
+
+            top_level_package_item = package_items[top_level_package_ids.pop()]
+            return top_level_package_item.api_object.obj.stix_header
+
         return None
 
     @staticmethod
