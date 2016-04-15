@@ -30,7 +30,7 @@ class STIXFts(object):
         self.fts_config = fts_config
 
     def run(self):
-        self.stderr('Rebuilding FTS, Full build:' +  self.fts_config.full_build)
+        self.stderr('Rebuilding FTS, Full build:' + str(self.fts_config.full_build))
         db = get_db()
         total_documents = db.stix.count()
         scanned = 0
@@ -44,6 +44,10 @@ class STIXFts(object):
                 continue
 
             fts_data = document_prose(doc)
+
+            if not fts_data['fts'] and not doc['fts']:
+                continue
+
             db.stix.update({'_id': doc['_id']},
                            {'$set': fts_data})
 
