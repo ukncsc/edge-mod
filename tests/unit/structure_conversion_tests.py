@@ -8,7 +8,6 @@ from adapters.certuk_mod.validation.common.structure import (
 
 
 class ObservableStructureConverterTests(unittest.TestCase):
-
     OBSERVABLE_TYPES = {
         'Address': 'AddressObjectType',
         'Hostname': 'HostnameObjectType',
@@ -181,6 +180,29 @@ class ObservableStructureConverterTests(unittest.TestCase):
             simple = ObservableStructureConverter.package_to_simple(session['INPUT']['xsi:type'], session['INPUT'])
             self.assertDictEqual(simple, session['OUTPUT'])
 
+    def test_PackageToSimple_flattenPropertyValueField(self):
+        self.assertEqual(ObservableStructureConverter.flatten_property_value_field(
+                {'value': 'abc', 'test': 'def'}), 'abc')
+
+        self.assertEqual(ObservableStructureConverter.flatten_property_value_field('abc'), 'abc')
+
+        self.assertEqual(ObservableStructureConverter.flatten_property_value_field(
+                {'value': 123, 'test': 'def'}), 123)
+
+        self.assertEqual(ObservableStructureConverter.flatten_property_value_field(123), 123)
+
+        self.assertEqual(ObservableStructureConverter.flatten_property_value_field(
+                {'value': {'result':'132'}, 'test': 'def'}), {'result':'132'})
+
+        self.assertEqual(ObservableStructureConverter.flatten_property_value_field(123), 123)
+
+        self.assertEqual(ObservableStructureConverter.flatten_property_value_field(['abc']), ['abc'])
+
+        self.assertEqual(ObservableStructureConverter.flatten_property_value_field(None), None)
+
+        self.assertEqual(ObservableStructureConverter.flatten_property_value_field(
+                {'test2': 'abc', 'test': 'def'}), {'test2': 'abc', 'test': 'def'})
+
     def test_PackageToSimple_EmailType_GetCorrectStructure(self):
         email_package = {
             'xsi:type': 'EmailMessageObjectType',
@@ -192,7 +214,7 @@ class ObservableStructureConverterTests(unittest.TestCase):
                 'date': 'Today',
                 'to': [
                     {
-                        'address_value': 'test@test.com'
+                        'address_value': {'value': 'test@test.com'}
                     }
                 ],
                 'cc': [
@@ -228,7 +250,6 @@ class ObservableStructureConverterTests(unittest.TestCase):
 
 
 class IndicatorStructureConverterTests(unittest.TestCase):
-
     def test_PackageToSimple_AllInfoInIndicator_ReturnsCorrectStructure(self):
         indicator = {
             'confidence': {
@@ -376,7 +397,6 @@ class IndicatorStructureConverterTests(unittest.TestCase):
 
 
 class OtherStructureConverterTests(unittest.TestCase):
-
     def test_PackageToSimple_TLPInObject_ReturnsCorrectTLP(self):
         object_ = {
             'handling': [
