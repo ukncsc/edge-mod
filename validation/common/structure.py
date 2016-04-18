@@ -137,6 +137,10 @@ class ObservableStructureConverter(object):
             simple.get('size_in_bytes'))
         simple['file_extension'] = ObservableStructureConverter.flatten_property_value_field(
             simple.get('file_extension'))
+        hashes = simple.get('hashes', {})
+        for hash_ in hashes:
+            hash_['type'] = ObservableStructureConverter.flatten_property_value_field(hash_.get('type'))
+            hash_['simple_hash_value'] = ObservableStructureConverter.flatten_property_value_field(hash_.get('simple_hash_value'))
         return simple
 
     @staticmethod
