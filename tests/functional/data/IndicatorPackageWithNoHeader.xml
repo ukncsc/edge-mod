@@ -1,0 +1,92 @@
+<stix:STIX_Package
+	xmlns:cyboxCommon="http://cybox.mitre.org/common-2"
+	xmlns:cybox="http://cybox.mitre.org/cybox-2"
+	xmlns:cyboxVocabs="http://cybox.mitre.org/default_vocabularies-2"
+	xmlns:FileObj="http://cybox.mitre.org/objects#FileObject-2"
+	xmlns:marking="http://data-marking.mitre.org/Marking-1"
+	xmlns:tlpMarking="http://data-marking.mitre.org/extensions/MarkingStructure#TLP-1"
+	xmlns:edge="http://soltra.com/"
+	xmlns:coa="http://stix.mitre.org/CourseOfAction-1"
+	xmlns:indicator="http://stix.mitre.org/Indicator-2"
+	xmlns:ttp="http://stix.mitre.org/TTP-1"
+	xmlns:stixCommon="http://stix.mitre.org/common-1"
+	xmlns:stixVocabs="http://stix.mitre.org/default_vocabularies-1"
+	xmlns:stix="http://stix.mitre.org/stix-1"
+	xmlns:pss="http://www.purplesecure.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="edge:Package-55bb9afe-b2ec-409e-a33e-ec73f0861125" version="1.1.1" timestamp="2016-04-15T10:29:07.548784+00:00">
+    <stix:Observables cybox_major_version="2" cybox_minor_version="1" cybox_update_version="0">
+        <cybox:Observable id="pss:observable-01dc1ce2-9e79-443f-90ff-39f5fa9114d7">
+            <cybox:Observable_Composition operator="OR">
+                <cybox:Observable idref="pss:observable-4e0307e4-3e7c-43c0-b7e8-a998d94906e5">
+                </cybox:Observable>
+            </cybox:Observable_Composition>
+        </cybox:Observable>
+        <cybox:Observable id="pss:observable-4e0307e4-3e7c-43c0-b7e8-a998d94906e5">
+            <cybox:Title>File : abc.exe</cybox:Title>
+            <cybox:Description/>
+            <cybox:Object id="pss:file-5f4fe905-c1e8-402b-ab01-bab0607d5c73">
+                <cybox:Properties xsi:type="FileObj:FileObjectType">
+                    <FileObj:File_Name>abc.exe</FileObj:File_Name>
+                    <FileObj:Device_Path/>
+                    <FileObj:Full_Path/>
+                    <FileObj:File_Extension/>
+                    <FileObj:File_Format/>
+                </cybox:Properties>
+            </cybox:Object>
+        </cybox:Observable>
+    </stix:Observables>
+    <stix:Indicators>
+        <stix:Indicator id="pss:indicator-b11a0dfe-aec4-474f-b5fe-c3d4501e21f8" timestamp="2016-04-15T10:28:55.752677+00:00" xsi:type='indicator:IndicatorType'>
+            <indicator:Title>testindicator</indicator:Title>
+            <indicator:Type xsi:type="stixVocabs:IndicatorTypeVocab-1.1">Malicious E-mail</indicator:Type>
+            <indicator:Description>abc</indicator:Description>
+            <indicator:Observable idref="pss:observable-01dc1ce2-9e79-443f-90ff-39f5fa9114d7">
+            </indicator:Observable>
+            <indicator:Indicated_TTP>
+                <stixCommon:TTP idref="pss:ttp-7f0fadfe-66dd-4292-a7d7-2ac728ea8b1e" xsi:type='ttp:TTPType'/>
+            </indicator:Indicated_TTP>
+            <indicator:Kill_Chain_Phases>
+                <stixCommon:Kill_Chain_Phase phase_id="stix:TTP-af1016d6-a744-4ed7-ac91-00fe2272185a" kill_chain_id="stix:TTP-af3e707f-2fb9-49e5-8c37-14026ca0a5ff"/>
+            </indicator:Kill_Chain_Phases>
+            <indicator:Suggested_COAs>
+                <indicator:Suggested_COA>
+                    <stixCommon:Course_Of_Action idref="pss:coa-36fb7b1d-81b7-4a5e-b025-609b43a177b5" xsi:type='coa:CourseOfActionType'/>
+                </indicator:Suggested_COA>
+            </indicator:Suggested_COAs>
+            <indicator:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="AMBER"/>
+                </marking:Marking>
+            </indicator:Handling>
+            <indicator:Confidence timestamp="2016-04-15T10:28:55.752844+00:00">
+                <stixCommon:Value xsi:type="stixVocabs:HighMediumLowVocab-1.0">High</stixCommon:Value>
+            </indicator:Confidence>
+            <indicator:Producer>
+                <stixCommon:Identity id="pss:identity-a11973be-c153-4d75-943f-1aeaccd1cf8e"/>
+            </indicator:Producer>
+        </stix:Indicator>
+    </stix:Indicators>
+    <stix:TTPs>
+        <stix:TTP id="pss:ttp-7f0fadfe-66dd-4292-a7d7-2ac728ea8b1e" timestamp="2016-04-15T10:27:45.281430+00:00" xsi:type='ttp:TTPType'>
+            <ttp:Title>testttp</ttp:Title>
+            <ttp:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="AMBER"/>
+                </marking:Marking>
+            </ttp:Handling>
+        </stix:TTP>
+    </stix:TTPs>
+    <stix:Courses_Of_Action>
+        <stix:Course_Of_Action id="pss:coa-36fb7b1d-81b7-4a5e-b025-609b43a177b5" timestamp="2016-04-15T10:27:56.169821+00:00" xsi:type='coa:CourseOfActionType'>
+            <coa:Title>testcoa</coa:Title>
+            <coa:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="AMBER"/>
+                </marking:Marking>
+            </coa:Handling>
+        </stix:Course_Of_Action>
+    </stix:Courses_Of_Action>
+</stix:STIX_Package>

@@ -1,15 +1,22 @@
-
 from adapters.certuk_mod.validation.observable.address import AddressValidationInfo
 from adapters.certuk_mod.validation.observable.socket_type import SocketValidationInfo
 from adapters.certuk_mod.validation.observable.http_session import HTTPSessionValidationInfo
 from adapters.certuk_mod.validation.observable.email_type import EmailValidationInfo
 from adapters.certuk_mod.validation.observable.artifact import ArtifactValidationInfo
-from adapters.certuk_mod.validation.observable.domain import DomainNameValidationInfo
 from adapters.certuk_mod.validation.observable.registry_key import RegistryKeyValidationInfo
+from adapters.certuk_mod.validation.observable.uri import URIValidationInfo
+from adapters.certuk_mod.validation.observable.domain import DomainNameValidationInfo
 from adapters.certuk_mod.validation.observable.file import FileValidationInfo
+from adapters.certuk_mod.validation.observable.hostname import HostnameValidationInfo
+from adapters.certuk_mod.validation.observable.mutex import MutexValidationInfo
 
 
 class ObservableStructureConverter(object):
+    @staticmethod
+    def flatten_property_value_field(object_):
+        if isinstance(object_, dict):
+            return object_.get('value', object_)
+        return object_
 
     @staticmethod
     def builder_to_simple(object_type, builder_dict):
@@ -47,7 +54,14 @@ class ObservableStructureConverter(object):
             AddressValidationInfo.TYPE: ObservableStructureConverter.__address_package_to_simple,
             SocketValidationInfo.TYPE: ObservableStructureConverter.__socket_package_to_simple,
             HTTPSessionValidationInfo.TYPE: ObservableStructureConverter.__https_session_package_to_simple,
-            EmailValidationInfo.TYPE: ObservableStructureConverter.__email_message_package_to_simple
+            EmailValidationInfo.TYPE: ObservableStructureConverter.__email_message_package_to_simple,
+            URIValidationInfo.TYPE: ObservableStructureConverter.__url_package_to_simple,
+            DomainNameValidationInfo.TYPE: ObservableStructureConverter.__domain_package_to_simple,
+            FileValidationInfo.TYPE: ObservableStructureConverter.__file_package_to_simple,
+            ArtifactValidationInfo.TYPE: ObservableStructureConverter.__artifact_package_to_simple,
+            HostnameValidationInfo.TYPE: ObservableStructureConverter.__hostname_package_to_simple,
+            MutexValidationInfo.TYPE: ObservableStructureConverter.__mutex_package_to_simple,
+            RegistryKeyValidationInfo.TYPE: ObservableStructureConverter.__registry_key_package_to_simple
         }
         return conversion_handlers.get(object_type)
 
@@ -66,6 +80,7 @@ class ObservableStructureConverter(object):
         for hash_ in hashes:
             hash_['type'] = hash_.pop('hash_type')
             hash_['simple_hash_value'] = hash_.pop('hash_value')
+
         return simple
 
     @staticmethod
@@ -83,27 +98,77 @@ class ObservableStructureConverter(object):
         return package_dict
 
     @staticmethod
+    def __domain_package_to_simple(package_dict):
+        simple = package_dict.copy()
+        simple['value'] = ObservableStructureConverter.flatten_property_value_field(simple.get('value'))
+        return simple
+
+    @staticmethod
+    def __mutex_package_to_simple(package_dict):
+        simple = package_dict.copy()
+        simple['name'] = ObservableStructureConverter.flatten_property_value_field(simple.get('name'))
+        return simple
+
+    @staticmethod
+    def __registry_key_package_to_simple(package_dict):
+        simple = package_dict.copy()
+        simple['hive'] = ObservableStructureConverter.flatten_property_value_field(simple.get('hive'))
+        simple['key'] = ObservableStructureConverter.flatten_property_value_field(simple.get('key'))
+        return simple
+
+    @staticmethod
+    def __hostname_package_to_simple(package_dict):
+        simple = package_dict.copy()
+        simple['hostname_value'] = ObservableStructureConverter.flatten_property_value_field(
+            simple.get('hostname_value'))
+        return simple
+
+    @staticmethod
+    def __artifact_package_to_simple(package_dict):
+        simple = package_dict.copy()
+        simple['raw_artifact'] = ObservableStructureConverter.flatten_property_value_field(
+            simple.get('raw_artifact'))
+        return simple
+
+    @staticmethod
+    def __file_package_to_simple(package_dict):
+        simple = package_dict.copy()
+        simple['size_in_bytes'] = ObservableStructureConverter.flatten_property_value_field(
+            simple.get('size_in_bytes'))
+        simple['file_extension'] = ObservableStructureConverter.flatten_property_value_field(
+            simple.get('file_extension'))
+        return simple
+
+    @staticmethod
+    def __url_package_to_simple(package_dict):
+        simple = package_dict.copy()
+        simple['value'] = ObservableStructureConverter.flatten_property_value_field(simple.get('value'))
+        return simple
+
+    @staticmethod
     def __address_package_to_simple(package_dict):
         # This doesn't handle more exotic structures like IP ranges...
         simple = package_dict.copy()
-        address_value = simple['address_value']
-        if isinstance(address_value, dict):
-            simple['address_value'] = address_value['value']
+        simple['address_value'] = ObservableStructureConverter.flatten_property_value_field(
+            simple.get('address_value'))
         return simple
 
     @staticmethod
     def __socket_package_to_simple(builder_dict):
         simple = builder_dict.copy()
         port = simple.pop('port', {})
-        simple['port'] = port.get('port_value')
-        simple['protocol'] = port.get('layer4_protocol')
+        simple['port'] = ObservableStructureConverter.flatten_property_value_field(port.get('port_value'))
+        simple['protocol'] = ObservableStructureConverter.flatten_property_value_field(
+            port.get('layer4_protocol'))
 
-        ip_address = simple.pop('ip_address', None)
+        ip_address = simple.pop('ip_address')
         if ip_address:
-            simple['ip_address'] = ip_address['address_value']
-        hostname = simple.pop('hostname', None)
+            simple['ip_address'] = ObservableStructureConverter.flatten_property_value_field(
+                    ip_address.get('address_value'))
+        hostname = simple.pop('hostname')
         if hostname:
-            simple['hostname'] = hostname['hostname_value']
+            simple['hostname'] = ObservableStructureConverter.flatten_property_value_field(
+                hostname.get('hostname_value'))
 
         return simple
 
@@ -113,7 +178,9 @@ class ObservableStructureConverter(object):
         try:
             http_request_response = simple.pop('http_request_response', {})
             simple['user_agent'] = \
-                http_request_response[0]['http_client_request']['http_request_header']['parsed_header']['user_agent']
+                ObservableStructureConverter.flatten_property_value_field(
+                        http_request_response[0]['http_client_request']['http_request_header']['parsed_header'][
+                            'user_agent'])
         except LookupError:
             simple['user_agent'] = None
 
@@ -125,14 +192,17 @@ class ObservableStructureConverter(object):
 
         header = simple.pop('header', {})
 
-        simple['subject'] = header.get('subject')
+        simple['subject'] = ObservableStructureConverter.flatten_property_value_field(header.get('subject'))
         if header.get('from'):
-            simple['from'] = header['from'].get('address_value')
-        simple['date'] = header.get('date')
+            simple['from'] = ObservableStructureConverter.flatten_property_value_field(
+                    header['from'].get('address_value'))
+        simple['date'] = ObservableStructureConverter.flatten_property_value_field(header.get('date'))
 
         def flatten_address_list(address_list):
             if isinstance(address_list, list):
-                return [address['address_value'] for address in address_list]
+                return [ObservableStructureConverter.flatten_property_value_field(address.get('address_value'))
+                        for address
+                        in address_list]
             return None
 
         simple['to'] = flatten_address_list(header.get('to'))
@@ -143,7 +213,6 @@ class ObservableStructureConverter(object):
 
 
 class IndicatorStructureConverter(object):
-
     @staticmethod
     def package_to_simple(package_dict, package_header_dict):
         simple = package_dict.copy()
@@ -188,7 +257,6 @@ class IndicatorStructureConverter(object):
 
 
 class OtherStructureConverter(object):
-
     @staticmethod
     def package_to_simple(package_dict, package_header_dict):
         simple = package_dict.copy()
