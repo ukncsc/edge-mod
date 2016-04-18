@@ -13,6 +13,9 @@ define([
     "use strict";
 
     return declare(null, {
+        DEFER_EVALUATION: {
+            deferEvaluation: true
+        },
         constructor: function (data, stixPackage) {
             this.data = ko.observable(data);
             this.id = ko.computed(function () {

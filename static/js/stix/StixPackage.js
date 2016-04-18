@@ -16,6 +16,7 @@ define([
             this._data = stixPackage;
             this._rootId = new StixId(rootId);
             this._validationInfo = new ValidationInfo(validationInfo || {});
+            this._cache = {};
             this.root = this.findById(this._rootId);
             this.type = this._rootId.type();
         },
@@ -25,18 +26,25 @@ define([
                 throw new Error("Identifier must be a StixId: " + stixId);
             }
             var id = stixId.id();
-            var type = stixId.type();
-            var listToSearch = this.safeGet(this._data, type.collection);
-            if (!listToSearch) {
-                throw new Error("Object not found with id: " + id);
+            var stixObject = null;
+            if (id in this._cache) {
+                stixObject = this._cache[id];
+            } else {
+                var type = stixId.type();
+                var listToSearch = this.safeGet(this._data, type.collection);
+                if (!listToSearch) {
+                    throw new Error("Object not found with id: " + id);
+                }
+                var data = ko.utils.arrayFirst(listToSearch, function (item) {
+                    return item.id === id;
+                }, this);
+                if (!data) {
+                    throw new Error("Object not found with id: " + id);
+                }
+                stixObject = new type.class(data, this);
+                this._cache[id] = stixObject;
             }
-            var data = ko.utils.arrayFirst(listToSearch, function (item) {
-                return item.id === id;
-            }, this);
-            if (!data) {
-                throw new Error("Object not found with id: " + id);
-            }
-            return new type.class(data, this);
+            return stixObject;
         },
 
         findByStringId: function (/*String*/ id) {

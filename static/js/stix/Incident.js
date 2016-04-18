@@ -33,16 +33,16 @@ define([
             }, this);
             this.leveragedTTPs = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "leveraged_ttps.ttps", "ttp.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.relatedIncidents = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_incidents.incidents", "incident.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.relatedIndicators = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_indicators.indicators", "indicator.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.relatedObservables = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_observables.observables", "observable.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
         }
     });
 });

@@ -42,7 +42,7 @@ define([
             }, this);
             this.compositeIndicators = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "composite_indicator_expression.indicators", "idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.observable = ko.computed(function () {
                 var id = stixPackage.safeGet(this.data(), "observable.idref");
                 return id ? stixPackage.findByStringId(id) : null;
@@ -61,16 +61,16 @@ define([
                     }
                 }
                 return observableList;
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.relatedIndicators = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_indicators.related_indicators", "indicator.idref", "related_indicators");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.indicatedTTPs = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "indicated_ttps", "ttp.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.suggestedCOAs = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "suggested_coas.suggested_coas", "course_of_action.idref", "suggested_coas");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
         }
     });
 });

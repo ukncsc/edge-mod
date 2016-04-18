@@ -30,13 +30,13 @@ define([
             }, this);
             this.observedTTPs = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "observed_ttps.ttps", "ttp.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.associatedActors = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "associated_actors.threat_actors", "threat_actor.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.associatedCampaigns = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "associated_campaigns.campaigns", "campaign.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
         }
     });
 });

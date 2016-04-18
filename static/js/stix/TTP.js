@@ -24,7 +24,7 @@ define([
             }, this);
             this.relatedTTPs = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_ttps.ttps", "ttp.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
         }
     });
 });

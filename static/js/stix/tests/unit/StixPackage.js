@@ -112,6 +112,19 @@ define([
                     );
                 }
             },
+            "findByStringId()": {
+                setup: function () {
+                    loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
+                },
+                "found": function () {
+                    var actual = classUnderTest.findByStringId("purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
+                    assert.equal(actual.id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064")
+                },
+                "found from cache": function () {
+                    var actual = classUnderTest.findByStringId("purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
+                    assert.equal(actual.id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064")
+                }
+            },
             "header() no header": {
                 setup: function () {
                     loadPackage("purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59");

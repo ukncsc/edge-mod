@@ -18,19 +18,19 @@ define([
             }, this);
             this.relatedTTPs = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_ttps.ttps", "ttp.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.associatedCampaigns = ko.computed(function () {
              return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "associated_campaigns.campaigns", "campaign.idref");
-             }, this);
+             }, this, this.DEFER_EVALUATION);
             this.relatedIncidents = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_incidents.incidents", "incident.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.relatedIndicators = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_indicators.indicators", "indicator.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.relatedActors = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "attribution.0.threat_actors", "threat_actor.idref");
-            }, this);
+            }, this, this.DEFER_EVALUATION);
         }
     });
 });
