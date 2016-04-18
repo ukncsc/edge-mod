@@ -100,7 +100,10 @@ def summarise_draft_observable(d):
                 else:
                     result += " " + str(item)
         elif value and value != 'None' and key != 'id' and key != 'id_ns' and key != 'objectType':
-            result += value
+            try:
+                result += value.decode('utf-8')
+            except UnicodeError:
+                result += value.decode('ascii')
     return result
 
 
