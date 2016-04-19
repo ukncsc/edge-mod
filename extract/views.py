@@ -10,6 +10,7 @@ from users.models import Draft
 from edge.inbox import InboxError
 from edge.generic import EdgeObject, EdgeError
 
+from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.retention.purge import STIXPurge
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.extract.ioc_wrapper import parse_file, IOCParseException
@@ -83,9 +84,11 @@ def extract_visualiser(request, ids):
     safe_type_names = [type_name.replace(" ", "") for type_name in type_names]
     str_ids = [str(id_) for id_ in indicator_ids]
 
-    return render(request, "extract_visualiser.html",
-                  {'indicator_information': zip(str_ids, type_names, safe_type_names),
-                   'indicator_ids': str_ids})
+    return render(request, "extract_visualiser.html", {
+        "indicator_ids": str_ids,
+        "indicator_information": zip(str_ids, type_names, safe_type_names),
+        "kill_chain_phases": {item["phase_id"]: item["name"] for item in KILL_CHAIN_PHASES}
+    })
 
 
 def summarise_draft_observable(d):

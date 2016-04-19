@@ -9,11 +9,6 @@
 {% block body-content %}
     {% include 'visualiser_graph.html' %}
 
-    <script>
-        var root_ids ={{ indicator_ids|safe }};
-        var indicator_information ={{ indicator_information|safe }};
-    </script>
-
     <ul class="nav nav-tabs">
         {% for stix_id, typename, typenamesafe in indicator_information %}
             {% if forloop.first %}
@@ -62,6 +57,9 @@
             },
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
+        var root_ids = Object.freeze({{ indicator_ids|safe }});
+        var indicator_information = Object.freeze({{ indicator_information|safe }});
+        var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
     </script>
     <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="extract/visualise/main"></script>
 {% endblock %}
