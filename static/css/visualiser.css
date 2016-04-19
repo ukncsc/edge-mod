@@ -49,6 +49,9 @@ dl.dl-horizontal dd {
 
 dl.linkedNodes dd {
     cursor: pointer;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 dl.linkedNodes dd:hover span {
