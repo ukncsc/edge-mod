@@ -1,62 +1,50 @@
 import os
-from time import sleep
-
-from celery.exceptions import TimeoutError
+from django.conf import settings
 from mongoengine.connection import get_db
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-from repository.scheduler import PeriodicTaskWithTTL
-
+from edge.tools import StopWatch
+from search.mongofts import document_prose, FTS_KEY
 from adapters.certuk_mod.common.activity import save as log_activity
 
-import os
-import sys
-import argparse
-from mongoengine.connection import get_db
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
-from django.conf import settings
-if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.py')
 
-from edge.tools import StopWatch, EstimatingStopWatch
-from search.mongofts import document_prose
+if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.py')
 
 
 class STIXFts(object):
-
-    PAGE_SIZE = 5000
+    PAGE_SIZE = 20
 
     def __init__(self, fts_config):
         self.fts_config = fts_config
 
     def run(self):
-        self.stderr('Rebuilding FTS, Full build:' + str(self.fts_config.full_build))
         db = get_db()
-        total_documents = db.stix.count()
-        scanned = 0
-
-        progress = lambda: 'generating text: [% 8d / % 8d]' % (scanned, total_documents)
-        total_timer = EstimatingStopWatch(total_documents)
         update_timer = StopWatch()
-        for doc in db.stix.find():
-            scanned += 1
-            if not self.fts_config.full_build and doc['fts']:
-                continue
+        query = {}
+        if not self.fts_config.full_build:
+            query['fts'] = {"$eq": None}
 
+        bulk_op = db.stix.initialize_unordered_bulk_op()
+        update_count = 0
+        for doc in db.stix.find(query):
             fts_data = document_prose(doc)
 
-            if not fts_data['fts'] and not doc['fts']:
+            if 'fts' in doc and fts_data[FTS_KEY] == doc['fts']:
                 continue
 
-            db.stix.update({'_id': doc['_id']},
-                           {'$set': fts_data})
+            update_count += 1
+            bulk_op.find({'_id': doc['_id']}).update({'$set': fts_data})
+            if not update_count % STIXFts.PAGE_SIZE:
+                bulk_op.execute()
+                bulk_op = db.stix.initialize_unordered_bulk_op()
 
-            if update_timer.ms() > 1000:
-                update_timer = StopWatch()
-                hh, mm, ss = total_timer.eta_hms(scanned)
-                self.stderr(progress() + ' (% 3d:%02d:%02d remaining)\r' % (hh, mm, ss))
-        self.stderr(progress() + '\n')
+        if update_count % STIXFts.PAGE_SIZE:
+            bulk_op.execute()
 
-    def stderr(self, value):
-        sys.stderr.write(value)
-        sys.stderr.flush()
+        log_activity("system", 'FTS', 'INFO',
+                     "%s : Updated %d of %d objects in %dms" %
+                     (
+                         'Full Rebuild' if self.fts_config.full_build else 'Missing FTS Insert',
+                         update_count,
+                         db.stix.count(),
+                         update_timer.ms())
+                     )
