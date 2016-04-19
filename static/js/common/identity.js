@@ -116,7 +116,7 @@ define([
         cancel: function () {
             this.search(false);
             this.restoreSnapshot();
-            this.modal.close(this.previousState);
+            this.modal.close();
         },
 
         getState: function () {
