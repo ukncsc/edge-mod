@@ -52,13 +52,11 @@ define([
                     }
                 });
 
-                this.reporter = ko.observable(new CERTIdentity()).extend({
-                    requiredIdentity: {
+                this.reporter = ko.observable(new CERTIdentity());
+                this.reporter().UUID.extend({
+                    requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
-                        validateFunction: function () {
-                            return this.reporter().name() != "";
-                        }.bind(this),
                         displayMessage: "You need to select a reporter for your indicator"
                     }
                 });
