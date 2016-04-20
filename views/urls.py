@@ -47,12 +47,19 @@ publisher_urls = [
     (r'^ajax/set_publish_site/$', 'views.ajax_set_publish_site', None),
     (r'^ajax/publish/$', 'views.ajax_publish', None),
     (r'^ajax/validate/$', 'views.ajax_validate', None),
+    (r'^import/(?P<username>\S+)$', 'views.ajax_import', None),
+
     (r'^ajax/get_retention_config/$', 'views.ajax_get_retention_config', None),
     (r'^ajax/set_retention_config/$', 'views.ajax_set_retention_config', None),
     (r'^ajax/reset_retention_config/$', 'views.ajax_reset_retention_config', None),
-    (r'^import/(?P<username>\S+)$', 'views.ajax_import', None),
     (r'^ajax/get_purge_task_status/$', 'views.ajax_get_purge_task_status', None),
     (r'^ajax/run_purge/$', 'views.ajax_run_purge', None),
+
+    (r'^ajax/get_fts_config/$', 'views.ajax_get_fts_config', None),
+    (r'^ajax/set_fts_config/$', 'views.ajax_set_fts_config', None),
+    (r'^ajax/reset_fts_config/$', 'views.ajax_reset_fts_config', None),
+    (r'^ajax/get_fts_task_status/$', 'views.ajax_get_fts_task_status', None),
+    (r'^ajax/run_fts_task/$', 'views.ajax_run_fts', None),
 
     (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),
     (r'^config/get_cert_config/$', 'views.ajax_get_cert_config', None),
