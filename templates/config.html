@@ -263,13 +263,13 @@
                                         <span class="btn-content pull-left glyphicon"
                                               data-bind=""></span>
                                         <span class="btn-content pull-left"
-                                              data-bind="text: full_build() ? 'Full Rebuild': 'Only Missing Indicies'"></span>
+                                              data-bind="text: fullBuild() ? 'Full Rebuild': 'Only Missing Indicies'"></span>
                                         <span class="btn-content pull-right glyphicon glyphicon-chevron-down"></span>
                                     </button>
                                     <ul class="dropdown-menu" role="menu">
                                         <!-- ko foreach: [true, false] -->
                                         <li>
-                                            <a href="#" data-bind="click: function() { $parent.full_build($data); }">
+                                            <a href="#" data-bind="click: function() { $parent.fullBuild($data); }">
                                                 <span class="glyphicon"
                                                       data-bind=""></span>
                                                 <span data-bind="text: $data ? 'Full Rebuild': 'Only Missing Indicies'"></span>

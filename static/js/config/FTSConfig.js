@@ -15,12 +15,12 @@ define([
         constructor: function () {
             this.time = ko.observable();
             this.enabled = ko.observable();
-            this.full_build = ko.observable();
+            this.fullBuild = ko.observable();
             this.enabled.subscribe(this._onEnabledChanged.bind(this));
 
 
             this.savedTime = ko.observable();
-            this.savedfull_build = ko.observable();
+            this.savedFullBuild = ko.observable();
             this.savedEnabled = ko.observable();
 
             this.gotConfig = ko.observable(false);
@@ -56,8 +56,8 @@ define([
             this.time(response["time"]);
             this.savedTime(response["time"]);
 
-            this.full_build(response["full_build"]);
-            this.savedfull_build(response["full_build"]);
+            this.fullBuild(response["fullBuild"]);
+            this.savedFullBuild(response["fullBuild"]);
 
             this.enabled(response["enabled"]);
             this.savedEnabled(response["enabled"]);
@@ -82,7 +82,7 @@ define([
 
         _onEnabledChanged: function () {
             if (!(this.enabled())) {
-                this.full_build(this.savedfull_build());
+                this.fullBuild(this.savedFullBuild());
                 this.time(this.savedTime());
             }
         },
@@ -90,7 +90,7 @@ define([
         changesPending: function () {
             return this.gotConfig() &&
                 (
-                    this.full_build() != this.savedfull_build() ||
+                    this.fullBuild() != this.savedFullBuild() ||
                     this.time() != this.savedTime() ||
                     this.enabled() != this.savedEnabled()
                 );
@@ -124,7 +124,7 @@ define([
 
                 var postUrl = reset ? "../ajax/reset_fts_config/" : "../ajax/set_fts_config/";
                 var postData = reset ? { } : {
-                    full_build: this.full_build(),
+                    fullBuild: this.fullBuild(),
                     time: this.time(),
                     enabled: this.enabled()
                 };
@@ -155,7 +155,7 @@ define([
                     this._parseConfigResponse(response);
                 }
 
-                this.savedfull_build(this.full_build());
+                this.savedFullBuild(this.fullBuild());
                 this.savedTime(this.time());
                 this.savedEnabled(this.enabled());
             }

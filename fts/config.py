@@ -19,7 +19,7 @@ class FtsConfiguration(object):
 
     __time_key = 'time'
     __enabled_key = 'enabled'
-    __full_build_key = 'full_build'
+    __full_build_key = 'fullBuild'
 
     def __init__(self, task):
         if not isinstance(task, PeriodicTaskWithTTL):
