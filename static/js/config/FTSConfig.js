@@ -42,9 +42,9 @@ define([
             if (!this.running() && !this.changesPending()) {
                 postJSON("../ajax/run_fts_task/", { }, function (response) {
                     var modal = new Modal({
-                        title: "Retention policy",
+                        title: "FTS rebuild",
                         titleIcon: "glyphicon-info-sign",
-                        contentData: "The retention job has been scheduled to run (celery task ID '" + response['id'] + "')."
+                        contentData: "The FTS rebuild job has been scheduled to run (celery task ID '" + response['id'] + "')."
                     });
                     modal.show();
                 });

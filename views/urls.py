@@ -58,7 +58,7 @@ publisher_urls = [
     (r'^ajax/get_fts_config/$', 'views.ajax_get_fts_config', None),
     (r'^ajax/set_fts_config/$', 'views.ajax_set_fts_config', None),
     (r'^ajax/reset_fts_config/$', 'views.ajax_reset_fts_config', None),
-    (r'^ajax/get_fts_status/$', 'views.ajax_get_fts_status', None),
+    (r'^ajax/get_fts_task_status/$', 'views.ajax_get_fts_status', None),
     (r'^ajax/run_fts_task/$', 'views.ajax_run_fts', None),
 
     (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),

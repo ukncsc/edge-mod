@@ -21,14 +21,14 @@ class STIXFts(object):
         update_timer = StopWatch()
         query = {}
         if not self.fts_config.full_build:
-            query['fts'] = {"$eq": None}
+            query[FTS_KEY] = {"$eq": None}
 
         bulk_op = db.stix.initialize_unordered_bulk_op()
         update_count = 0
         for doc in db.stix.find(query):
             fts_data = document_prose(doc)
 
-            if 'fts' in doc and fts_data[FTS_KEY] == doc['fts']:
+            if FTS_KEY in doc and fts_data[FTS_KEY] == doc[FTS_KEY]:
                 continue
 
             update_count += 1

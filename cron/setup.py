@@ -1,9 +1,16 @@
 
 from adapters.certuk_mod.retention.config import RetentionConfiguration
 from adapters.certuk_mod.common.logger import log_error
+from adapters.certuk_mod.fts.config import FtsConfiguration
 
 
 tasks = (
+    {
+        'name': 'fts',
+        'task': FtsConfiguration.TASK_NAME,
+        'hour': '0',
+        'installer': FtsConfiguration.install
+    },
     {
         'name': 'purge',
         'task': RetentionConfiguration.TASK_NAME,
