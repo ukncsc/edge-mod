@@ -28,7 +28,7 @@ def ajax_run_purge(request, data):
 @login_required_ajax
 @superuser_or_staff_role
 @json_body
-def ajax_get_fts_status(request, data):
+def ajax_get_fts_task_status(request, data):
     return {
         'status': fts_task_is_running()
     }

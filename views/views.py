@@ -36,7 +36,7 @@ from adapters.certuk_mod.cron.views import ajax_get_purge_task_status, ajax_run_
 from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, \
     ajax_set_retention_config
 
-from adapters.certuk_mod.cron.views import ajax_get_fts_status, ajax_run_fts
+from adapters.certuk_mod.cron.views import ajax_get_fts_task_status, ajax_run_fts
 from adapters.certuk_mod.fts.views import ajax_get_fts_config, ajax_reset_fts_config, \
     ajax_set_fts_config
 
