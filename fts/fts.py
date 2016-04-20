@@ -11,7 +11,7 @@ if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.p
 
 
 class STIXFts(object):
-    PAGE_SIZE = 20
+    PAGE_SIZE = 5000
 
     def __init__(self, fts_config):
         self.fts_config = fts_config
@@ -43,7 +43,7 @@ class STIXFts(object):
         log_activity("system", 'FTS', 'INFO',
                      "%s : Updated %d of %d objects in %dms" %
                      (
-                         'Full Rebuild' if self.fts_config.full_build else 'Missing FTS Insert',
+                         'Full Rebuild' if self.fts_config.full_build else 'Missing Insert',
                          update_count,
                          db.stix.count(),
                          update_timer.ms())
