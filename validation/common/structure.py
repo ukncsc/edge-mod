@@ -165,11 +165,11 @@ class ObservableStructureConverter(object):
         simple['protocol'] = ObservableStructureConverter.flatten_property_value_field(
             port.get('layer4_protocol'))
 
-        ip_address = simple.pop('ip_address')
+        ip_address = simple.pop('ip_address', None)
         if ip_address:
             simple['ip_address'] = ObservableStructureConverter.flatten_property_value_field(
                     ip_address.get('address_value'))
-        hostname = simple.pop('hostname')
+        hostname = simple.pop('hostname', None)
         if hostname:
             simple['hostname'] = ObservableStructureConverter.flatten_property_value_field(
                 hostname.get('hostname_value'))
