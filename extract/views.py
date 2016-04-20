@@ -64,12 +64,13 @@ def extract_upload(request):
     indicator_ids = [id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
     observable_ids = {id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'obs'}
 
-    for indicator in indicators:
-        draft_indicator = EdgeObject.load(indicator.id).to_draft()
-        process_draft_obs()
-        Draft.upsert('ind', draft_indicator, request.user)
-
-    remove_from_db(indicator_ids + list(observable_ids))
+    try:
+        for indicator in indicators:
+            draft_indicator = EdgeObject.load(indicator.id).to_draft()
+            process_draft_obs()
+            Draft.upsert('ind', draft_indicator, request.user)
+    finally:
+        remove_from_db(indicator_ids + list(observable_ids))
 
     return redirect("extract_visualiser",
                     ids=json.dumps(indicator_ids))
