@@ -1,3 +1,6 @@
+var old = window['$'];
 define(['jquery'], function (jq) {
-    return jq.noConflict( true );
+    var jq_res = jq.noConflict( true );
+    window['$'] = window['jQuery'] = old;
+    return jq_res;
 });
