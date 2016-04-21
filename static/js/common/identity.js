@@ -115,6 +115,7 @@ define([
 
         cancel: function () {
             this.search(false);
+            this.searchTerm(null);
             this.restoreSnapshot();
             this.modal.close();
         },
