@@ -2,7 +2,7 @@ define([
     "knockout",
     "dcl/dcl",
     "common/identity",
-    "common/cert-identity_showmodal-shim"
+    "common/cert-identity_showmodal"
 ], function (ko, declare, EdgeIdentity, EdgeIdentityShowModal) {
     "use strict";
 

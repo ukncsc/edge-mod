@@ -93,16 +93,6 @@ define([
             }.bind(this));
         },
 
-        createSnapshot: function () {
-            this.previousState = this.getState();
-        },
-
-        restoreSnapshot: function () {
-            ko.utils.objectForEach(this.previousState, function (key, value){
-                this[key](value);
-            }.bind(this));
-        },
-
         onSelect: function (data) {
             this.selectOrganisation(data);
             this.searchTerm("");
@@ -116,7 +106,6 @@ define([
         cancel: function () {
             this.search(false);
             this.searchTerm(null);
-            this.restoreSnapshot();
             this.modal.close();
         },
 
