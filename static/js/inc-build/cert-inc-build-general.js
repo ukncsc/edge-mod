@@ -52,11 +52,14 @@ define([
                     }
                 });
 
-                this.reporter = ko.observable(new CERTIdentity());
-                this.reporter().UUID.extend({
-                    requiredGrouped: {
+                this.reporter = ko.observable(null);
+                this.reporter.extend({
+                    requiredGroupedCustom: {
                         required: true,
                         group: this.validationGroup,
+                        validateFunction: function () {
+                            return this.reporter();
+                        }.bind(this),
                         displayMessage: "You need to select a reporter for your indicator"
                     }
                 });
@@ -85,8 +88,11 @@ define([
             this.marking_priorities(optionLists.marking_priorities);
         },
 
-        showReporterUiModal: function () {
-            return this.reporter().ModelUI()
+        addReporter: function () {
+            var newIdentity = new CERTIdentity();
+            newIdentity.ModelUI().done(function () {
+                this.reporter(newIdentity)
+            }.bind(this));
         },
 
         load: function (data) {
