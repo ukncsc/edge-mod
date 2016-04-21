@@ -10,10 +10,7 @@ define([
         var parent = $(element.parentNode);
         var height = parent.height();
         var width = parent.width();
-        d3.select(element)
-            .attr("viewBox", "0 0 " + width + " " + height)
-            .attr("height", height)
-            .attr("width", width);
+        d3.select(element).attr("viewBox", "0 0 " + width + " " + height)
         graphModel.size([width, height]);
     }
 

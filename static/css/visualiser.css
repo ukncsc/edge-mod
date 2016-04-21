@@ -1,3 +1,4 @@
+/*
 .container-fluid .full-height {
     height: calc(100vh - 120px);
 }
@@ -5,11 +6,29 @@
 #graph-container {
     padding-right: 0;
 }
+*/
+
+#visualiser {
+    overflow: hidden;
+    position: fixed;
+    top: 80px;
+    right: 17px;
+    bottom: 32px;
+    left: 17px;
+}
+
+#visualiser > .flex-main {
+    flex: 1 1 auto;
+}
+
+#visualiser > .flex-after {
+    flex: 0 0 32em;
+    overflow-y: auto;
+}
 
 svg {
     border: 1px solid grey;
-    box-shadow: rgba(0, 0, 0, 0.3) 4px 4px 4px;
-    width:100%
+    /*box-shadow: rgba(0, 0, 0, 0.3) 4px 4px 4px;*/
 }
 
 g.ko-d3-graph-node {
