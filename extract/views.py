@@ -140,6 +140,8 @@ def extract_visualiser_get(request, id_):
         return [x for x in eo_filter_generator()]
 
     def is_observable_composition(eo):
+        if 'obs' not in eo.ty:
+            return False
         try:
             eo.obj.observable_composition
         except AttributeError:
