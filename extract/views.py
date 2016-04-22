@@ -139,14 +139,8 @@ def extract_visualiser_get(request, id_):
 
         return [x for x in eo_filter_generator()]
 
-    def is_observable_composition(eo):
-        if 'obs' != eo.ty:
-            return False
-        try:
-            eo.obj.observable_composition
-        except AttributeError:
-            return False
-        return True
+    def is_observable(eo):
+        return "obs" == eo.ty
 
     def is_indicator(eo):
         return "ind" == eo.ty
@@ -195,7 +189,7 @@ def extract_visualiser_get(request, id_):
             if not is_deduped():
                 continue
 
-            for obs_composition in get_backlinks(observable['id'], is_observable_composition):
+            for obs_composition in get_backlinks(observable['id'], is_observable):
                 if obs_composition.id_ in id_to_idx:
                     continue
 
