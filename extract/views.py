@@ -140,7 +140,7 @@ def extract_visualiser_get(request, id_):
         return [x for x in eo_filter_generator()]
 
     def is_observable_composition(eo):
-        if 'obs' not in eo.ty:
+        if 'obs' != eo.ty:
             return False
         try:
             eo.obj.observable_composition
@@ -149,7 +149,7 @@ def extract_visualiser_get(request, id_):
         return True
 
     def is_indicator(eo):
-        return "ind" in eo.ty
+        return "ind" == eo.ty
 
     def build_title(node):
         node_type = node.summary.get("type")
