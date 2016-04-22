@@ -172,44 +172,6 @@ define([
                         assert.equal(identity.sector(), "");
                     }
                 },
-                "can manipulate snapshots": {
-                    "creates snapshot": function () {
-                        var identity = new Identity();
-
-                        identity.name(testORG);
-                        identity.UUID(uuid);
-                        identity.sector(it);
-
-                        identity.createSnapshot();
-
-                        var expectedState = {
-                            name: testORG,
-                            UUID: uuid,
-                            sector: it
-                        };
-
-                        assert.deepEqual(identity.previousState, expectedState);
-                    },
-                    "restore a snapshot": function () {
-                        var identity = new Identity();
-
-                        identity.name(testORG);
-                        identity.UUID(uuid);
-                        identity.sector(it);
-
-                        identity.createSnapshot();
-
-                        identity.name("new name");
-                        identity.UUID("new uuid");
-                        identity.sector("new sector");
-
-                        identity.restoreSnapshot();
-
-                        assert.equal(identity.name(), testORG);
-                        assert.equal(identity.UUID(), uuid);
-                        assert.equal(identity.sector(), it);
-                    }
-                },
                 "validate CRM UUID": {
                     "validates correct uuid": function () {
                         var identity = new Identity();

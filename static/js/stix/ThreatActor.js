@@ -4,6 +4,7 @@ define([
     "./ReviewValue",
     "./StixObjectTLP",
     "kotemplate!root-act:./templates/root-ThreatActor.html",
+    "kotemplate!flat-act:./templates/flat-ThreatActor.html",
     "kotemplate!list-act:./templates/list-ThreatActors.html"
 ], function (declare, ko, ReviewValue, StixObjectTLP) {
     "use strict";

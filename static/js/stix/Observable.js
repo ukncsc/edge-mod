@@ -30,7 +30,8 @@ define([
     return declare(StixObject, {
         constructor: function (data, stixPackage) {
             this.type = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), this.data(), "object.properties.xsi:type", "xsi:type");
+                var type = stixPackage.safeValueGet(this.id(), this.data(), "object.properties.xsi:type", "xsi:type");
+                return type.isEmpty() === false ? type : stixPackage.safeValueGet(this.id(), this.data(), "observable_composition.operator");
             }, this);
             var objectType = ko.computed(function () {
                 var type = stixPackage.safeGet(this.data(), "object.properties.xsi:type");

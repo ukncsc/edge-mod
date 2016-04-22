@@ -65,21 +65,23 @@
 
                     <div class="form-group">
                         <label for="reporter" class="col-lg-2 control-label">Reporter</label>
-                        <div class="col-lg-6">
                             <!-- ko if: reporter.hasValidation -->
                             <span class="validation-error"
                                   data-bind="visible: reporter.hasError, text: reporter.errorMessage"></span>
                             <!-- /ko -->
-                            <button class="btn btn-default btn-xs btn-add"
-                                    data-bind="visible: !(reporter().selected()), click: showReporterUiModal">
-                                <span class="glyphicon glyphicon-plus-sign green"></span> Add
-                            </button>
+                            <div class="col-lg-4">
+                            <!-- ko ifnot: reporter() -->
                             <input class="form-control"
-                                   data-bind="visible: reporter().selected(),
-                                   click: showReporterUiModal,
+                                   data-bind="click: addReporter,
+                                   disable: $root.mode().isReadOnly()">
+                            <!-- /ko -->
+                            <!-- ko if: reporter() -->
+                            <input class="form-control"
+                                   data-bind="click: addReporter,
                                    value: reporter().name,
                                    disable: $root.mode().isReadOnly()">
-                        </div>
+                            <!-- /ko -->
+                            </div>
                     </div>
 
                     <div class="form-group">

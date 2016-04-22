@@ -4,6 +4,7 @@ define([
     "./ReviewValue",
     "./StixObjectTLP",
     "kotemplate!root-cam:./templates/root-Campaign.html",
+    "kotemplate!flat-cam:./templates/flat-Campaign.html",
     "kotemplate!list-cam:./templates/list-Campaigns.html"
 ], function (declare, ko, ReviewValue, StixObjectTLP) {
     "use strict";
