@@ -280,7 +280,7 @@ class STIXPurge(object):
             summarise(messages, 'Found %d objects with insufficient back links or sightings', objects)
             summarise(messages, 'Found %d orphaned observable compositions', compositions)
             summarise(messages, 'Found %d old packages', packages)
-            summarise(messages, 'In %dms', time_ms)
+            messages.append('In %dms' % time_ms)
             return "\n".join(messages)
 
         def wait_for_background_jobs_completion(as_at_date, minutes_to_wait=5, poll_interval=5):
