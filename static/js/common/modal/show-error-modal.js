@@ -1,7 +1,7 @@
 define([
     "knockout",
     "./Modal",
-    "kotemplate!modal-error-content:common/modal/templates/error-modal-content.html",
+    "kotemplate!modal-error-content:common/modal/templates/error-modal-content.html"
 ], function (ko, Modal, errorContentTemplate) {
     "use strict";
 
