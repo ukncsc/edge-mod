@@ -2,19 +2,20 @@ define([
     "dcl/dcl",
     "knockout",
     "common/cert-abstract-builder-form",
-    "inc-build/cert-inc-build-time"
-], function (declare, ko, AbstractBuilderForm, Time) {
+    "inc-build/cert-inc-build-time",
+    "common/topic"
+], function (declare, ko, AbstractBuilderForm, Time, Topic) {
     "use strict";
 
     return declare(AbstractBuilderForm, {
         declaredClass: "TimePanel",
 
         constructor: declare.superCall(function (sup) {
-            return function (pubsub) {
+            return function () {
                 this.timeTypes = ko.observableArray();
                 this.timeZone = ko.observable();
                 sup.call(this, "Times");
-                pubsub.subscribe('status_changed', function (data) {
+                Topic.subscribe('status_changed', function (data) {
                     if (data === 'Closed') {
                         postJSON("/adapter/certuk_mod/ajax/get_datetime/", {}, function (result) {
                             this.set_closed_time(result['result']);
@@ -22,7 +23,7 @@ define([
                     } else {
                         this.set_closed_time("");
                     }
-                }.bind(this));
+                }.bind(this), this);
             }
         }),
 

@@ -3,16 +3,16 @@ define([
     "knockout",
     "common/cert-abstract-builder-form",
     "common/cert-messages",
-    "common/cert-identity"
-], function (declare, ko, AbstractBuilderForm, Messages, CERTIdentity) {
+    "common/cert-identity",
+    "common/topic"
+], function (declare, ko, AbstractBuilderForm, Messages, CERTIdentity, Topic) {
     "use strict";
 
     return declare(AbstractBuilderForm, {
         declaredClass: "General",
 
         constructor: declare.superCall(function (sup) {
-            return function (pubsub) {
-                this.pubsub = pubsub;
+            return function () {
                 sup.call(this, "General");
 
                 this.title = ko.observable().extend({
@@ -115,7 +115,7 @@ define([
             }
 
             this.status.subscribe(function (data) {
-                this.pubsub.publish('status_changed', [data]);
+                Topic.publish('status_changed', data);
             }.bind(this));
         },
 
