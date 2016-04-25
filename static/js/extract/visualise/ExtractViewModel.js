@@ -2,11 +2,11 @@ define([
     "dcl/dcl",
     "knockout",
     "d3",
-    "common/modal/ShowErrorModal",
+    "common/modal/show-error-modal",
     "visualiser/ViewModel",
     "visualiser/panel-action/PanelActionsBuilder",
     "visualiser/panel-action/PanelAction"
-], function (declare, ko, d3, ShowErrorModal, ViewModel, PanelActionsBuilder, PanelAction) {
+], function (declare, ko, d3, showErrorModal, ViewModel, PanelActionsBuilder, PanelAction) {
 
     var base_url = "/adapter/certuk_mod/ajax/extract_visualiser/";
 
@@ -78,7 +78,7 @@ define([
     }
 
     function showErrorModal(message) {
-         ShowErrorModal(message, false);
+         showErrorModal(message, false);
     }
 
     function no(type) {

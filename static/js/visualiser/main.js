@@ -1,10 +1,10 @@
 require([
     "knockout",
-    "common/modal/ShowErrorModal",
+    "common/modal/show-error-modal",
     "visualiser/ViewModel",
     "visualiser/panel-action/PanelActionsBuilder",
     "domReady!"
-], function (ko, ShowErrorModal, ViewModel, PanelActionsBuilder) {
+], function (ko, showErrorModal, ViewModel, PanelActionsBuilder) {
     ViewModel.loadById(
         window["rootId"],
         "/adapter/certuk_mod/ajax/visualiser/",
@@ -16,6 +16,6 @@ require([
                 document.getElementById("content")
             );
         }, function (e) {
-            ShowErrorModal(e.message, true);
+            showErrorModal(e.message, true);
         });
 });

@@ -1,14 +1,14 @@
 require([
     "knockout",
-    "common/modal/ShowErrorModal",
+    "common/modal/show-error-modal",
     "activity-log/ActivityLogModel",
     "domReady!"
-], function (ko, ShowErrorModal, ActivityLogModel) {
+], function (ko, showErrorModal, ActivityLogModel) {
     try {
         var activityLogModel = new ActivityLogModel();
         ko.applyBindings(activityLogModel, document.getElementById("content"));
         activityLogModel.loadLog();
     } catch (e) {
-        ShowErrorModal(e.message, true);
+        showErrorModal(e.message, true);
     }
 });

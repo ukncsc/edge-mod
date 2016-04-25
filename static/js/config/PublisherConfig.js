@@ -2,9 +2,9 @@ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
-    "common/modal/ShowErrorModal",
+    "common/modal/show-error-modal",
     "kotemplate!pub-config-modal:./templates/config-modal-content.html"
-], function (declare, ko, Modal, ShowErrorModal, publishModalTemplate) {
+], function (declare, ko, Modal, showErrorModal, publishModalTemplate) {
     "use strict";
 
     function constructSite (siteInfo) {
@@ -43,7 +43,7 @@ define([
                 this.sites(newSites);
                 this.gotSites(true);
             } else {
-                 ShowErrorModal("An error occurred while attempting to retrieve the list of possible sites.", false);
+                 showErrorModal("An error occurred while attempting to retrieve the list of possible sites.", false);
             }
         },
 

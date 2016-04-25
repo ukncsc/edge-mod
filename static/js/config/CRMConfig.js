@@ -2,8 +2,8 @@ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
-    "common/modal/ShowErrorModal"
-], function (declare, ko, Modal, ShowErrorModal) {
+    "common/modal/show-error-modal"
+], function (declare, ko, Modal, showErrorModal) {
 
     return declare(null, {
         declaredClass: "CRMConfig",
@@ -24,7 +24,7 @@ define([
         },
 
         createErrorModal: function (content) {
-            ShowErrorModal(content, false);
+            showErrorModal(content, false);
         },
 
         onSave: function () {

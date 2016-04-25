@@ -1,13 +1,13 @@
 require([
     "knockout",
-    "common/modal/ShowErrorModal",
+    "common/modal/show-error-modal",
     "extract/upload/ExtractUploadModel",
     "domReady!"
-], function (ko, ShowErrorModal, ExtractUploadModel, errorContentTemplate) {
+], function (ko, showErrorModal, ExtractUploadModel, errorContentTemplate) {
     try {
         ko.applyBindings(new ExtractUploadModel(), document.getElementById("content"));
     }
     catch (e) {
-        ShowErrorModal(e.message, true);
+        showErrorModal(e.message, true);
     }
 });

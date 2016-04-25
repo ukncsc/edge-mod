@@ -2,9 +2,9 @@ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
-    "common/modal/ShowErrorModal",
+    "common/modal/show-error-modal",
     "kotemplate!ret-config-modal:./templates/config-modal-content.html"
-], function (declare, ko, Modal, ShowErrorModal, configModalTemplate) {
+], function (declare, ko, Modal, showErrorModal, configModalTemplate) {
     "use strict";
 
     function inputIsInteger (value) {
@@ -80,7 +80,7 @@ define([
                 if (response["success"]) {
                     this._parseConfigResponse(response);
                 } else {
-                    ShowErrorModal("An error occurred while attempting to retrieve the retention configuration.", false);
+                    showErrorModal("An error occurred while attempting to retrieve the retention configuration.", false);
                 }
             }.bind(this));
         },
