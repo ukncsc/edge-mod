@@ -23,12 +23,19 @@
 
 #visualiser > .flex-after {
     flex: 0 0 32em;
-    overflow-y: auto;
+}
+
+#visualiser-detail > .flex-before {
+    flex: 0 0 auto;
+}
+
+#visualiser-detail > .flex-main {
+    flex: 1 1 auto;
 }
 
 svg {
     border: 1px solid grey;
-    /*box-shadow: rgba(0, 0, 0, 0.3) 4px 4px 4px;*/
+    margin: 0 2px 2px 0;
 }
 
 g.ko-d3-graph-node {
