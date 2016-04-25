@@ -2,8 +2,8 @@ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
-    "kotemplate!pub-config-modal:./templates/config-modal-content.html"
-], function (declare, ko, Modal, publishModalTemplate) {
+    "common/modal/ShowErrorModal"
+], function (declare, ko, Modal, ShowErrorModal) {
 
     return declare(null, {
         declaredClass: "CRMConfig",
@@ -24,12 +24,7 @@ define([
         },
 
         createErrorModal: function (content) {
-            var errorModal = new Modal({
-                title: "Error",
-                titleIcon: "glyphicon-exclamation-sign",
-                contentData: content
-            });
-            errorModal.show();
+            ShowErrorModal(content, false);
         },
 
         onSave: function () {
