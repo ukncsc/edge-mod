@@ -72,7 +72,7 @@ class ExtractVisualiserTests(unittest.TestCase):
         draft_ind = {'id': self.ind_id_, 'observables': [self.obs0, self.draft_obs1], 'title':""}
         obs_comp = mock.MagicMock()
         obs_comp.id = "obs_comp_id"
-        obs_comp.obj.observable_composition.operator = 'Or'
+        obs_comp.ty = "obs"
 
         bl_ind = mock.MagicMock()
         bl_ind.id = "bl_ind_id"
