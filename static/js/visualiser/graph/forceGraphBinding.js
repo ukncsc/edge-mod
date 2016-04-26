@@ -10,8 +10,11 @@ define([
         var parent = $(element.parentNode);
         var height = parent.height();
         var width = parent.width();
-        d3.select(element).attr("viewBox", "0 0 " + width + " " + height)
-        graphModel.size([width, height]);
+        if (height > 0 && width > 0) {
+            d3.select(element).attr("viewBox", "0 0 " + width + " " + height)
+            graphModel.size([width, height]);
+        }
+window.console.log("RESIZE", width, height);
     }
 
     ko.bindingHandlers.forceGraph = {

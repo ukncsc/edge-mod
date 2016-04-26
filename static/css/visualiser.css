@@ -25,9 +25,29 @@
     overflow-y: auto;
 }
 
+#extract-visualiser {
+    overflow: hidden;
+    position: fixed;
+    top: 170px;
+    right: 40px;
+    bottom: 32px;
+    left: 40px;
+}
+
+#extract-visualiser > .flex-before {
+    flex: 0 0 auto;
+}
+
+#extract-visualiser > .flex-main {
+    flex: 1 1 auto;
+}
+
+
 svg {
     border: 1px solid grey;
+    height: 100%;
     margin: 0 2px 2px 0;
+    width: 100%;
 }
 
 g.ko-d3-graph-node {
