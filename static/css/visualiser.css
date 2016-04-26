@@ -1,12 +1,3 @@
-/*
-.container-fluid .full-height {
-    height: calc(100vh - 120px);
-}
-
-#graph-container {
-    padding-right: 0;
-}
-*/
 
 #visualiser {
     overflow: hidden;
@@ -31,6 +22,7 @@
 
 #visualiser-detail > .flex-main {
     flex: 1 1 auto;
+    overflow-y: auto;
 }
 
 svg {

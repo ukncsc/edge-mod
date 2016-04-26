@@ -1,5 +1,6 @@
 .flexbox {
     display: flex;
+    overflow: hidden;
 }
 
 .hflex {
