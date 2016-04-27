@@ -239,11 +239,74 @@ def _new_hash_dedup(contents, hashes, user):
 
     return out, message
 
+def remove_none_dedup(io):
+    ttps= {}
+    for capecs, ids in io.iteritems():
+        if len(ids) > 1:
+            ttps[capecs]=ids
+    return ttps
+
+
+def flatten_ttp_capecs(io):
+    flattened_capecs = {}
+    for length, ttps in io.iteritems():
+        for ttp in ttps:
+            ids = []
+            for capecs in ttp.api_object.obj.behavior._attack_patterns:
+                ids.append(capecs.capec_id)
+            flattened_capecs.setdefault(length,[]).append({ttp.id: ids})
+
+    return flattened_capecs
+
+def _coalesce_ttps(contents, map_table):
+    out = {}
+    for id_, io in contents.iteritems():
+        if id_ not in map_table:
+            io.api_object = io.api_object.remap(map_table)
+            out[id_]= io
+    return out
+
+def _new_ttp_capec_dedup(contents, hashes, user):
+    number_of_capecs_to_objects = {}
+    for id_, io in sorted(contents.iteritems()):
+        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'ttp' and \
+                        len(rgetattr(contents.get(id_, None), ['api_object', 'obj', 'behavior', '_attack_patterns'], '')) > 0:
+            amount_of_capecs = len(io.api_object.obj.behavior._attack_patterns)
+            number_of_capecs_to_objects.setdefault(amount_of_capecs, []).append(io)
+
+    objects_to_consider_for_dedup = remove_none_dedup(number_of_capecs_to_objects)
+
+    ids_to_capecs = flatten_ttp_capecs(objects_to_consider_for_dedup)
+
+    capecs_to_ids = {}
+    for length, ttps in ids_to_capecs.iteritems():
+        for ids in ttps:
+            for key, value in ids.iteritems():
+                keys = ",".join(sorted(value))
+                capecs_to_ids.setdefault(keys, []).append(key)
+
+    # ids_to_consider_for_dedup = remove_none_dedup(capecs_to_ids)
+
+
+    map_table = {}
+    for capec, ids in capecs_to_ids.iteritems():
+        if len(ids) > 1:
+            master = ids[0]
+            for dup in ids[1:]:
+                map_table[dup] = master
+
+    out = _coalesce_ttps(contents, map_table)
+
+    message = _generate_message("Merged %d ttps in the supplied package based on CAPEC-IDs", contents, out)
+
+    return out, message
 
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
         _new_hash_dedup,  # removes new STIX objects matched by hash
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
+        _new_ttp_capec_dedup,  # removes new STIX TTP objects matched by hash
+        # _existing_ttp_capec_dedup,
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 
