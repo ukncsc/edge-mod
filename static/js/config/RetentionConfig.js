@@ -19,13 +19,10 @@ define([
             this.age = ko.observable();
             this.sightings = ko.observable();
             this.backLinks = ko.observable();
-            this.enabled = ko.observable();
-
             this.savedAge = ko.observable();
             this.savedSightings = ko.observable();
             this.savedBackLinks = ko.observable();
-            this.savedEnabled = ko.observable();
-
+            this.enabled.subscribe(this._onEnabledChanged.bind(this));
 
             this.changesPending = ko.computed(this.changesPending, this);
         }}),

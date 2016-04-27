@@ -19,24 +19,19 @@ define([
 
                     this.fullBuild = ko.observable();
                     this.savedFullBuild = ko.observable();
-                    this.savedEnabled = ko.observable();
-
-                    this.gotConfig = ko.observable(false);
+                    this.enabled.subscribe(this._onEnabledChanged.bind(this));
 
                     this.changesPending = ko.computed(this.changesPending, this);
-
                 }
             }),
 
         _parseConfigResponse: declare.superCall(function(sup) {
                 return function (response) {
                     // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
-
                     this.fullBuild(response["fullBuild"]);
                     this.savedFullBuild(response["fullBuild"]);
 
                     sup.call(this, response);
-
                 }
             }),
 

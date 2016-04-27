@@ -16,7 +16,6 @@ define([
             this.time = ko.observable();
             this.enabled = ko.observable();
             this.savedEnabled= ko.observable();
-            this.enabled.subscribe(this._onEnabledChanged.bind(this));
             this.gotConfig = ko.observable(false);
             this.savedTime = ko.observable();
 
