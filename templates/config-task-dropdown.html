@@ -1,0 +1,57 @@
+<script type="text/html" id="ConfigTask">
+    <div class="col-sm-5">
+        <div class="dropdown">
+            <button class="btn btn-default btn-block dropdown-toggle" type="button"
+                    data-toggle="dropdown">
+                                        <span class="btn-content pull-left glyphicon"
+                                              data-bind="css: {
+                                              'glyphicon-ok': enabled(),
+                                              'glyphicon-remove': !(enabled())}"></span>
+                                        <span class="btn-content pull-left"
+                                              data-bind="text: enabled() ? 'Enabled': 'Disabled'"></span>
+                <span class="btn-content pull-right glyphicon glyphicon-chevron-down"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <!-- ko foreach: [true, false] -->
+                <li>
+                    <a href="#" data-bind="click: function() { $parent.enabled($data); }">
+                                                <span class="glyphicon"
+                                                      data-bind="css: {
+                                                      'glyphicon-ok': $data,
+                                                      'glyphicon-remove': !$data }"></span>
+                        <span data-bind="text: $data ? 'Enabled' : 'Disabled'"></span>
+                    </a>
+                </li>
+                <!-- /ko -->
+            </ul>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <button class="btn btn-default pull-right"
+                data-bind="click: function () { onSave(false); },
+                                                   css: { disabled: !(changesPending()) },
+                                                   text: gotConfig() ? 'Save' : 'Retrieving config...'">
+        </button>
+        <button class="btn btn-default pull-right"
+                data-bind="click: function () { onSave(true); },
+                                                   css: { disabled: running() },
+                                                   text: 'Reset to default'">
+        </button>
+    </div>
+</script>
+
+<script type="text/html" id="RunConfig">
+    <div class="col-sm-5">
+        <input type="time" class="form-control" data-bind="enable: enabled, value: time">
+    </div>
+
+    <div class="col-sm-4">
+        <button class="btn btn-default pull-right"
+                data-bind="click: runNow,
+                           css: { disabled: running() || changesPending() },
+                           text: running() ? 'Running...' : 'Run now'">
+        </button>
+    </div>
+</script>
+
+

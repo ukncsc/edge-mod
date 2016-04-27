@@ -2,92 +2,49 @@ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
-    "kotemplate!ret-config-modal:./templates/config-modal-content.html"
-], function (declare, ko, Modal, configModalTemplate) {
+    "config/base-config"
+], function (declare, ko, Modal, BaseConfig) {
     "use strict";
 
     function inputIsInteger (value) {
         return isFinite(value) && Math.floor(value) == value;
     }
 
-    return declare(null, {
+    return declare(BaseConfig, {
         declaredClass: "RetentionConfig",
-        constructor: function () {
+        constructor: declare.superCall(function(sup) {
+            return function(){
+            sup.call(this, "Retention", "purge_task", "retention_config")
+
             this.age = ko.observable();
             this.sightings = ko.observable();
             this.backLinks = ko.observable();
-            this.time = ko.observable();
             this.enabled = ko.observable();
-            this.enabled.subscribe(this._onEnabledChanged.bind(this));
 
             this.savedAge = ko.observable();
             this.savedSightings = ko.observable();
             this.savedBackLinks = ko.observable();
-            this.savedTime = ko.observable();
             this.savedEnabled = ko.observable();
 
-            this.gotConfig = ko.observable(false);
 
             this.changesPending = ko.computed(this.changesPending, this);
+        }}),
 
-            this.running = ko.observable();
-            this.getTaskStatus();
-        },
+        _parseConfigResponse: declare.superCall(function(sup) {
+            return function (response) {
+                // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
+                this.age(response["max_age_in_months"]);
+                this.savedAge(response["max_age_in_months"]);
 
-        getTaskStatus: function () {
-            postJSON("../ajax/get_purge_task_status/", { }, function (response) {
-                this.running(!!response['status']);
-                setTimeout(this.getTaskStatus.bind(this), 10000);
-            }.bind(this));
-        },
+                this.sightings(response["minimum_sightings"]);
+                this.savedSightings(response["minimum_sightings"]);
 
-        runNow: function () {
-            if (!this.running() && !this.changesPending()) {
-                postJSON("../ajax/run_purge/", { }, function (response) {
-                    var modal = new Modal({
-                        title: "Retention policy",
-                        titleIcon: "glyphicon-info-sign",
-                        contentData: "The retention job has been scheduled to run (celery task ID '" + response['id'] + "')."
-                    });
-                    modal.show();
-                });
+                this.backLinks(response["minimum_back_links"]);
+                this.savedBackLinks(response["minimum_back_links"]);
+
+                sup.call(this, response)
             }
-        },
-
-        _parseConfigResponse: function (response) {
-            // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
-            this.age(response["max_age_in_months"]);
-            this.savedAge(response["max_age_in_months"]);
-
-            this.sightings(response["minimum_sightings"]);
-            this.savedSightings(response["minimum_sightings"]);
-
-            this.backLinks(response["minimum_back_links"]);
-            this.savedBackLinks(response["minimum_back_links"]);
-
-            this.time(response["time"]);
-            this.savedTime(response["time"]);
-
-            this.enabled(response["enabled"]);
-            this.savedEnabled(response["enabled"]);
-        },
-
-        getConfig: function () {
-            this.gotConfig(false);
-            postJSON("../ajax/get_retention_config/", { }, function (response) {
-                this.gotConfig(true);
-                if (response["success"]) {
-                    this._parseConfigResponse(response);
-                } else {
-                    var errorModal = new Modal({
-                    title: "Error",
-                        titleIcon: "glyphicon-exclamation-sign",
-                        contentData: "An error occurred while attempting to retrieve the retention configuration."
-                    });
-                    errorModal.show();
-                }
-            }.bind(this));
-        },
+            }),
 
         _onEnabledChanged: function () {
             if (!(this.enabled())) {
@@ -169,56 +126,25 @@ define([
             }
         },
 
-        _processSaveResponse: function (modal, reset, response) {
-            modal.contentData.waitingForResponse(false);
-            modal.getButtonByLabel("Close").disabled(false);
+        _processSaveResponse: declare.superCall(function(sup) {
+            return function (modal, reset, response) {
+                sup.call(this, modal, reset, response);
 
-            var success = !!(response["success"]);
+                var success = !!(response["success"]);
 
-            var title = success ? "Success" : "Error";
-            var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
-            var message = success ? "The retention settings were saved successfully." :
-                "An error occurred while attempting to save (" + response["error_message"] + ").";
+                if (success) {
+                    if (reset) {
+                        this._parseConfigResponse(response);
+                    }
 
-            modal.contentData.message(message);
-            modal.title(title);
-            modal.titleIcon(titleIcon);
-
-            if (success) {
-                if (reset) {
-                    this._parseConfigResponse(response);
+                    this.savedAge(this.age());
+                    this.savedSightings(this.sightings());
+                    this.savedBackLinks(this.backLinks());
+                    this.savedTime(this.time());
+                    this.savedEnabled(this.enabled());
                 }
 
-                this.savedAge(this.age());
-                this.savedSightings(this.sightings());
-                this.savedBackLinks(this.backLinks());
-                this.savedTime(this.time());
-                this.savedEnabled(this.enabled());
             }
-        },
-
-        onSave: function (reset) {
-            var contentData = {
-                message: ko.observable(""),
-                waitingForResponse: ko.observable(false)
-            };
-
-            var onSaveModal = new Modal({
-                title: "Save settings",
-                titleIcon: "glyphicon-cloud-upload",
-                contentData: contentData,
-                contentTemplate: configModalTemplate.id,
-                onShow: function (modal) { this._save.call(this, modal, reset);}.bind(this),
-                buttonData: [
-                    {
-                        label: "Close",
-                        hide: ko.observable(false),
-                        disabled: ko.observable(false)
-                    }
-                ]
-            });
-
-            onSaveModal.show();
-        }
+        })
     });
 });

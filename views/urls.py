@@ -53,7 +53,7 @@ publisher_urls = [
     (r'^ajax/set_retention_config/$', 'views.ajax_set_retention_config', None),
     (r'^ajax/reset_retention_config/$', 'views.ajax_reset_retention_config', None),
     (r'^ajax/get_purge_task_status/$', 'views.ajax_get_purge_task_status', None),
-    (r'^ajax/run_purge/$', 'views.ajax_run_purge', None),
+    (r'^ajax/run_purge_task/$', 'views.ajax_run_purge', None),
 
     (r'^ajax/get_fts_config/$', 'views.ajax_get_fts_config', None),
     (r'^ajax/set_fts_config/$', 'views.ajax_set_fts_config', None),
