@@ -17,7 +17,7 @@ PROPERTY_SHA224 = ['api_object', 'obj', 'object_', 'properties', 'sha224']
 PROPERTY_SHA256 = ['api_object', 'obj', 'object_', 'properties', 'sha256']
 PROPERTY_SHA384 = ['api_object', 'obj', 'object_', 'properties', 'sha384']
 PROPERTY_SHA512 = ['api_object', 'obj', 'object_', 'properties', 'sha512']
-
+NAMESPACE = 'http://www.purplesecure.com'
 
 def _get_sighting_count(obs):
     sighting_count = getattr(obs, 'sighting_count', 1)
@@ -266,6 +266,46 @@ def _coalesce_ttps(contents, map_table):
             out[id_]= io
     return out
 
+def objects_in_CERT_namespace(contents, obj_type):
+    objects_to_consider = {}
+    for id_, io in sorted(contents.iteritems()):
+        if rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == NAMESPACE and \
+                rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == obj_type:
+            objects_to_consider[id_] = io
+    return objects_to_consider
+
+
+def _existing_ttp_capec_dedup(contents, hashes, user):
+    db = get_db()
+
+    existing_ttps = db.stix.aggregate([
+        {
+            '$match': {
+                'type': 'ttp',
+                'data.idns': NAMESPACE,
+                'data.api.behavior.attack_patterns': {
+                    '$exists': 'true'
+                }
+            }
+        },
+        {
+            '$unwind': '$data.api.behavior.attack_patterns'
+        },
+        {
+            '$group': {
+                '_id': '$_id',
+                'capecs': {
+                    '$push': '$data.api.behavior.attack_patterns.capec_id'
+                }
+            }
+        }, {
+            '$sort': {'created_on': 1}
+        }], cursor={})
+
+    ttps_to_compare = objects_in_CERT_namespace(contents, 'ttp')
+
+    pass
+
 def _new_ttp_capec_dedup(contents, hashes, user):
     number_of_capecs_to_objects = {}
     for id_, io in sorted(contents.iteritems()):
@@ -305,8 +345,8 @@ class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
         _new_hash_dedup,  # removes new STIX objects matched by hash
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
-        _new_ttp_capec_dedup,  # removes new STIX TTP objects matched by hash
-        # _existing_ttp_capec_dedup,
+        _new_ttp_capec_dedup,  # removes new STIX TTP objects matched by CAPEC
+        _existing_ttp_capec_dedup, # removes existing STIX TTP objects matched by CAPEC
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 
