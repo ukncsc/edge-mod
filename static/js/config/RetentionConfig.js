@@ -6,28 +6,29 @@ define([
 ], function (declare, ko, Modal, BaseConfig) {
     "use strict";
 
-    function inputIsInteger (value) {
+    function inputIsInteger(value) {
         return isFinite(value) && Math.floor(value) == value;
     }
 
     return declare(BaseConfig, {
         declaredClass: "RetentionConfig",
-        constructor: declare.superCall(function(sup) {
-            return function(){
-            sup.call(this, "Retention", "purge_task", "retention_config")
+        constructor: declare.superCall(function (sup) {
+            return function () {
+                sup.call(this, "Retention", "purge_task", "retention_config")
 
-            this.age = ko.observable();
-            this.sightings = ko.observable();
-            this.backLinks = ko.observable();
-            this.savedAge = ko.observable();
-            this.savedSightings = ko.observable();
-            this.savedBackLinks = ko.observable();
-            this.enabled.subscribe(this._onEnabledChanged.bind(this));
+                this.age = ko.observable();
+                this.sightings = ko.observable();
+                this.backLinks = ko.observable();
+                this.savedAge = ko.observable();
+                this.savedSightings = ko.observable();
+                this.savedBackLinks = ko.observable();
+                this.enabled.subscribe(this._onEnabledChanged.bind(this));
 
-            this.changesPending = ko.computed(this.changesPending, this);
-        }}),
+                this.changesPending = ko.computed(this.changesPending, this);
+            }
+        }),
 
-        _parseConfigResponse: declare.superCall(function(sup) {
+        _parseConfigResponse: declare.superCall(function (sup) {
             return function (response) {
                 // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
                 this.age(response["max_age_in_months"]);
@@ -41,7 +42,7 @@ define([
 
                 sup.call(this, response)
             }
-            }),
+        }),
 
         _onEnabledChanged: function () {
             if (!(this.enabled())) {
@@ -109,7 +110,7 @@ define([
                 modal.getButtonByLabel("Close").disabled(true);
 
                 var postUrl = reset ? "../ajax/reset_retention_config/" : "../ajax/set_retention_config/";
-                var postData = reset ? { } : {
+                var postData = reset ? {} : {
                     max_age_in_months: Number(this.age()),
                     minimum_sightings: Number(this.sightings()),
                     minimum_back_links: Number(this.backLinks()),
@@ -123,7 +124,7 @@ define([
             }
         },
 
-        _processSaveResponse: declare.superCall(function(sup) {
+        _processSaveResponse: declare.superCall(function (sup) {
             return function (modal, reset, response) {
                 sup.call(this, modal, reset, response);
 

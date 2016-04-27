@@ -6,34 +6,34 @@ define([
 ], function (declare, ko, Modal, BaseConfig) {
     "use strict";
 
-    function inputIsInteger (value) {
+    function inputIsInteger(value) {
         return isFinite(value) && Math.floor(value) == value;
     }
 
-    return declare(BaseConfig , {
+    return declare(BaseConfig, {
         declaredClass: "RetentionConfig",
 
         constructor: declare.superCall(function (sup) {
-                return function () {
-                    sup.call(this, "FTS rebuild", "fts_task", "fts_config");
+            return function () {
+                sup.call(this, "FTS rebuild", "fts_task", "fts_config");
 
-                    this.fullBuild = ko.observable();
-                    this.savedFullBuild = ko.observable();
-                    this.enabled.subscribe(this._onEnabledChanged.bind(this));
+                this.fullBuild = ko.observable();
+                this.savedFullBuild = ko.observable();
+                this.enabled.subscribe(this._onEnabledChanged.bind(this));
 
-                    this.changesPending = ko.computed(this.changesPending, this);
-                }
-            }),
+                this.changesPending = ko.computed(this.changesPending, this);
+            }
+        }),
 
-        _parseConfigResponse: declare.superCall(function(sup) {
-                return function (response) {
-                    // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
-                    this.fullBuild(response["fullBuild"]);
-                    this.savedFullBuild(response["fullBuild"]);
+        _parseConfigResponse: declare.superCall(function (sup) {
+            return function (response) {
+                // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
+                this.fullBuild(response["fullBuild"]);
+                this.savedFullBuild(response["fullBuild"]);
 
-                    sup.call(this, response);
-                }
-            }),
+                sup.call(this, response);
+            }
+        }),
 
         _onEnabledChanged: function () {
             if (!(this.enabled())) {
@@ -78,7 +78,7 @@ define([
                 modal.getButtonByLabel("Close").disabled(true);
 
                 var postUrl = reset ? "../ajax/reset_fts_config/" : "../ajax/set_fts_config/";
-                var postData = reset ? { } : {
+                var postData = reset ? {} : {
                     fullBuild: this.fullBuild(),
                     time: this.time(),
                     enabled: this.enabled()
@@ -90,7 +90,7 @@ define([
             }
         },
 
-        _processSaveResponse: declare.superCall(function(sup) {
+        _processSaveResponse: declare.superCall(function (sup) {
             return function (modal, reset, response) {
                 sup.call(this, modal, reset, response);
 

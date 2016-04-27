@@ -15,7 +15,7 @@ define([
 
             this.time = ko.observable();
             this.enabled = ko.observable();
-            this.savedEnabled= ko.observable();
+            this.savedEnabled = ko.observable();
             this.gotConfig = ko.observable(false);
             this.savedTime = ko.observable();
 
@@ -54,7 +54,7 @@ define([
 
         getConfig: function () {
             this.gotConfig(false);
-            postJSON("../ajax/get_" + this.endPointConfig() + "/", { }, function (response) {
+            postJSON("../ajax/get_" + this.endPointConfig() + "/", {}, function (response) {
                 this.gotConfig(true);
                 if (response["success"]) {
                     this._parseConfigResponse(response);
@@ -77,7 +77,7 @@ define([
 
             var title = success ? "Success" : "Error";
             var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
-            var message = success ? "The "+ this.configType() + " settings were saved successfully." :
+            var message = success ? "The " + this.configType() + " settings were saved successfully." :
             "An error occurred while attempting to save (" + response["error_message"] + ").";
 
             modal.contentData.message(message);
@@ -96,7 +96,9 @@ define([
                 titleIcon: "glyphicon-cloud-upload",
                 contentData: contentData,
                 contentTemplate: configModalTemplate.id,
-                onShow: function (modal) { this._save.call(this, modal, reset);}.bind(this),
+                onShow: function (modal) {
+                    this._save.call(this, modal, reset);
+                }.bind(this),
                 buttonData: [
                     {
                         label: "Close",
