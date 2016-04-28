@@ -8,6 +8,7 @@ from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from edge.tools import rgetattr
 from .edges import dedup_collections
+from edge import LOCAL_NAMESPACE
 
 PROPERTY_TYPE = ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE']
 PROPERTY_FILENAME = ['api_object', 'obj', 'object_', 'properties', 'file_name']
@@ -17,7 +18,6 @@ PROPERTY_SHA224 = ['api_object', 'obj', 'object_', 'properties', 'sha224']
 PROPERTY_SHA256 = ['api_object', 'obj', 'object_', 'properties', 'sha256']
 PROPERTY_SHA384 = ['api_object', 'obj', 'object_', 'properties', 'sha384']
 PROPERTY_SHA512 = ['api_object', 'obj', 'object_', 'properties', 'sha512']
-NAMESPACE = 'http://www.purplesecure.com'
 
 def _get_sighting_count(obs):
     sighting_count = getattr(obs, 'sighting_count', 1)
@@ -239,23 +239,17 @@ def _new_hash_dedup(contents, hashes, user):
 
     return out, message
 
-def remove_none_dedup(io):
-    ttps= {}
-    for capecs, ids in io.iteritems():
-        if len(ids) > 1:
-            ttps[capecs]=ids
-    return ttps
-
-
-def flatten_ttp_capecs(io):
+def flatten_ttp_capecs(io, capec_threshold):
     flattened_capecs = {}
     for length, ttps in io.iteritems():
-        for ttp in ttps:
-            ids = []
-            for capecs in ttp.api_object.obj.behavior._attack_patterns:
-                ids.append(capecs.capec_id)
-            flattened_capecs.setdefault(length,[]).append({ttp.id: ids})
-
+        if len(ttps) > capec_threshold:
+            for ttp in ttps:
+                ids = []
+                for capecs in ttp.api_object.obj.behavior._attack_patterns:
+                    ids.append(capecs.capec_id)
+                join = ",".join(sorted(ids))
+                key = ttp.api_object.obj.title.strip().lower() + ": " + join
+                flattened_capecs.setdefault(length,[]).append({ttp.id: key})
     return flattened_capecs
 
 def _coalesce_ttps(contents, map_table):
@@ -266,23 +260,24 @@ def _coalesce_ttps(contents, map_table):
             out[id_]= io
     return out
 
-def objects_in_CERT_namespace(contents, obj_type):
-    objects_to_consider = {}
+def CERT_package_ttps_with_capec(contents):
+    number_of_capecs_to_objects = {}
     for id_, io in sorted(contents.iteritems()):
-        if rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == NAMESPACE and \
-                rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == obj_type:
-            objects_to_consider[id_] = io
-    return objects_to_consider
+        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'ttp' and \
+                        len(rgetattr(contents.get(id_, None), ['api_object', 'obj', 'behavior', '_attack_patterns'], '')) > 0 and \
+                        rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE:
+            amount_of_capecs = len(io.api_object.obj.behavior._attack_patterns)
+            number_of_capecs_to_objects.setdefault(amount_of_capecs, []).append(io)
+    return number_of_capecs_to_objects
 
-
-def _existing_ttp_capec_dedup(contents, hashes, user):
+def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
     db = get_db()
 
     existing_ttps = db.stix.aggregate([
         {
             '$match': {
                 'type': 'ttp',
-                'data.idns': NAMESPACE,
+                'data.idns': LOCAL_NAMESPACE,
                 'data.api.behavior.attack_patterns': {
                     '$exists': 'true'
                 }
@@ -295,41 +290,36 @@ def _existing_ttp_capec_dedup(contents, hashes, user):
             '$group': {
                 '_id': '$_id',
                 'capecs': {
-                    '$push': '$data.api.behavior.attack_patterns.capec_id'
+                    '$push': {
+                        'capecs': '$data.api.behavior.attack_patterns.capec_id',
+                        'title': '$data.api.title'
+                    }
                 }
             }
         }, {
             '$sort': {'created_on': 1}
         }], cursor={})
 
-    ttps_to_compare = objects_in_CERT_namespace(contents, 'ttp')
+    ttps_to_compare = CERT_package_ttps_with_capec(contents)
+
+    ids_to_capecs = flatten_ttp_capecs(ttps_to_compare, 0)
+
 
     pass
 
-def _new_ttp_capec_dedup(contents, hashes, user):
-    number_of_capecs_to_objects = {}
-    for id_, io in sorted(contents.iteritems()):
-        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'ttp' and \
-                        len(rgetattr(contents.get(id_, None), ['api_object', 'obj', 'behavior', '_attack_patterns'], '')) > 0:
-            amount_of_capecs = len(io.api_object.obj.behavior._attack_patterns)
-            number_of_capecs_to_objects.setdefault(amount_of_capecs, []).append(io)
+def _new_ttp_CERT_capec_dedup(contents, hashes, user):
+    number_of_capecs_to_objects = CERT_package_ttps_with_capec(contents)
 
-    objects_to_consider_for_dedup = remove_none_dedup(number_of_capecs_to_objects)
+    ids_to_capecs = flatten_ttp_capecs(number_of_capecs_to_objects, 1)
 
-    ids_to_capecs = flatten_ttp_capecs(objects_to_consider_for_dedup)
-
-    capecs_to_ids = {}
+    title_and_capecs_to_ids = {}
     for length, ttps in ids_to_capecs.iteritems():
-        for ids in ttps:
-            for key, value in ids.iteritems():
-                keys = ",".join(sorted(value))
-                capecs_to_ids.setdefault(keys, []).append(key)
-
-    # ids_to_consider_for_dedup = remove_none_dedup(capecs_to_ids)
-
+        for ttp in ttps:
+            for id, key in ttp.iteritems():
+                title_and_capecs_to_ids.setdefault(key, []).append(id)
 
     map_table = {}
-    for capec, ids in capecs_to_ids.iteritems():
+    for capec, ids in title_and_capecs_to_ids.iteritems():
         if len(ids) > 1:
             master = ids[0]
             for dup in ids[1:]:
@@ -337,7 +327,7 @@ def _new_ttp_capec_dedup(contents, hashes, user):
 
     out = _coalesce_ttps(contents, map_table)
 
-    message = _generate_message("Merged %d ttps in the supplied package based on CAPEC-IDs", contents, out)
+    message = _generate_message("Merged %d TTPs in the supplied package based on CAPEC-IDs", contents, out)
 
     return out, message
 
@@ -345,8 +335,8 @@ class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
         _new_hash_dedup,  # removes new STIX objects matched by hash
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
-        _new_ttp_capec_dedup,  # removes new STIX TTP objects matched by CAPEC
-        _existing_ttp_capec_dedup, # removes existing STIX TTP objects matched by CAPEC
+        _new_ttp_CERT_capec_dedup,  # removes new STIX TTP objects matched by CAPEC
+        _existing_ttp_CERT_capec_dedup, # removes existing STIX TTP objects matched by CAPEC
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 
