@@ -3,11 +3,13 @@ define([
     "knockout",
     "d3",
     "common/modal/Modal",
+    "common/topic",
     "visualiser/ViewModel",
     "visualiser/panel-action/PanelActionsBuilder",
     "visualiser/panel-action/PanelAction",
+    "visualiser/graph/topics",
     "kotemplate!modal-error-content:publisher/templates/error-modal-content.html"
-], function (declare, ko, d3, Modal, ViewModel, PanelActionsBuilder, PanelAction, errorContentTemplate) {
+], function (declare, ko, d3, Modal, topic, ViewModel, PanelActionsBuilder, PanelAction, topics, errorContentTemplate) {
 
     var base_url = "/adapter/certuk_mod/ajax/extract_visualiser/";
 
@@ -23,6 +25,9 @@ define([
                         this,
                         document.getElementById('content')
                     );
+                    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                        topic.publish(topics.RESIZE, e.target.id);
+                    });
                 }
             }.bind(this))
 
