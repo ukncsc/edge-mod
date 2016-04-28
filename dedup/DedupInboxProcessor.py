@@ -242,14 +242,15 @@ def _new_hash_dedup(contents, hashes, user):
 def flatten_ttp_capecs(io, capec_threshold):
     flattened_capecs = {}
     for length, ttps in io.iteritems():
-        if len(ttps) > capec_threshold:
-            for ttp in ttps:
-                ids = []
-                for capecs in ttp.api_object.obj.behavior._attack_patterns:
+        for ttp in ttps:
+            ids = []
+            for capecs in ttp.api_object.obj.behavior.attack_patterns:
+                if capecs.capec_id != None:
                     ids.append(capecs.capec_id)
+            if len(ids) != 0:
                 join = ",".join(sorted(ids))
                 key = ttp.api_object.obj.title.strip().lower() + ": " + join
-                flattened_capecs.setdefault(length,[]).append({ttp.id: key})
+                flattened_capecs.setdefault(len(ids), []).append({ttp.id: key})
     return flattened_capecs
 
 def _coalesce_ttps(contents, map_table):
@@ -264,8 +265,8 @@ def CERT_package_ttps_with_capec(contents):
     number_of_capecs_to_objects = {}
     for id_, io in sorted(contents.iteritems()):
         if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'ttp' and \
-                        len(rgetattr(contents.get(id_, None), ['api_object', 'obj', 'behavior', '_attack_patterns'], '')) > 0 and \
-                        rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE:
+                        len(rgetattr(contents.get(id_, None), ['api_object', 'obj', 'behavior', '_attack_patterns'], '')) > 0:
+                        # rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE:
             amount_of_capecs = len(io.api_object.obj.behavior._attack_patterns)
             number_of_capecs_to_objects.setdefault(amount_of_capecs, []).append(io)
     return number_of_capecs_to_objects
@@ -277,7 +278,7 @@ def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
         {
             '$match': {
                 'type': 'ttp',
-                'data.idns': LOCAL_NAMESPACE,
+                # 'data.idns': LOCAL_NAMESPACE,
                 'data.api.behavior.attack_patterns': {
                     '$exists': 'true'
                 }
@@ -287,11 +288,18 @@ def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
             '$unwind': '$data.api.behavior.attack_patterns'
         },
         {
+            '$match':{
+                'data.api.behavior.attack_patterns.capec_id':{
+                    '$exists': 'true'
+                }
+            }
+        },
+        {
             '$group': {
                 '_id': '$_id',
                 'capecs': {
                     '$push': {
-                        'capecs': '$data.api.behavior.attack_patterns.capec_id',
+                        'capec': '$data.api.behavior.attack_patterns.capec_id',
                         'title': '$data.api.title'
                     }
                 }
@@ -299,6 +307,17 @@ def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
         }, {
             '$sort': {'created_on': 1}
         }], cursor={})
+
+    id_to_title = {}
+    existing_data = {}
+    for found_data in existing_ttps:
+        capmans = []
+        for work in found_data['capecs']:
+            capmans.append(work['capec'])
+            existing_data[found_data['_id']] = capmans
+            id_to_title[found_data['_id']] = work['title']
+
+    join_title_and_capecs = {}
 
     ttps_to_compare = CERT_package_ttps_with_capec(contents)
 
