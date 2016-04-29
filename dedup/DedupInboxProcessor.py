@@ -18,6 +18,7 @@ PROPERTY_SHA224 = ['api_object', 'obj', 'object_', 'properties', 'sha224']
 PROPERTY_SHA256 = ['api_object', 'obj', 'object_', 'properties', 'sha256']
 PROPERTY_SHA384 = ['api_object', 'obj', 'object_', 'properties', 'sha384']
 PROPERTY_SHA512 = ['api_object', 'obj', 'object_', 'properties', 'sha512']
+PROPERTY_CAPEC = ['api_object', 'obj', 'behavior', '_attack_patterns']
 
 def _get_sighting_count(obs):
     sighting_count = getattr(obs, 'sighting_count', 1)
@@ -239,7 +240,7 @@ def _new_hash_dedup(contents, hashes, user):
 
     return out, message
 
-def flatten_ttp_capecs(io, capec_threshold):
+def flatten_ttp_capecs(io):
     flattened_capecs = {}
     for length, ttps in io.iteritems():
         for ttp in ttps:
@@ -253,7 +254,7 @@ def flatten_ttp_capecs(io, capec_threshold):
                 flattened_capecs.setdefault(len(ids), []).append({ttp.id: key})
     return flattened_capecs
 
-def _coalesce_ttps(contents, map_table):
+def coalesce_ttps(contents, map_table):
     out = {}
     for id_, io in contents.iteritems():
         if id_ not in map_table:
@@ -261,12 +262,29 @@ def _coalesce_ttps(contents, map_table):
             out[id_]= io
     return out
 
-def CERT_package_ttps_with_capec(contents):
+def ttp_title_capecs_to_ids(ids_to_capecs, amount_of_ttps):
+    title_and_capecs_to_ids = {}
+    for length, ttps in ids_to_capecs.iteritems():
+        if len(ttps) > amount_of_ttps:
+            for ttp in ttps:
+                for id, key in ttp.iteritems():
+                    title_and_capecs_to_ids.setdefault(key, []).append(id)
+    return title_and_capecs_to_ids
+
+def CERT_package_ttps_with_capec_local(contents):
+    return CERT_package_ttps_with_capec(contents, True)
+
+def CERT_package_ttps_with_capec_not_local(contents):
+    return CERT_package_ttps_with_capec(contents, False)
+
+
+def CERT_package_ttps_with_capec(contents, local_only):
     number_of_capecs_to_objects = {}
     for id_, io in sorted(contents.iteritems()):
+        is_local = rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE
+        correct_ns = is_local if local_only else (not is_local)
         if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'ttp' and \
-                        len(rgetattr(contents.get(id_, None), ['api_object', 'obj', 'behavior', '_attack_patterns'], '')) > 0:
-                        # rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE:
+                        len(rgetattr(contents.get(id_, None), PROPERTY_CAPEC, '')) > 0 and correct_ns:
             amount_of_capecs = len(io.api_object.obj.behavior._attack_patterns)
             number_of_capecs_to_objects.setdefault(amount_of_capecs, []).append(io)
     return number_of_capecs_to_objects
@@ -278,7 +296,7 @@ def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
         {
             '$match': {
                 'type': 'ttp',
-                # 'data.idns': LOCAL_NAMESPACE,
+                'data.idns': LOCAL_NAMESPACE,
                 'data.api.behavior.attack_patterns': {
                     '$exists': 'true'
                 }
@@ -297,8 +315,8 @@ def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
         {
             '$group': {
                 '_id': '$_id',
-                'capecs': {
-                    '$push': {
+                'capecs':{
+                    '$push':{
                         'capec': '$data.api.behavior.attack_patterns.capec_id',
                         'title': '$data.api.title'
                     }
@@ -309,33 +327,47 @@ def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
         }], cursor={})
 
     id_to_title = {}
-    existing_data = {}
+    existing_id_to_capec = {}
     for found_data in existing_ttps:
         capmans = []
         for work in found_data['capecs']:
             capmans.append(work['capec'])
-            existing_data[found_data['_id']] = capmans
+            existing_id_to_capec[found_data['_id']] = capmans
             id_to_title[found_data['_id']] = work['title']
 
-    join_title_and_capecs = {}
+    existing_title_and_capecs = {}
+    for ids, capecs in existing_id_to_capec.iteritems():
+        join = ",".join(sorted(capecs))
+        title = id_to_title[ids].lower().strip()
+        key = title + ": " + join
+        existing_title_and_capecs[key] = ids
 
-    ttps_to_compare = CERT_package_ttps_with_capec(contents)
-
-    ids_to_capecs = flatten_ttp_capecs(ttps_to_compare, 0)
-
-
-    pass
-
-def _new_ttp_CERT_capec_dedup(contents, hashes, user):
-    number_of_capecs_to_objects = CERT_package_ttps_with_capec(contents)
-
-    ids_to_capecs = flatten_ttp_capecs(number_of_capecs_to_objects, 1)
+    ttps_to_compare = CERT_package_ttps_with_capec_local(contents)
+    ids_to_capecs = flatten_ttp_capecs(ttps_to_compare)
 
     title_and_capecs_to_ids = {}
     for length, ttps in ids_to_capecs.iteritems():
-        for ttp in ttps:
-            for id, key in ttp.iteritems():
-                title_and_capecs_to_ids.setdefault(key, []).append(id)
+            for ttp in ttps:
+                for id, key in ttp.iteritems():
+                    title_and_capecs_to_ids[key] = id
+
+
+    map_table = {
+        id_: existing_title_and_capecs[key] for key, id_ in title_and_capecs_to_ids.iteritems() if key in existing_title_and_capecs
+    }
+
+    out = coalesce_ttps(contents, map_table)
+
+    message = _generate_message("Remapped %d CERUK Namespace TTPs to existing TTPs based on CAPEC-IDs and Title", contents, out)
+
+    return out, message
+
+def _new_ttp_CERT_capec_dedup(contents, hashes, user):
+    number_of_capecs_to_objects = CERT_package_ttps_with_capec_local(contents)
+
+    ids_to_capecs = flatten_ttp_capecs(number_of_capecs_to_objects)
+
+    title_and_capecs_to_ids = ttp_title_capecs_to_ids(ids_to_capecs, 1)
 
     map_table = {}
     for capec, ids in title_and_capecs_to_ids.iteritems():
@@ -344,9 +376,9 @@ def _new_ttp_CERT_capec_dedup(contents, hashes, user):
             for dup in ids[1:]:
                 map_table[dup] = master
 
-    out = _coalesce_ttps(contents, map_table)
+    out = coalesce_ttps(contents, map_table)
 
-    message = _generate_message("Merged %d TTPs in the supplied package based on CAPEC-IDs", contents, out)
+    message = _generate_message("Merged %d CERTUK Namespace TTPs in the supplied package based on CAPEC-IDs and Title", contents, out)
 
     return out, message
 
