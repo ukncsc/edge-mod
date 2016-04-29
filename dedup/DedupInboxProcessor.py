@@ -272,7 +272,7 @@ def ttp_title_capecs_to_ids(ids_to_capecs, amount_of_ttps):
                     title_and_capecs_to_ids.setdefault(key, []).append(id)
     return title_and_capecs_to_ids
 
-def CERT_package_ttps_with_capec(contents, local_only):
+def _package_ttps_with_capec(contents, local_only):
     number_of_capecs_to_objects = {}
     for id_, io in sorted(contents.iteritems()):
         is_local = rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE
@@ -302,7 +302,7 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
         key = title + ": " + join
         existing_title_and_capecs[key] = ids
 
-    ttps_to_compare = CERT_package_ttps_with_capec(contents, local)
+    ttps_to_compare = _package_ttps_with_capec(contents, local)
     ids_to_capecs = flatten_ttp_capecs(ttps_to_compare)
 
     title_and_capecs_to_ids = {}
@@ -324,7 +324,7 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
     return out, message
 
 def _new_ttp_capec_dedup(contents, hashes, user, local):
-    number_of_capecs_to_objects = CERT_package_ttps_with_capec(contents, local)
+    number_of_capecs_to_objects = _package_ttps_with_capec(contents, local)
 
     ids_to_capecs = flatten_ttp_capecs(number_of_capecs_to_objects)
 
