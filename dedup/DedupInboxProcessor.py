@@ -6,6 +6,7 @@ from edge.generic import create_package, EdgeObject
 from mongoengine.connection import get_db
 from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
+from .ttp_capec_finder import capec_finder
 from edge.tools import rgetattr
 from .edges import dedup_collections
 from edge import LOCAL_NAMESPACE
@@ -271,13 +272,6 @@ def ttp_title_capecs_to_ids(ids_to_capecs, amount_of_ttps):
                     title_and_capecs_to_ids.setdefault(key, []).append(id)
     return title_and_capecs_to_ids
 
-def CERT_package_ttps_with_capec_local(contents):
-    return CERT_package_ttps_with_capec(contents, True)
-
-def CERT_package_ttps_with_capec_not_local(contents):
-    return CERT_package_ttps_with_capec(contents, False)
-
-
 def CERT_package_ttps_with_capec(contents, local_only):
     number_of_capecs_to_objects = {}
     for id_, io in sorted(contents.iteritems()):
@@ -289,42 +283,8 @@ def CERT_package_ttps_with_capec(contents, local_only):
             number_of_capecs_to_objects.setdefault(amount_of_capecs, []).append(io)
     return number_of_capecs_to_objects
 
-def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
-    db = get_db()
-
-    existing_ttps = db.stix.aggregate([
-        {
-            '$match': {
-                'type': 'ttp',
-                'data.idns': LOCAL_NAMESPACE,
-                'data.api.behavior.attack_patterns': {
-                    '$exists': 'true'
-                }
-            }
-        },
-        {
-            '$unwind': '$data.api.behavior.attack_patterns'
-        },
-        {
-            '$match':{
-                'data.api.behavior.attack_patterns.capec_id':{
-                    '$exists': 'true'
-                }
-            }
-        },
-        {
-            '$group': {
-                '_id': '$_id',
-                'capecs':{
-                    '$push':{
-                        'capec': '$data.api.behavior.attack_patterns.capec_id',
-                        'title': '$data.api.title'
-                    }
-                }
-            }
-        }, {
-            '$sort': {'created_on': 1}
-        }], cursor={})
+def _existing_ttp_capec_dedup(contents, hashes, user, local):
+    existing_ttps = capec_finder(local)
 
     id_to_title = {}
     existing_id_to_capec = {}
@@ -342,7 +302,7 @@ def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
         key = title + ": " + join
         existing_title_and_capecs[key] = ids
 
-    ttps_to_compare = CERT_package_ttps_with_capec_local(contents)
+    ttps_to_compare = CERT_package_ttps_with_capec(contents, local)
     ids_to_capecs = flatten_ttp_capecs(ttps_to_compare)
 
     title_and_capecs_to_ids = {}
@@ -357,13 +317,14 @@ def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
     }
 
     out = coalesce_ttps(contents, map_table)
-
-    message = _generate_message("Remapped %d CERUK Namespace TTPs to existing TTPs based on CAPEC-IDs and Title", contents, out)
-
+    if local:
+        message = _generate_message("Remapped %d CERUK namespace TTPs to existing TTPs based on CAPEC-IDs and title", contents, out)
+    else:
+        message = _generate_message("Remapped %d external namespace TTPs to existing TTPs based on CAPEC-IDs and title", contents, out)
     return out, message
 
-def _new_ttp_CERT_capec_dedup(contents, hashes, user):
-    number_of_capecs_to_objects = CERT_package_ttps_with_capec_local(contents)
+def _new_ttp_capec_dedup(contents, hashes, user, local):
+    number_of_capecs_to_objects = CERT_package_ttps_with_capec(contents, local)
 
     ids_to_capecs = flatten_ttp_capecs(number_of_capecs_to_objects)
 
@@ -378,16 +339,32 @@ def _new_ttp_CERT_capec_dedup(contents, hashes, user):
 
     out = coalesce_ttps(contents, map_table)
 
-    message = _generate_message("Merged %d CERTUK Namespace TTPs in the supplied package based on CAPEC-IDs and Title", contents, out)
-
+    if local:
+        message = _generate_message("Merged %d CERTUK namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
+    else:
+        message = _generate_message("Merged %d external namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
     return out, message
+
+def _new_ttp_CERT_capec_dedup(contents, hashes, user):
+    return _new_ttp_capec_dedup(contents, hashes, user, True)
+
+def _new_ttp_external_capec_dedup(contents, hashes, user):
+    return _new_ttp_capec_dedup(contents, hashes, user, False)
+
+def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
+    return _existing_ttp_capec_dedup(contents, hashes, user, True)
+
+def _existing_ttp_external_capec_dedup(contents, hashes, user):
+    return _existing_ttp_capec_dedup(contents, hashes, user, False)
 
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
         _new_hash_dedup,  # removes new STIX objects matched by hash
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
-        _new_ttp_CERT_capec_dedup,  # removes new STIX TTP objects matched by CAPEC
-        _existing_ttp_CERT_capec_dedup, # removes existing STIX TTP objects matched by CAPEC
+        _new_ttp_CERT_capec_dedup,  # removes new STIX TTP objects matched by CAPEC-IDs and Title in CERT NS
+        _existing_ttp_CERT_capec_dedup, # removes existing STIX TTP objects matched by CAPEC-IDs and Title in CERT NS
+        _new_ttp_external_capec_dedup, # removes new STIX TTP objects matched by CAPEC-IDs and Title in external NS
+        _existing_ttp_external_capec_dedup, # removes existing STIX TTP objects matched by CAPEC-IDs and Title in external NS
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 
