@@ -2,14 +2,16 @@ define([
     "dcl/dcl",
     "knockout",
     "./StixObjectTLP",
+    "timeline/timeline",
     "kotemplate!root-inc:./templates/root-Incident.html",
     "kotemplate!flat-inc:./templates/flat-Incident.html",
     "kotemplate!list-inc:./templates/list-Incidents.html"
-], function (declare, ko, StixObjectTLP) {
+], function (declare, ko, StixObjectTLP, TimeLine) {
     "use strict";
 
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
+            new TimeLine("incidentTimelineSVG", stixPackage._rootId._id);
             this.status = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "status.value");
             }, this);

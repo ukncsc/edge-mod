@@ -57,8 +57,10 @@ define([
                     .attr('transform', 'translate(' + margin.left + ',0)')
                     .call(tip);
 
-                d3.select("#" + div + "_title")
-                    .html("Timeline for " + graph.title);
+                var title = d3.select("#" + div + "_title");
+                if (title) {
+                    title.html("Timeline for " + graph.title);
+                }
 
                 /************************
                  Scales and Axes
@@ -118,6 +120,12 @@ define([
                     .attr("dx", "-.8em")
                     .attr("dy", ".15em")
                     .attr("transform", "rotate(-45)");
+
+                svg.append('text')
+                    .attr('transform', 'translate(0,'  + (svg_height - 15) + ')')
+                    .style("text-anchor", "start")
+                    .text("Times show are in the " + graph.tzname + " timezone")
+                    .attr("dy", ".15em");
 
                 /************************
                  Links
@@ -219,7 +227,7 @@ define([
                     });
 
                     var ticks = svg.selectAll(".tick");
-                    ticks[0][0].lastElementChild.innerHTML= moment(xAxis.scale().ticks()[0]).utc().format("DD-MM-YYYY")
+                    ticks[0][0].lastElementChild.innerHTML= moment(xAxis.scale().ticks()[0]).utc().format("DD-MM-YYYY hh:mm")
                 }
             });
         }

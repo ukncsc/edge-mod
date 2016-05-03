@@ -1,91 +1,16 @@
 {% extends "base.html" %} {% load site_tags %} {% load staticfiles %}
 
 {% block head-content %}
-    <style type="text/css">
-        svg {
-            border: 1px solid grey;
-            box-shadow: rgba(0, 0, 0, 0.3) 4px 4px 4px;
-            width: 100%
-        }
-
-        .chart {
-            font-size: 12px;
-            float: left;
-            width: 900px;
-            height: 400px;
-            overflow: auto;
-            white-space: nowrap;
-        }
-
-        .domain {
-            fill: none;
-            stroke: #000 !important;
-            shape-rendering: crispEdges;
-        }
-
-        .monthaxis {
-		  	font-size: 300% !important;
-		  }
-
-        .link {
-            fill: none;
-            stroke: grey;
-            stroke-width: 3
-        }
-
-        text.shadow {
-            stroke: #fff;
-            stroke-width: 4px;
-            stroke-opacity: .8;
-        }
-
-        .d3-tip {
-            line-height: 1;
-            padding: 12px;
-            background: #F7B334;
-            color: #fff;
-            border-radius: 2px;
-            pointer-events: none;
-        }
-
-        .d3-tip:after {
-            box-sizing: border-box;
-            display: inline;
-            font-size: 10px;
-            width: 100%;
-            line-height: 1;
-            color: #F7B334;
-            position: absolute;
-            pointer-events: none;
-        }
-
-        /* Northward tooltips */
-        .d3-tip.n:after {
-            content: "\25BC";
-            margin: -1px 0 0 0;
-            top: 100%;
-            left: 0;
-            text-align: center;
-        }
-
-        .title {
-            color: white;
-            background-color: rgb(75, 95, 106);
-            padding: 12px;
-            font-size: 15px;
-        }
-    </style>
+    <link rel="stylesheet" href="/adapter/certuk_mod{% static "css/timeline.css" %}" media="screen">
 {% endblock %}
 
 {% block body-content %}
-    <div class="container-fluid">
 
-        <div id="svgContent" class="chart">
-            <div id="svgContent_title" class="title"></div>
+      <div class="container-fluid">
+        <div id="incidentTimelineSVG" class="chart">
+            <div id="incidentTimelineSVG_title" class="title"></div>
         </div>
-
     </div>
-
 {% endblock %}
 
 {% block body-end %}
@@ -96,12 +21,11 @@
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script>
 
-        var stix_id = '{{ stix_id|safe }}';
+        var rootId = '{{ stix_id|safe }}';
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
                 d3: "{% static "js/d3.min" %}",
-                jquery: "common/jquery-shim",
                 knockout: "common/knockout-shim"
             },
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"

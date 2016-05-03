@@ -57,6 +57,7 @@ from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser
     visualiser_get, \
     visualiser_item_get
 from users.models import Repository_User
+from users.decorators import login_required_ajax
 
 audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
@@ -100,12 +101,15 @@ def unix_time_millis(dt):
     naive = dt.replace(tzinfo=None)
     return (naive-datetime.datetime(1970,1,1)).total_seconds() * 1000.0
 
+@login_required
+def timeline_discover(request):
+    return objectid_discover(request, "incident_timeline", "incident_timeline_not_found")
 
 @login_required
-def incident_timeline(request):
-    stix_id = objectid_find(request)
+def incident_timeline(request, id_):
+    request.breadcrumbs([("Timeline", "")])
     return render(request, "incident_timeline.html", {
-        "stix_id": stix_id
+        "stix_id": id_
         })
 
 def get_local_datetime(time_str):
@@ -114,7 +118,8 @@ def get_local_datetime(time_str):
 
 from django.http import JsonResponse
 from adapters.certuk_mod.patch.incident_patch import PRETTY_TIME_TYPE
-@login_required
+
+@login_required_ajax
 def ajax_incident_timeline(request, id_):
     try:
         if id_:
@@ -126,7 +131,8 @@ def ajax_incident_timeline(request, id_):
             graph = dict()
             graph['nodes'] = []
             graph['links'] = []
-            graph['title'] = "Incident : " + edge_object.obj.title + " (Times shown in " + datetime.datetime.now(settings.LOCAL_TZ).tzname() + ")"
+            graph['title'] = "Incident : " + edge_object.obj.title
+            graph['tzname'] = datetime.datetime.now(settings.LOCAL_TZ).tzname()
 
             for key, value in time_dict.iteritems():
                 if isinstance(value, basestring):

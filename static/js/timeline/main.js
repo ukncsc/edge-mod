@@ -5,7 +5,7 @@ require([
     "domReady!"
 ], function (TimeLine, Modal, errorContentTemplate) {
     try {
-        new TimeLine("svgContent", window['stix_id']);
+        new TimeLine("incidentTimelineSVG", window['rootId']);
     } catch (e) {
         var errorModal = new Modal({
             title: "Error",
