@@ -293,11 +293,11 @@ def _existing_title_and_capecs(existing_ttps):
     id_to_title = {}
     existing_id_to_capec = {}
     for found_data in existing_ttps:
-        capmans = []
-        for work in found_data['capecs']:
-            capmans.append(work['capec'])
-            existing_id_to_capec[found_data['_id']] = capmans
-            id_to_title[found_data['_id']] = work['title']
+        capecs = []
+        for ttp in found_data['capecs']:
+            capecs.append(ttp['capec'])
+            existing_id_to_capec[found_data['_id']] = capecs
+            id_to_title[found_data['_id']] = ttp['title']
 
     existing_title_and_capecs = {}
     for ids, capecs in existing_id_to_capec.iteritems():
