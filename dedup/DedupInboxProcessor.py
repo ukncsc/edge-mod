@@ -19,7 +19,7 @@ PROPERTY_SHA224 = ['api_object', 'obj', 'object_', 'properties', 'sha224']
 PROPERTY_SHA256 = ['api_object', 'obj', 'object_', 'properties', 'sha256']
 PROPERTY_SHA384 = ['api_object', 'obj', 'object_', 'properties', 'sha384']
 PROPERTY_SHA512 = ['api_object', 'obj', 'object_', 'properties', 'sha512']
-PROPERTY_CAPEC = ['api_object', 'obj', 'behavior', '_attack_patterns']
+PROPERTY_CAPEC = ['api_object', 'obj', 'behavior', 'attack_patterns']
 
 
 def _get_sighting_count(obs):
@@ -247,14 +247,14 @@ def flatten_ttp_capecs(io):
     flattened_capecs = {}
     for length, ttps in io.iteritems():
         for ttp in ttps:
-            ids = []
+            capec_key = []
             for capecs in ttp.api_object.obj.behavior.attack_patterns:
                 if capecs.capec_id != None:
-                    ids.append(capecs.capec_id)
-            if len(ids) != 0:
-                join = ",".join(sorted(ids))
+                    capec_key.append(capecs.capec_id)
+            if len(capec_key) != 0:
+                join = ",".join(sorted(capec_key))
                 key = ttp.api_object.obj.title.strip().lower() + ": " + join
-                flattened_capecs.setdefault(len(ids), []).append({ttp.id: key})
+                flattened_capecs.setdefault(len(capec_key), []).append({ttp.id: key})
     return flattened_capecs
 
 
@@ -277,14 +277,14 @@ def ttp_title_capecs_to_ids(ids_to_capecs):
     return title_and_capecs_to_ids
 
 
-def _package_ttps_with_capec(contents, local_only):
+def _package_ttps_with_capec(contents, local):
     number_of_capecs_to_objects = {}
     for id_, io in sorted(contents.iteritems()):
         is_local = rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE
-        correct_ns = is_local if local_only else (not is_local)
+        correct_ns = is_local if local else (not is_local)
         if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'ttp' and \
                         len(rgetattr(contents.get(id_, None), PROPERTY_CAPEC, '')) > 0 and correct_ns:
-            amount_of_capecs = len(io.api_object.obj.behavior._attack_patterns)
+            amount_of_capecs = len(io.api_object.obj.behavior.attack_patterns)
             number_of_capecs_to_objects.setdefault(amount_of_capecs, []).append(io)
     return number_of_capecs_to_objects
 

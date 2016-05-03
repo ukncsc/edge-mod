@@ -9,6 +9,7 @@ from stix.ttp.attack_pattern import AttackPattern
 
 from edge.generic import ApiObject
 from edge.inbox import InboxItem
+from edge import LOCAL_NAMESPACE
 
 from adapters.certuk_mod.dedup.DedupInboxProcessor import \
     _get_sighting_count,\
@@ -16,7 +17,9 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import \
     _generate_message,\
     _is_matching_file, \
     flatten_ttp_capecs, \
-    ttp_title_capecs_to_ids
+    ttp_title_capecs_to_ids, \
+    coalesce_ttps, \
+    _package_ttps_with_capec
 
 
 def create_file(file_name=None, md5=None, sha1=None, sha256=None):
@@ -141,41 +144,168 @@ class DedupInboxProcessorTests(unittest.TestCase):
         new_file = create_file(file_name='file.1', sha256='5d5b09f6dcb2d53a5fffc60c4ac0d55fabdf556069d6631545f42aa6e3500f2e')
         self.assertTrue(_is_matching_file(existing_file, new_file), "Should have matched")
 
-    def test_ttp_title_and_capecs_to_ids(self):
+    def test_ttp_title_capecs_to_ids(self):
         TTPS = {1: [{'pss:ttp1': 'title: CAPEC-163'} , {'pss:ttp2': 'title: CAPEC-163'}, {'pss:ttp3': 'title:None'}]}
-        flattened_capecs = ttp_title_capecs_to_ids(TTPS)
+        title_capecs_to_ids = ttp_title_capecs_to_ids(TTPS)
 
-        self.assertDictEqual({'title: CAPEC-163':['pss:ttp1', 'pss:ttp2'], 'title:None': ['pss:ttp3'] }, flattened_capecs)
+        self.assertDictEqual({'title: CAPEC-163':['pss:ttp1', 'pss:ttp2'], 'title:None': ['pss:ttp3'] },
+                             title_capecs_to_ids)
 
-    def test_ttp_coalesce_not_enough_ttps(self):
-        TTPs = {1 : [mock.create_autospec(
-            InboxItem, api_object = mock.create_autospec(ApiObject, ty='ttp',
-                    obj = mock.create_autospec(TTP, id_= 'pss:ttp-00000000-0000-0000-0000-000000000001', title='Should match',
-                    behaviour = mock.create_autospec(Behavior,
-                    attack_patterns = mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')))))],
-            2: [mock.create_autospec(
-            InboxItem, api_object = mock.create_autospec(ApiObject, ty='ttp',
-                    obj = mock.create_autospec(TTP, id_= 'pss:ttp-00000000-0000-0000-0000-000000000002', title='Should match',
-                    behaviour = mock.create_autospec(Behavior,
-                    attack_patterns = mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')))))]}
+    def test_ttp_title_capecs_to_ids_len_LT_2(self):
+        TTPs = {1: [{'pss:ttp1': 'title: CAPEC-163'}] ,
+                2: [{'pss:ttp2': 'title: CAPEC-163'}],
+                3: [{'pss:ttp3': 'title:None'}]}
+        title_capecs_to_ids = ttp_title_capecs_to_ids(TTPs)
 
-        flattened_ttps = flatten_ttp_capecs(TTPs)
-
-        self.assertDictEqual({}, flattened_ttps)
+        self.assertDictEqual({}, title_capecs_to_ids)
 
 
-    def test_ttp_coalesce_enough_ttps(self):
-        TTPs = {1 : [mock.create_autospec(
-            InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001', api_object = mock.create_autospec(ApiObject, ty='ttp',
-                    obj = mock.create_autospec(TTP, title='Should match',
-                    behavior = mock.create_autospec(Behavior,
-                    attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')])))), mock.create_autospec(
-            InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002', api_object = mock.create_autospec(ApiObject, ty='ttp',
-                    obj = mock.create_autospec(TTP, title='Should match   ',
-                    behavior = mock.create_autospec(Behavior,
-                    attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))]}
+    def test_flatten_ttp_capecs_ignore_None(self):
+        TTPs = {1 : [mock.create_autospec(InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp',
+                        obj = mock.create_autospec(TTP,  title='should match',
+                        behavior = mock.create_autospec(Behavior,
+                        attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))],
+                2: [mock.create_autospec(InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp',
+                        obj = mock.create_autospec(TTP,  title='should match',
+                        behavior = mock.create_autospec(Behavior,
+                        attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163'),
+                                           mock.create_autospec(AttackPattern, capec_id = None)]))))]}
 
         flattened_ttps = flatten_ttp_capecs(TTPs)
 
         self.assertDictEqual({1: [{'pss:ttp-00000000-0000-0000-0000-000000000001': 'should match: CAPEC-163'},
                                   {'pss:ttp-00000000-0000-0000-0000-000000000002': 'should match: CAPEC-163'}]}, flattened_ttps)
+
+
+    def test_flatten_ttp_capecs_lower_case_title(self):
+        TTPs = {1 : [mock.create_autospec(InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp',
+                        obj = mock.create_autospec(TTP, title='SHOULD MATCH',
+                        behavior = mock.create_autospec(Behavior,
+                        attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')])))),
+                    mock.create_autospec(InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp',
+                        obj = mock.create_autospec(TTP, title='ShOulD MatCH   ',
+                        behavior = mock.create_autospec(Behavior,
+                        attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))]}
+
+        flattened_ttps = flatten_ttp_capecs(TTPs)
+
+        self.assertDictEqual({1: [{'pss:ttp-00000000-0000-0000-0000-000000000001': 'should match: CAPEC-163'},
+                                  {'pss:ttp-00000000-0000-0000-0000-000000000002': 'should match: CAPEC-163'}]}, flattened_ttps)
+
+    def test_flatten_ttp_ignore_None_correct_length_capec_key(self):
+        TTPs = {1: [mock.create_autospec(
+                    InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                    api_object = mock.create_autospec(ApiObject, ty='ttp',
+                    obj = mock.create_autospec(TTP, title='Should match',
+                    behavior = mock.create_autospec(Behavior,
+                    attack_patterns = [mock.create_autospec(AttackPattern, capec_id = None),
+                                       mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163'),
+                                       mock.create_autospec(AttackPattern, capec_id = 'CAPEC-1')]))))]}
+
+        flattened_ttps = flatten_ttp_capecs(TTPs)
+
+        self.assertDictEqual({2: [{'pss:ttp-00000000-0000-0000-0000-000000000001': 'should match: CAPEC-1,CAPEC-163'}]},
+                             flattened_ttps)
+
+    def test_coalesce_ttps_with_no_maptable(self):
+        contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp')),
+                    'pss:ttp-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp'))}
+
+        coalesce = coalesce_ttps(contents, {})
+
+        self.assertItemsEqual(['pss:ttp-00000000-0000-0000-0000-000000000001',
+                               'pss:ttp-00000000-0000-0000-0000-000000000002'], coalesce.keys())
+
+    def test_coalesce_ttps_with_maptable(self):
+        contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp')),
+                    'pss:ttp-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp'))}
+
+        coalesce = coalesce_ttps(contents, {'pss:ttp-00000000-0000-0000-0000-000000000002': 'DeDuptoMe'})
+
+        self.assertItemsEqual(['pss:ttp-00000000-0000-0000-0000-000000000001'], coalesce.keys())
+
+    def test_package_ttps_with_capecs_local_namespace(self):
+        contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp',
+                        obj = mock.create_autospec(TTP, id_ns = LOCAL_NAMESPACE, title='Should match',
+                        behavior = mock.create_autospec(Behavior,
+                        attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')])))),
+                    'pss:ttp-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp',
+                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = LOCAL_NAMESPACE,
+                        behavior = mock.create_autospec(Behavior,
+                        attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
+
+        package_ttps_local = _package_ttps_with_capec(contents, True)
+        package_ttps_non_local = _package_ttps_with_capec(contents, False)
+
+        self.assertEqual(2, len(package_ttps_local[1]))
+        self.assertDictEqual({}, package_ttps_non_local)
+
+    def test_package_ttps_with_capecs_non_local_namespace(self):
+        contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp',
+                        obj = mock.create_autospec(TTP, id_ns = "Matt's namespce", title='Should match',
+                        behavior = mock.create_autospec(Behavior,
+                        attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')])))),
+                    'pss:ttp-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp',
+                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = "Matt's namespace",
+                        behavior = mock.create_autospec(Behavior,
+                        attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
+
+        package_ttps_local = _package_ttps_with_capec(contents, True)
+        package_ttps_non_local = _package_ttps_with_capec(contents, False)
+
+        self.assertDictEqual({}, package_ttps_local)
+        self.assertEqual(2, len(package_ttps_non_local[1]))
+
+    def test_package_ttps_with_capecs_with_other_objects(self):
+        contents = {'pss:ind-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'pss:ind-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='ind')),
+                    'External:ttp-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'External:ttp-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp',
+                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = "Matt's namespace",
+                        behavior = mock.create_autospec(Behavior,
+                        attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163'),
+                                           mock.create_autospec(AttackPattern, capec_id = 'CAPEC-16')])))),
+                    'External:ttp-00000000-0000-0000-0000-000000000003': mock.create_autospec(
+                        InboxItem, id= 'External:ttp-00000000-0000-0000-0000-000000000003',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp',
+                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = "Another namespace",
+                        behavior = mock.create_autospec(Behavior,
+                        attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-1'),
+                                           mock.create_autospec(AttackPattern, capec_id = 'CAPEC-17')])))),
+                    'pss:ttp-00000000-0000-0000-0000-000000000003': mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000003',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp',
+                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = LOCAL_NAMESPACE,
+                        behavior = mock.create_autospec(Behavior,
+                        attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163'),
+                                           mock.create_autospec(AttackPattern, capec_id = 'CAPEC-16'),
+                                           mock.create_autospec(AttackPattern, capec_id = 'CAPEC-17')]))))
+                    }
+
+        package_ttps_local = _package_ttps_with_capec(contents, True)
+        package_ttps_non_local = _package_ttps_with_capec(contents, False)
+
+        self.assertEqual(1, len(package_ttps_local[3]))
+        self.assertEqual(2, len(package_ttps_non_local[2]))
