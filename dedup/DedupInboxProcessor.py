@@ -21,6 +21,7 @@ PROPERTY_SHA384 = ['api_object', 'obj', 'object_', 'properties', 'sha384']
 PROPERTY_SHA512 = ['api_object', 'obj', 'object_', 'properties', 'sha512']
 PROPERTY_CAPEC = ['api_object', 'obj', 'behavior', '_attack_patterns']
 
+
 def _get_sighting_count(obs):
     sighting_count = getattr(obs, 'sighting_count', 1)
     if sighting_count is None:
@@ -44,10 +45,10 @@ def _update_existing_properties(additional_sightings, additional_file_hashes, us
         api_object = edge_object.to_ApiObject()
         _merge_properties(api_object, id_, count, additional_file_hashes)
         inbox_processor.add(InboxItem(
-                api_object=api_object,
-                etlp=edge_object.etlp,
-                etou=edge_object.etou,
-                esms=edge_object.esms
+            api_object=api_object,
+            etlp=edge_object.etlp,
+            etou=edge_object.etou,
+            esms=edge_object.esms
         ))
     inbox_processor.run()
 
@@ -241,6 +242,7 @@ def _new_hash_dedup(contents, hashes, user):
 
     return out, message
 
+
 def flatten_ttp_capecs(io):
     flattened_capecs = {}
     for length, ttps in io.iteritems():
@@ -255,22 +257,25 @@ def flatten_ttp_capecs(io):
                 flattened_capecs.setdefault(len(ids), []).append({ttp.id: key})
     return flattened_capecs
 
+
 def coalesce_ttps(contents, map_table):
     out = {}
     for id_, io in contents.iteritems():
         if id_ not in map_table:
             io.api_object = io.api_object.remap(map_table)
-            out[id_]= io
+            out[id_] = io
     return out
 
-def ttp_title_capecs_to_ids(ids_to_capecs, amount_of_ttps):
+
+def ttp_title_capecs_to_ids(ids_to_capecs):
     title_and_capecs_to_ids = {}
     for length, ttps in ids_to_capecs.iteritems():
-        if len(ttps) > amount_of_ttps:
+        if len(ttps) > 1:
             for ttp in ttps:
                 for id, key in ttp.iteritems():
                     title_and_capecs_to_ids.setdefault(key, []).append(id)
     return title_and_capecs_to_ids
+
 
 def _package_ttps_with_capec(contents, local_only):
     number_of_capecs_to_objects = {}
@@ -283,9 +288,8 @@ def _package_ttps_with_capec(contents, local_only):
             number_of_capecs_to_objects.setdefault(amount_of_capecs, []).append(io)
     return number_of_capecs_to_objects
 
-def _existing_ttp_capec_dedup(contents, hashes, user, local):
-    existing_ttps = capec_finder(local)
 
+def _existing_title_and_capecs(existing_ttps):
     id_to_title = {}
     existing_id_to_capec = {}
     for found_data in existing_ttps:
@@ -301,34 +305,44 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
         title = id_to_title[ids].lower().strip()
         key = title + ": " + join
         existing_title_and_capecs[key] = ids
+    return existing_title_and_capecs
+
+
+def _existing_ttp_capec_dedup(contents, hashes, user, local):
+    existing_ttps = capec_finder(local)
+
+    existing_title_and_capecs = _existing_title_and_capecs(existing_ttps)
 
     ttps_to_compare = _package_ttps_with_capec(contents, local)
     ids_to_capecs = flatten_ttp_capecs(ttps_to_compare)
 
     title_and_capecs_to_ids = {}
     for length, ttps in ids_to_capecs.iteritems():
-            for ttp in ttps:
-                for id, key in ttp.iteritems():
-                    title_and_capecs_to_ids[key] = id
-
+        for ttp in ttps:
+            for id, key in ttp.iteritems():
+                title_and_capecs_to_ids[key] = id
 
     map_table = {
-        id_: existing_title_and_capecs[key] for key, id_ in title_and_capecs_to_ids.iteritems() if key in existing_title_and_capecs
-    }
+        id_: existing_title_and_capecs[key] for key, id_ in title_and_capecs_to_ids.iteritems() if
+        key in existing_title_and_capecs
+        }
 
     out = coalesce_ttps(contents, map_table)
     if local:
-        message = _generate_message("Remapped %d CERUK namespace TTPs to existing TTPs based on CAPEC-IDs and title", contents, out)
+        message = _generate_message("Remapped %d CERUK namespace TTPs to existing TTPs based on CAPEC-IDs and title",
+                                    contents, out)
     else:
-        message = _generate_message("Remapped %d external namespace TTPs to existing TTPs based on CAPEC-IDs and title", contents, out)
+        message = _generate_message("Remapped %d external namespace TTPs to existing TTPs based on CAPEC-IDs and title",
+                                    contents, out)
     return out, message
+
 
 def _new_ttp_capec_dedup(contents, hashes, user, local):
     number_of_capecs_to_objects = _package_ttps_with_capec(contents, local)
 
     ids_to_capecs = flatten_ttp_capecs(number_of_capecs_to_objects)
 
-    title_and_capecs_to_ids = ttp_title_capecs_to_ids(ids_to_capecs, 1)
+    title_and_capecs_to_ids = ttp_title_capecs_to_ids(ids_to_capecs)
 
     map_table = {}
     for capec, ids in title_and_capecs_to_ids.iteritems():
@@ -340,31 +354,39 @@ def _new_ttp_capec_dedup(contents, hashes, user, local):
     out = coalesce_ttps(contents, map_table)
 
     if local:
-        message = _generate_message("Merged %d CERTUK namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
+        message = _generate_message(
+            "Merged %d CERTUK namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
     else:
-        message = _generate_message("Merged %d external namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
+        message = _generate_message(
+            "Merged %d external namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
     return out, message
+
 
 def _new_ttp_CERT_capec_dedup(contents, hashes, user):
     return _new_ttp_capec_dedup(contents, hashes, user, True)
 
+
 def _new_ttp_external_capec_dedup(contents, hashes, user):
     return _new_ttp_capec_dedup(contents, hashes, user, False)
+
 
 def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
     return _existing_ttp_capec_dedup(contents, hashes, user, True)
 
+
 def _existing_ttp_external_capec_dedup(contents, hashes, user):
     return _existing_ttp_capec_dedup(contents, hashes, user, False)
+
 
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
         _new_hash_dedup,  # removes new STIX objects matched by hash
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
         _new_ttp_CERT_capec_dedup,  # removes new STIX TTP objects matched by CAPEC-IDs and Title in CERT NS
-        _existing_ttp_CERT_capec_dedup, # removes existing STIX TTP objects matched by CAPEC-IDs and Title in CERT NS
-        _new_ttp_external_capec_dedup, # removes new STIX TTP objects matched by CAPEC-IDs and Title in external NS
-        _existing_ttp_external_capec_dedup, # removes existing STIX TTP objects matched by CAPEC-IDs and Title in external NS
+        _existing_ttp_CERT_capec_dedup,  # removes existing STIX TTP objects matched by CAPEC-IDs and Title in CERT NS
+        _new_ttp_external_capec_dedup,  # removes new STIX TTP objects matched by CAPEC-IDs and Title in external NS
+        _existing_ttp_external_capec_dedup,
+        # removes existing STIX TTP objects matched by CAPEC-IDs and Title in external NS
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 
@@ -385,7 +407,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
                 if package_item.api_object.obj.related_packages:
                     related_packages = package_item.api_object.obj.related_packages
                     related_package_ids = related_package_ids.union(
-                            {related_package.item.idref for related_package in related_packages})
+                        {related_package.item.idref for related_package in related_packages})
 
             top_level_package_ids = set(package_items.keys()).difference(related_package_ids)
             if len(top_level_package_ids) > 1:

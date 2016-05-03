@@ -4,6 +4,8 @@ import mock
 from cybox.core import Observable, Object
 from cybox.objects.file_object import File
 from stix.indicator import Indicator
+from stix.ttp import TTP, Behavior
+from stix.ttp.attack_pattern import AttackPattern
 
 from edge.generic import ApiObject
 from edge.inbox import InboxItem
@@ -12,7 +14,9 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import \
     _get_sighting_count,\
     _coalesce_duplicates,\
     _generate_message,\
-    _is_matching_file
+    _is_matching_file, \
+    flatten_ttp_capecs, \
+    ttp_title_capecs_to_ids
 
 
 def create_file(file_name=None, md5=None, sha1=None, sha256=None):
@@ -136,3 +140,42 @@ class DedupInboxProcessorTests(unittest.TestCase):
         existing_file = create_file(file_name='file.1', sha256='5d5b09f6dcb2d53a5fffc60c4ac0d55fabdf556069d6631545f42aa6e3500f2e')
         new_file = create_file(file_name='file.1', sha256='5d5b09f6dcb2d53a5fffc60c4ac0d55fabdf556069d6631545f42aa6e3500f2e')
         self.assertTrue(_is_matching_file(existing_file, new_file), "Should have matched")
+
+    def test_ttp_title_and_capecs_to_ids(self):
+        TTPS = {1: [{'pss:ttp1': 'title: CAPEC-163'} , {'pss:ttp2': 'title: CAPEC-163'}, {'pss:ttp3': 'title:None'}]}
+        flattened_capecs = ttp_title_capecs_to_ids(TTPS)
+
+        self.assertDictEqual({'title: CAPEC-163':['pss:ttp1', 'pss:ttp2'], 'title:None': ['pss:ttp3'] }, flattened_capecs)
+
+    def test_ttp_coalesce_not_enough_ttps(self):
+        TTPs = {1 : [mock.create_autospec(
+            InboxItem, api_object = mock.create_autospec(ApiObject, ty='ttp',
+                    obj = mock.create_autospec(TTP, id_= 'pss:ttp-00000000-0000-0000-0000-000000000001', title='Should match',
+                    behaviour = mock.create_autospec(Behavior,
+                    attack_patterns = mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')))))],
+            2: [mock.create_autospec(
+            InboxItem, api_object = mock.create_autospec(ApiObject, ty='ttp',
+                    obj = mock.create_autospec(TTP, id_= 'pss:ttp-00000000-0000-0000-0000-000000000002', title='Should match',
+                    behaviour = mock.create_autospec(Behavior,
+                    attack_patterns = mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')))))]}
+
+        flattened_ttps = flatten_ttp_capecs(TTPs)
+
+        self.assertDictEqual({}, flattened_ttps)
+
+
+    def test_ttp_coalesce_enough_ttps(self):
+        TTPs = {1 : [mock.create_autospec(
+            InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001', api_object = mock.create_autospec(ApiObject, ty='ttp',
+                    obj = mock.create_autospec(TTP, title='Should match',
+                    behavior = mock.create_autospec(Behavior,
+                    attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')])))), mock.create_autospec(
+            InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002', api_object = mock.create_autospec(ApiObject, ty='ttp',
+                    obj = mock.create_autospec(TTP, title='Should match   ',
+                    behavior = mock.create_autospec(Behavior,
+                    attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))]}
+
+        flattened_ttps = flatten_ttp_capecs(TTPs)
+
+        self.assertDictEqual({1: [{'pss:ttp-00000000-0000-0000-0000-000000000001': 'should match: CAPEC-163'},
+                                  {'pss:ttp-00000000-0000-0000-0000-000000000002': 'should match: CAPEC-163'}]}, flattened_ttps)
