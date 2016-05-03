@@ -32,6 +32,9 @@ publisher_urls = [
     (r'^ajax/extract_visualiser/merge_observables/.*$', 'views.extract_visualiser_merge_observables', 'extract_visualiser_ajax_merge_observables'),
     (r'^ajax/extract_visualiser/delete_observables/.*$', 'views.extract_visualiser_delete_observables', 'extract_visualiser_ajax_delete_observables'),
 
+    (r'^incident_timeline/$', 'views.incident_timeline', 'incident_timeline'),
+    (r'^ajax/incident_timeline/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_incident_timeline', 'ajax_incident_timeline'),
+
     (r'^clone/$', 'views.clone', 'clone_to_draft'),
     (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'publisher_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
@@ -83,6 +86,7 @@ navitems = [
     ('Extract Stix', 'extract_stix'),
     ('Clone to Draft', 'clone_to_draft'),
     ('Visualiser', 'visualiser_discover'),
+    ('Incident Timeline', 'incident_timeline'),
     # ('Duplicates Finder', 'duplicates_finder'),
     ('Activity Log', 'activity_log'),
     ('CERT-UK Configuration', 'publisher_config')

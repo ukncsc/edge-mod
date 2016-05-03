@@ -93,6 +93,58 @@ TYPE_TO_URL = {
     'ttp': 'ttp'
 }
 
+from dateutil import parser as dtparser
+
+epoch = datetime.datetime.utcfromtimestamp(0)
+def unix_time_millis(dt):
+    naive = dt.replace(tzinfo=None)
+    return (naive-datetime.datetime(1970,1,1)).total_seconds() * 1000.0
+
+
+@login_required
+def incident_timeline(request):
+    stix_id = objectid_find(request)
+    return render(request, "incident_timeline.html", {
+        "stix_id": stix_id
+        })
+
+def get_local_datetime(time_str):
+    dt_in = dtparser.parse(time_str)
+    return dt_in.astimezone(settings.LOCAL_TZ)
+
+from django.http import JsonResponse
+from adapters.certuk_mod.patch.incident_patch import PRETTY_TIME_TYPE
+@login_required
+def ajax_incident_timeline(request, id_):
+    try:
+        if id_:
+            edge_object = EdgeObject.load(id_)
+            if edge_object.ty != 'inc':
+                return error_with_message(request, "Can only view incident timeline")
+            time_dict = edge_object.obj.time.to_dict();
+
+            graph = dict()
+            graph['nodes'] = []
+            graph['links'] = []
+            graph['title'] = "Incident : " + edge_object.obj.title + " (Times shown in " + datetime.datetime.now(settings.LOCAL_TZ).tzname() + ")"
+
+            for key, value in time_dict.iteritems():
+                if isinstance(value, basestring):
+                    time_dict[key] = unix_time_millis(get_local_datetime(time_dict[key]))
+                graph['nodes'].append({"name": PRETTY_TIME_TYPE[key],"date":time_dict[key],"type":"free"})
+
+            return JsonResponse(graph, status=200)
+        else:
+            return error_with_message(request,
+                                "No clonable object found; please only choose the clone option from an object's summary or external publish page")
+    except Exception as e:
+        ext_ref_error = "not found"
+        if e.message.endswith(ext_ref_error):
+            return error_with_message(request,
+                                "Unable to load object as some external references were not found: " + e.message[0:-len(
+                                        ext_ref_error)])
+        else:
+            return error_with_message(request, e.message)
 
 @login_required
 def clone(request):
