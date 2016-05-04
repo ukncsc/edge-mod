@@ -50,7 +50,7 @@ def ajax_incident_timeline(request, id_):
     try:
         edge_object = EdgeObject.load(id_)
     except EdgeError as e:
-        return JsonResponse(dict(e), status=400)
+        return JsonResponse({'message': e.message}, status=400)
 
     try:
         if edge_object.ty != 'inc':
@@ -76,7 +76,8 @@ def ajax_incident_timeline(request, id_):
     except Exception as e:
         ext_ref_error = "not found"
         if e.message.endswith(ext_ref_error):
-            JsonResponse({'message': "Unable to load object as some external " \
-                                     "references were not found: " + e.message[0:-len(ext_ref_error)]})
+            message = "Unable to load object as some external references were not found: " + e.message[
+                                                                                             0:-len(ext_ref_error)]
         else:
-            return JsonResponse(dict(e), status=500)
+            message = e.message
+        return JsonResponse({'message': message}, status=500)
