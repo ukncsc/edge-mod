@@ -22,8 +22,7 @@ define([
     "dcl/dcl",
     "d3"
 ], function (declare, d3) {
-    d3.tip = factory(d3)
-
+    "use strict";
     function factory() {
         return function () {
             var direction = d3_tip_direction,
@@ -333,4 +332,5 @@ define([
             return tip
         }
     }
+    d3.tip = factory(d3);
 });
