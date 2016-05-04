@@ -2,11 +2,12 @@ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
+    "common/modal/show-error-modal",
     "kotemplate!ret-config-modal:./templates/config-modal-content.html"
-], function (declare, ko, Modal, configModalTemplate) {
+], function (declare, ko, Modal, showErrorModal, configModalTemplate) {
     "use strict";
 
-    function inputIsInteger (value) {
+    function inputIsInteger(value) {
         return isFinite(value) && Math.floor(value) == value;
     }
 
@@ -32,7 +33,7 @@ define([
         },
 
         getTaskStatus: function () {
-            postJSON("../ajax/get_fts_task_status/", { }, function (response) {
+            postJSON("../ajax/get_fts_task_status/", {}, function (response) {
                 this.running(!!response['status']);
                 setTimeout(this.getTaskStatus.bind(this), 10000);
             }.bind(this));
@@ -40,13 +41,12 @@ define([
 
         runNow: function () {
             if (!this.running() && !this.changesPending()) {
-                postJSON("../ajax/run_fts_task/", { }, function (response) {
-                    var modal = new Modal({
+                postJSON("../ajax/run_fts_task/", {}, function (response) {
+                    (new Modal({
                         title: "FTS rebuild",
                         titleIcon: "glyphicon-info-sign",
                         contentData: "The FTS rebuild job has been scheduled to run (celery task ID '" + response['id'] + "')."
-                    });
-                    modal.show();
+                    })).show();
                 });
             }
         },
@@ -65,17 +65,12 @@ define([
 
         getConfig: function () {
             this.gotConfig(false);
-            postJSON("../ajax/get_fts_config/", { }, function (response) {
+            postJSON("../ajax/get_fts_config/", {}, function (response) {
                 this.gotConfig(true);
                 if (response["success"]) {
                     this._parseConfigResponse(response);
                 } else {
-                    var errorModal = new Modal({
-                    title: "Error",
-                        titleIcon: "glyphicon-exclamation-sign",
-                        contentData: "An error occurred while attempting to retrieve the retention configuration."
-                    });
-                    errorModal.show();
+                    showErrorModal("An error occurred while attempting to retrieve the retention configuration.", false);
                 }
             }.bind(this));
         },
@@ -123,7 +118,7 @@ define([
                 modal.getButtonByLabel("Close").disabled(true);
 
                 var postUrl = reset ? "../ajax/reset_fts_config/" : "../ajax/set_fts_config/";
-                var postData = reset ? { } : {
+                var postData = reset ? {} : {
                     fullBuild: this.fullBuild(),
                     time: this.time(),
                     enabled: this.enabled()
@@ -144,7 +139,7 @@ define([
             var title = success ? "Success" : "Error";
             var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
             var message = success ? "The fts rebuild settings were saved successfully." :
-                "An error occurred while attempting to save (" + response["error_message"] + ").";
+            "An error occurred while attempting to save (" + response["error_message"] + ").";
 
             modal.contentData.message(message);
             modal.title(title);
@@ -172,7 +167,9 @@ define([
                 titleIcon: "glyphicon-cloud-upload",
                 contentData: contentData,
                 contentTemplate: configModalTemplate.id,
-                onShow: function (modal) { this._save.call(this, modal, reset);}.bind(this),
+                onShow: function (modal) {
+                    this._save.call(this, modal, reset);
+                }.bind(this),
                 buttonData: [
                     {
                         label: "Close",

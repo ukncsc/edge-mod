@@ -3,19 +3,17 @@
 {% load staticfiles %}
 {% block head-title %}{{ main_title }}{% endblock %}
 {% block head-content %}
+    <link rel="stylesheet" href="/adapter/certuk_mod{% static "css/flexbox.css" %}" media="screen">
     <link rel="stylesheet" href="/adapter/certuk_mod{% static "css/visualiser.css" %}" media="screen">
 {% endblock %}
 
 {% block body-content %}
-    {% include 'visualiser_graph.html' %}
-
     <ul class="nav nav-tabs">
         {% for stix_id, typename, typenamesafe in indicator_information %}
             {% if forloop.first %}
-                <li class="active"><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
-            {% endif %}
-            {% if not forloop.first %}
-                <li><a data-toggle="tab" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
+                <li class="active"><a data-toggle="tab" id="{{ stix_id }}" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
+            {% else %}
+                <li><a data-toggle="tab" id="{{ stix_id }}" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
             {% endif %}
         {% endfor %}
     </ul>
@@ -23,21 +21,21 @@
     <div class="tab-content">
     {% for stix_id, typename, typenamesafe in indicator_information %}
         {% if forloop.first %}
-            <div id='{{ typenamesafe }}' class="tab-pane fade in active">
+        <div id="{{ typenamesafe }}" class="tab-pane fade in active">
+        {% else %}
+        <div id="{{ typenamesafe }}" class="tab-pane fade">
         {% endif %}
-        {% if not forloop.first %}
-            <div id='{{ typenamesafe }}' class="tab-pane fade">
-        {% endif %}
-        <a href="/indicator/build/{{ stix_id }}"> Edit Indicator Draft: {{ stix_id }} </a>
-        <div class="container-fluid">
-            <div class="row">
-                <div data-bind="template: { name: 'Graph' , data: findByLabel('{{ stix_id }}')}"></div>
+            <a href="/indicator/build/{{ stix_id }}"> Edit Indicator Draft: {{ stix_id }} </a>
+            <div id="extract-visualiser" class="flexbox hflex">
+                <!-- ko template: { name: 'Graph' , data: findByLabel('{{ stix_id }}')} --><!-- /ko -->
             </div>
-        </div>
         </div>
     {% endfor %}
     </div>
+{% endblock %}
 
+{% block body-end %}
+    {% include "visualiser_graph.html" %}
     <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/stickytape.js' %}"></script>
@@ -62,7 +60,4 @@
         var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
     </script>
     <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="extract/visualise/main"></script>
-{% endblock %}
-
-{% block body-end %}
 {% endblock %}

@@ -1,0 +1,24 @@
+.flexbox {
+    display: flex;
+    overflow: hidden;
+}
+
+.hflex {
+    flex-flow: row nowrap;
+}
+
+.vflex {
+    flex-flow: column nowrap;
+}
+
+.flex-before {
+    order: 1;
+}
+
+.flex-main {
+    order: 2;
+}
+
+.flex-after {
+    order: 3
+}
