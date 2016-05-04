@@ -1,4 +1,3 @@
-from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.patch.incident_patch import TIME_TYPES
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus, ObjectValidationInfo
 from adapters.certuk_mod.validation.common.validator import CommonFieldValidator
