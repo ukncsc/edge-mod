@@ -4,13 +4,14 @@ define([
     "d3",
     "./graph/Graph",
     "../stix/StixPackage",
+    "./toPNG/PNGConverter",
     "./graph/forceGraphBinding"
-], function (declare, ko, d3, Graph, StixPackage) {
+], function (declare, ko, d3, Graph, StixPackage, PNGConverter) {
     "use strict";
 
     var ViewModel = declare(null, {
         declaredClass: "ViewModel",
-        constructor: function (rootId, graphData, graph_url, item_url, panel_actions) {
+        constructor: function (rootId, graphData, graph_url, graph_svg_id, item_url, panel_actions) {
             this.rootId = ko.computed(function () {
                 return rootId;
             });
@@ -20,7 +21,9 @@ define([
 
             this.panel_actions = ko.computed(function () {
                 return panel_actions;
-            })
+            });
+
+            this.png_converter = new PNGConverter(graph_svg_id);
 
             this.item_url = ko.computed(function () {
                 return item_url;
@@ -66,10 +69,13 @@ define([
                 templateName = 'flat-' + selectedObject.type.code;
             }
             return templateName;
+        },
+        saveAsPNG : function () {
+            this.png_converter.savetoPNG(this.rootId());
         }
     });
 
-    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url,
+    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*String*/ graph_svg_id,
                                    /*PanelActions*/panel_actions, /*function*/ onLoadedCallback,
                                    /*function*/ onErrorCallback) {
         d3.json(
@@ -78,7 +84,7 @@ define([
                 if (error) {
                     onErrorCallback(error);
                 } else {
-                    onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url, panel_actions));
+                    onLoadedCallback(new ViewModel(rootId, response, graph_url, graph_svg_id, item_url, panel_actions));
                 }
             }
         );
