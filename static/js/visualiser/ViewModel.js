@@ -71,7 +71,7 @@ define([
             return templateName;
         },
         saveAsPNG : function () {
-            this.png_converter.savetoPNG(this.rootId(), "visualiser-graph");
+            this.png_converter.savetoPNG(this.rootId());
         }
     });
 
