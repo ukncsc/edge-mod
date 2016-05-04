@@ -15,12 +15,9 @@ svg {
 
 .domain {
     fill: none;
-    stroke: #000 !important;
+    /* !important because id can't be set and soltra-theme.css sets .axis path to white */
+    stroke: grey !important;
     shape-rendering: crispEdges;
-}
-
-.monthaxis {
-    font-size: 300% !important;
 }
 
 .link {

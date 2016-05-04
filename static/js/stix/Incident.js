@@ -11,7 +11,7 @@ define([
 
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
-            new TimeLine("incidentTimelineSVG", stixPackage._rootId._id);
+            new TimeLine("incidentTimelineSVG", stixPackage._rootId._id, "/adapter/certuk_mod/ajax/incident_timeline/");
             this.status = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "status.value");
             }, this);
