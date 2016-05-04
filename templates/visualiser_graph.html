@@ -1,12 +1,8 @@
 {% load staticfiles %}
 
 <template id="Graph">
-    <div id="graph-container" class="col-sm-8 full-height">
-        <button type="button" class="btn btn-default btn-lg pull-right" style="position:absolute;top:5px;left:20px;" data-bind="click: saveAsPNG">
-             <span class="glyphicon glyphicon-download"></span>
-        </button>
-        <svg id="visualiser-graph" version="1.1" xmlns="http://www.w3.org/2000/svg"
-             xmlns:xlink="http://www.w3.org/1999/xlink"
+    <div id="graph-container" class="flex-main">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
              preserveAspectRatio="xMidYMid meet"
              style="display:none;"
              data-bind="
@@ -25,6 +21,7 @@
                         attr: { class: className }
                     "></line>
             <!-- /ko -->
+
             <!-- ko foreach: nodes -->
             <g class="ko-d3-graph-node" data-bind="
                         attr: { title: title },
@@ -43,71 +40,69 @@
                             }
                         "></image>
             </g>
-
             <!-- /ko -->
         </svg>
     </div>
-    <div class="col-sm-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Details</h3>
-            </div>
-            <div class="panel-body">
-                <!-- ko if: selectedTemplate() -->
-                <div class="row" data-bind="template: { name: selectedTemplate(), data: selectedRoot }"></div>
-                <!-- ko with: graph -->
-                <dl data-bind="visible:true" class="linkedNodes" style="display:none">
-                    <!-- ko with: selectedLinkedNodes -->
-                    <!-- ko if: parentOf.length > 0 -->
-                    <dt>References</dt>
-                    <!-- ko foreach: parentOf -->
-                    <dd data-bind=" attr: {title: id} ">
-                        <!-- ko if: $parents[2].panel_actions().show_reference_check(type()) -->
-                        <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
+    {# TODO: extract detail panel to separate template #}
+    <div id="visualiser-detail" class="flex-after flexbox vflex panel-default">
+        <div class="flex-before panel-heading">
+            <h3 class="panel-title">Details</h3>
+        </div>
+        <div class="flex-main panel-body">
+            <!-- ko if: selectedTemplate() -->
+            <div class="row" data-bind="template: { name: selectedTemplate(), data: selectedRoot }"></div>
+            <!-- ko with: graph -->
+            <dl data-bind="visible:true" class="linkedNodes" style="display:none">
+                <!-- ko with: selectedLinkedNodes -->
+                <!-- ko if: parentOf.length > 0 -->
+                <dt>References</dt>
+                <!-- ko foreach: parentOf -->
+                <dd data-bind=" attr: {title: id} ">
+                    <!-- ko if: $parents[2].panel_actions().show_reference_check(type()) -->
+                    <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
+                    <!-- /ko -->
+                    <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
+                    &nbsp;<span data-bind="text:title,
+                    click:$parents[2].onNodeClicked.bind($parents[2])"></span>
+                </dd>
+
+                <!-- /ko -->
+                <br>
+                <div class="btn-group" role="group">
+                    <!-- ko foreach: $parents[1].panel_actions().actions -->
+                    <button type="button" data-toggle="tooltip" class="btn btn-default" data-bind="attr: {title:action_name},
+                        click:$parents[1].call_action.bind($parents[1], $data.action())">
+                        <!-- ko if: glyphicon_name -->
+                        <span data-bind="css: glyphicon_name"></span>
                         <!-- /ko -->
-                        <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
-                        &nbsp;<span data-bind="text:title,
-                        click:$parents[2].onNodeClicked.bind($parents[2])"></span>
-                    </dd>
-
-                    <!-- /ko -->
-                    <br>
-                    <div class="btn-group" role="group">
-                        <!-- ko foreach: $parents[1].panel_actions().actions -->
-                        <button type="button" data-toggle="tooltip" class="btn btn-default" data-bind="attr: {title:action_name},
-                            click:$parents[1].call_action.bind($parents[1], $data.action())">
-                            <!-- ko if: glyphicon_name -->
-                            <span data-bind="css: glyphicon_name"></span>
-                            <!-- /ko -->
-                            <!-- ko ifnot: glyphicon_name -->
-                            <!--ko text: action_name--><!--/ko-->
-                            <!-- /ko -->
-                        </button>
+                        <!-- ko ifnot: glyphicon_name -->
+                        <!--ko text: action_name--><!--/ko-->
                         <!-- /ko -->
-                    </div>
+                    </button>
                     <!-- /ko -->
+                </div>
+                <!-- /ko -->
 
-                    <!-- ko if: childOf.length > 0 -->
-                    <dt>Referenced By</dt>
-                    <!-- ko foreach: childOf -->
-                    <dd data-bind="
-                        attr: {
-                            title: id
-                        },
-                        click:$parents[2].onNodeClicked.bind($parents[2])
-                    ">
-                        <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'
-                                            }">&nbsp;<span data-bind="text:title"></span>
-                    </dd>
+                <!-- ko if: childOf.length > 0 -->
+                <dt>Referenced By</dt>
+                <!-- ko foreach: childOf -->
+                <dd data-bind="
+                    attr: {
+                        title: id
+                    },
+                    click:$parents[2].onNodeClicked.bind($parents[2])
+                ">
+                    <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'
+                                        }">&nbsp;<span data-bind="text:title"></span>
+                </dd>
 
-                    <!-- /ko -->
-                    <!-- /ko -->
-                    <!-- /ko -->
-                </dl>
                 <!-- /ko -->
                 <!-- /ko -->
-                <p data-bind="ifnot: selectedTemplate">Nothing selected</p>
-            </div>
+                <!-- /ko -->
+            </dl>
+            <!-- /ko -->
+            <!-- /ko -->
+            <p data-bind="ifnot: selectedTemplate">Nothing selected</p>
         </div>
     </div>
 

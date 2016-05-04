@@ -2,13 +2,13 @@ define([
     "dcl/dcl",
     "knockout",
     "d3",
-    "common/modal/Modal",
+    "common/modal/show-error-modal",
+    "common/topic",
     "visualiser/ViewModel",
     "visualiser/panel-action/PanelActionsBuilder",
     "visualiser/panel-action/PanelAction",
-    "kotemplate!modal-error-content:publisher/templates/error-modal-content.html"
-], function (declare, ko, d3, Modal, ViewModel, PanelActionsBuilder, PanelAction, errorContentTemplate) {
-
+    "visualiser/graph/topics"
+], function (declare, ko, d3, showErrorModal, topic, ViewModel, PanelActionsBuilder, PanelAction, topics) {
     var base_url = "/adapter/certuk_mod/ajax/extract_visualiser/";
 
     var ExtractViewModel = declare(null, {
@@ -23,6 +23,9 @@ define([
                         this,
                         document.getElementById('content')
                     );
+                    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                        topic.publish(topics.RESIZE, e.target.id);
+                    });
                 }
             }.bind(this))
 
@@ -79,13 +82,7 @@ define([
     }
 
     function showErrorModal(message) {
-        (new Modal({
-            title: "Error",
-            titleIcon: "glyphicon-warning-sign",
-            contentData: message,
-            contentTemplate: errorContentTemplate.id,
-            width: "90%"
-        })).show();
+         showErrorModal(message, false);
     }
 
     function no(type) {

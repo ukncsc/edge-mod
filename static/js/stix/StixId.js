@@ -21,13 +21,13 @@ define([
         "coa": {
             "class": CourseOfAction, "collection": "courses_of_action", "label": "Course Of Action", "code": "coa"
         },
-        "incident": {
+        "inc": {
             "class": Incident, "collection": "incidents", "label": "Incident", "code": "inc"
         },
-        "indicator": {
+        "ind": {
             "class": Indicator, "collection": "indicators", "label": "Indicator", "code": "ind"
         },
-        "observable": {
+        "obs": {
             "class": Observable, "collection": "observables.observables", "label": "Observable", "code": "obs"
         },
         "tgt": {
@@ -42,7 +42,10 @@ define([
         "campaign": "cam",
         "courseofaction": "coa",
         "et": "tgt",
-        "threatactor": "act"
+        "threatactor": "act",
+        "incident": "inc",
+        "indicator": "ind",
+        "observable": "obs"
     });
 
     var PATTERN = Object.freeze({

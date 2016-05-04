@@ -2,19 +2,28 @@ define([
     "knockout",
     "d3",
     "jquery",
+    "common/topic",
+    "./topics",
     "./Graph"
-], function (ko, d3, $) {
+], function (ko, d3, $, topic, topics) {
     "use strict";
+
+    function needsResize(newWidth, newHeight, currentWidth, currentHeight) {
+        return newWidth > 0
+            && newHeight > 0
+            && newWidth !== currentWidth
+            && newHeight !== currentHeight;
+    }
 
     function sizeToParent(element, graphModel) {
         var parent = $(element.parentNode);
         var height = parent.height();
         var width = parent.width();
-        d3.select(element)
-            .attr("viewBox", "0 0 " + width + " " + height)
-            .attr("height", height)
-            .attr("width", width);
-        graphModel.size([width, height]);
+        var currentSize = graphModel.size();
+        if (needsResize(width, height, currentSize[0], currentSize[1])) {
+            d3.select(element).attr("viewBox", "0 0 " + width + " " + height)
+            graphModel.size([width, height]);
+        }
     }
 
     ko.bindingHandlers.forceGraph = {
@@ -26,14 +35,23 @@ define([
             }
 
             var graphModel = valueAccessor()();
+            var rootId = graphModel.findRootNode().id();
             ko.bindingHandlers["with"].init(element, valueAccessor, allBindings, viewModel, bindingContext)
             graphModel.applyBindingValues(allBindings());
 
             d3.select(window).on("resize", function () {
                 sizeToParent(element, graphModel);
             });
+            var handle = topic.subscribe(topics.RESIZE, function (id) {
+                if (id === rootId) {
+                    sizeToParent(element, graphModel);
+                }
+            });
             sizeToParent(element, graphModel);
 
+            ko.utils.domNodeDisposal.addDisposeCallback(element, function () {
+                handle.remove();
+            });
             // Tell Knockout that we've already dealt with child bindings
             return {
                 controlsDescendantBindings: true
@@ -69,7 +87,7 @@ define([
                         });
                     nodeSelector.attr("transform", function (d) {
                         return "translate(" + d.x + "," + d.y + ")";
-                    })
+                    });
                 });
         }
     };
