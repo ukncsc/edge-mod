@@ -1,0 +1,57 @@
+
+nav#the-navbar,
+nav#ftr-btm,
+li.navtool,
+.panel-default > .panel-heading
+{
+    background-color: #443c4c !important;
+    cursor: move;
+}
+
+.panel-default > .panel-body {
+    background-color: #ddd2da !important;
+}
+
+ul.breadcrumb > li:last-child,
+nav#ftr-btm img
+{
+    display: none;
+}
+
+ul > li > a,
+ul > li > a:focus,
+ul > li > a:hover,
+a.pss
+{
+    color: #4f2d81;
+}
+
+
+.flexbox {
+    display: flex;
+    overflow: hidden;
+}
+
+.hflex {
+    flex-flow: row nowrap;
+}
+
+.vflex {
+    flex-flow: column nowrap;
+}
+
+.before {
+    order: 1;
+}
+
+.main {
+    order: 2;
+}
+
+.after {
+    order: 3
+}
+
+.wrap {
+    flex-wrap: wrap;
+}

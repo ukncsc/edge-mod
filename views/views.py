@@ -15,6 +15,8 @@ from users.models import Draft
 from edge.generic import EdgeObject
 from edge import IDManager
 
+from adapters.certuk_mod.dashboard.views import purple_dashboard
+
 from adapters.certuk_mod.publisher.package_publisher import Publisher
 from adapters.certuk_mod.publisher.publisher_config import PublisherConfig
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator

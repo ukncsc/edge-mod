@@ -70,8 +70,9 @@ publisher_urls = [
     (r'^visualiser/missing/$', 'views.visualiser_not_found', 'visualiser_not_found'),
     (r'^visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_view', 'visualiser_view'),
     (r'^ajax/visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_get', 'visualiser_ajax_view'),
-    (r'^ajax/visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_item_get', 'visualiser_ajax_item')
+    (r'^ajax/visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_item_get', 'visualiser_ajax_item'),
 
+    (r'^dashboard/$', 'views.purple_dashboard', 'purple_dashboard')
 ]
 
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]
@@ -79,6 +80,7 @@ publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publis
 urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
 navitems = [
+    ('New Dashboard', 'purple_dashboard'),
     ('External Publisher', 'publisher_discover'),
     ('Extract Stix', 'extract_stix'),
     ('Clone to Draft', 'clone_to_draft'),

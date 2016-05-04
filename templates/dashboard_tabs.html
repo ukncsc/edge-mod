@@ -1,0 +1,24 @@
+<template id="dashboard_tabs">
+    <div class="flexbox vflex" style="position:absolute;top:0;right:0;bottom:0;left:0;">
+        <ul class="before nav nav-tabs" role="tablist" style="flex: 0 0 auto;" data-bind="foreach: folders">
+            <li role="tab" data-bind="
+                click: $root.selectedFolder,
+                css: {
+                    active: $data.label === $root.selectedFolder().label
+                }
+            ">
+                <a href="#" data-bind="text: $data.label"></a>
+            </li>
+        </ul>
+        <div class="main" style="flex: 1 1 auto;margin:0 23px;padding-top:13px;"
+             data-bind="
+                css: {
+                    flexbox: !(typeof selectedFolder().flex === 'undefined'),
+                    hflex: selectedFolder().flex === 'h',
+                    vflex: selectedFolder().flex === 'v'
+                },
+                template: { name: selectedFolder().template, data: selectedFolder().model }
+        ">
+        </div>
+    </div>
+</template>
