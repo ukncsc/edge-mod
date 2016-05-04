@@ -9,12 +9,12 @@ define([
         constructor: function () {
         },
 
-        getGraph: function () {
-            return document.getElementById(("visualiser-graph"));
+        getGraph: function (graphID) {
+            return document.getElementById((graphID));
         },
 
-        savetoPNG: function (rootID) {
-            svg2png.saveSvgAsPng(this.getGraph(), rootID+".png");
+        savetoPNG: function (rootID, graphID) {
+            svg2png.saveSvgAsPng(this.getGraph(graphID), rootID+".png");
         }
 
     });
