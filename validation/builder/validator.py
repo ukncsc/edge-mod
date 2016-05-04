@@ -1,4 +1,3 @@
-from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.common.namespace import NamespaceValidationInfo
 from adapters.certuk_mod.validation.common.structure import (
     IndicatorStructureConverter,

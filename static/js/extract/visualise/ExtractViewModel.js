@@ -2,12 +2,11 @@ define([
     "dcl/dcl",
     "knockout",
     "d3",
-    "common/modal/Modal",
+    "common/modal/show-error-modal",
     "visualiser/ViewModel",
     "visualiser/panel-action/PanelActionsBuilder",
-    "visualiser/panel-action/PanelAction",
-    "kotemplate!modal-error-content:publisher/templates/error-modal-content.html"
-], function (declare, ko, d3, Modal, ViewModel, PanelActionsBuilder, PanelAction, errorContentTemplate) {
+    "visualiser/panel-action/PanelAction"
+], function (declare, ko, d3, showErrorModal, ViewModel, PanelActionsBuilder, PanelAction) {
 
     var base_url = "/adapter/certuk_mod/ajax/extract_visualiser/";
 
@@ -79,13 +78,7 @@ define([
     }
 
     function showErrorModal(message) {
-        (new Modal({
-            title: "Error",
-            titleIcon: "glyphicon-warning-sign",
-            contentData: message,
-            contentTemplate: errorContentTemplate.id,
-            width: "90%"
-        })).show();
+         showErrorModal(message, false);
     }
 
     function no(type) {
