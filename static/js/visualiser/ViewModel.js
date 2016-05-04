@@ -4,8 +4,9 @@ define([
     "d3",
     "./graph/Graph",
     "../stix/StixPackage",
+    "./toPNG/PNGConverter",
     "./graph/forceGraphBinding"
-], function (declare, ko, d3, Graph, StixPackage) {
+], function (declare, ko, d3, Graph, StixPackage, PNGConverter) {
     "use strict";
 
     var ViewModel = declare(null, {
@@ -20,7 +21,9 @@ define([
 
             this.panel_actions = ko.computed(function () {
                 return panel_actions;
-            })
+            });
+
+            this.png_converter = new PNGConverter();
 
             this.item_url = ko.computed(function () {
                 return item_url;
@@ -66,6 +69,9 @@ define([
                 templateName = 'flat-' + selectedObject.type.code;
             }
             return templateName;
+        },
+        saveAsPNG : function () {
+            this.png_converter.savetoPNG(this.rootId());
         }
     });
 
