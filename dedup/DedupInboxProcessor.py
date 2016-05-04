@@ -329,7 +329,7 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
 
     out = coalesce_ttps(contents, map_table)
     if local:
-        message = _generate_message("Remapped %d CERUK namespace TTPs to existing TTPs based on CAPEC-IDs and title",
+        message = _generate_message("Remapped %d local namespace TTPs to existing TTPs based on CAPEC-IDs and title",
                                     contents, out)
     else:
         message = _generate_message("Remapped %d external namespace TTPs to existing TTPs based on CAPEC-IDs and title",
@@ -347,15 +347,31 @@ def _new_ttp_capec_dedup(contents, hashes, user, local):
     map_table = {}
     for capec, ids in title_and_capecs_to_ids.iteritems():
         if len(ids) > 1:
-            master = ids[0]
-            for dup in ids[1:]:
-                map_table[dup] = master
+            id_to_description_length = {}
+            for id in ids:
+                if contents[id].api_object.obj.description != None:
+                    id_to_description_length[id]= len(contents[id].api_object.obj.description.value)
+            if id_to_description_length == {}:
+                master = ids[0]
+                for dup in ids[1:]:
+                    map_table[dup] = master
+            else:
+                start_length = 0
+                master = ""
+                for id, length in id_to_description_length.iteritems():
+                    if length > start_length:
+                        master = id
+                        start_length = length
+                ids.remove(master)
+                for dup in ids:
+                    map_table[dup]=master
+
 
     out = coalesce_ttps(contents, map_table)
 
     if local:
         message = _generate_message(
-            "Merged %d CERTUK namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
+            "Merged %d local namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
     else:
         message = _generate_message(
             "Merged %d external namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
