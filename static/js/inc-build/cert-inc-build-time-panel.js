@@ -3,8 +3,9 @@ define([
     "knockout",
     "common/cert-abstract-builder-form",
     "inc-build/cert-inc-build-time",
-    "common/topic"
-], function (declare, ko, AbstractBuilderForm, Time, Topic) {
+    "common/topic",
+    "inc-build/cert-inc-build-topics"
+], function (declare, ko, AbstractBuilderForm, Time, Topic, topics) {
     "use strict";
 
     return declare(AbstractBuilderForm, {
@@ -15,7 +16,7 @@ define([
                 this.timeTypes = ko.observableArray();
                 this.timeZone = ko.observable();
                 sup.call(this, "Times");
-                Topic.subscribe('status_changed', function (data) {
+                Topic.subscribe(topics.STATUS_CHANGE, function (data) {
                     if (data === 'Closed') {
                         postJSON("/adapter/certuk_mod/ajax/get_datetime/", {}, function (result) {
                             this.set_closed_time(result['result']);
@@ -24,15 +25,15 @@ define([
                         this.set_closed_time("");
                     }
                 }.bind(this), this);
-            }
+            };
         }),
 
         set_closed_time: function (timeStr) {
-            this.set_time(timeStr, 'incident_closed')
+            this.set_time(timeStr, 'incident_closed');
         },
 
         set_opened_time: function (timeStr) {
-            this.set_time(timeStr, 'incident_opened')
+            this.set_time(timeStr, 'incident_opened');
         },
 
         set_time: function (timeStr, name) {
@@ -46,20 +47,19 @@ define([
         counter: function () {
             var count = 0;
             ko.utils.arrayForEach(this.timeTypes(), function (timeType) {
-                if (timeType.timeString() != "") {
-                    count++;
+                if (timeType.timeString() !== "") {
+                    count = count + 1;
                 }
             });
-            return count != 0 ? count : "";
+            return count !== 0 ? count : "";
         },
 
         loadTimeType: function (timeInfo) {
-            var displayName = timeInfo[1]
-
-            var newTime = new Time(
-                timeInfo[0],
-                displayName
-            )
+            var displayName = timeInfo[1],
+                newTime = new Time(
+                    timeInfo[0],
+                    displayName
+                );
 
             newTime.timeString.extend({
                 requiredGrouped: {
@@ -67,12 +67,12 @@ define([
                     group: this.validationGroup,
                     displayMessage: displayName + " time is required for your indicator"
                 }
-            })
+            });
             this.timeTypes.push(newTime);
         },
 
         loadStatic: function (optionsList) {
-            this.timeZone = optionsList['time_zone']
+            this.timeZone = optionsList['time_zone'];
             this.timeTypes.removeAll();
             for (var i = 0; i < optionsList['time_types_list'].length; i++) {
                 this.loadTimeType(optionsList['time_types_list'][i])

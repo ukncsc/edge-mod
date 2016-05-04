@@ -4,8 +4,9 @@ define([
     "common/cert-abstract-builder-form",
     "common/cert-messages",
     "common/cert-identity",
-    "common/topic"
-], function (declare, ko, AbstractBuilderForm, Messages, CERTIdentity, Topic) {
+    "common/topic",
+    "inc-build/cert-inc-build-topics"
+], function (declare, ko, AbstractBuilderForm, Messages, CERTIdentity, Topic, topics) {
     "use strict";
 
     return declare(AbstractBuilderForm, {
@@ -91,7 +92,7 @@ define([
         addReporter: function () {
             var newIdentity = new CERTIdentity();
             newIdentity.ModelUI().done(function () {
-                this.reporter(newIdentity)
+                this.reporter(newIdentity);
             }.bind(this));
         },
 
@@ -115,7 +116,7 @@ define([
             }
 
             this.status.subscribe(function (data) {
-                Topic.publish('status_changed', data);
+                Topic.publish(topics.STATUS_CHANGE, data);
             }.bind(this));
         },
 
