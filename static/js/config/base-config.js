@@ -109,6 +109,10 @@ define([
             });
 
             onSaveModal.show();
+        },
+
+        inputIsInteger: function(value) {
+            return isFinite(value) && Math.floor(value) == value;
         }
     });
 });

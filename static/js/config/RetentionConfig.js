@@ -6,10 +6,6 @@ define([
 ], function (declare, ko, Modal, BaseConfig) {
     "use strict";
 
-    function inputIsInteger(value) {
-        return isFinite(value) && Math.floor(value) == value;
-    }
-
     return declare(BaseConfig, {
         declaredClass: "RetentionConfig",
         constructor: declare.superCall(function (sup) {
@@ -67,19 +63,19 @@ define([
         _basicValidate: function () {
             var errors = [];
 
-            if (!inputIsInteger(this.age())) {
+            if (!this.inputIsInteger(this.age())) {
                 errors.push("The maximum age must be an integer.");
             } else if (this.age() < 1) {
                 errors.push("The maximum age must be greater than zero.");
             }
 
-            if (!inputIsInteger(this.sightings())) {
+            if (!this.inputIsInteger(this.sightings())) {
                 errors.push("The minimum sightings must be an integer.");
             } else if (this.sightings() < 2) {
                 errors.push("The minimum sightings must be greater than one.");
             }
 
-            if (!inputIsInteger(this.backLinks())) {
+            if (!this.inputIsInteger(this.backLinks())) {
                 errors.push("The minimum back links must be an integer.");
             } else if (this.backLinks() < 1) {
                 errors.push("The minimum back links must be greater than zero.");

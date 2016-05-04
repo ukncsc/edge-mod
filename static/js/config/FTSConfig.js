@@ -6,10 +6,6 @@ define([
 ], function (declare, ko, Modal, BaseConfig) {
     "use strict";
 
-    function inputIsInteger(value) {
-        return isFinite(value) && Math.floor(value) == value;
-    }
-
     return declare(BaseConfig, {
         declaredClass: "RetentionConfig",
 
