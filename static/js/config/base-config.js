@@ -2,8 +2,9 @@ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
+    "common/modal/show-error-modal",
     "kotemplate!ret-config-modal:./templates/config-modal-content.html"
-], function (declare, ko, Modal, configModalTemplate) {
+], function (declare, ko, Modal, showErrorModal, configModalTemplate) {
     "use strict";
 
     return declare(null, {
@@ -59,12 +60,7 @@ define([
                 if (response["success"]) {
                     this._parseConfigResponse(response);
                 } else {
-                    var errorModal = new Modal({
-                        title: "Error",
-                        titleIcon: "glyphicon-exclamation-sign",
-                        contentData: "An error occurred while attempting to retrieve the " + this.configType() + " configuration."
-                    }.bind(this));
-                    errorModal.show();
+                    showErrorModal("An error occurred while attempting to retrieve the " + this.configType() + " configuration.", false)
                 }
             }.bind(this));
         },

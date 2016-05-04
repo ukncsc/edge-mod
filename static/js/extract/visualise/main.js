@@ -1,19 +1,11 @@
 require([
     "extract/visualise/ExtractViewModel",
+    "common/modal/show-error-modal",
     "domReady!"
-], function (ExtractViewModel) {
+], function (ExtractViewModel, showErrorModal) {
     try {
         new ExtractViewModel(window['root_ids']);
     } catch (e) {
-        var errorModal = new Modal({
-            title: "Error",
-            titleIcon: "glyphicon-warning-sign",
-            contentData: e.message,
-            contentTemplate: errorContentTemplate.id,
-            width: "90%"
-        });
-
-        errorModal.getButtonByLabel("OK").callback = history.back.bind(history);
-        errorModal.show();
+        showErrorModal(e.message, true);
     }
 });

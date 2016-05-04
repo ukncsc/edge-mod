@@ -10,7 +10,7 @@ define([
         declaredClass: "RetentionConfig",
         constructor: declare.superCall(function (sup) {
             return function () {
-                sup.call(this, "Retention", "purge_task", "retention_config")
+                sup.call(this, "Retention", "purge_task", "retention_config");
 
                 this.age = ko.observable();
                 this.sightings = ko.observable();
