@@ -5,7 +5,6 @@
 {% endblock %}
 
 {% block body-content %}
-
       <div class="container-fluid">
         <div id="incidentTimelineSVG" class="chart">
             <div id="incidentTimelineSVG_title" class="title"></div>
@@ -20,8 +19,7 @@
     <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script>
-
-        var rootId = '{{ stix_id|safe }}';
+        var rootId = '{{ stix_id }}';
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
@@ -33,6 +31,5 @@
 
     </script>
     <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="timeline/incident_main"></script>
-
 
 {% endblock %}

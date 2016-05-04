@@ -2,8 +2,10 @@ define([
     "dcl/dcl",
     "d3",
     "common/moment-shim",
+    "common/modal/Modal",  // Post merge with #109 into develop, change to use show-error-modal
+    "kotemplate!modal-error-content:publisher/templates/error-modal-content.html",
     "timeline/d3-tooltip"
-], function (declare, d3, moment) {
+], function (declare, d3, moment, Modal, errorContentTemplate) {
     "use strict";
     return declare(null, {
 
@@ -22,14 +24,22 @@ define([
                 half_height = (svg_height / 2);
 
             d3.json(graph_url + encodeURIComponent(rootId), function (error, graph) {
+                if (error !== null) {
+                    var errorModal = new Modal({
+                        title: "Error",
+                        titleIcon: "glyphicon-warning-sign",
+                        contentData: JSON.parse(error.response).message,
+                        contentTemplate: errorContentTemplate.id,
+                        width: "90%"
+                    });
+                    errorModal.show();
+                    return;
+                }
 
                 graph.nodes.sort(function (a, b) {
                     return (new Date(a.date)) - (new Date(b.date));
                 });
 
-                if (error !== null) {
-                    return; // Not handled as none thrown from backend
-                }
 
                 var tip = d3.tip().attr('class', 'd3-tip').html(function (d) {
                         return d.name + "<br>" + moment(d.date).utc().format("DD-MM-YYYY HH:mm:ss");

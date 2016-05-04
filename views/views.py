@@ -57,7 +57,7 @@ from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser
     visualiser_get, \
     visualiser_item_get
 from users.models import Repository_User
-from users.decorators import login_required_ajax
+
 from adapters.certuk_mod.timeline.views import ajax_incident_timeline, timeline_discover, incident_timeline
 
 audit_setup.configure_publisher_actions()

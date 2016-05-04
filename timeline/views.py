@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from edge.generic import EdgeObject
+from edge.generic import EdgeObject, EdgeError
 from users.decorators import login_required_ajax
 
 from adapters.certuk_mod.common.objectid import discover as objectid_discover
@@ -49,8 +49,12 @@ def incident_timeline_not_found(request):
 def ajax_incident_timeline(request, id_):
     try:
         edge_object = EdgeObject.load(id_)
+    except EdgeError as e:
+        return JsonResponse(dict(e), status=400)
+
+    try:
         if edge_object.ty != 'inc':
-            return error_with_message(request, "Only timelines for Incidents can be viewed")
+            return JsonResponse({'message': "Only timelines for Incidents can be viewed"}, status=400)
 
         time_dict = edge_object.obj.time.to_dict()
         graph = dict()
@@ -72,8 +76,7 @@ def ajax_incident_timeline(request, id_):
     except Exception as e:
         ext_ref_error = "not found"
         if e.message.endswith(ext_ref_error):
-            return error_with_message(request,
-                                      "Unable to load object as some external "
-                                      "references were not found: " + e.message[0:-len(ext_ref_error)])
+            JsonResponse({'message': "Unable to load object as some external " \
+                                     "references were not found: " + e.message[0:-len(ext_ref_error)]})
         else:
-            return error_with_message(request, e.message)
+            return JsonResponse(dict(e), status=500)
