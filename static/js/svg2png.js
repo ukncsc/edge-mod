@@ -1,3 +1,7 @@
+/*
+* https://github.com/exupero/saveSvgAsPng
+ */
+
 (function() {
   var out$ = typeof exports != 'undefined' && exports || typeof define != 'undefined' && {} || this;
 
