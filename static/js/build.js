@@ -38,6 +38,9 @@
         },
         {
             name: "extract/visualise/main"
+        },
+        {
+            name: "timeline/incident_main"
         }
     ],
     fileExclusionRegExp: /^\.|^tests$|^build.js$|\.md$|\.pyc$/,
