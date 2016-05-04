@@ -83,6 +83,11 @@ define([
                 }
             }.bind(this));
         },
+        findRootNode: function () {
+            return ko.utils.arrayFirst(this.nodes(), function (node) {
+                return node.isRoot();
+            });
+        },
         findNode: function (nodeId) {
             return ko.utils.arrayFirst(this.nodes(), function (node) {
                 return nodeId === node.id();

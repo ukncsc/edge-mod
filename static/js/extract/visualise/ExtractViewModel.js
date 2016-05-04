@@ -3,11 +3,12 @@ define([
     "knockout",
     "d3",
     "common/modal/show-error-modal",
+    "common/topic",
     "visualiser/ViewModel",
     "visualiser/panel-action/PanelActionsBuilder",
-    "visualiser/panel-action/PanelAction"
-], function (declare, ko, d3, showErrorModal, ViewModel, PanelActionsBuilder, PanelAction) {
-
+    "visualiser/panel-action/PanelAction",
+    "visualiser/graph/topics"
+], function (declare, ko, d3, showErrorModal, topic, ViewModel, PanelActionsBuilder, PanelAction, topics) {
     var base_url = "/adapter/certuk_mod/ajax/extract_visualiser/";
 
     var ExtractViewModel = declare(null, {
@@ -22,6 +23,9 @@ define([
                         this,
                         document.getElementById('content')
                     );
+                    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                        topic.publish(topics.RESIZE, e.target.id);
+                    });
                 }
             }.bind(this))
 
