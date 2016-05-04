@@ -2,16 +2,19 @@ define([
     "dcl/dcl",
     "d3",
     "common/moment-shim",
-    "common/modal/Modal",  // Post merge with #109 into develop, change to use show-error-modal
-    "kotemplate!modal-error-content:publisher/templates/error-modal-content.html",
+    "common/modal/show-error-modal",
     "timeline/d3-tooltip"
-], function (declare, d3, moment, Modal, errorContentTemplate) {
+], function (declare, d3, moment, showErrorModal, errorContentTemplate) {
     "use strict";
     return declare(null, {
 
         create_timeline: function (div, rootId, graph_url) {
-            var width = d3.select("#" + div)[0][0].clientWidth,
-                height = d3.select("#" + div)[0][0].clientHeight,
+            var elem = d3.select("#" + div)[0][0];
+            if (elem ===  null) {
+                return;
+            }
+            var width = elem.clientWidth,
+                height = elem.clientHeight,
                 margin = {
                     top: height / 6,
                     right: width / 7,
@@ -25,14 +28,7 @@ define([
 
             d3.json(graph_url + encodeURIComponent(rootId), function (error, graph) {
                 if (error !== null) {
-                    var errorModal = new Modal({
-                        title: "Error",
-                        titleIcon: "glyphicon-warning-sign",
-                        contentData: JSON.parse(error.response).message,
-                        contentTemplate: errorContentTemplate.id,
-                        width: "90%"
-                    });
-                    errorModal.show();
+                    showErrorModal(JSON.parse(error.response).message, false);
                     return;
                 }
 
