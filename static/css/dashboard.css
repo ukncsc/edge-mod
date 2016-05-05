@@ -8,6 +8,11 @@ li.navtool,
     cursor: move;
 }
 
+.btn.btn-primary {
+    background-color: #443c4c !important;
+    border-color: #443c4c !important;
+}
+
 .panel-default > .panel-body {
     background-color: #ddd2da !important;
 }

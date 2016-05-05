@@ -1,1 +1,64 @@
-<div>Search content</div>
+<div class="before form-group" style="flex: 0 0 auto;">
+    <label for="filter-search" class="control-label sr-only">Search</label>
+    <div class="input-group">
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-search"></span>
+            </span>
+        <input type="text" class="form-control" id="filter-search" data-bind="value: searchText"
+               placeholder="Query details">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default" data-bind="click: clearSearch">Clear</button>
+                <button type="submit" class="btn btn-primary" data-bind="click: loadLog">Search</button>
+            </span>
+    </div>
+    <span class="pull-right">
+        Quick help:
+        <code>after:<em>date</em></code>,
+        <code>before:<em>date</em></code>,
+        <code>match:<em>field name</em>:<em>operator</em>:<em>field name or value</em></code> and
+        <code>aggregate:<em>operator</em>:<em>field name</em></code>
+    </span>
+</div>
+<div class="main table-responsive" style="flex: 1 1 auto;overflow-y:auto;">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <!-- ko foreach: columns -->
+                <th data-bind="text:$data"></th>
+                <!-- /ko -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ko foreach: { data:rowdata, as:'row' } -->
+            <tr>
+                <!-- ko foreach: row -->
+                <td data-bind="text:$data"></td>
+                <!-- /ko -->
+            </tr>
+            <!-- /ko -->
+        </tbody>
+    </table>
+</div>
+<div class="after" style="flex: 0 0 auto;">
+    <div class="pull-right form-group" style="width:40%;">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Query name">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-primary">Save Query</button>
+            </span>
+        </div>
+    </div>
+    <div class="form-group" style="width:40%;">
+        <div class="input-group">
+            <select class="form-control" data-bind="
+                options: $root.savedQueries,
+                optionsText: 'label',
+                optionsValue: 'value',
+                optionsCaption: 'Choose&hellip;'
+            "></select>
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-primary">Load Query</button>
+            </span>
+        </div>
+    </div>
+</div>

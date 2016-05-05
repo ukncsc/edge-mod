@@ -4,13 +4,11 @@ define([
     "./DashboardModel",
     "./AlertModel",
     "./SearchModel",
-    "./ConfigurationModel",
     "kotemplate!dashboard:./templates/dashboard.html",
     "kotemplate!alert:./templates/alert.html",
-    "kotemplate!search:./templates/search.html",
-    "kotemplate!configuration:./templates/configuration.html"
-], function (declare, ko, DashboardModel, AlertModel, SearchModel, ConfigurationModel, DashboardTemplate, AlertTemplate,
-             SearchTemplate, ConfigurationTemplate) {
+    "kotemplate!search:./templates/search.html"
+], function (declare, ko, DashboardModel, AlertModel, SearchModel, DashboardTemplate, AlertTemplate,
+             SearchTemplate) {
     "use strict";
 
     return declare(null, {
@@ -23,15 +21,15 @@ define([
                     model: new DashboardModel(),
                     flex: "v"
                 },
-                {label: "Alerts", template: AlertTemplate.id, model: new AlertModel(), flex: "v"},
                 {label: "Search", template: SearchTemplate.id, model: new SearchModel(), flex: "v"},
-                {label: "Configure", template: ConfigurationTemplate.id, model: new ConfigurationModel(), flex: "h"}
+                {label: "Alerts", template: AlertTemplate.id, model: new AlertModel(), flex: "v"}
             ]);
             this.selectedFolder = ko.observable(this.folders.peek()[0]);
             this.savedQueries = ko.observableArray([
+                {value:0, label:"Indicators by Type"},
                 {value:1, label:"Incidents by Type"},
                 {value:2, label:"Observables by Country"},
-                {value:3, label:"Feed Item Count by Provider"},
+                {value:3, label:"Feed Item Count by Provider"}
             ]);
             this.visualisationTypes = ko.observableArray([
                 {label: "Line Graph", imageUrl: "chart2.png"},
@@ -44,6 +42,11 @@ define([
                 {label: "X-Y Ranged 1", imageUrl: "chart7.png"},
                 {label: "X-Y Ranged 2", imageUrl: "chart9.png"}
             ]);
+        },
+        selectByLabel: function (label) {
+            this.selectedFolder(ko.utils.arrayFirst(this.folders.peek(), function (folder) {
+                return folder.label === label;
+            }));
         }
     });
 });
