@@ -4,7 +4,7 @@ define([
 ], function (declare, ko) {
     "use strict";
 
-    var defaultSearchText = "after:26/04/2016 before:26/04/2016 match:stixtype:=:obs match:namespace:=:certuk";
+    var defaultSearchText = "after:16/04/2016 before:26/04/2016 match:stixtype:=:obs match:namespace:=:certuk";
     var mockResults = Object.freeze([
         [(new Date(2016, 3, 26)).toLocaleDateString(), "obs", "Crouching_Powerpoint_Hidden_Trojan_24C3.pdf", "certuk", "WHITE"],
         [(new Date(2016, 3, 25)).toLocaleDateString(), "obs", "Beijings-rising-hackers.pdf", "certuk", "WHITE"],
