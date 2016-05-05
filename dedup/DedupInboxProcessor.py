@@ -259,24 +259,24 @@ def _package_ttps_to_consider(contents, local, after_package_dedup):
         correct_ns = is_local if local else (not is_local)
         if not correct_ns:
             continue
-        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'ttp' and \
-                        len(rgetattr(contents.get(id_, None), PROPERTY_CAPEC, '')) > 0:
+        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'ttp' and len(
+                rgetattr(contents.get(id_, None), PROPERTY_CAPEC, '')) > 0:
             ids_to_objects_to_consider.setdefault(id_, []).append(io)
 
     title_capec_string_to_ids = {}
     for id_, ttps in ids_to_objects_to_consider.iteritems():
         for ttp in ttps:
-            capec_key =[]
+            capec_key = []
             for capecs in ttp.api_object.obj.behavior.attack_patterns:
-                if capecs.capec_id != None:
+                if capecs.capec_id is not None:
                     capec_key.append(capecs.capec_id)
-                if len(capec_key) != 0:
-                    capec_join = ",".join(sorted(capec_key))
-                    key = ttp.api_object.obj.title.strip().lower() + ": " + capec_join
-                    if after_package_dedup:
-                        title_capec_string_to_ids[key] = id_
-                    else:
-                        title_capec_string_to_ids.setdefault(key,[]).append(id_)
+            if len(capec_key) != 0:
+                capec_join = ",".join(sorted(capec_key))
+                key = ttp.api_object.obj.title.strip().lower() + ": " + capec_join
+                if after_package_dedup:
+                    title_capec_string_to_ids[key] = id_
+                else:
+                    title_capec_string_to_ids.setdefault(key, []).append(id_)
     return title_capec_string_to_ids
 
 
@@ -329,8 +329,8 @@ def _new_ttp_capec_dedup(contents, hashes, user, local):
         if len(ids) > 1:
             id_to_description_length = {}
             for id in ids:
-                if contents[id].api_object.obj.description != None:
-                    id_to_description_length[id]= len(contents[id].api_object.obj.description.value)
+                if contents[id].api_object.obj.description is not None:
+                    id_to_description_length[id] = len(contents[id].api_object.obj.description.value)
             if id_to_description_length == {}:
                 master = ids[0]
                 for dup in ids[1:]:
@@ -344,7 +344,7 @@ def _new_ttp_capec_dedup(contents, hashes, user, local):
                         start_length = length
                 ids.remove(master)
                 for dup in ids:
-                    map_table[dup]=master
+                    map_table[dup] = master
 
     out = coalesce_ttps(contents, map_table)
 

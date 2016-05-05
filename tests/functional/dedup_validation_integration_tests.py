@@ -45,4 +45,6 @@ class DedupFunctionalTests(edge_test.TestCase):
     def test_DedupInboxProcessor_validate_IndicatorPackageNoTTPs(self):
         self.assert_raises_inbox_error('IndicatorPackageNoTTPs.xml')
 
-    def test_DedupInboxProcessor_
+    def test_DedupInboxProcessor_validate_correct_query(self):
+        self.loaddata()
+
