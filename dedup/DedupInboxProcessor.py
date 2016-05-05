@@ -243,21 +243,6 @@ def _new_hash_dedup(contents, hashes, user):
     return out, message
 
 
-def flatten_ttp_capecs(io):
-    flattened_capecs = {}
-    for length, ttps in io.iteritems():
-        for ttp in ttps:
-            capec_key = []
-            for capecs in ttp.api_object.obj.behavior.attack_patterns:
-                if capecs.capec_id != None:
-                    capec_key.append(capecs.capec_id)
-            if len(capec_key) != 0:
-                join = ",".join(sorted(capec_key))
-                key = ttp.api_object.obj.title.strip().lower() + ": " + join
-                flattened_capecs.setdefault(len(capec_key), []).append({ttp.id: key})
-    return flattened_capecs
-
-
 def coalesce_ttps(contents, map_table):
     out = {}
     for id_, io in contents.iteritems():
@@ -267,29 +252,37 @@ def coalesce_ttps(contents, map_table):
     return out
 
 
-def ttp_title_capecs_to_ids(ids_to_capecs):
-    title_and_capecs_to_ids = {}
-    for length, ttps in ids_to_capecs.iteritems():
-        if len(ttps) > 1:
-            for ttp in ttps:
-                for id, key in ttp.iteritems():
-                    title_and_capecs_to_ids.setdefault(key, []).append(id)
-    return title_and_capecs_to_ids
-
-
-def _package_ttps_with_capec(contents, local):
-    number_of_capecs_to_objects = {}
-    for id_, io in sorted(contents.iteritems()):
+def _package_ttps_to_consider(contents, local, after_package_dedup):
+    ids_to_objects_to_consider = {}
+    for id_, io in contents.iteritems():
         is_local = rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE
         correct_ns = is_local if local else (not is_local)
+        if not correct_ns:
+            continue
         if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'ttp' and \
-                        len(rgetattr(contents.get(id_, None), PROPERTY_CAPEC, '')) > 0 and correct_ns:
-            amount_of_capecs = len(io.api_object.obj.behavior.attack_patterns)
-            number_of_capecs_to_objects.setdefault(amount_of_capecs, []).append(io)
-    return number_of_capecs_to_objects
+                        len(rgetattr(contents.get(id_, None), PROPERTY_CAPEC, '')) > 0:
+            ids_to_objects_to_consider.setdefault(id_, []).append(io)
+
+    title_capec_string_to_ids = {}
+    for id_, ttps in ids_to_objects_to_consider.iteritems():
+        for ttp in ttps:
+            capec_key =[]
+            for capecs in ttp.api_object.obj.behavior.attack_patterns:
+                if capecs.capec_id != None:
+                    capec_key.append(capecs.capec_id)
+                if len(capec_key) != 0:
+                    capec_join = ",".join(sorted(capec_key))
+                    key = ttp.api_object.obj.title.strip().lower() + ": " + capec_join
+                    if after_package_dedup:
+                        title_capec_string_to_ids[key] = id_
+                    else:
+                        title_capec_string_to_ids.setdefault(key,[]).append(id_)
+    return title_capec_string_to_ids
 
 
-def _existing_title_and_capecs(existing_ttps):
+def _existing_title_and_capecs(local):
+    existing_ttps = capec_finder(local)
+
     id_to_title = {}
     existing_id_to_capec = {}
     for found_data in existing_ttps:
@@ -299,32 +292,23 @@ def _existing_title_and_capecs(existing_ttps):
             existing_id_to_capec[found_data['_id']] = capecs
             id_to_title[found_data['_id']] = ttp['title']
 
-    existing_title_and_capecs = {}
+    existing_title_capec_string_to_id = {}
     for ids, capecs in existing_id_to_capec.iteritems():
         join = ",".join(sorted(capecs))
         title = id_to_title[ids].lower().strip()
         key = title + ": " + join
-        existing_title_and_capecs[key] = ids
-    return existing_title_and_capecs
+        existing_title_capec_string_to_id[key] = ids
+    return existing_title_capec_string_to_id
 
 
 def _existing_ttp_capec_dedup(contents, hashes, user, local):
-    existing_ttps = capec_finder(local)
+    existing_title_capec_string_to_id = _existing_title_and_capecs(local)
 
-    existing_title_and_capecs = _existing_title_and_capecs(existing_ttps)
-
-    ttps_to_compare = _package_ttps_with_capec(contents, local)
-    ids_to_capecs = flatten_ttp_capecs(ttps_to_compare)
-
-    title_and_capecs_to_ids = {}
-    for length, ttps in ids_to_capecs.iteritems():
-        for ttp in ttps:
-            for id, key in ttp.iteritems():
-                title_and_capecs_to_ids[key] = id
+    ttp_title_capec_string_to_ids = _package_ttps_to_consider(contents, local, True)
 
     map_table = {
-        id_: existing_title_and_capecs[key] for key, id_ in title_and_capecs_to_ids.iteritems() if
-        key in existing_title_and_capecs
+        id_: existing_title_capec_string_to_id[key] for key, id_ in ttp_title_capec_string_to_ids.iteritems() if
+        key in existing_title_capec_string_to_id
         }
 
     out = coalesce_ttps(contents, map_table)
@@ -338,14 +322,10 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
 
 
 def _new_ttp_capec_dedup(contents, hashes, user, local):
-    number_of_capecs_to_objects = _package_ttps_with_capec(contents, local)
-
-    ids_to_capecs = flatten_ttp_capecs(number_of_capecs_to_objects)
-
-    title_and_capecs_to_ids = ttp_title_capecs_to_ids(ids_to_capecs)
+    ttp_title_capec_string_to_ids = _package_ttps_to_consider(contents, local, False)
 
     map_table = {}
-    for capec, ids in title_and_capecs_to_ids.iteritems():
+    for title_capec_string, ids in ttp_title_capec_string_to_ids.iteritems():
         if len(ids) > 1:
             id_to_description_length = {}
             for id in ids:
@@ -366,7 +346,6 @@ def _new_ttp_capec_dedup(contents, hashes, user, local):
                 for dup in ids:
                     map_table[dup]=master
 
-
     out = coalesce_ttps(contents, map_table)
 
     if local:
@@ -378,19 +357,19 @@ def _new_ttp_capec_dedup(contents, hashes, user, local):
     return out, message
 
 
-def _new_ttp_CERT_capec_dedup(contents, hashes, user):
+def _new_ttp_local_ns_capec_dedup(contents, hashes, user):
     return _new_ttp_capec_dedup(contents, hashes, user, True)
 
 
-def _new_ttp_external_capec_dedup(contents, hashes, user):
+def _new_ttp_external_ns_capec_dedup(contents, hashes, user):
     return _new_ttp_capec_dedup(contents, hashes, user, False)
 
 
-def _existing_ttp_CERT_capec_dedup(contents, hashes, user):
+def _existing_ttp_local_ns_capec_dedup(contents, hashes, user):
     return _existing_ttp_capec_dedup(contents, hashes, user, True)
 
 
-def _existing_ttp_external_capec_dedup(contents, hashes, user):
+def _existing_ttp_external_ns_capec_dedup(contents, hashes, user):
     return _existing_ttp_capec_dedup(contents, hashes, user, False)
 
 
@@ -398,11 +377,10 @@ class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
         _new_hash_dedup,  # removes new STIX objects matched by hash
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
-        _new_ttp_CERT_capec_dedup,  # removes new STIX TTP objects matched by CAPEC-IDs and Title in CERT NS
-        _existing_ttp_CERT_capec_dedup,  # removes existing STIX TTP objects matched by CAPEC-IDs and Title in CERT NS
-        _new_ttp_external_capec_dedup,  # removes new STIX TTP objects matched by CAPEC-IDs and Title in external NS
-        _existing_ttp_external_capec_dedup,
-        # removes existing STIX TTP objects matched by CAPEC-IDs and Title in external NS
+        _new_ttp_local_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in local NS
+        _existing_ttp_local_ns_capec_dedup,  # dedup against existing TTPs matched by CAPEC-IDs and Title in local NS
+        # _new_ttp_external_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in external NS
+        # _existing_ttp_external_ns_capec_dedup, # dedup against existing TTPs matched by CAPEC-IDs and Title in external NS
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 

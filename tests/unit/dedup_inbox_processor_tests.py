@@ -19,7 +19,7 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import \
     flatten_ttp_capecs, \
     ttp_title_capecs_to_ids, \
     coalesce_ttps, \
-    _package_ttps_with_capec
+    _package_ttps_to_consider
 
 
 def create_file(file_name=None, md5=None, sha1=None, sha256=None):
@@ -250,8 +250,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_with_capec(contents, True)
-        package_ttps_non_local = _package_ttps_with_capec(contents, False)
+        package_ttps_local = _package_ttps_to_consider(contents, True)
+        package_ttps_non_local = _package_ttps_to_consider(contents, False)
 
         self.assertEqual(2, len(package_ttps_local[1]))
         self.assertDictEqual({}, package_ttps_non_local)
@@ -270,8 +270,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_with_capec(contents, True)
-        package_ttps_non_local = _package_ttps_with_capec(contents, False)
+        package_ttps_local = _package_ttps_to_consider(contents, True)
+        package_ttps_non_local = _package_ttps_to_consider(contents, False)
 
         self.assertDictEqual({}, package_ttps_local)
         self.assertEqual(2, len(package_ttps_non_local[1]))
@@ -304,8 +304,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                                            mock.create_autospec(AttackPattern, capec_id = 'CAPEC-17')]))))
                     }
 
-        package_ttps_local = _package_ttps_with_capec(contents, True)
-        package_ttps_non_local = _package_ttps_with_capec(contents, False)
+        package_ttps_local = _package_ttps_to_consider(contents, True)
+        package_ttps_non_local = _package_ttps_to_consider(contents, False)
 
         self.assertEqual(1, len(package_ttps_local[3]))
         self.assertEqual(2, len(package_ttps_non_local[2]))
