@@ -1,0 +1,44 @@
+<template id="dashboard_add_widget_modal">
+    <div class="modal modal-dialog fade" id="add_widget_modal" tabindex="-1" role="dialog" aria-labelledby="basicModal"
+         aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Add Widget to Dashboard</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="query">Saved query</label>
+                    <select class="form-control" id="query" data-bind="
+                    options: savedQueries,
+                    optionsText: 'label',
+                    optionsValue: 'value',
+                    optionsCaption: 'Choose&hellip;'
+                "></select>
+                </div>
+                <div class="form-group">
+                    <label for="visualisation">Visualisation</label>
+                    <div>
+                        <!-- ko foreach: visualisationTypes -->
+                        <button class="btn btn-default" style="height:100px;margin:0.5em;width:135px;" data-bind="
+                            attr: { title: $data.label }/*,
+                            click: $parent.toggle.bind($parent),
+                            css: {
+                                'btn-default': !($parent.isSelected($data)),
+                                'btn-selected': $parent.isSelected($data)
+                            }*/
+                        ">
+                            <img src="" height="80%" width="80%"
+                                 data-bind="attr: { src: '/adapter/certuk_mod/static/js/dashboard/proto/' + $data.imageUrl }">
+                        </button>
+                        <!-- /ko -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Add widget</button>
+            </div>
+        </div>
+    </div>
+</template>

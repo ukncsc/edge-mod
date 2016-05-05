@@ -9,10 +9,12 @@
 
 {% block body-content %}
     <div data-bind="template: { name: 'dashboard_tabs', data: $root}"></div>
+    <div data-bind="template: { name: 'dashboard_add_widget_modal', data: $root}"></div>
 {% endblock %}
 
 {% block body-end %}
     {% include 'dashboard_tabs.html' %}
+    {% include 'dashboard_add_widget_modal.html' %}
     <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
     <script>
         var require = {

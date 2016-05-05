@@ -1,19 +1,17 @@
 <div class="before" style="flex: 0 0 auto;">
     <p class="text-info">
-        <button type="button" class="pull-right btn btn-default">Add Widget</button>
+        <button type="button" class="pull-right btn btn-default" data-toggle="modal" data-target="#add_widget_modal">Add Widget</button>
         You have <a class="pss" href="#">3 new alerts</a>
     </p>
 </div>
 <div class="main flexbox hflex wrap" style="flex: 1 1 auto;overflow-y:auto;">
     <!-- ko foreach: panels -->
-    <div>
     <div class="panel panel-default" style="margin:1rem;width:280px;">
         <div class="panel-heading" data-bind="text:label"></div>
         <div class="panel-body">
             <img src="" height="175" width="250"
                  data-bind="attr: { src: '/adapter/certuk_mod/static/js/dashboard/proto/' + imageUrl }">
         </div>
-    </div>
     </div>
     <!-- /ko -->
 </div>

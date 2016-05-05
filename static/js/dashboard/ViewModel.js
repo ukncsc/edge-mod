@@ -28,6 +28,22 @@ define([
                 {label: "Configure", template: ConfigurationTemplate.id, model: new ConfigurationModel(), flex: "h"}
             ]);
             this.selectedFolder = ko.observable(this.folders.peek()[0]);
+            this.savedQueries = ko.observableArray([
+                {value:1, label:"Incidents by Type"},
+                {value:2, label:"Observables by Country"},
+                {value:3, label:"Feed Item Count by Provider"},
+            ]);
+            this.visualisationTypes = ko.observableArray([
+                {label: "Line Graph", imageUrl: "chart2.png"},
+                {label: "Pie Chart", imageUrl: "chart3.png"},
+                {label: "Vertical Bar", imageUrl: "chart8.png"},
+                {label: "Horizontal Bar", imageUrl: "chart1.png"},
+                {label: "X-Y Scatter", imageUrl: "chart6.png"},
+                {label: "Stacked X-Y Area", imageUrl: "chart5.png"},
+                {label: "X-Y Spread", imageUrl: "chart4.png"},
+                {label: "X-Y Ranged 1", imageUrl: "chart7.png"},
+                {label: "X-Y Ranged 2", imageUrl: "chart9.png"}
+            ]);
         }
     });
 });
