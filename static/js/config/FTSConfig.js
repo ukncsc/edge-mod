@@ -2,78 +2,34 @@ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
-    "common/modal/show-error-modal",
-    "kotemplate!ret-config-modal:./templates/config-modal-content.html"
-], function (declare, ko, Modal, showErrorModal, configModalTemplate) {
+    "config/base-config"
+], function (declare, ko, Modal, BaseConfig) {
     "use strict";
 
-    function inputIsInteger(value) {
-        return isFinite(value) && Math.floor(value) == value;
-    }
-
-    return declare(null, {
+    return declare(BaseConfig, {
         declaredClass: "RetentionConfig",
-        constructor: function () {
-            this.time = ko.observable();
-            this.enabled = ko.observable();
-            this.fullBuild = ko.observable();
-            this.enabled.subscribe(this._onEnabledChanged.bind(this));
 
+        constructor: declare.superCall(function (sup) {
+            return function () {
+                sup.call(this, "FTS rebuild", "fts_task", "fts_config");
 
-            this.savedTime = ko.observable();
-            this.savedFullBuild = ko.observable();
-            this.savedEnabled = ko.observable();
+                this.fullBuild = ko.observable();
+                this.savedFullBuild = ko.observable();
+                this.enabled.subscribe(this._onEnabledChanged.bind(this));
 
-            this.gotConfig = ko.observable(false);
-
-            this.changesPending = ko.computed(this.changesPending, this);
-
-            this.running = ko.observable();
-            this.getTaskStatus();
-        },
-
-        getTaskStatus: function () {
-            postJSON("../ajax/get_fts_task_status/", {}, function (response) {
-                this.running(!!response['status']);
-                setTimeout(this.getTaskStatus.bind(this), 10000);
-            }.bind(this));
-        },
-
-        runNow: function () {
-            if (!this.running() && !this.changesPending()) {
-                postJSON("../ajax/run_fts_task/", {}, function (response) {
-                    (new Modal({
-                        title: "FTS rebuild",
-                        titleIcon: "glyphicon-info-sign",
-                        contentData: "The FTS rebuild job has been scheduled to run (celery task ID '" + response['id'] + "')."
-                    })).show();
-                });
+                this.changesPending = ko.computed(this.changesPending, this);
             }
-        },
+        }),
 
-        _parseConfigResponse: function (response) {
-            // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
-            this.time(response["time"]);
-            this.savedTime(response["time"]);
+        _parseConfigResponse: declare.superCall(function (sup) {
+            return function (response) {
+                // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
+                this.fullBuild(response["fullBuild"]);
+                this.savedFullBuild(response["fullBuild"]);
 
-            this.fullBuild(response["fullBuild"]);
-            this.savedFullBuild(response["fullBuild"]);
-
-            this.enabled(response["enabled"]);
-            this.savedEnabled(response["enabled"]);
-        },
-
-        getConfig: function () {
-            this.gotConfig(false);
-            postJSON("../ajax/get_fts_config/", {}, function (response) {
-                this.gotConfig(true);
-                if (response["success"]) {
-                    this._parseConfigResponse(response);
-                } else {
-                    showErrorModal("An error occurred while attempting to retrieve the retention configuration.", false);
-                }
-            }.bind(this));
-        },
+                sup.call(this, response);
+            }
+        }),
 
         _onEnabledChanged: function () {
             if (!(this.enabled())) {
@@ -130,56 +86,22 @@ define([
             }
         },
 
-        _processSaveResponse: function (modal, reset, response) {
-            modal.contentData.waitingForResponse(false);
-            modal.getButtonByLabel("Close").disabled(false);
+        _processSaveResponse: declare.superCall(function (sup) {
+            return function (modal, reset, response) {
+                sup.call(this, modal, reset, response);
 
-            var success = !!(response["success"]);
+                var success = !!(response["success"]);
 
-            var title = success ? "Success" : "Error";
-            var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
-            var message = success ? "The fts rebuild settings were saved successfully." :
-            "An error occurred while attempting to save (" + response["error_message"] + ").";
-
-            modal.contentData.message(message);
-            modal.title(title);
-            modal.titleIcon(titleIcon);
-
-            if (success) {
-                if (reset) {
-                    this._parseConfigResponse(response);
-                }
-
-                this.savedFullBuild(this.fullBuild());
-                this.savedTime(this.time());
-                this.savedEnabled(this.enabled());
-            }
-        },
-
-        onSave: function (reset) {
-            var contentData = {
-                message: ko.observable(""),
-                waitingForResponse: ko.observable(false)
-            };
-
-            var onSaveModal = new Modal({
-                title: "Save settings",
-                titleIcon: "glyphicon-cloud-upload",
-                contentData: contentData,
-                contentTemplate: configModalTemplate.id,
-                onShow: function (modal) {
-                    this._save.call(this, modal, reset);
-                }.bind(this),
-                buttonData: [
-                    {
-                        label: "Close",
-                        hide: ko.observable(false),
-                        disabled: ko.observable(false)
+                if (success) {
+                    if (reset) {
+                        this._parseConfigResponse(response);
                     }
-                ]
-            });
 
-            onSaveModal.show();
-        }
+                    this.savedFullBuild(this.fullBuild());
+                    this.savedTime(this.time());
+                    this.savedEnabled(this.enabled());
+                }
+            }
+        })
     });
 });
