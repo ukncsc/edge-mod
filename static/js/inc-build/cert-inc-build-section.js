@@ -16,10 +16,8 @@ define([
     "inc-build/cert-inc-build-victims",
     "inc-build/cert-inc-build-responders",
     "inc-build/cert-inc-build-coordinators",
-    "common/cert-messages",
-    "common/publish-subscribe"
-
-], function (ko, declare, AttributedActors, Times, Categories, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Coordinators, Messages, PubSub) {
+    "common/cert-messages"
+], function (ko, declare, AttributedActors, Times, Categories, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Coordinators, Messages) {
     "use strict";
     function indexBy(items, pname) {
         var indexed = {};
@@ -32,10 +30,9 @@ define([
     return declare(null, {
         declaredClass: "Section",
         constructor: function () {
-            var pubsub = new PubSub();
             this.options = ko.observableArray([
-                ko.observable(new General(pubsub)),
-                ko.observable(new Times(pubsub)),
+                ko.observable(new General()),
+                ko.observable(new Times()),
                 ko.observable(new Categories()),
                 ko.observable(new TrustGroups()),
                 ko.observable(new Effects()),
