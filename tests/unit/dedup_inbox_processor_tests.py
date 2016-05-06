@@ -181,8 +181,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_to_consider(contents, True, True)
-        package_ttps_external = _package_ttps_to_consider(contents, False, True)
+        package_ttps_local = _package_ttps_to_consider(contents, True)
+        package_ttps_external = _package_ttps_to_consider(contents, False)
 
         self.assertDictEqual({}, package_ttps_local)
         self.assertDictEqual({'shouldn\'t match: CAPEC-163': 'matt:ttp-00000000-0000-0000-0000-000000000001',
@@ -203,8 +203,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_to_consider(contents, True, True)
-        package_ttps_external = _package_ttps_to_consider(contents, False, True)
+        package_ttps_local = _package_ttps_to_consider(contents, True)
+        package_ttps_external = _package_ttps_to_consider(contents, False)
 
         self.assertDictEqual({'shouldn\'t match: CAPEC-163': 'pss:ttp-00000000-0000-0000-0000-000000000001',
                               'should match: CAPEC-163': 'pss:ttp-00000000-0000-0000-0000-000000000002'},
@@ -226,8 +226,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_to_consider(contents, True, True)
-        package_ttps_non_local = _package_ttps_to_consider(contents, False, True)
+        package_ttps_local = _package_ttps_to_consider(contents, True)
+        package_ttps_non_local = _package_ttps_to_consider(contents, False)
 
         self.assertDictEqual({'should match: CAPEC-163':
                                   'pss:ttp-00000000-0000-0000-0000-000000000002'}, package_ttps_local)
@@ -248,8 +248,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_to_consider(contents, True, False)
-        package_ttps_external = _package_ttps_to_consider(contents, False, False)
+        package_ttps_local = _package_ttps_to_consider(contents, True)
+        package_ttps_external = _package_ttps_to_consider(contents, False)
 
         self.assertDictEqual({}, package_ttps_local)
         self.assertDictEqual({'should match: CAPEC-163': [
@@ -270,8 +270,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_to_consider(contents, True, False)
-        package_ttps_external = _package_ttps_to_consider(contents, False, False)
+        package_ttps_local = _package_ttps_to_consider(contents, True)
+        package_ttps_external = _package_ttps_to_consider(contents, False)
 
         self.assertDictEqual({'should match: CAPEC-163': [
             'pss:ttp-00000000-0000-0000-0000-000000000001', 'pss:ttp-00000000-0000-0000-0000-000000000002'
@@ -306,8 +306,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                                            mock.create_autospec(AttackPattern, capec_id = 'CAPEC-3')]))))
                     }
 
-        package_ttps_local = _package_ttps_to_consider(contents, True, False)
-        package_ttps_external = _package_ttps_to_consider(contents, False, False)
+        package_ttps_local = _package_ttps_to_consider(contents, True)
+        package_ttps_external = _package_ttps_to_consider(contents, False)
 
         self.assertDictEqual({'should match: CAPEC-1,CAPEC-2,CAPEC-3':
                                   ['pss:ttp-00000000-0000-0000-0000-000000000003']}, package_ttps_local)

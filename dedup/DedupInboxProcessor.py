@@ -253,7 +253,12 @@ def coalesce_ttps(contents, map_table):
     return out
 
 
-def _package_ttps_to_consider(contents, local, after_package_dedup):
+def create_capec_title_key(title, capec_ids):
+    capec_join = ",".join(sorted(capec_ids))
+    return title.strip().lower() + ": " + capec_join
+
+
+def _package_ttps_to_consider(contents, local):
     ids_to_objects_to_consider = {}
     for id_, io in contents.iteritems():
         is_local = rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE
@@ -267,17 +272,11 @@ def _package_ttps_to_consider(contents, local, after_package_dedup):
     title_capec_string_to_ids = {}
     for id_, ttps in ids_to_objects_to_consider.iteritems():
         for ttp in ttps:
-            capec_key = []
-            for capecs in ttp.api_object.obj.behavior.attack_patterns:
-                if capecs.capec_id is not None:
-                    capec_key.append(capecs.capec_id)
-            if len(capec_key) != 0:
-                capec_join = ",".join(sorted(capec_key))
-                key = ttp.api_object.obj.title.strip().lower() + ": " + capec_join
-                if after_package_dedup:
-                    title_capec_string_to_ids[key] = id_
-                else:
-                    title_capec_string_to_ids.setdefault(key, []).append(id_)
+            capec_ids = [capecs.capec_id for capecs in ttp.api_object.obj.behavior.attack_patterns if capecs.capec_id]
+            title = ttp.api_object.obj.title
+            if len(capec_ids) != 0:
+                key = create_capec_title_key(title, capec_ids)
+                title_capec_string_to_ids.setdefault(key, []).append(id_)
     return title_capec_string_to_ids
 
 
@@ -286,11 +285,9 @@ def _existing_title_and_capecs(local):
 
     existing_title_capec_string_to_id = {}
     for found_ttp in existing_ttps:
-        capecs = [found_capec['capec'] for found_capec in found_ttp['capecs']]
-        capecs_join = ",".join(sorted(capecs))
-        title = found_ttp['title'].strip().lower()
-        key = title + ": " + capecs_join
-        existing_title_capec_string_to_id[key] = found_ttp['_id']
+        capec_ids = [found_capec['capec'] for found_capec in found_ttp['capecs']]
+        key = create_capec_title_key(found_ttp['title'], capec_ids)
+        existing_title_capec_string_to_id.setdefault(key,[]).append(found_ttp['_id'])
 
     return existing_title_capec_string_to_id
 
@@ -298,10 +295,10 @@ def _existing_title_and_capecs(local):
 def _existing_ttp_capec_dedup(contents, hashes, user, local):
     existing_title_capec_string_to_id = _existing_title_and_capecs(local)
 
-    ttp_title_capec_string_to_ids = _package_ttps_to_consider(contents, local, True)
+    ttp_title_capec_string_to_ids = _package_ttps_to_consider(contents, local)
 
     map_table = {
-        id_: existing_title_capec_string_to_id[key] for key, id_ in ttp_title_capec_string_to_ids.iteritems() if
+        id_[0]: existing_title_capec_string_to_id[key] for key, id_ in ttp_title_capec_string_to_ids.iteritems() if
         key in existing_title_capec_string_to_id
         }
 
@@ -314,7 +311,7 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
 
 
 def _new_ttp_capec_dedup(contents, hashes, user, local):
-    ttp_title_capec_string_to_ids = _package_ttps_to_consider(contents, local, False)
+    ttp_title_capec_string_to_ids = _package_ttps_to_consider(contents, local)
 
     map_table = {}
     for title_capec_string, ids in ttp_title_capec_string_to_ids.iteritems():
