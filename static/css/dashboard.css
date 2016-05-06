@@ -66,10 +66,10 @@ a.pss
     table-layout: fixed;
 }
 #alert-table th:nth-child(1) {
-    width:15%;
+    width:10em;
 }
 #alert-table th:nth-child(2) {
-    width:5%;
+    width:3em;
 }
 #alert-table td:nth-child(2) {
     text-align: center;
@@ -78,8 +78,8 @@ a.pss
     width:auto;
 }
 #alert-table th:nth-child(4) {
-    width:10%;
+    width:8em;
 }
 #alert-table th:nth-child(5) {
-    width:15%;
+    width:12em;
 }
