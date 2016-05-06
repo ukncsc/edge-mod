@@ -60,7 +60,7 @@ define([
         },
         update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             var graphModel = valueAccessor()();
-            var container = d3.select(element).call(zoom).call(drag);
+            var container = d3.select(element);
 
             var currentScale = 1;
             var currentXOffset = 0;
@@ -121,6 +121,7 @@ define([
                 .selectAll("." + ko.bindingHandlers.forceGraph.linkClass)
                 .data(graphModel.links());
 
+            container.call(zoom).call(drag);
             graphModel
                 .d3Layout()
                 .on("tick", function () {
