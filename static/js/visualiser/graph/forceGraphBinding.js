@@ -49,6 +49,7 @@ define([
             });
             sizeToParent(element, graphModel);
 
+
             ko.utils.domNodeDisposal.addDisposeCallback(element, function () {
                 handle.remove();
             });
@@ -59,12 +60,62 @@ define([
         },
         update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             var graphModel = valueAccessor()();
+            var container = d3.select(element).call(zoom).call(drag);
 
-            var container = d3.select(element);
+            var currentScale = 1;
+            var currentXOffset = 0;
+            var currentYOffset = 0;
+
+            var nodeSelected = null;
+            var nodeSelectedX = null;
+            var nodeSelectedY = null;
+
+            var zoom = d3.behavior.zoom()
+                .scaleExtent([0.3, 5])
+                .on("zoom", function (d, i) {
+                    if (d3.event.sourceEvent.which !== 1
+                        || d3.event.scale == currentScale) {
+                        return;
+                    }
+
+                    currentScale = d3.event.scale;
+                    graphModel.d3Layout().resume();
+                });
+
+            var drag = d3.behavior.drag()
+                .on("drag", function (d) {
+                    if (d3.event.sourceEvent.which !== 1) {
+                        return;
+                    }
+
+                    if (nodeSelected !== null) {
+                        updateDraggedNode(nodeSelected);
+                    }
+                    else {
+                        currentXOffset = currentXOffset + d3.event.dx;
+                        currentYOffset = currentYOffset + d3.event.dy;
+                    }
+                    graphModel.d3Layout().resume();
+                })
+                .on("dragend", function (d) {
+                    nodeSelected = null;
+                });
+
+            var dragNode = d3.behavior.drag()
+                .on("dragstart", function (d) {
+                    graphModel.d3Layout().stop();
+                    nodeSelected = d;
+                });
+
+
+            function updateDraggedNode(d) {
+                nodeSelectedX = d.x = d.x + d3.event.dx / currentScale;
+                nodeSelectedY = d.y = d.y + d3.event.dy / currentScale;
+            }
+
             var nodeSelector = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
-                .data(graphModel.nodes())
-                .call(graphModel.d3Layout().drag);
+                .data(graphModel.nodes()).call(dragNode);
 
             var linkSelector = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.linkClass)
@@ -73,21 +124,33 @@ define([
             graphModel
                 .d3Layout()
                 .on("tick", function () {
+                    var x_middle = container[0][0].clientWidth / 2;
+                    var y_middle = container[0][0].clientHeight / 2;
+
+                    nodeSelector.attr("transform", function (d) {
+                        if (d === nodeSelected) { //ToDo, why do I need to do this?
+                            d.x = nodeSelectedX;
+                            d.y = nodeSelectedY;
+                        }
+
+                        return "translate(" + ((x_middle + (d.x - x_middle) * currentScale) + currentXOffset)
+                            + "," + ((y_middle + (d.y - y_middle) * currentScale) + currentYOffset)
+                            + ")scale(" + currentScale + ")";
+                    });
+
+
                     linkSelector.attr("x1", function (d) {
-                            return d.source.x;
+                            return (x_middle + (d.source.x - x_middle) * currentScale) + currentXOffset;
                         })
                         .attr("y1", function (d) {
-                            return d.source.y;
+                            return (y_middle + (d.source.y - y_middle) * currentScale) + currentYOffset;
                         })
                         .attr("x2", function (d) {
-                            return d.target.x;
+                            return (x_middle + (d.target.x - x_middle) * currentScale) + currentXOffset;
                         })
                         .attr("y2", function (d) {
-                            return d.target.y;
+                            return (y_middle + (d.target.y - y_middle) * currentScale) + currentYOffset;
                         });
-                    nodeSelector.attr("transform", function (d) {
-                        return "translate(" + d.x + "," + d.y + ")";
-                    });
                 });
         }
     };

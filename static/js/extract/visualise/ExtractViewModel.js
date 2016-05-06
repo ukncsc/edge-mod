@@ -39,6 +39,7 @@ define([
                 id,
                 base_url,
                 base_url + "item/",
+                "visualiser-graph",
                 (new PanelActionsBuilder())
                     .addAction(create_merge_action(id))
                     .addAction(create_delete_action(id))
@@ -50,7 +51,7 @@ define([
                 }.bind(this),
 
                 function (error) {
-                    showErrorModal(error.message)
+                    showErrorModal(error.message, false)
                 });
         },
 
@@ -68,7 +69,7 @@ define([
                     base_url + encodeURIComponent(id),
                     function (error, response) {
                         if (error) {
-                            showErrorModal(error);
+                            showErrorModal(error, false);
                         }
 
                         graph.loadData(response);
@@ -76,13 +77,9 @@ define([
                 );
             },
             function (result) {
-                showErrorModal(JSON.parse(result.responseText)['Error'])
+                showErrorModal(JSON.parse(result.responseText)['Error'], false)
             }
         );
-    }
-
-    function showErrorModal(message) {
-         showErrorModal(message, false);
     }
 
     function no(type) {
