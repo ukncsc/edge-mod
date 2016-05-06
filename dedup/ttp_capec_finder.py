@@ -31,9 +31,11 @@ def capec_finder(local):
                 '_id': '$_id',
                 'capecs': {
                     '$push': {
-                        'capec': '$data.api.behavior.attack_patterns.capec_id',
-                        'title': '$data.api.title'
+                        'capec': '$data.api.behavior.attack_patterns.capec_id'
                     }
+                },
+                'title': {
+                    '$first': '$data.api.title'
                 }
             }
         }, {

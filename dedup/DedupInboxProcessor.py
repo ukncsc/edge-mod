@@ -283,21 +283,16 @@ def _package_ttps_to_consider(contents, local, after_package_dedup):
 def _existing_title_and_capecs(local):
     existing_ttps = capec_finder(local)
 
-    id_to_title = {}
-    existing_id_to_capec = {}
-    for found_data in existing_ttps:
-        capecs = []
-        for ttp in found_data['capecs']:
-            capecs.append(ttp['capec'])
-            existing_id_to_capec[found_data['_id']] = capecs
-            id_to_title[found_data['_id']] = ttp['title']
-
     existing_title_capec_string_to_id = {}
-    for ids, capecs in existing_id_to_capec.iteritems():
-        capec_join = ",".join(sorted(capecs))
-        title = id_to_title[ids].lower().strip()
-        key = title + ": " + capec_join
-        existing_title_capec_string_to_id[key] = ids
+    for found_ttp in existing_ttps:
+        capecs = []
+        for found_capec in found_ttp['capecs']:
+            capecs.append(found_capec['capec'])
+        capecs_join = ",".join(sorted(capecs))
+        title = found_ttp['title'].strip().lower()
+        key = title + ": " + capecs_join
+        existing_title_capec_string_to_id[key] = found_ttp['_id']
+
     return existing_title_capec_string_to_id
 
 
