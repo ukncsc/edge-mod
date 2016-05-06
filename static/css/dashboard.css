@@ -60,3 +60,26 @@ a.pss
 .wrap {
     flex-wrap: wrap;
 }
+
+
+#alert-table {
+    table-layout: fixed;
+}
+#alert-table th:nth-child(1) {
+    width:15%;
+}
+#alert-table th:nth-child(2) {
+    width:5%;
+}
+#alert-table td:nth-child(2) {
+    text-align: center;
+}
+#alert-table th:nth-child(3) {
+    width:auto;
+}
+#alert-table th:nth-child(4) {
+    width:10%;
+}
+#alert-table th:nth-child(5) {
+    width:15%;
+}

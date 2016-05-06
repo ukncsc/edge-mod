@@ -5,7 +5,7 @@
                 <span class="glyphicon glyphicon-search"></span>
             </span>
         <input type="text" class="form-control" id="filter-search" data-bind="value: filterText"
-               placeholder="Query details">
+               placeholder="Filter details">
             <span class="input-group-btn">
                 <button type="button" class="btn btn-default" data-bind="click: clearSearch">Clear</button>
                 <button type="submit" class="btn btn-primary" data-bind="click: loadLog">Filter</button>
@@ -13,15 +13,13 @@
     </div>
     <span class="pull-right">
         Quick help:
-        <code>after:<em>date</em></code>,
-        <code>before:<em>date</em></code>,
         <code>status:<em>new</em></code>,
         <code>source:<em>source name</em>[<em>,source name</em>]</code> and
         <code>tags:<em>tag</em>[<em>,tag</em>]</code>
     </span>
 </div>
 <div class="main table-responsive" style="flex: 1 1 auto;overflow-y:auto;">
-    <table class="table table-striped">
+    <table class="table table-striped" id="alert-table">
         <thead>
             <tr>
                 <th>Timestamp</th>
@@ -34,9 +32,36 @@
         <tbody>
         <!-- ko foreach: { data:alerts, as:'row' } -->
         <tr>
-            <!-- ko foreach: row -->
-            <td data-bind="text:$data"></td>
-            <!-- /ko -->
+            <td data-bind="text:ts"></td>
+            <td data-bind="if: status === 'new'">
+                <span class="glyphicon glyphicon-star-empty"></span>
+            </td>
+            <td data-bind="text:msg"></td>
+            <td>
+                <a href="" data-bind="
+                    attr: { href: '?tab=Alerts&filter=source:' + source },
+                    click: function (data, event) {
+                        $parent.filterText('source:' + source);
+                        event.preventDefault();
+                    },
+                    text: source
+                "></a>
+            </td>
+            <td>
+                <!-- ko foreach: tags -->
+                <a href="" class="label" data-bind="
+                    attr: {
+                        href: '?tab=Alerts&filter=tags:' + $data,
+                        style: 'background-color:' + $parents[1].tag($data).colour
+                    },
+                    click: function (data, event) {
+                        $parents[1].filterText('tags:' + $data);
+                        event.preventDefault();
+                    },
+                    text:$parents[1].tag($data).label
+                "></a>
+                <!-- /ko -->
+            </td>
         </tr>
         <!-- /ko -->
         </tbody>
