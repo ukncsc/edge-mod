@@ -6,7 +6,7 @@ def capec_finder(local):
         namespace = LOCAL_NAMESPACE
     else:
         namespace = {'$ne': LOCAL_NAMESPACE}
-    existing_ttps = get_db().stix.aggregate([
+    return get_db().stix.aggregate([
         {
             '$match': {
                 'type': 'ttp',
@@ -41,4 +41,3 @@ def capec_finder(local):
         }, {
             '$sort': {'created_on': 1}
         }], cursor={})
-    return existing_ttps

@@ -1,4 +1,5 @@
 import pymongo
+import operator
 
 from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong, \
     drop_envelopes, INBOX_DROP_ENVELOPES
@@ -285,9 +286,7 @@ def _existing_title_and_capecs(local):
 
     existing_title_capec_string_to_id = {}
     for found_ttp in existing_ttps:
-        capecs = []
-        for found_capec in found_ttp['capecs']:
-            capecs.append(found_capec['capec'])
+        capecs = [found_capec['capec'] for found_capec in found_ttp['capecs']]
         capecs_join = ",".join(sorted(capecs))
         title = found_ttp['title'].strip().lower()
         key = title + ": " + capecs_join
@@ -307,12 +306,10 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
         }
 
     out = coalesce_ttps(contents, map_table)
-    if local:
-        message = _generate_message("Remapped %d local namespace TTPs to existing TTPs based on CAPEC-IDs and title",
-                                    contents, out)
-    else:
-        message = _generate_message("Remapped %d external namespace TTPs to existing TTPs based on CAPEC-IDs and title",
-                                    contents, out)
+
+    message = _generate_message("Remapped %d " + ('local' if local else 'external') +
+                                " namespace TTPs to existing TTPs based on CAPEC-IDs and title"
+                                , contents, out)
     return out, message
 
 
@@ -321,34 +318,25 @@ def _new_ttp_capec_dedup(contents, hashes, user, local):
 
     map_table = {}
     for title_capec_string, ids in ttp_title_capec_string_to_ids.iteritems():
-        if len(ids) > 1:
-            id_to_description_length = {}
-            for id in ids:
-                if contents[id].api_object.obj.description is not None:
-                    id_to_description_length[id] = len(contents[id].api_object.obj.description.value)
-            if id_to_description_length == {}:
-                master = ids[0]
-                for dup in ids[1:]:
-                    map_table[dup] = master
-            else:
-                start_length = 0
-                master = ""
-                for id, length in id_to_description_length.iteritems():
-                    if length > start_length:
-                        master = id
-                        start_length = length
-                ids.remove(master)
-                for dup in ids:
-                    map_table[dup] = master
+        if len(ids) == 0:
+            continue
+
+        id_to_description_length = {}
+        for id in ids:
+            if contents[id].api_object.obj.description is not None:
+                id_to_description_length[id] = len(contents[id].api_object.obj.description.value)
+        if id_to_description_length == {}:
+            master = ids[0]
+        else:
+            master = sorted(id_to_description_length.items(), key = operator.itemgetter(1))[-1][0]
+        ids.remove(master)
+        for dup in ids:
+            map_table[dup] = master
 
     out = coalesce_ttps(contents, map_table)
 
-    if local:
-        message = _generate_message(
-            "Merged %d local namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
-    else:
-        message = _generate_message(
-            "Merged %d external namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
+    message = _generate_message("Merged %d " + ('local' if local else 'external') +
+                                " namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
     return out, message
 
 
