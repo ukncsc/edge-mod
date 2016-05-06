@@ -294,9 +294,9 @@ def _existing_title_and_capecs(local):
 
     existing_title_capec_string_to_id = {}
     for ids, capecs in existing_id_to_capec.iteritems():
-        join = ",".join(sorted(capecs))
+        capec_join = ",".join(sorted(capecs))
         title = id_to_title[ids].lower().strip()
-        key = title + ": " + join
+        key = title + ": " + capec_join
         existing_title_capec_string_to_id[key] = ids
     return existing_title_capec_string_to_id
 
