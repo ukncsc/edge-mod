@@ -1,4 +1,5 @@
 import pymongo
+import operator
 
 from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong, \
     drop_envelopes, INBOX_DROP_ENVELOPES
@@ -6,8 +7,10 @@ from edge.generic import create_package, EdgeObject
 from mongoengine.connection import get_db
 from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
+from .ttp_capec_finder import capec_finder
 from edge.tools import rgetattr
 from .edges import dedup_collections
+from edge import LOCAL_NAMESPACE
 
 PROPERTY_TYPE = ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE']
 PROPERTY_FILENAME = ['api_object', 'obj', 'object_', 'properties', 'file_name']
@@ -17,6 +20,7 @@ PROPERTY_SHA224 = ['api_object', 'obj', 'object_', 'properties', 'sha224']
 PROPERTY_SHA256 = ['api_object', 'obj', 'object_', 'properties', 'sha256']
 PROPERTY_SHA384 = ['api_object', 'obj', 'object_', 'properties', 'sha384']
 PROPERTY_SHA512 = ['api_object', 'obj', 'object_', 'properties', 'sha512']
+PROPERTY_CAPEC = ['api_object', 'obj', 'behavior', 'attack_patterns']
 
 
 def _get_sighting_count(obs):
@@ -42,10 +46,10 @@ def _update_existing_properties(additional_sightings, additional_file_hashes, us
         api_object = edge_object.to_ApiObject()
         _merge_properties(api_object, id_, count, additional_file_hashes)
         inbox_processor.add(InboxItem(
-                api_object=api_object,
-                etlp=edge_object.etlp,
-                etou=edge_object.etou,
-                esms=edge_object.esms
+            api_object=api_object,
+            etlp=edge_object.etlp,
+            etou=edge_object.etou,
+            esms=edge_object.esms
         ))
     inbox_processor.run()
 
@@ -240,10 +244,123 @@ def _new_hash_dedup(contents, hashes, user):
     return out, message
 
 
+def coalesce_ttps(contents, map_table):
+    out = {}
+    for id_, io in contents.iteritems():
+        if id_ not in map_table:
+            io.api_object = io.api_object.remap(map_table)
+            out[id_] = io
+    return out
+
+
+def create_capec_title_key(title, capec_ids):
+    capec_join = ",".join(sorted(capec_ids))
+    return title.strip().lower() + ": " + capec_join
+
+
+def _package_ttps_to_consider(contents, local):
+    ids_to_objects_to_consider = {}
+    for id_, io in contents.iteritems():
+        is_local = rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE
+        correct_ns = is_local if local else (not is_local)
+        if not correct_ns:
+            continue
+        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'ttp' and len(
+                rgetattr(contents.get(id_, None), PROPERTY_CAPEC, '')) > 0:
+            ids_to_objects_to_consider.setdefault(id_, []).append(io)
+
+    title_capec_string_to_ids = {}
+    for id_, ttps in ids_to_objects_to_consider.iteritems():
+        for ttp in ttps:
+            capec_ids = [capecs.capec_id for capecs in ttp.api_object.obj.behavior.attack_patterns if capecs.capec_id]
+            title = ttp.api_object.obj.title
+            if len(capec_ids) != 0:
+                key = create_capec_title_key(title, capec_ids)
+                title_capec_string_to_ids.setdefault(key, []).append(id_)
+    return title_capec_string_to_ids
+
+
+def _existing_title_and_capecs(local):
+    existing_ttps = capec_finder(local)
+
+    existing_title_capec_string_to_id = {}
+    for found_ttp in existing_ttps:
+        capec_ids = [found_capec['capec'] for found_capec in found_ttp['capecs']]
+        key = create_capec_title_key(found_ttp['title'], capec_ids)
+        existing_title_capec_string_to_id.setdefault(key,[]).append(found_ttp['_id'])
+
+    return existing_title_capec_string_to_id
+
+
+def _existing_ttp_capec_dedup(contents, hashes, user, local):
+    existing_title_capec_string_to_id = _existing_title_and_capecs(local)
+
+    ttp_title_capec_string_to_ids = _package_ttps_to_consider(contents, local)
+
+    map_table = {
+        id_[0]: existing_title_capec_string_to_id[key] for key, id_ in ttp_title_capec_string_to_ids.iteritems() if
+        key in existing_title_capec_string_to_id
+        }
+
+    out = coalesce_ttps(contents, map_table)
+
+    message = _generate_message("Remapped %d " + ('local' if local else 'external') +
+                                " namespace TTPs to existing TTPs based on CAPEC-IDs and title"
+                                , contents, out)
+    return out, message
+
+
+def _new_ttp_capec_dedup(contents, hashes, user, local):
+    ttp_title_capec_string_to_ids = _package_ttps_to_consider(contents, local)
+
+    map_table = {}
+    for title_capec_string, ids in ttp_title_capec_string_to_ids.iteritems():
+        if len(ids) == 0:
+            continue
+
+        id_to_description_length = {}
+        for id in ids:
+            if contents[id].api_object.obj.description is not None:
+                id_to_description_length[id] = len(contents[id].api_object.obj.description.value)
+        if id_to_description_length == {}:
+            master = ids[0]
+        else:
+            master = sorted(id_to_description_length.items(), key = operator.itemgetter(1))[-1][0]
+        ids.remove(master)
+        for dup in ids:
+            map_table[dup] = master
+
+    out = coalesce_ttps(contents, map_table)
+
+    message = _generate_message("Merged %d " + ('local' if local else 'external') +
+                                " namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
+    return out, message
+
+
+def _new_ttp_local_ns_capec_dedup(contents, hashes, user):
+    return _new_ttp_capec_dedup(contents, hashes, user, True)
+
+
+def _new_ttp_external_ns_capec_dedup(contents, hashes, user):
+    return _new_ttp_capec_dedup(contents, hashes, user, False)
+
+
+def _existing_ttp_local_ns_capec_dedup(contents, hashes, user):
+    return _existing_ttp_capec_dedup(contents, hashes, user, True)
+
+
+def _existing_ttp_external_ns_capec_dedup(contents, hashes, user):
+    return _existing_ttp_capec_dedup(contents, hashes, user, False)
+
+
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
         _new_hash_dedup,  # removes new STIX objects matched by hash
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
+        _new_ttp_local_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in local NS
+        _existing_ttp_local_ns_capec_dedup,  # dedup against existing TTPs matched by CAPEC-IDs and Title in local NS
+        # _new_ttp_external_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in external NS
+        # _existing_ttp_external_ns_capec_dedup, # dedup against existing TTPs matched by CAPEC-IDs and Title in external NS
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 
@@ -264,7 +381,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
                 if package_item.api_object.obj.related_packages:
                     related_packages = package_item.api_object.obj.related_packages
                     related_package_ids = related_package_ids.union(
-                            {related_package.item.idref for related_package in related_packages})
+                        {related_package.item.idref for related_package in related_packages})
 
             top_level_package_ids = set(package_items.keys()).difference(related_package_ids)
             if len(top_level_package_ids) > 1:
