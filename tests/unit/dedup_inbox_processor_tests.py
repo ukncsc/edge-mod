@@ -185,8 +185,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
         package_ttps_external = _package_ttps_to_consider(contents, False)
 
         self.assertDictEqual({}, package_ttps_local)
-        self.assertDictEqual({'shouldn\'t match: CAPEC-163': 'matt:ttp-00000000-0000-0000-0000-000000000001',
-                              'should match: CAPEC-163': 'matt:ttp-00000000-0000-0000-0000-000000000002'},
+        self.assertDictEqual({'shouldn\'t match: CAPEC-163': ['matt:ttp-00000000-0000-0000-0000-000000000001'],
+                              'should match: CAPEC-163': ['matt:ttp-00000000-0000-0000-0000-000000000002']},
                              package_ttps_external)
 
     def test_package_ttps_to_consider_after_package_dedup_only_local_ns(self):
@@ -206,8 +206,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
         package_ttps_local = _package_ttps_to_consider(contents, True)
         package_ttps_external = _package_ttps_to_consider(contents, False)
 
-        self.assertDictEqual({'shouldn\'t match: CAPEC-163': 'pss:ttp-00000000-0000-0000-0000-000000000001',
-                              'should match: CAPEC-163': 'pss:ttp-00000000-0000-0000-0000-000000000002'},
+        self.assertDictEqual({'shouldn\'t match: CAPEC-163': ['pss:ttp-00000000-0000-0000-0000-000000000001'],
+                              'should match: CAPEC-163': ['pss:ttp-00000000-0000-0000-0000-000000000002']},
                              package_ttps_local)
         self.assertDictEqual({}, package_ttps_external)
 
@@ -230,9 +230,9 @@ class DedupInboxProcessorTests(unittest.TestCase):
         package_ttps_non_local = _package_ttps_to_consider(contents, False)
 
         self.assertDictEqual({'should match: CAPEC-163':
-                                  'pss:ttp-00000000-0000-0000-0000-000000000002'}, package_ttps_local)
+                                  ['pss:ttp-00000000-0000-0000-0000-000000000002']}, package_ttps_local)
         self.assertDictEqual({'should match: CAPEC-163':
-                                  'matt:ttp-00000000-0000-0000-0000-000000000001'}, package_ttps_non_local)
+                                  ['matt:ttp-00000000-0000-0000-0000-000000000001']}, package_ttps_non_local)
 
     def test_package_ttps_to_consider_before_package_dedup_only_external_ns(self):
         contents = {'matt:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
