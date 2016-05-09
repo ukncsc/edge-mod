@@ -70,9 +70,13 @@ define([
             var nodeSelectedX = null;
             var nodeSelectedY = null;
 
+            var minZoom = 0.3;
+            var maxZoom = 5;
+
             var zoom = d3.behavior.zoom()
-                .scaleExtent([0.3, 5])
+                .scaleExtent([minZoom, maxZoom])
                 .on("zoom", function (d, i) {
+                    //Filter all but left mouse button
                     if (d3.event.sourceEvent.which !== 1
                         || d3.event.scale == currentScale) {
                         return;
@@ -84,6 +88,7 @@ define([
 
             var drag = d3.behavior.drag()
                 .on("drag", function (d) {
+                    //Filter all but left mouse button
                     if (d3.event.sourceEvent.which !== 1) {
                         return;
                     }
@@ -129,7 +134,7 @@ define([
                     var y_middle = container[0][0].clientHeight / 2;
 
                     nodeSelector.attr("transform", function (d) {
-                        if (d === nodeSelected) { //ToDo, why do I need to do this?
+                        if (d === nodeSelected) { //Without this, the dragged node jumps out double its dragged distance
                             d.x = nodeSelectedX;
                             d.y = nodeSelectedY;
                         }
