@@ -77,7 +77,7 @@ define([
                 .scaleExtent([minZoom, maxZoom])
                 .on("zoom", function (d, i) {
                     //Filter all but left mouse button
-                    if (d3.event.sourceEvent.which !== 1
+                    if (d3.event.sourceEvent === null || d3.event.sourceEvent.which !== 1
                         || d3.event.scale == currentScale) {
                         return;
                     }
@@ -89,7 +89,7 @@ define([
             var drag = d3.behavior.drag()
                 .on("drag", function (d) {
                     //Filter all but left mouse button
-                    if (d3.event.sourceEvent.which !== 1) {
+                    if (d3.event.sourceEvent === null || d3.event.sourceEvent.which !== 1){
                         return;
                     }
 
