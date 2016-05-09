@@ -54,10 +54,11 @@ define([
                             throw new Error(error);
                         }
                         if (this.graph().selectedNode().id() == newNode.id()) {
-                        this.selectedObject.bind(this)(
-                            new StixPackage(response["package"], response["root_id"], response["validation_info"])
-                        );
-                    }}.bind(this)
+                            this.selectedObject.bind(this)(
+                                new StixPackage(response["package"], response["root_id"], response["validation_info"])
+                            );
+                        }
+                    }.bind(this)
                 );
         },
         onRowClicked: function () {
