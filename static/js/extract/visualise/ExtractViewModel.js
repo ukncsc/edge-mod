@@ -39,7 +39,6 @@ define([
                 id,
                 base_url,
                 base_url + "item/",
-                "visualiser-graph",
                 (new PanelActionsBuilder())
                     .addAction(create_merge_action(id))
                     .addAction(create_delete_action(id))

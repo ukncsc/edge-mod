@@ -9,7 +9,6 @@ require([
         window["rootId"],
         "/adapter/certuk_mod/ajax/visualiser/",
         "/adapter/certuk_mod/ajax/visualiser/item/",
-        "visualiser-graph",
         (new PanelActionsBuilder()).build(),
         function (viewModel) {
             ko.applyBindings(
