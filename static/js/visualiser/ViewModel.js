@@ -53,7 +53,7 @@ define([
                         if (error) {
                             throw new Error(error);
                         }
-                        else if (this.graph().selectedNode().id() == newNode.id()) {
+                        if (this.graph().selectedNode().id() == newNode.id()) {
                         this.selectedObject.bind(this)(
                             new StixPackage(response["package"], response["root_id"], response["validation_info"])
                         );
