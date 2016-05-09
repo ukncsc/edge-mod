@@ -43,10 +43,17 @@ define([
                 {label: "X-Y Ranged 2", imageUrl: "chart9.png"}
             ]);
         },
-        selectByLabel: function (label) {
-            this.selectedFolder(ko.utils.arrayFirst(this.folders.peek(), function (folder) {
+        findByLabel: function (label) {
+            return ko.utils.arrayFirst(this.folders.peek(), function (folder) {
                 return folder.label === label;
-            }));
+            })
+        },
+        selectByLabel: function (label) {
+            this.selectedFolder(this.findByLabel(label));
+        },
+        showNewAlerts: function () {
+            this.findByLabel("Alerts").model.filterText("status:new");
+            this.selectByLabel("Alerts");
         }
     });
 });
