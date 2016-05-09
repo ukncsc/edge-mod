@@ -1,0 +1,69 @@
+
+svg {
+    border: 1px solid grey;
+    box-shadow: rgba(0, 0, 0, 0.3) 4px 4px 4px;
+    width: 100%
+}
+
+.chart {
+    font-size: 12px;
+    width: 900px;
+    height: 400px;
+    overflow: auto;
+    white-space: nowrap;
+}
+
+.domain {
+    fill: none;
+    /* !important because id can't be set and soltra-theme.css sets .axis path to white */
+    stroke: grey !important;
+    shape-rendering: crispEdges;
+}
+
+.link {
+    fill: none;
+    stroke: grey;
+    stroke-width: 3
+}
+
+text.shadow {
+    stroke: #fff;
+    stroke-width: 4px;
+    stroke-opacity: .8;
+}
+
+.d3-tip {
+    line-height: 1;
+    padding: 12px;
+    background: #F7B334;
+    color: #fff;
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+.d3-tip:after {
+    box-sizing: border-box;
+    display: inline;
+    font-size: 10px;
+    width: 100%;
+    line-height: 1;
+    color: #F7B334;
+    position: absolute;
+    pointer-events: none;
+}
+
+/* Northward tooltips */
+.d3-tip.n:after {
+    content: "\25BC";
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
+    text-align: center;
+}
+
+.title {
+    color: white;
+    background-color: rgb(75, 95, 106);
+    padding: 12px;
+    font-size: 15px;
+}

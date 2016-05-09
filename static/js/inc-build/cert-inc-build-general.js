@@ -3,16 +3,17 @@ define([
     "knockout",
     "common/cert-abstract-builder-form",
     "common/cert-messages",
-    "common/cert-identity"
-], function (declare, ko, AbstractBuilderForm, Messages, CERTIdentity) {
+    "common/cert-identity",
+    "common/topic",
+    "inc-build/cert-inc-build-topics"
+], function (declare, ko, AbstractBuilderForm, Messages, CERTIdentity, Topic, topics) {
     "use strict";
 
     return declare(AbstractBuilderForm, {
         declaredClass: "General",
 
         constructor: declare.superCall(function (sup) {
-            return function (pubsub) {
-                this.pubsub = pubsub;
+            return function () {
                 sup.call(this, "General");
 
                 this.title = ko.observable().extend({
@@ -91,7 +92,7 @@ define([
         addReporter: function () {
             var newIdentity = new CERTIdentity();
             newIdentity.ModelUI().done(function () {
-                this.reporter(newIdentity)
+                this.reporter(newIdentity);
             }.bind(this));
         },
 
@@ -115,7 +116,7 @@ define([
             }
 
             this.status.subscribe(function (data) {
-                this.pubsub.publish('status_changed', [data]);
+                Topic.publish(topics.STATUS_CHANGE, data);
             }.bind(this));
         },
 

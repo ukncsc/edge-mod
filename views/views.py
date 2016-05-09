@@ -58,6 +58,8 @@ from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser
     visualiser_item_get
 from users.models import Repository_User
 
+from adapters.certuk_mod.timeline.views import ajax_incident_timeline, timeline_discover, incident_timeline
+
 audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
@@ -92,7 +94,6 @@ TYPE_TO_URL = {
     'act': 'threat_actor',
     'ttp': 'ttp'
 }
-
 
 @login_required
 def clone(request):

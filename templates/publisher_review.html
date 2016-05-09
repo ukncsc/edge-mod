@@ -3,80 +3,80 @@
 {% load staticfiles %}
 {% block head-title %}{{ main_title }}{% endblock %}
 {% block head-content %}
-
+    <link rel="stylesheet" href="/adapter/certuk_mod{% static "css/timeline.css" %}" media="screen">
     <style type="text/css">
-    button.btn.btn-danger {
-        background-color: #D9534F;
-    }
+        button.btn.btn-danger {
+            background-color: #D9534F;
+        }
 
-    button.btn.btn-danger:hover, .btn.btn-danger:focus, .btn.btn-danger:active {
-        background-color: #D2322D;
-    }
+        button.btn.btn-danger:hover, .btn.btn-danger:focus, .btn.btn-danger:active {
+            background-color: #D2322D;
+        }
 
-    dl.dl-horizontal dd {
-        margin-left: 160px;
-        padding-left: 20px;
-        padding-right: 1px;
-        margin-right: 20px;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-    }
+        dl.dl-horizontal dd {
+            margin-left: 160px;
+            padding-left: 20px;
+            padding-right: 1px;
+            margin-right: 20px;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
 
-    dl.dl-horizontal dd table {
-        table-layout: fixed;
-    }
+        dl.dl-horizontal dd table {
+            table-layout: fixed;
+        }
 
-    dl.dl-horizontal dd table th {
-        width: 15%;
-    }
+        dl.dl-horizontal dd table th {
+            width: 15%;
+        }
 
-    dl.dl-horizontal dd table th:nth-child(1) {
-        width: 20%;
-    }
+        dl.dl-horizontal dd table th:nth-child(1) {
+            width: 20%;
+        }
 
-    dl.dl-horizontal dd table th:nth-child(n+4) {
-        width: auto;
-    }
+        dl.dl-horizontal dd table th:nth-child(n+4) {
+            width: auto;
+        }
 
-    dl.dl-horizontal dd table.cols-3 th:nth-child(n+3) {
-        width: auto;
-    }
+        dl.dl-horizontal dd table.cols-3 th:nth-child(n+3) {
+            width: auto;
+        }
 
-    dl.dl-horizontal dd dl.dl-horizontal dt {
-        width: 110px;
-    }
+        dl.dl-horizontal dd dl.dl-horizontal dt {
+            width: 110px;
+        }
 
-    dl.dl-horizontal dd dl.dl-horizontal dd {
-        margin-left: 110px;
-        padding-left: 10px;
-    }
+        dl.dl-horizontal dd dl.dl-horizontal dd {
+            margin-left: 110px;
+            padding-left: 10px;
+        }
 
-    dd.text-danger, dd.text-warning, td.text-danger, td.text-warning {
-        font-style: italic;
-        font-weight: bold;
-    }
+        dd.text-danger, dd.text-warning, td.text-danger, td.text-warning {
+            font-style: italic;
+            font-weight: bold;
+        }
 
-    .table-striped > tbody > tr:nth-child(2n+1) > td.bg-danger {
-        background-color: #e2cece;
-    }
+        .table-striped > tbody > tr:nth-child(2n+1) > td.bg-danger {
+            background-color: #e2cece;
+        }
 
-    dd table tbody tr[title] {
-        cursor: pointer;
-    }
+        dd table tbody tr[title] {
+            cursor: pointer;
+        }
 
-    dd table tbody tr[title]:hover {
-        outline: 1px dotted #a94442;
-    }
+        dd table tbody tr[title]:hover {
+            outline: 1px dotted #a94442;
+        }
 
-    dd table tbody tr[title] td {
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-    }
+        dd table tbody tr[title] td {
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
 
-    .value-missing:after {
-        content: "(missing)";
-        font-style: italic;
-    }
+        .value-missing:after {
+            content: "(missing)";
+            font-style: italic;
+        }
     </style>
 
 {% endblock %}
@@ -86,6 +86,7 @@
         <div class="row" data-bind="template: 'header'"></div>
         <div class="row" data-bind="template: 'warning'"></div>
         <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
+        <div id="incidentTimelineSVG" class="chart" style="margin-left: auto;margin-right: auto"></div>
     </div>
 {% endblock %}
 
@@ -94,7 +95,8 @@
         <div class="col-sm-12">
             <h3 class="obj-title">
                 <button type="button" class="btn btn-danger pull-right"
-                        data-bind="click: onPublish">Publish<br>Externally</button>
+                        data-bind="click: onPublish">Publish<br>Externally
+                </button>
                 <img alt="" src="" data-bind="attr: {
                     src: '{% static "img/hex" %}/hex_'+type().code+'.png'
                 }">
@@ -127,6 +129,7 @@
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
+                d3: "{% static "js/d3.min" %}",
                 knockout: "common/knockout-shim"
             },
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
@@ -135,6 +138,9 @@
         var stixPackage = Object.freeze({{ package.to_json|safe }});
         var validationInfo = Object.freeze({{ validation_info.to_json|safe }});
         var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
+
     </script>
-    <script src="/adapter/certuk_mod{% static 'js/require.js'%}" data-main="publisher/main"></script>
+
+    <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="publisher/main"></script>
+
 {% endblock %}

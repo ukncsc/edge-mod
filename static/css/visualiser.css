@@ -1,15 +1,53 @@
-.container-fluid .full-height {
-    height: calc(100vh - 120px);
+
+#visualiser {
+    overflow: hidden;
+    position: fixed;
+    top: 80px;
+    right: 17px;
+    bottom: 32px;
+    left: 17px;
 }
 
-#graph-container {
-    padding-right: 0;
+#visualiser > .flex-main {
+    flex: 1 1 auto;
 }
+
+#visualiser > .flex-after {
+    flex: 0 0 32em;
+}
+
+#visualiser-detail > .flex-before {
+    flex: 0 0 auto;
+}
+
+#visualiser-detail > .flex-main {
+    flex: 1 1 auto;
+    overflow-y: auto;
+}
+
+#extract-visualiser {
+    overflow: hidden;
+    position: fixed;
+    top: 170px;
+    right: 40px;
+    bottom: 32px;
+    left: 40px;
+}
+
+#extract-visualiser > .flex-before {
+    flex: 0 0 auto;
+}
+
+#extract-visualiser > .flex-main {
+    flex: 1 1 auto;
+}
+
 
 svg {
     border: 1px solid grey;
-    box-shadow: rgba(0, 0, 0, 0.3) 4px 4px 4px;
-    width:100%
+    height: 100%;
+    margin: 0 2px 2px 0;
+    width: 100%;
 }
 
 g.ko-d3-graph-node {
