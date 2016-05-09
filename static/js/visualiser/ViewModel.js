@@ -47,17 +47,18 @@ define([
             this.graph().selectNode(data.id());
         },
         onSelectedNodeChanged: function (newNode) {
-            d3.json(
-                this.item_url() + encodeURIComponent(newNode.id()),
-                function (error, response) {
-                    if (error) {
-                        throw new Error(error);
-                    }
-                    this.selectedObject.bind(this)(
-                        new StixPackage(response["package"], response["root_id"], response["validation_info"])
-                    );
-                }.bind(this)
-            )
+                d3.json(
+                    this.item_url() + encodeURIComponent(newNode.id()),
+                    function (error, response) {
+                        if (error) {
+                            throw new Error(error);
+                        }
+                        else if (this.graph().selectedNode().id() == newNode.id()) {
+                        this.selectedObject.bind(this)(
+                            new StixPackage(response["package"], response["root_id"], response["validation_info"])
+                        );
+                    }}.bind(this)
+                );
         },
         onRowClicked: function () {
             // implements a click handler required by the review template. Does nothing here.
