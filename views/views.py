@@ -112,14 +112,14 @@ def clone(request):
             return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
         else:
             return error_with_message(request,
-                                      "No clonable object found; please only choose the clone option from an object's summary or external publish page")
+                                      "No clonable object found; please only choose " +
+                                      "the clone option from an object's summary or external publish page")
     except Exception as e:
         ext_ref_error = "not found"
         if e.message.endswith(ext_ref_error):
             return error_with_message(request,
-                                      "Unable to load object as some external references were not found: " + e.message[
-                                                                                                             0:-len(
-                                                                                                                     ext_ref_error)])
+                                      "Unable to load object as some external references were not found: "
+                                      + e.message[0:-len(ext_ref_error)])
         else:
             return error_with_message(request, e.message)
 
