@@ -11,7 +11,9 @@ define([
 
     var ViewModel = declare(null, {
         declaredClass: "ViewModel",
+
         constructor: function (rootId, graphData, graph_url, item_url, publish_url, graph_svg_id, panel_actions) {
+
             this.rootId = ko.computed(function () {
                 return rootId;
             });
@@ -29,8 +31,6 @@ define([
             this.panel_actions = ko.computed(function () {
                 return panel_actions;
             });
-
-            this.png_converter = new PNGConverter(graph_svg_id);
 
             this.item_url = ko.computed(function () {
                 return item_url;
@@ -116,6 +116,7 @@ define([
             }
             return templateName;
         },
+
         saveAsPNG: function () {
             this.png_converter.savetoPNG(this.rootId());
         }
@@ -131,6 +132,7 @@ define([
                     onErrorCallback(error);
                 } else {
                     onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url, publish_url, graph_svg_id, panel_actions));
+
                 }
             }
         );
