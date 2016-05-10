@@ -35,12 +35,15 @@ define([
                     this[name] = proxy;
                 }
             }.bind(this));
+
             this.selectedNode = ko.observable(null);
             this.selectedLinkedNodes = ko.computed(function () {
                 var selectedNode = this.selectedNode();
                 var linkedNodes = {
                     parentOf: [],
-                    childOf: []
+                    childOf: [],
+                    matches: [],
+                    backlinks: []
                 };
                 ko.utils.arrayForEach(this.nodes(), function (node) {
                     node.isRelated(false);
@@ -51,7 +54,13 @@ define([
                     ko.utils.arrayForEach(this.links(), function (link) {
                         var isRelatedLink = false;
                         if (link.source.index === findIndex) {
-                            linkedNodes.parentOf.push(link.target);
+                            if (link.relType() === "edge") {
+                                linkedNodes.parentOf.push(link.target);
+                            } else  if (link.relType() === "match") {
+                                linkedNodes.matches.push(link.target);
+                            } else  if (link.relType() === "backlink") {
+                                linkedNodes.backlinks.push(link.target);
+                            }
                             link.target.isRelated(true);
                             isRelatedLink = true;
                         }
@@ -67,14 +76,96 @@ define([
             }, this).extend(RATE_LIMIT);
             this.loadData(graphData);
         },
+
+        nodeAlreadyExists: function (currentNodes, nodeData) {
+            var existingNode = null;
+            ko.utils.arrayForEach(currentNodes, function (node) {
+                if (!existingNode) {
+                    if (nodeData.depth === node.depth() &&
+                        nodeData.id === node.id() &&
+                        nodeData.title === node.title() &&
+                        nodeData.type === node.type()) {
+                        existingNode = node;
+                    }
+                }
+            });
+            return existingNode;
+        },
+
+        linkAlreadyExists: function (currentLinks, sourceData, targetData) {
+            var existingLink = null;
+            ko.utils.arrayForEach(currentLinks, function (link) {
+                if (!existingLink) {   //toDo, link rel type?
+                    if (sourceData.depth() === link.source.depth() &&
+                        sourceData.id() === link.source.id() &&
+                        sourceData.title() === link.source.title() &&
+                        sourceData.type() === link.source.type() &&
+                        targetData.depth() === link.target.depth() &&
+                        targetData.id() === link.target.id() &&
+                        targetData.title() === link.target.title() &&
+                        targetData.type() === link.target.type()) {
+                        existingLink = link;
+                    }
+                }
+            });
+            return existingLink;
+        },
+
         loadData: function (graphData) {
-            this.nodes(ko.utils.arrayMap(graphData.nodes, function (nodeData) {
-                return new Node(nodeData);
-            }));
+            this.d3Layout().stop();
+
+            var currentNodes = this.nodes();
+            var newNodes = [];
+
+            var indiciesToRemove = []
+            //var originalNodes = []
+            ko.utils.arrayForEach(graphData.nodes, function (nodeData, i) {
+                var existingNode = this.nodeAlreadyExists(currentNodes, nodeData);
+                if (!existingNode) {
+                    console.log("Keep an existing node");
+                    newNodes.push(new Node(nodeData));
+                } else {
+                    //originalNodes.push(existingNode);
+                    newNodes.push(existingNode);
+                }
+
+            }.bind(this));
+
+            this.nodes().splice(0, this.nodes().length);
+            this.nodes().push.apply(this.nodes(), newNodes)
+            this.nodes.valueHasMutated();
+
+
             var /*Node[]*/ _rawNodes = this.nodes.peek();
-            this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
-                return new Link(_rawNodes[linkData.source], _rawNodes[linkData.target]);
-            }.bind(this)));
+            var newLinks = [];
+            var currentLinks = this.links();
+            ko.utils.arrayForEach(graphData.links, function (linkData, i) {
+                var existingLink = this.linkAlreadyExists(currentLinks, _rawNodes[linkData.source], _rawNodes[linkData.target]);
+                if (existingLink) {
+                    console.log("Keep an existing link");
+                    newLinks.push(existingLink);
+                } else {
+                    newLinks.push(new Link(_rawNodes[linkData.source], _rawNodes[linkData.target], linkData.rel_type));
+                }
+
+            }.bind(this));
+
+            this.links().splice(0, this.links().length);
+            this.links().push.apply(this.links(), newLinks)
+            this.links.valueHasMutated();
+            this.d3Layout().start();
+            /*this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
+             if (wasOriginalNode(originalNodes, _rawNodes[linkData.source]) && wasOriginalNode(originalNodes, _rawNodes[linkData.target]))
+             return new Link(_rawNodes[linkData.source], _rawNodes[linkData.target]);
+             }.bind(this))); */
+
+            //var currentLinks = this.links();
+            //var /*Node[]*/ _rawNodes = this.nodes.peek();
+            //this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
+            //if (!linkAlreadyExists(currentLinks, linkData)) {
+            //     return new Link(_rawNodes[linkData.source], _rawNodes[linkData.target]);
+            //}
+            // }.bind(this)));
         },
         applyBindingValues: function (bindingValues) {
             ko.utils.objectForEach(bindingValues, function (name, value) {

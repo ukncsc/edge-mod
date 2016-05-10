@@ -34,6 +34,7 @@
     left: 40px;
 }
 
+
 #extract-visualiser > .flex-before {
     flex: 0 0 auto;
 }
@@ -41,7 +42,6 @@
 #extract-visualiser > .flex-main {
     flex: 1 1 auto;
 }
-
 
 svg {
     border: 1px solid grey;
@@ -66,14 +66,44 @@ g.ko-d3-graph-node image.unselected {
     filter: grayscale(100%) brightness(150%);
 }
 
-line.ko-d3-graph-link {
-    stroke: #999;
-    stroke-width: 0.5;
+.clear_bg {
+    -webkit-appearance: none!important;
+    outline: none!important;
+    border: 0!important;
 }
 
-line.ko-d3-graph-link.related {
-    stroke: #A33;
-    stroke-width: 1.5;
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+line.ko-d3-graph-link.edge {
+    stroke: #999;
+    stroke-width: 1;
+}
+
+line.ko-d3-graph-link.match {
+    stroke: #2d5b99;
+    stroke-width: 3;
+}
+
+line.ko-d3-graph-link.backlink {
+    stroke: #229924;
+    stroke-width: 3;
+}
+
+line.ko-d3-graph-link.edge.related {
+    stroke: #999;
+    stroke-width: 2;
+}
+
+line.ko-d3-graph-link.match.related {
+    stroke: #2d5b99;
+    stroke-width: 4;
+}
+
+line.ko-d3-graph-link.backlink.related {
+    stroke: #229924;
+    stroke-width: 4;
 }
 
 dl.dl-horizontal dd {

@@ -11,12 +11,19 @@ define([
 
     var ViewModel = declare(null, {
         declaredClass: "ViewModel",
-        constructor: function (rootId, graphData, graph_url, graph_svg_id, item_url, panel_actions) {
+        constructor: function (rootId, graphData, graph_url, item_url, publish_url, graph_svg_id, panel_actions) {
             this.rootId = ko.computed(function () {
                 return rootId;
             });
+            this.backlinks = ko.observableArray();
+            this.matches = ko.observableArray();
+
             this.graph_url = ko.computed(function () {
                 return graph_url;
+            });
+
+            this.publish_url = ko.computed(function () {
+                return publish_url;
             });
 
             this.panel_actions = ko.computed(function () {
@@ -46,6 +53,45 @@ define([
         onNodeClicked: function (data) {
             this.graph().selectNode(data.id());
         },
+        onExternalPublish: function (data, scope) {
+            window.open(this.publish_url() + encodeURIComponent(data));
+        },
+
+        onNewRootId: function (data, scope) {
+            this.backlinks.removeAll();
+            this.matches.removeAll();
+            this.rootId = ko.computed(function () {
+                return data;
+            });
+            this.getWithOthers();
+
+        },
+        onPlusBacklinkClicked: function (data, scope) {
+            this.backlinks.push(data);
+            this.getWithOthers();
+        },
+        onMinusBacklinkClicked: function (data, scope) {
+            this.backlinks.remove(data);
+            this.getWithOthers();
+        },
+        onPlusMatchesClicked: function (data, scope) {
+            this.matches.push(data);
+            this.getWithOthers();
+        },
+        onMinusMatchesClicked: function (data, scope) {
+            this.matches.remove(data);
+            this.getWithOthers();
+        },
+        getWithOthers: function () {
+            postJSON(this.graph_url() + "get_with_others/", {
+                    'id': this.rootId(),
+                    'id_bls': this.backlinks(),
+                    'id_matches': this.matches()
+                }, function (result) {
+                    this.graph().loadData(result);
+                }.bind(this)
+            );
+        },
         onSelectedNodeChanged: function (newNode) {
             d3.json(
                 this.item_url() + encodeURIComponent(newNode.id()),
@@ -70,12 +116,12 @@ define([
             }
             return templateName;
         },
-        saveAsPNG : function () {
+        saveAsPNG: function () {
             this.png_converter.savetoPNG(this.rootId());
         }
     });
 
-    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*String*/ graph_svg_id,
+    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*String*/ publish_url, /*String*/ graph_svg_id,
                                    /*PanelActions*/panel_actions, /*function*/ onLoadedCallback,
                                    /*function*/ onErrorCallback) {
         d3.json(
@@ -84,7 +130,7 @@ define([
                 if (error) {
                     onErrorCallback(error);
                 } else {
-                    onLoadedCallback(new ViewModel(rootId, response, graph_url, graph_svg_id, item_url, panel_actions));
+                    onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url, publish_url, graph_svg_id, panel_actions));
                 }
             }
         );

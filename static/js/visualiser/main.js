@@ -9,6 +9,7 @@ require([
         window["rootId"],
         "/adapter/certuk_mod/ajax/visualiser/",
         "/adapter/certuk_mod/ajax/visualiser/item/",
+        "/adapter/certuk_mod/review/",
         "visualiser-graph",
         (new PanelActionsBuilder()).build(),
         function (viewModel) {

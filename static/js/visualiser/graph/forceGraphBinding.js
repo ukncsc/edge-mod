@@ -73,6 +73,8 @@ define([
             var minZoom = 0.3;
             var maxZoom = 5;
 
+            var tooltip = d3.select("#graph-node-tooltip");
+
             var zoom = d3.behavior.zoom()
                 .scaleExtent([minZoom, maxZoom])
                 .on("zoom", function (d, i) {
@@ -89,7 +91,7 @@ define([
             var drag = d3.behavior.drag()
                 .on("drag", function (d) {
                     //Filter all but left mouse button
-                    if (d3.event.sourceEvent === null || d3.event.sourceEvent.which !== 1){
+                    if (d3.event.sourceEvent === null || d3.event.sourceEvent.which !== 1) {
                         return;
                     }
 
@@ -120,7 +122,51 @@ define([
 
             var nodeSelector = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
-                .data(graphModel.nodes()).call(dragNode);
+                .data(graphModel.nodes()).call(dragNode).on("mouseenter", function (d) {
+                        var x_middle = container[0][0].clientWidth / 2;
+                        var y_middle = container[0][0].clientHeight / 2;
+                        var iWidth =(d.imageWidth() / 2) * currentScale;
+                        var iHeight =(d.imageHeight() / 2) * currentScale;
+                        tooltip.transition()
+                            .duration(200)
+                            .style("opacity", 0.8);
+                        tooltip.html(
+                            "<div class=\"btn-group\" role=\"group\" aria-label=\"\">" +
+                                "<div class=\"dropdown btn-group\" role=\"group\" aria-label=\"\">" +
+                                "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-plus blue clear_bg\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
+                                "<div class=\"dropdown-menu clear_bg\">" +
+
+                                "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusBacklinkClicked.bind($data,'" + d.id() + "')\"><span class='green clear_bg'>BackLinks</span></button></a>" +
+                                "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusMatchesClicked.bind($data,'" + d.id() + "')\"><span class='blue clear_bg' style='color: #002a80'>Matches</span></button></a>" +
+
+                                "</div>" +
+                                "</div>" +
+
+                                "<div class=\"dropdown btn-group\" role=\"group\" aria-label=\"\">" +
+                                "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-minus blue clear_bg\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
+                                "<div class=\"dropdown-menu clear_bg\">" +
+                                "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusBacklinkClicked.bind($data,'" + d.id() + "')\"><span class='green clear_bg'>BackLinks</span></button></a>" +
+                                "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusMatchesClicked.bind($data,'" + d.id() + "')\"><span class='clear_bg' style='color: #002a80'>Matches</span></button></a>" +
+                                "</div>" +
+                                "</div>"+
+                                "<button type=\"button\" class=\"btn btn-secondary glyphicon glyphicon-home blue clear_bg\" data-bind=\"click:$data.onNewRootId.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
+                                "<button type=\"button\" class=\"btn btn-secondary glyphicon glyphicon-share-alt blue clear_bg\" data-bind=\"click:$data.onExternalPublish.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
+                                "</div>"
+                            )
+                            .style("left", ((x_middle + iWidth +  (d.x - x_middle) * currentScale) + currentXOffset) + "px")
+                            .style("top",  ((y_middle - iHeight + (d.y - y_middle) * currentScale) + currentYOffset) + "px");
+                        ko.applyBindings(viewModel, tooltip[0][0].childNodes[0]);
+
+
+                    })
+
+                ;
+
+            container.on("mouseover", function (d) {
+                tooltip.transition()
+                    .duration(300)
+                    .style("opacity", 0);
+            });
 
             var linkSelector = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.linkClass)
