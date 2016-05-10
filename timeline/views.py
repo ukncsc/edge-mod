@@ -55,6 +55,8 @@ def ajax_incident_timeline(request, id_):
     try:
         if edge_object.ty != 'inc':
             return JsonResponse({'message': "Only timelines for Incidents can be viewed"}, status=400)
+        if not edge_object.obj.time:
+             return JsonResponse({'message': "No times found in this Incident"}, status=400)
 
         time_dict = edge_object.obj.time.to_dict()
         graph = dict()
