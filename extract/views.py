@@ -1,4 +1,5 @@
 import json
+import hashlib
 from mongoengine.connection import get_db
 
 from django.contrib.auth.decorators import login_required
@@ -167,8 +168,9 @@ def extract_visualiser_get(request, id_):
             nodes.append(data)
             Counter.idx += 1
 
-        def create_draft_observable_id(index):
-            return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + str(index)
+        def create_draft_observable_id(obs):
+            d = hashlib.md5(obs['title'].encode("utf-8")).hexdigest();
+            return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + d
 
         def is_draft_obs():
             return not is_deduped()
@@ -184,11 +186,11 @@ def extract_visualiser_get(request, id_):
         id_to_idx = {}
         for i in xrange(len(draft_object['observables'])):
             observable = draft_object['observables'][i]
-            obs_id = observable.get('id', create_draft_observable_id(i))
+            obs_id = observable.get('id', create_draft_observable_id(observable))
             id_to_idx[obs_id] = Counter.idx
 
             append_node(dict(id=obs_id, type='obs', title=observable_to_name(observable, is_draft_obs()), depth=1))
-            links.append({"source": 0, "target": id_to_idx[obs_id]})
+            links.append({"source": 0, "target": id_to_idx[obs_id], "rel_type": "edge"})
 
             if not is_deduped():
                 continue
@@ -260,8 +262,13 @@ def merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types):
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
 
 
-def get_draft_obs_offset(draft_id):
-    return int(draft_id.split(':')[-1])
+def get_draft_obs_offset(draft_ind, id_):
+    hash_ = id_.split(':')[-1]
+    for i in xrange(len(draft_ind['observables'])):
+        obs = draft_ind['observables'][i]
+        if hashlib.md5(obs['title']).hexdigest() == hash_:
+            return i;
+    return -1
 
 
 @login_required_ajax
@@ -270,8 +277,8 @@ def extract_visualiser_merge_observables(request):
     if not is_valid_stix_id(merge_data['id']):
         return JsonResponse({'message': "Invalid stix id: " + merge_data['id']}, status=200)
 
-    draft_obs_offsets = [get_draft_obs_offset(id_) for id_ in merge_data['ids'] if DRAFT_ID_SEPARATOR in id_]
     draft_ind = Draft.load(merge_data['id'], request.user)
+    draft_obs_offsets = [get_draft_obs_offset(draft_ind, id_) for id_ in merge_data['ids'] if DRAFT_ID_SEPARATOR in id_]
 
     hash_types = ['MD5', 'MD6', 'SHA1', 'SHA224', 'SHA256', 'SHA384', 'SHA512', 'SSDeep', 'Other']
     (can_merge, message) = can_merge_observables(draft_obs_offsets, draft_ind, hash_types)
@@ -293,8 +300,10 @@ def delete_file_observables(draft_obs_offsets, draft_ind):
 @login_required_ajax
 def extract_visualiser_delete_observables(request):
     delete_data = json.loads(request.body)
-    draft_obs_offsets = [get_draft_obs_offset(id_) for id_ in delete_data['ids'] if DRAFT_ID_SEPARATOR in id_]
     draft_ind = Draft.load(delete_data['id'], request.user)
+    draft_obs_offsets = [get_draft_obs_offset(draft_ind, id_) for id_ in delete_data['ids'] if
+                         DRAFT_ID_SEPARATOR in id_]
+
     delete_file_observables(draft_obs_offsets, draft_ind)
 
     def ref_obs_generator():
@@ -313,9 +322,9 @@ def extract_visualiser_delete_observables(request):
 
 
 def get_draft_obs(obs_node_id, user):
-    obs_offset = obs_node_id.split(':')[-1]
     ind_id = ':'.join(obs_node_id.split(':')[0:2]).replace('observable', 'indicator')
     draft_ind = Draft.load(ind_id, user)
+    obs_offset = get_draft_obs_offset(draft_ind, obs_node_id)
     return draft_ind['observables'][int(obs_offset)]
 
 
@@ -329,7 +338,7 @@ def extract_visualiser_item_get(request, node_id):
         view_obs['object'] = {'properties':
                                   {'xsi:type': observable['objectType'],
                                    'value': observable_to_name(observable, DRAFT_ID_SEPARATOR in node_id),
-                                   'description' : observable['description']}}
+                                   'description': observable['description']}}
         return view_obs
 
     def is_draft_ind():

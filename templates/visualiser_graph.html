@@ -79,9 +79,6 @@
                 <dt>Matching Objects</dt>
                 <!-- ko foreach: matches -->
                 <dd data-bind=" attr: {title: id} ">
-                    <!-- ko if: $parents[2].panel_actions().show_reference_check(type()) -->
-                    <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
-                    <!-- /ko -->
                     <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
                     &nbsp;<span data-bind="text:title,
                     click:$parents[2].onNodeClicked.bind($parents[2])"></span>
@@ -94,13 +91,11 @@
                 <dt>Backlinks</dt>
                 <!-- ko foreach: backlinks -->
                 <dd data-bind=" attr: {title: id} ">
-                    <!-- ko if: $parents[2].panel_actions().show_reference_check(type()) -->
-                    <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
-                    <!-- /ko -->
                     <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
                     &nbsp;<span data-bind="text:title,
                     click:$parents[2].onNodeClicked.bind($parents[2])"></span>
                 </dd>
+                <!-- /ko -->
                 <!-- /ko -->
 
                 <br>
@@ -117,7 +112,7 @@
                     </button>
                     <!-- /ko -->
                 </div>
-                <!-- /ko -->
+
 
                 <!-- ko if: childOf.length > 0 -->
                 <dt>Referenced By</dt>

@@ -117,8 +117,8 @@ define([
             return templateName;
         },
 
-        saveAsPNG: function () {
-            this.png_converter.savetoPNG(this.rootId());
+        saveAsPNG: function (data, event) {
+            PNGConverter.savetoPNG(event, this.rootId());
         }
     });
 
