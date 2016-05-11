@@ -11,6 +11,17 @@
 
 </script>
 
+<script type="text/html" id="network-connection-template">
+    <div class="form-group">
+        <h4>Source Socket</h4>
+        <div data-bind="template: { name: 'socket-template', data: source_socket_address() }"></div>
+    </div>
+    <div class="form-group">
+        <h4>Destination Socket</h4>
+        <div data-bind="template: { name: 'socket-template', data: destination_socket_address() }"></div>
+    </div>
+</script>
+
 
 <script type="text/html" id="batch-file">
     <div class="form-group">
