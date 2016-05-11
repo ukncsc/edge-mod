@@ -11,11 +11,13 @@ define([
             return function (resultsPerPage, itemType, getUrl) {
                 sup.call(this, resultsPerPage, itemType, getUrl);
                 this.CERTonly = ko.observable(true);
+                this.searching = ko.observable(false);
             }
         }),
 
         retrieve: declare.superCall(function (sup){
             return function(){
+                this.searching(true);
                 var params = {
                     type: this.itemType,
                     size: this.resultsPerPage(),
@@ -37,6 +39,7 @@ define([
                         this.results(d.data);
                         this.totalResults(d.count);
                     }
+                this.searching(false);
                 }.bind(this));
             }
         }),
@@ -48,7 +51,7 @@ define([
             else {
                 this.CERTonly(true)
             }
-            this.retrieve()
+            this.retrieve();
         }
 
     });

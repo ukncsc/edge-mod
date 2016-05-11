@@ -1,9 +1,10 @@
 define([
     "knockout",
-    "dcl/dcl"
-], function (ko, declare) {
+    "dcl/dcl",
+    "inc-build/cert-incident-builder-shim"
+], function (ko, declare, incident_builder) {
     "use strict";
-
+    var id_ns = incident_builder.id_ns || "";
     return declare(null, {
         declaredClass: "CandidateRelatedItems",
 
@@ -28,9 +29,12 @@ define([
             this.currentPage.subscribe(function () {
                 this.results.refresh();
             }, this);
+            this.CERTonly = ko.observable(true);
+            this.searching = ko.observable(false);
         },
 
         retrieve: function () {
+            this.searching(true);
             var params = {
                 type: this.itemType,
                 size: this.resultsPerPage(),
@@ -38,9 +42,32 @@ define([
                 search: this.searchTerm()
             };
             postJSON(this.getUrl, params, function (d) {
-                this.totalResults(d.count);
-                this.results(d.data);
-            }.bind(this));
+                var newData = [];
+                    if(d.count!=0 && this.CERTonly()){
+                        for(var i=0; i< d.data.length; i++) {
+                            if (d.data[i].idns == id_ns) {
+                                newData.push(d.data[i])
+                            }
+                            this.results(newData);
+                            this.totalResults(newData.length);
+                        }
+                    }
+                    else {
+                        this.results(d.data);
+                        this.totalResults(d.count);
+                    }
+                this.searching(false);
+                }.bind(this));
+        },
+
+        toggleRelatedItems: function() {
+            if(this.CERTonly()){
+                this.CERTonly(false)
+            }
+            else {
+                this.CERTonly(true)
+            }
+            this.retrieve()
         },
 
         reset: function () {

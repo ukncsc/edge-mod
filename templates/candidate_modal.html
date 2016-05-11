@@ -7,11 +7,11 @@
         <div class="modal-body">
             <input type="text" data-bind="value: searchTerm, valueUpdate: 'afterkeydown'">
             <button data-bind="click: toggleRelatedItems" class="btn btn-primary pull-right">Toggle me</button>
-            <div style="display: none;" class="pager" data-bind="visible: !results.loaded()">
+            <div style="display: none;" class="pager" data-bind="visible: searching">
                 <img class="center" src="/static/img/soltra_flame_anim.gif"/>
                 <p>Processing...</p>
             </div>
-            <div data-bind="visible: results.loaded()">
+            <div data-bind="visible: !(searching())">
                 <table class="table table-striped table-condensed">
                     <thead>
                     <tr>
