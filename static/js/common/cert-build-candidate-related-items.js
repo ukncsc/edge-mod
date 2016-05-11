@@ -19,7 +19,11 @@ define([
             this.currentPage = ko.observable(1).extend({notify: 'always'});
             this.totalResults = ko.observable(0);
             this.totalPages = ko.computed(function () {
-                return Math.ceil(this.totalResults() / this.resultsPerPage());
+                if(this.totalResults() == 0) {
+                    return 1;
+                } else{
+                     return Math.ceil(this.totalResults() / this.resultsPerPage());
+                }
             }, this);
 
             this.searchTerm = ko.observable('').extend({rateLimit: {timeout: 300, method: "notifyWhenChangesStop"}});
@@ -67,7 +71,8 @@ define([
             else {
                 this.CERTonly(true)
             }
-            this.retrieve()
+            this.retrieve();
+            this.currentPage(1);
         },
 
         reset: function () {

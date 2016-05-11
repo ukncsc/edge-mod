@@ -12,6 +12,13 @@ define([
                 sup.call(this, resultsPerPage, itemType, getUrl);
                 this.CERTonly = ko.observable(true);
                 this.searching = ko.observable(false);
+                this.totalPages = ko.computed(function () {
+                if(this.totalResults() == 0) {
+                    return 1;
+                } else{
+                     return Math.ceil(this.totalResults() / this.resultsPerPage());
+                }
+            }, this);
             }
         }),
 
@@ -52,6 +59,7 @@ define([
                 this.CERTonly(true)
             }
             this.retrieve();
+            this.currentPage(1);
         }
 
     });
