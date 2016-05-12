@@ -4,13 +4,13 @@ define([
     "ind-build/indicator-builder-shim"
 ], function (declare, ko, indicator_builder) {
     "use strict";
-    var id_ns = indicator_builder.id_ns || "";
     var CERTCandidateRelatedItems =  declare(indicator_builder.CandidateRelatedItems, {
         declaredClass: "CERTCandidateRelatedItems",
         constructor: declare.superCall(function (sup) {
-            return function (resultsPerPage, itemType, getUrl) {
-                sup.call(this, resultsPerPage, itemType, getUrl);
-                this.CERTonly = ko.observable(true);
+            return function (resultsPerPage, itemType) {
+                sup.call(this, resultsPerPage, itemType);
+                this.getUrl = '/adapter/certuk_mod/ajax/load_catalog/';
+                this.showAll = ko.observable(false);
                 this.searching = ko.observable(false);
                 this.totalPages = ko.computed(function () {
                 if(this.totalResults() == 0) {
@@ -19,6 +19,10 @@ define([
                      return Math.ceil(this.totalResults() / this.resultsPerPage());
                 }
             }, this);
+                this.showAll.subscribe(function() {
+                    this.currentPage(1);
+                    this.retrieve();
+                }, this)
             }
         }),
 
@@ -29,38 +33,16 @@ define([
                     type: this.itemType,
                     size: this.resultsPerPage(),
                     offset: (this.currentPage()-1) * this.resultsPerPage(),
-                    search: this.searchTerm()
+                    search: this.searchTerm(),
+                    showAll: this.showAll()
                 };
                 postJSON(this.getUrl, params, function(d) {
-                    var newData = [];
-                    if(d.count!=0 && this.CERTonly()){
-                        for(var i=0; i< d.data.length; i++) {
-                            if (d.data[i].idns == id_ns) {
-                                newData.push(d.data[i])
-                            }
-                            this.results(newData);
-                            this.totalResults(newData.length);
-                        }
-                    }
-                    else {
-                        this.results(d.data);
-                        this.totalResults(d.count);
-                    }
-                this.searching(false);
+                    this.results(d.data);
+                    this.totalResults(d.count);
+                    this.searching(false);
                 }.bind(this));
             }
-        }),
-
-        toggleRelatedItems: function() {
-            if(this.CERTonly()){
-                this.CERTonly(false)
-            }
-            else {
-                this.CERTonly(true)
-            }
-            this.retrieve();
-            this.currentPage(1);
-        }
+        })
 
     });
 
