@@ -23,11 +23,11 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
     def builder_to_stix_object(self, object_data):
         network_connection = NetworkConnection()
 
-        src_socket_address = ObservableObjectGenerator._generate_socket_object(object_data.get['source_socket_address'])
-        dst_socket_address = ObservableObjectGenerator._generate_socket_object(object_data.get['destination_socket_address'])
+        src_socket_address = ObservableObjectGenerator._generate_socket_object(object_data['source_socket_address'])
+        dst_socket_address = ObservableObjectGenerator._generate_socket_object(object_data['destination_socket_address'])
 
-        network_connection.source_socket_address(src_socket_address)
-        network_connection.destination_socket_address(dst_socket_address)
+        network_connection.source_socket_address = src_socket_address
+        network_connection.destination_socket_address = dst_socket_address
 
         return network_connection
 

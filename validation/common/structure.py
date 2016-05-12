@@ -9,6 +9,7 @@ from adapters.certuk_mod.validation.observable.domain import DomainNameValidatio
 from adapters.certuk_mod.validation.observable.file import FileValidationInfo
 from adapters.certuk_mod.validation.observable.hostname import HostnameValidationInfo
 from adapters.certuk_mod.validation.observable.mutex import MutexValidationInfo
+from adapters.certuk_mod.validation.observable.network_connection import NetworkConnectionValidationInfo
 
 
 class ObservableStructureConverter(object):
@@ -40,7 +41,8 @@ class ObservableStructureConverter(object):
             'Registry Key': RegistryKeyValidationInfo.TYPE,
             'Email': EmailValidationInfo.TYPE,
             'HTTP Session': HTTPSessionValidationInfo.TYPE,
-            'Socket': SocketValidationInfo.TYPE
+            'Socket': SocketValidationInfo.TYPE,
+            'Network Connection': NetworkConnectionValidationInfo.TYPE
         }
 
         object_type = object_type_map.get(object_type_short)
