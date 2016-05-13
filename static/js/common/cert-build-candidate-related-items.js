@@ -32,9 +32,9 @@ define([
             this.currentPage.subscribe(function () {
                 this.results.refresh();
             }, this);
-            this.showAll = ko.observable(false);
+            this.localNamespaceOnly = ko.observable(true);
             this.searching = ko.observable(false);
-            this.showAll.subscribe(function() {
+            this.localNamespaceOnly.subscribe(function() {
                 this.currentPage(1);
             },this)
         },
@@ -46,7 +46,7 @@ define([
                 size: this.resultsPerPage(),
                 offset: (this.currentPage() - 1) * this.resultsPerPage(),
                 search: this.searchTerm(),
-                showAll: this.showAll()
+                localNamespaceOnly: this.localNamespaceOnly()
             };
             postJSON(this.getUrl, params, function (d) {
                 this.results(d.data);
