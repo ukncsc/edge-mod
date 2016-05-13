@@ -130,8 +130,8 @@ define([
             graphModel
                 .d3Layout()
                 .on("tick", function () {
-                    var x_middle = container[0][0].clientWidth / 2;
-                    var y_middle = container[0][0].clientHeight / 2;
+                    var x_middle = container[0][0].viewBox.animVal.width / 2;
+                    var y_middle = container[0][0].viewBox.animVal.height / 2;
 
                     nodeSelector.attr("transform", function (d) {
                         if (d === nodeSelected) { //Without this, the dragged node jumps out double its dragged distance
