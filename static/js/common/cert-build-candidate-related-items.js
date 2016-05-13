@@ -9,7 +9,7 @@ define([
 
         constructor: function (resultsPerPage, itemType, getUrl) {
             this.itemType = itemType;
-            this.getUrl = '/adapter/certuk_mod/ajax/load_catalog/';
+            this.getUrl = getUrl;
 
             this.results = ko.onDemandObservable(this.retrieve, this);
             this.selectedItems = ko.observableArray([]);
@@ -32,11 +32,10 @@ define([
             this.currentPage.subscribe(function () {
                 this.results.refresh();
             }, this);
-            this.showAll = ko.observable(true);
+            this.showAll = ko.observable(false);
             this.searching = ko.observable(false);
             this.showAll.subscribe(function() {
                 this.currentPage(1);
-                this.retrieve();
             },this)
         },
 
