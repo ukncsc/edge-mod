@@ -8,7 +8,7 @@ from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from users.decorators import login_required_ajax
-
+import re
 
 @login_required
 def visualiser_discover(request):
@@ -62,7 +62,10 @@ def visualiser_get(request, id_):
             if parent_idx is not None:
                 links.append({"source": parent_idx, "target": idx})
             if is_new_node:
-                stack.extend((depth + 1, idx, edge.fetch()) for edge in node.edges)
+                try:
+                    stack.extend((depth + 1, idx, edge.fetch()) for edge in node.edges)
+                except Exception as e:
+                    pass
 
         return dict(nodes=nodes, links=links)
 
@@ -71,7 +74,8 @@ def visualiser_get(request, id_):
         graph = depth_first_iterate(root_edge_object)
         return JsonResponse(graph, status=200)
     except Exception as e:
-        return JsonResponse(dict(e), status=500)
+        print e.message
+        return JsonResponse({'e': e}, status=500)
 
 
 @login_required_ajax
