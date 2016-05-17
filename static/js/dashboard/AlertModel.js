@@ -8,7 +8,6 @@ define([
         return (new Date(y, M, d, h, m, s)).toLocaleString();
     }
 
-    var defaultFilterText = "status:new";
     var tagDefs = Object.freeze({
         "ATTACK": {label: "ATTACK", colour: "red"},
         "FEED": {label: "Feed", colour: "green"},
@@ -117,7 +116,7 @@ define([
     return declare(null, {
         declaredClass: "AlertModel",
         constructor: function () {
-            this.filterText = ko.observable(defaultFilterText);
+            this.filterText = ko.observable("");
             this.alerts = ko.computed(function () {
                 var filterRules = parseFilterText(this.filterText());
                 var numRules = filterRules.length;
