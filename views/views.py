@@ -64,7 +64,7 @@ audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
 mimetypes.init()
-MAGIC_QUERY_LIMIT = 20000
+
 
 @login_required
 def static(request, path):
@@ -275,87 +275,3 @@ def ajax_validate(request, data):
         'error_message': error_message,
         'validation_info': validation_info
     }
-
-@json_body
-@login_required
-def ajax_load_catalog(request, d):
-    req_size = int(d.pop('size', 0))
-    req_type = d.pop('type', '').strip()
-    req_offset = int(d.pop('offset', 0))
-    req_search = d.pop('search', '').strip()
-    req_datefilter = d.pop('datefilter', '')
-    req_order = d.pop('order', True)
-    req_show_all = d.pop('showAll', False)
-    if d: raise Exception("json request included unknown items")
-
-    def magic_gather_and_sort(criteria, offset, size):
-
-        def only_unique_by_hash(cursor):
-            hashes = set()
-            counter = 0
-            for doc in cursor:
-                counter += 1
-                if doc['data']['hash'] in hashes: continue
-                hashes.add(doc['data']['hash'])
-                yield counter, doc
-
-        required = {'_id': 1, 'created_on': 1, 'data.hash': 1}
-        cursor = get_db().stix.find(criteria, required, skip=0, limit=MAGIC_QUERY_LIMIT)
-
-        data = []
-        scan_count = 0
-        unique_count = 0
-        for scan_count, doc in only_unique_by_hash(cursor):
-            unique_count += 1
-            if len(data) < 1000 + offset:
-                data.append({'created_on': doc['created_on'], '_id': doc['_id']})
-            else:
-                data = sorted(data, key=lambda item: item['created_on'], reverse=req_order)
-                del data[offset + size : len(data)]
-
-        data = sorted(data, key=lambda item: item['created_on'], reverse=req_order)
-        del data[0 : offset]
-        del data[size : len(data)]
-        return data, unique_count, scan_count
-
-    total_count = get_db().stix.find().count()
-
-    if total_count > MAGIC_QUERY_LIMIT and (not req_type) and (not req_search):
-        # No criteria and a LOT of data in the database
-        no_criteria = True
-        count = total_count
-        unreliable_sort = True
-        results = []
-    else:
-        no_criteria = False
-        query = {'txn': None}
-        if not req_show_all:
-            query.update(filter_namespace())
-        query.update(filter_date(req_datefilter))
-        query.update(filter_type(req_type))
-        query.update(filter_keywords(req_search))
-        query.update(filter_out_composite_observables())
-        query.update(filter_out_envelopes())
-        query.update(request.user.filters())
-
-        data, unique_count, scan_count = magic_gather_and_sort(query, req_offset, req_size)
-        count = unique_count
-        unreliable_sort = scan_count >= MAGIC_QUERY_LIMIT
-        results = (doc['_id'] for doc in data)
-
-    loaded = (load_object_for_catalog(idref) for idref in results)
-    return {
-        'data': [object_to_js_for_catalog(doc) for doc in loaded],
-        'no_criteria': no_criteria,
-        'unreliable_sort': unreliable_sort,
-        'count': count,
-        'success': True,
-    }
-
-from catalog.views import filter_date, filter_type, filter_keywords, filter_out_composite_observables, filter_out_envelopes, object_to_js_for_catalog, load_object_for_catalog
-from mongoengine.connection import get_db
-
-def filter_namespace():
-    return {'data.idns': LOCAL_NAMESPACE}
-
-from edge import LOCAL_NAMESPACE

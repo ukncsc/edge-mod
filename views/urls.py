@@ -76,7 +76,6 @@ publisher_urls = [
     (r'^ajax/visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_get', 'visualiser_ajax_view'),
     (r'^ajax/visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_item_get', 'visualiser_ajax_item'),
 
-    (r'^ajax/load_catalog/$', 'views.ajax_load_catalog', None)
 
 ]
 
