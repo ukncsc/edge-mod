@@ -17,6 +17,24 @@ li.navtool,
     background-color: #ddd2da !important;
 }
 
+.gridster {
+    opacity: 0;
+}
+
+.gridster.ready {
+    opacity: 1;
+}
+
+ul#dashboard_main_grid {
+    list-style: none;
+    margin: 0;
+}
+
+ul#dashboard_main_grid > li {
+    background: #ddd2da;
+    border: 1px solid black;
+}
+
 ul.breadcrumb > li:last-child,
 nav#ftr-btm img
 {

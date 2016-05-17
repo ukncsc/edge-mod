@@ -3,7 +3,8 @@ document.getElementById("ftr-btm").getElementsByClassName("navbar-right")[0].inn
     "Copyright &copy; 2016 Purple Secure Systems <a href=\"/crashlog/\" style=\"color:#aaa;text-decoration:none;\">*</a>";
 require([
     "knockout",
-    "dashboard/ViewModel"
+    "dashboard/ViewModel",
+    "domReady!"
 ], function (ko, ViewModel) {
     ko.applyBindings(new ViewModel(), document.getElementById("content"));
 });

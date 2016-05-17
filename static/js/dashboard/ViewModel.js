@@ -24,7 +24,10 @@ define([
                 {label: "Search", template: SearchTemplate.id, model: new SearchModel(), flex: "v"},
                 {label: "Alerts", template: AlertTemplate.id, model: new AlertModel(), flex: "v"}
             ]);
-            this.selectedFolder = ko.observable(this.folders.peek()[0]);
+            this.selectedFolder = ko.observable({});
+            this.selectedFolder.subscribe(this.onFolderSelected.bind(this));
+            this.selectedFolder(this.folders.peek()[0]);
+
             this.savedQueries = ko.observableArray([
                 {value:0, label:"Indicators by Type"},
                 {value:1, label:"Incidents by Type"},
@@ -42,6 +45,12 @@ define([
                 {label: "X-Y Ranged 1", imageUrl: "chart7.png"},
                 {label: "X-Y Ranged 2", imageUrl: "chart9.png"}
             ]);
+        },
+        onFolderSelected: function (selectedFolder) {
+            var model = selectedFolder && selectedFolder.model;
+            if (model && typeof model.onShow === "function") {
+                setTimeout(model.onShow.bind(model), 0);
+            }
         },
         findByLabel: function (label) {
             return ko.utils.arrayFirst(this.folders.peek(), function (folder) {

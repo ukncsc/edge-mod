@@ -4,14 +4,23 @@
         You have <a class="pss" href="#" data-bind="click: $root.showNewAlerts.bind($root)">3 new alerts</a>
     </p>
 </div>
-<div class="main flexbox hflex wrap" style="flex: 1 1 auto;overflow-y:auto;">
+<div class="main flexbox hflex gridster" style="flex: 1 1 auto;overflow:auto;">
+    <ul id="dashboard_main_grid">
     <!-- ko foreach: panels -->
-    <div class="panel panel-default" style="margin:1rem;width:280px;">
-        <div class="panel-heading" data-bind="text:label"></div>
-        <div class="panel-body">
-            <img src="" height="175" width="250"
-                 data-bind="attr: { src: '/adapter/certuk_mod/static/js/dashboard/proto/' + imageUrl }">
-        </div>
-    </div>
+        <li class="panel panel-default" style="overflow:hidden;" data-bind="
+            attr: {
+                'data-col': $data.x,
+                'data-row': $data.y,
+                'data-sizex': $data.w,
+                'data-sizey': $data.h
+            }
+        ">
+            <div class="panel-heading" data-bind="text:label"></div>
+            <div class="panel-body">
+                <img src="" style="width:100%;height:auto;"
+                     data-bind="attr: { src: '/adapter/certuk_mod/static/js/dashboard/proto/' + content() }">
+            </div>
+        </li>
     <!-- /ko -->
+    </ul>
 </div>
