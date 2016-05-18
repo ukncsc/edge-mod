@@ -36,6 +36,7 @@ MARKING_PRIORITIES = ("UK HMG Priority: [C1]", "UK HMG Priority: [C2]", "UK HMG 
 
 configuration = settings.ACTIVE_CONFIG
 
+PRETTY_TIME_TYPE = {item[0]:item[1] for item in TIME_TYPES}
 
 def get_build_template(static, id_, id_ns):
     return {

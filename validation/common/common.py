@@ -1,4 +1,3 @@
-
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus, ObjectValidationInfo
 
 

@@ -4,8 +4,9 @@ define([
     "d3",
     "./graph/Graph",
     "../stix/StixPackage",
+    "./toPNG/PNGConverter",
     "./graph/forceGraphBinding"
-], function (declare, ko, d3, Graph, StixPackage) {
+], function (declare, ko, d3, Graph, StixPackage, PNGConverter) {
     "use strict";
 
     var ViewModel = declare(null, {
@@ -20,7 +21,7 @@ define([
 
             this.panel_actions = ko.computed(function () {
                 return panel_actions;
-            })
+            });
 
             this.item_url = ko.computed(function () {
                 return item_url;
@@ -44,17 +45,19 @@ define([
             this.graph().selectNode(data.id());
         },
         onSelectedNodeChanged: function (newNode) {
-            d3.json(
-                this.item_url() + encodeURIComponent(newNode.id()),
-                function (error, response) {
-                    if (error) {
-                        throw new Error(error);
-                    }
-                    this.selectedObject.bind(this)(
-                        new StixPackage(response["package"], response["root_id"], response["validation_info"])
-                    );
-                }.bind(this)
-            )
+                d3.json(
+                    this.item_url() + encodeURIComponent(newNode.id()),
+                    function (error, response) {
+                        if (error) {
+                            throw new Error(error);
+                        }
+                        if (this.graph().selectedNode().id() == newNode.id()) {
+                            this.selectedObject.bind(this)(
+                                new StixPackage(response["package"], response["root_id"], response["validation_info"])
+                            );
+                        }
+                    }.bind(this)
+                );
         },
         onRowClicked: function () {
             // implements a click handler required by the review template. Does nothing here.
@@ -66,6 +69,9 @@ define([
                 templateName = 'flat-' + selectedObject.type.code;
             }
             return templateName;
+        },
+        saveAsPNG : function (data, event) {
+            PNGConverter.savetoPNG(event, this.rootId());
         }
     });
 

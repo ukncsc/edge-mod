@@ -32,6 +32,11 @@ publisher_urls = [
     (r'^ajax/extract_visualiser/merge_observables/.*$', 'views.extract_visualiser_merge_observables', 'extract_visualiser_ajax_merge_observables'),
     (r'^ajax/extract_visualiser/delete_observables/.*$', 'views.extract_visualiser_delete_observables', 'extract_visualiser_ajax_delete_observables'),
 
+    (r'^incident_timeline/$', 'views.timeline_discover', 'timeline_discover'),
+    (r'^incident_timeline/(?P<id_>' + VALID_STIX_ID + ')$', 'views.incident_timeline', 'incident_timeline'),
+    (r'^incident_timeline/missing/$', 'views.incident_timeline_not_found', 'incident_timeline_not_found'),
+    (r'^ajax/incident_timeline/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_incident_timeline', 'ajax_incident_timeline'),
+
     (r'^clone/$', 'views.clone', 'clone_to_draft'),
     (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'publisher_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
@@ -53,7 +58,7 @@ publisher_urls = [
     (r'^ajax/set_retention_config/$', 'views.ajax_set_retention_config', None),
     (r'^ajax/reset_retention_config/$', 'views.ajax_reset_retention_config', None),
     (r'^ajax/get_purge_task_status/$', 'views.ajax_get_purge_task_status', None),
-    (r'^ajax/run_purge/$', 'views.ajax_run_purge', None),
+    (r'^ajax/run_purge_task/$', 'views.ajax_run_purge', None),
 
     (r'^ajax/get_fts_config/$', 'views.ajax_get_fts_config', None),
     (r'^ajax/set_fts_config/$', 'views.ajax_set_fts_config', None),
@@ -85,6 +90,7 @@ navitems = [
     ('Extract Stix', 'extract_stix'),
     ('Clone to Draft', 'clone_to_draft'),
     ('Visualiser', 'visualiser_discover'),
+    ('Incident Timeline', 'timeline_discover'),
     # ('Duplicates Finder', 'duplicates_finder'),
     ('Activity Log', 'activity_log'),
     ('CERT-UK Configuration', 'publisher_config')

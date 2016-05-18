@@ -6,12 +6,11 @@ from mongoengine.connection import get_db
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from repository.scheduler import PeriodicTaskWithTTL
-
+from edge.tools import StopWatch
 from adapters.certuk_mod.common.activity import save as log_activity
 
 
 class STIXPurge(object):
-
     PAGE_SIZE = 5000
 
     def __init__(self, retention_config):
@@ -268,18 +267,17 @@ class STIXPurge(object):
         })
 
     def run(self):
-        def build_activity_message(min_date, objects, compositions, packages):
+        def build_activity_message(min_date, objects, compositions, packages, time_ms):
             def summarise(into, summary_template, items):
                 num_items = len(items)
                 into.append(summary_template % num_items)
-                if num_items > 0:
-                    for item in items:
-                        into.append("\t%s" % item)
 
-            messages = ['Objects created before %s are candidates for deletion' % min_date]
+            messages = [
+                'Objects created before %s are candidates for deletion' % min_date.strftime("%Y-%m-%d %H:%M:%S")]
             summarise(messages, 'Found %d objects with insufficient back links or sightings', objects)
             summarise(messages, 'Found %d orphaned observable compositions', compositions)
             summarise(messages, 'Found %d old packages', packages)
+            messages.append('In %dms' % time_ms)
             return "\n".join(messages)
 
         def wait_for_background_jobs_completion(as_at_date, minutes_to_wait=5, poll_interval=5):
@@ -294,6 +292,7 @@ class STIXPurge(object):
                     tries_remaining -= 1
             raise TimeoutError('Timeout waiting for sightings and backlinks jobs to complete.  Will retry in 24 hours.')
 
+        timer = StopWatch()
         try:
             current_date = datetime.utcnow()
             wait_for_background_jobs_completion(current_date)
@@ -302,14 +301,11 @@ class STIXPurge(object):
             # Get old items that don't have enough back links and sightings (excluding observable compositions):
             objects_to_delete = self.get_purge_candidates(minimum_date)
             # Look for any observable compositions that were orphaned on the previous call to run:
-            orphaned_observable_compositions_to_delete = STIXPurge._get_orphaned_external_observable_compositions(current_date)
+            orphaned_observable_compositions_to_delete = STIXPurge._get_orphaned_external_observable_compositions(
+                current_date)
             # Look for old packages
             old_packages_to_delete = STIXPurge._get_old_packages(minimum_date)
             ids_to_delete = objects_to_delete + orphaned_observable_compositions_to_delete + old_packages_to_delete
-
-            log_activity('system', 'AGEING', 'INFO', build_activity_message(
-                minimum_date, objects_to_delete, orphaned_observable_compositions_to_delete, old_packages_to_delete
-            ))
 
             for page_index in range(0, len(ids_to_delete), self.PAGE_SIZE):
                 try:
@@ -319,3 +315,8 @@ class STIXPurge(object):
                     log_activity('system', 'AGEING', 'ERROR', e.message)
         except Exception as e:
             log_activity('system', 'AGEING', 'ERROR', e.message)
+        else:
+            log_activity('system', 'AGEING', 'INFO', build_activity_message(
+                    minimum_date, objects_to_delete, orphaned_observable_compositions_to_delete, old_packages_to_delete,
+                    timer.ms()
+            ))
