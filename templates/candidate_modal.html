@@ -8,11 +8,11 @@
             <input type="text" data-bind="value: searchTerm, valueUpdate: 'afterkeydown'"/>
             <label class="checkbox-inline pull-right">Local namesapce only<input type="checkbox" data-bind="checked: localNamespaceOnly">
             </label>
-            <div style="display: none;" class="pager" data-bind="visible: searching">
+            <div style="display: none;" class="pager" data-bind="visible: !results.loaded()">
             <img class="center" src="/static/img/soltra_flame_anim.gif"/>
             <p>Processing...</p>
             </div>
-            <div data-bind="visible: !(searching())">
+            <div data-bind="visible: results.loaded()">
                 <table class="table table-striped table-condensed">
                     <thead>
                     <tr>
