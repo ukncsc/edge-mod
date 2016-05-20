@@ -424,7 +424,7 @@ def _existing_tgt_cve_dedup(contents, hashes, user, local):
     out = _coalesce_ttps(contents, map_table)
 
     message = _generate_message("Remapped %d " + ('local' if local else 'external') +
-                                " namespace Exploit Targets in the supplied package based on CVE-IDs", contents, out)
+                                " namespace Exploit Targets to existing Targets based on CVE-IDs", contents, out)
 
     return out, message
 

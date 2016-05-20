@@ -81,3 +81,17 @@ class DedupFunctionalTests(edge_test.TestCase):
         merge = 'Merged 2 local namespace Exploit Targets in the supplied package based on CVE-IDs'
         self.assertEqual(ip.filter_messages[1], merge)
 
+    def test_DedupInboxProcessor_validate_correct_tgt_dedup_message_remapping(self):
+        ip = self.create_inbox_from_file('TGT-PackageWithRemapping.xml')
+        ip.run()
+        remap = 'Remapped 2 local namespace Exploit Targets to existing Targets based on CVE-IDs'
+        self.assertEqual(ip.filter_messages[1], remap)
+
+    def test_DedupInboxProcessor_validate_correct_tgt_dedup_message_merge_and_remapping(self):
+        ip = self.create_inbox_from_file('TGT-PackageWithMergeAndRemapping.xml')
+        ip.run()
+        merge = 'Merged 5 local namespace Exploit Targets in the supplied package based on CVE-IDs'
+        remap = 'Remapped 2 local namespace Exploit Targets to existing Targets based on CVE-IDs'
+        self.assertEqual(ip.filter_messages[1], merge)
+        self.assertEqual(ip.filter_messages[2], remap)
+
