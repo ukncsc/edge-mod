@@ -21,6 +21,7 @@ PROPERTY_SHA256 = ['api_object', 'obj', 'object_', 'properties', 'sha256']
 PROPERTY_SHA384 = ['api_object', 'obj', 'object_', 'properties', 'sha384']
 PROPERTY_SHA512 = ['api_object', 'obj', 'object_', 'properties', 'sha512']
 PROPERTY_CAPEC = ['api_object', 'obj', 'behavior', 'attack_patterns']
+PROPERTY_CVE = ['api_object', 'obj', 'vulnerabilities']
 
 
 def _get_sighting_count(obs):
@@ -352,6 +353,51 @@ def _existing_ttp_local_ns_capec_dedup(contents, hashes, user):
 def _existing_ttp_external_ns_capec_dedup(contents, hashes, user):
     return _existing_ttp_capec_dedup(contents, hashes, user, False)
 
+def _new_tgt_local_ns_cve_dedup(contents, hashes, user):
+    local = True
+    package_tgts_to_consider = {}
+    for id_, io in contents.iteritems():
+        is_local = rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE
+        correct_ns = is_local if local else (not is_local)
+        if not correct_ns:
+            continue
+        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'tgt' and len(
+                rgetattr(contents.get(id_, None), PROPERTY_CVE, '')) > 0:
+            package_tgts_to_consider.setdefault(id_, []).append(io)
+
+    id_to_cves = {}
+    for id_, tgts in package_tgts_to_consider.iteritems():
+        for tgt in tgts:
+            cves = [cve.cve_id for cve in tgt.api_object.obj.vulnerabilities if cve.cve_id]
+            if len(cves) != 0:
+                key = ",".join(sorted(cves))
+                id_to_cves.setdefault(key, []).append(id_)
+
+    map_table = {}
+    for cve_key, ids in id_to_cves.iteritems():
+        if len(ids) == 0:
+            continue
+
+        id_to_description_length = {}
+        for id in ids:
+            if contents[id].api_object.obj.description is not None:
+                id_to_description_length[id] = len(contents[id].api_object.obj.description.value)
+        if id_to_description_length == {}:
+            master = ids[0]
+        else:
+            master = sorted(id_to_description_length.items(), key = operator.itemgetter(1))[-1][0]
+        ids.remove(master)
+        for dup in ids:
+            map_table[dup] = master
+
+    out = coalesce_ttps(contents, map_table)
+
+    message = _generate_message("Merged %d " + ('local' if local else 'external') +
+                                " namespace Exploit Target in the supplied package based on CVE-IDs", contents, out)
+
+    return out, message
+
+
 
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
@@ -361,6 +407,8 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         _existing_ttp_local_ns_capec_dedup,  # dedup against existing TTPs matched by CAPEC-IDs and Title in local NS
         # _new_ttp_external_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in external NS
         # _existing_ttp_external_ns_capec_dedup, # dedup against existing TTPs matched by CAPEC-IDs and Title in external NS
+        _new_tgt_local_ns_cve_dedup,
+        # _existing_tgt_local_ns_cve_dedup,
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 
