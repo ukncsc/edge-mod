@@ -6,6 +6,8 @@ from cybox.objects.file_object import File
 from stix.indicator import Indicator
 from stix.ttp import TTP, Behavior
 from stix.ttp.attack_pattern import AttackPattern
+from stix.exploit_target import ExploitTarget
+from stix.exploit_target.vulnerability import Vulnerability
 
 from edge.generic import ApiObject
 from edge.inbox import InboxItem
@@ -17,7 +19,8 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import \
     _generate_message,\
     _is_matching_file, \
     _coalesce_ttps, \
-    _package_ttps_to_consider
+    _package_ttps_to_consider, \
+    _package_tgts_to_consider
 
 
 def create_file(file_name=None, md5=None, sha1=None, sha256=None):
@@ -167,7 +170,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
 
         self.assertItemsEqual(['pss:ttp-00000000-0000-0000-0000-000000000001'], coalesce.keys())
 
-    def test_package_ttps_to_consider_after_package_dedup_only_external_ns(self):
+    def test_package_ttps_to_consider_not_matching_only_external_ns(self):
         contents = {'matt:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'matt:ttp-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
@@ -189,7 +192,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
                               'should match: CAPEC-163': ['matt:ttp-00000000-0000-0000-0000-000000000002']},
                              package_ttps_external)
 
-    def test_package_ttps_to_consider_after_package_dedup_only_local_ns(self):
+    def test_package_ttps_to_consider_not_matching_only_local_ns(self):
         contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
@@ -211,8 +214,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
                              package_ttps_local)
         self.assertDictEqual({}, package_ttps_external)
 
-
-    def test_package_ttps_to_consider_after_package_dedup_local_and_external_ns(self):
+    def test_package_ttps_to_consider_local_and_external_ns(self):
         contents = {'matt:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
@@ -234,7 +236,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
         self.assertDictEqual({'should match: CAPEC-163':
                                   ['matt:ttp-00000000-0000-0000-0000-000000000001']}, package_ttps_non_local)
 
-    def test_package_ttps_to_consider_before_package_dedup_only_external_ns(self):
+    def test_package_ttps_to_consider_matching_only_external_ns(self):
         contents = {'matt:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'matt:ttp-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
@@ -256,7 +258,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
             'matt:ttp-00000000-0000-0000-0000-000000000001', 'matt:ttp-00000000-0000-0000-0000-000000000002'
         ]}, package_ttps_external)
 
-    def test_package_ttps_to_consider_before_package_dedup_only_local_ns(self):
+    def test_package_ttps_to_consider_matching_only_local_ns(self):
         contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
@@ -278,7 +280,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
         ]}, package_ttps_local)
         self.assertDictEqual({}, package_ttps_external)
 
-    def test_package_ttps_to_consider_before_package_dedup_local_and_external_ns(self):
+    def test_package_ttps_to_consider_matching_local_and_external_ns(self):
         contents = {'pss:ind-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'pss:ind-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='ind')),
@@ -314,3 +316,133 @@ class DedupInboxProcessorTests(unittest.TestCase):
         self.assertDictEqual({'should match: CAPEC-1,CAPEC-2':
                               ['External:ttp-00000000-0000-0000-0000-000000000003',
                                'External:ttp-00000000-0000-0000-0000-000000000002']}, package_ttps_external)
+
+    def test_package_tgts_to_consider_not_matching_only_external_ns(self):
+        contents = {'matt:tgt-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespce",
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')]))),
+                    'matt:tgt-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1112')])))}
+
+        package_tgts_local = _package_tgts_to_consider(contents, True)
+        package_tgts_external = _package_tgts_to_consider(contents, False)
+
+        self.assertDictEqual({}, package_tgts_local)
+        self.assertDictEqual({'CVE-2015-1111': ['matt:tgt-00000000-0000-0000-0000-000000000001'],
+                             'CVE-2015-1112': ['matt:tgt-00000000-0000-0000-0000-000000000002']}, package_tgts_external)
+
+    def test_package_tgts_to_consider_not_matching_only_local_ns(self):
+        contents = {'pss:tgt-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = LOCAL_NAMESPACE,
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')]))),
+                    'pss:tgt-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = LOCAL_NAMESPACE,
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1112')])))}
+
+        package_tgts_local = _package_tgts_to_consider(contents, True)
+        package_tgts_external = _package_tgts_to_consider(contents, False)
+
+        self.assertDictEqual({'CVE-2015-1111': ['pss:tgt-00000000-0000-0000-0000-000000000001'],
+                             'CVE-2015-1112': ['pss:tgt-00000000-0000-0000-0000-000000000002']}, package_tgts_local)
+        self.assertDictEqual({}, package_tgts_external)
+
+    def test_package_tgts_to_consider_not_matching_local_and_external_ns(self):
+        contents = {'matt:tgt-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')]))),
+                    'pss:tgt-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = LOCAL_NAMESPACE,
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1112')])))}
+
+        package_tgts_local = _package_tgts_to_consider(contents, True)
+        package_tgts_external = _package_tgts_to_consider(contents, False)
+
+        self.assertDictEqual({'CVE-2015-1112': ['pss:tgt-00000000-0000-0000-0000-000000000002']}
+                             ,package_tgts_local)
+        self.assertDictEqual({'CVE-2015-1111': ['matt:tgt-00000000-0000-0000-0000-000000000001']}
+                             ,package_tgts_external)
+
+    def test_package_tgts_to_consider_matching_only_external_ns(self):
+        contents = {'matt:tgt-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')]))),
+                    'matt:tgt-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')])))}
+
+        package_tgts_local = _package_tgts_to_consider(contents, True)
+        package_tgts_external = _package_tgts_to_consider(contents, False)
+
+        self.assertDictEqual({}, package_tgts_local)
+        self.assertDictEqual({'CVE-2015-1111': ['matt:tgt-00000000-0000-0000-0000-000000000002',
+                                                'matt:tgt-00000000-0000-0000-0000-000000000001']}
+                             ,package_tgts_external)
+
+    def test_package_tgts_to_consider_matching_only_local_ns(self):
+        contents = {'pss:tgt-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'pss:tgt-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = LOCAL_NAMESPACE,
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')]))),
+                    'pss:tgt-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'pss:tgt-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = LOCAL_NAMESPACE,
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')])))}
+
+        package_tgts_local = _package_tgts_to_consider(contents, True)
+        package_tgts_external = _package_tgts_to_consider(contents, False)
+
+        self.assertDictEqual({'CVE-2015-1111': ['pss:tgt-00000000-0000-0000-0000-000000000002',
+                                                'pss:tgt-00000000-0000-0000-0000-000000000001']}
+                             ,package_tgts_local)
+        self.assertDictEqual({}, package_tgts_external)
+
+    def test_package_tgts_to_consider_matching_local_and_external_ns(self):
+        contents = {'pss:tgt-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'pss:tgt-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = LOCAL_NAMESPACE,
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')]))),
+                    'pss:tgt-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'pss:tgt-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = LOCAL_NAMESPACE,
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')]))),
+                    'matt:tgt-00000000-0000-0000-0000-000000000001': mock.create_autospec(
+                        InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2016-1111')]))),
+                    'matt:tgt-00000000-0000-0000-0000-000000000002': mock.create_autospec(
+                        InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='tgt',
+                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2016-1112')])))}
+
+        package_tgts_local = _package_tgts_to_consider(contents, True)
+        package_tgts_external = _package_tgts_to_consider(contents, False)
+
+        self.assertDictEqual({'CVE-2015-1111': ['pss:tgt-00000000-0000-0000-0000-000000000002',
+                                                'pss:tgt-00000000-0000-0000-0000-000000000001']}
+                             ,package_tgts_local)
+        self.assertDictEqual({'CVE-2016-1111': ['matt:tgt-00000000-0000-0000-0000-000000000001'],
+                              'CVE-2016-1112': ['matt:tgt-00000000-0000-0000-0000-000000000002']
+                              }, package_tgts_external)
