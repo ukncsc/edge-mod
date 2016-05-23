@@ -9,6 +9,7 @@ from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObj
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from users.decorators import login_required_ajax
 
+
 @login_required
 def visualiser_discover(request):
     return objectid_discover(request, "visualiser_view", "visualiser_not_found")
@@ -70,7 +71,7 @@ def visualiser_get(request, id_):
         graph = depth_first_iterate(root_edge_object)
         return JsonResponse(graph, status=200)
     except Exception as e:
-        return JsonResponse({'e': e}, status=500)
+        return JsonResponse(dict(e), status=500)
 
 
 @login_required_ajax
