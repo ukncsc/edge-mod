@@ -27,7 +27,7 @@
                 <et:CVE_ID>CVE-2015-8888</et:CVE_ID>
             </et:Vulnerability>
             <et:Vulnerability>
-                <et:Title>Mines a Stella</et:Title>
+                <et:Title></et:Title>
                 <et:CVE_ID>CVE-2016-1119</et:CVE_ID>
             </et:Vulnerability>
             <et:Handling>
@@ -44,7 +44,7 @@
                 <et:CVE_ID>CVE-2015-8855</et:CVE_ID>
             </et:Vulnerability>
             <et:Vulnerability>
-                <et:Title>Mines a Stella</et:Title>
+                <et:Title></et:Title>
                 <et:CVE_ID>CVE-2015-1119</et:CVE_ID>
             </et:Vulnerability>
             <et:Handling>
