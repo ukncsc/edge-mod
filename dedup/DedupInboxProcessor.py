@@ -402,10 +402,10 @@ def _new_tgt_cve_dedup(contents, hashes, user, local):
 
 def _existing_tgt_cve_dedup(contents, hashes, user, local):
     existing_cve_ids_to_id = _existing_tgts_with_cves(local)
-    tgt_id_to_cves = _package_tgts_to_consider(contents, local)
+    cve_to_tgt_ids = _package_tgts_to_consider(contents, local)
 
     map_table = {
-        id_[0]: existing_cve_ids_to_id[key] for key, id_ in tgt_id_to_cves.iteritems() if key in existing_cve_ids_to_id
+        id_[0]: existing_cve_ids_to_id[key] for key, id_ in cve_to_tgt_ids.iteritems() if key in existing_cve_ids_to_id
     }
 
     out = _coalesce_non_observable_duplicates(contents, map_table)
