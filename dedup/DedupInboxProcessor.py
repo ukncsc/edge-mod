@@ -245,7 +245,7 @@ def _new_hash_dedup(contents, hashes, user):
     return out, message
 
 
-def _coalesce_ttps(contents, map_table):
+def _coalesce_non_observable_duplicates(contents, map_table):
     out = {}
     for id_, io in contents.iteritems():
         if id_ not in map_table:
@@ -257,6 +257,26 @@ def _coalesce_ttps(contents, map_table):
 def _create_capec_title_key(title, capec_ids):
     capec_join = ",".join(sorted(capec_ids))
     return title.strip().lower() + ": " + capec_join
+
+
+def _get_map_table(contents, key_to_ids):
+    map_table = {}
+    for key, ids in key_to_ids.iteritems():
+        if len(ids) <= 1:
+            continue
+
+        id_to_description_length = {}
+        for id in ids:
+            if contents[id].api_object.obj.description is not None:
+                id_to_description_length[id] = len(contents[id].api_object.obj.description.value)
+        if id_to_description_length == {}:
+            master = ids[0]
+        else:
+            master = sorted(id_to_description_length.items(), key = operator.itemgetter(1))[-1][0]
+        ids.remove(master)
+        for dup in ids:
+            map_table[dup] = master
+    return map_table
 
 
 def _package_ttps_to_consider(contents, local):
@@ -289,8 +309,6 @@ def _existing_title_and_capecs(local):
         capec_ids = [found_capec['capec'] for found_capec in found_ttp['capecs']]
         key = _create_capec_title_key(found_ttp['title'], capec_ids)
         existing_title_capec_string_to_id[key] = found_ttp['_id']
-
-
     return existing_title_capec_string_to_id
 
 
@@ -304,7 +322,7 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
         key in existing_title_capec_string_to_id
         }
 
-    out = _coalesce_ttps(contents, map_table)
+    out = _coalesce_non_observable_duplicates(contents, map_table)
 
     message = _generate_message("Remapped %d " + ('local' if local else 'external') +
                                 " namespace TTPs to existing TTPs based on CAPEC-IDs and title"
@@ -315,24 +333,9 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
 def _new_ttp_capec_dedup(contents, hashes, user, local):
     ttp_title_capec_string_to_ids = _package_ttps_to_consider(contents, local)
 
-    map_table = {}
-    for title_capec_string, ids in ttp_title_capec_string_to_ids.iteritems():
-        if len(ids) == 0:
-            continue
+    map_table = _get_map_table(contents, ttp_title_capec_string_to_ids)
 
-        id_to_description_length = {}
-        for id in ids:
-            if contents[id].api_object.obj.description is not None:
-                id_to_description_length[id] = len(contents[id].api_object.obj.description.value)
-        if id_to_description_length == {}:
-            master = ids[0]
-        else:
-            master = sorted(id_to_description_length.items(), key = operator.itemgetter(1))[-1][0]
-        ids.remove(master)
-        for dup in ids:
-            map_table[dup] = master
-
-    out = _coalesce_ttps(contents, map_table)
+    out = _coalesce_non_observable_duplicates(contents, map_table)
 
     message = _generate_message("Merged %d " + ('local' if local else 'external') +
                                 " namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
@@ -354,7 +357,6 @@ def _existing_ttp_local_ns_capec_dedup(contents, hashes, user):
 def _existing_ttp_external_ns_capec_dedup(contents, hashes, user):
     return _existing_ttp_capec_dedup(contents, hashes, user, False)
 
-
 def _package_tgts_to_consider(contents, local):
     package_tgts_to_consider = {}
     for id_, io in contents.iteritems():
@@ -366,14 +368,14 @@ def _package_tgts_to_consider(contents, local):
                 rgetattr(contents.get(id_, None), PROPERTY_CVE, '')) > 0:
             package_tgts_to_consider.setdefault(id_, []).append(io)
 
-    id_to_cves = {}
+    cves_to_ids = {}
     for id_, tgts in package_tgts_to_consider.iteritems():
         for tgt in tgts:
             cves = [cve.cve_id for cve in tgt.api_object.obj.vulnerabilities if cve.cve_id]
             if len(cves) != 0:
                 key = ",".join(sorted(cves))
-                id_to_cves.setdefault(key, []).append(id_)
-    return id_to_cves
+                cves_to_ids.setdefault(key, []).append(id_)
+    return cves_to_ids
 
 def _existing_tgts_with_cves(local):
     existing_cves = cve_finder(local)
@@ -387,26 +389,11 @@ def _existing_tgts_with_cves(local):
 
 
 def _new_tgt_cve_dedup(contents, hashes, user, local):
-    tgt_id_to_cves = _package_tgts_to_consider(contents, local)
+    cve_to_tgt_ids = _package_tgts_to_consider(contents, local)
 
-    map_table = {}
-    for cve_key, ids in tgt_id_to_cves.iteritems():
-        if len(ids) == 0:
-            continue
+    map_table = _get_map_table(contents, cve_to_tgt_ids)
 
-        id_to_description_length = {}
-        for id in ids:
-            if contents[id].api_object.obj.description is not None:
-                id_to_description_length[id] = len(contents[id].api_object.obj.description.value)
-        if id_to_description_length == {}:
-            master = ids[0]
-        else:
-            master = sorted(id_to_description_length.items(), key = operator.itemgetter(1))[-1][0]
-        ids.remove(master)
-        for dup in ids:
-            map_table[dup] = master
-
-    out = _coalesce_ttps(contents, map_table)
+    out = _coalesce_non_observable_duplicates(contents, map_table)
 
     message = _generate_message("Merged %d " + ('local' if local else 'external') +
                                 " namespace Exploit Targets in the supplied package based on CVE-IDs", contents, out)
@@ -421,7 +408,7 @@ def _existing_tgt_cve_dedup(contents, hashes, user, local):
         id_[0]: existing_cve_ids_to_id[key] for key, id_ in tgt_id_to_cves.iteritems() if key in existing_cve_ids_to_id
     }
 
-    out = _coalesce_ttps(contents, map_table)
+    out = _coalesce_non_observable_duplicates(contents, map_table)
 
     message = _generate_message("Remapped %d " + ('local' if local else 'external') +
                                 " namespace Exploit Targets to existing Targets based on CVE-IDs", contents, out)
@@ -440,10 +427,8 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
         _new_ttp_local_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in local NS
         _existing_ttp_local_ns_capec_dedup,  # dedup against existing TTPs matched by CAPEC-IDs and Title in local NS
-        # _new_ttp_external_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in external NS
-        # _existing_ttp_external_ns_capec_dedup, # dedup against existing TTPs matched by CAPEC-IDs and Title in external NS
-        _new_tgt_local_ns_cve_dedup,
-        _existing_tgt_local_ns_cve_dedup,
+        _new_tgt_local_ns_cve_dedup, # removes new tgts matched by CVE-ID in incoming package in local NS
+        _existing_tgt_local_ns_cve_dedup, # dedup against existing tgts matched by CVE-ID in local NS
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 

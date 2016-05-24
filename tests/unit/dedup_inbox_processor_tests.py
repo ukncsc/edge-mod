@@ -8,6 +8,7 @@ from stix.ttp import TTP, Behavior
 from stix.ttp.attack_pattern import AttackPattern
 from stix.exploit_target import ExploitTarget
 from stix.exploit_target.vulnerability import Vulnerability
+from stix.common.structured_text import StructuredText
 
 from edge.generic import ApiObject
 from edge.inbox import InboxItem
@@ -18,9 +19,10 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import \
     _coalesce_duplicates,\
     _generate_message,\
     _is_matching_file, \
-    _coalesce_ttps, \
+    _coalesce_non_observable_duplicates, \
     _package_ttps_to_consider, \
-    _package_tgts_to_consider
+    _package_tgts_to_consider, \
+    _get_map_table
 
 
 def create_file(file_name=None, md5=None, sha1=None, sha256=None):
@@ -153,7 +155,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='ttp'))}
 
-        coalesce = _coalesce_ttps(contents, {})
+        coalesce = _coalesce_non_observable_duplicates(contents, {})
 
         self.assertItemsEqual(['pss:ttp-00000000-0000-0000-0000-000000000001',
                                'pss:ttp-00000000-0000-0000-0000-000000000002'], coalesce.keys())
@@ -166,7 +168,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='ttp'))}
 
-        coalesce = _coalesce_ttps(contents, {'pss:ttp-00000000-0000-0000-0000-000000000002': 'DeDuptoMe'})
+        coalesce = _coalesce_non_observable_duplicates(contents, {'pss:ttp-00000000-0000-0000-0000-000000000002': 'DeDuptoMe'})
 
         self.assertItemsEqual(['pss:ttp-00000000-0000-0000-0000-000000000001'], coalesce.keys())
 
@@ -446,3 +448,78 @@ class DedupInboxProcessorTests(unittest.TestCase):
         self.assertDictEqual({'CVE-2016-1111': ['matt:tgt-00000000-0000-0000-0000-000000000001'],
                               'CVE-2016-1112': ['matt:tgt-00000000-0000-0000-0000-000000000002']
                               }, package_tgts_external)
+
+    def test_map_table_duplicates(self):
+        contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
+                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'Short')))),
+                    'pss:ttp-00000000-0000-0000-0000-000000000002':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
+                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'Longerr'))))}
+        key_to_ids = {'key1': ['pss:ttp-00000000-0000-0000-0000-000000000001',
+                               'pss:ttp-00000000-0000-0000-0000-000000000002']}
+
+        map_table = _get_map_table(contents, key_to_ids)
+
+        self.assertDictEqual({'pss:ttp-00000000-0000-0000-0000-000000000001': 'pss:ttp-00000000-0000-0000-0000-000000000002'},
+                             map_table)
+
+    def test_map_table_no_duplicates(self):
+        contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
+                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'short')))),
+                    'pss:ttp-00000000-0000-0000-0000-000000000002':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
+                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'longer'))))}
+        key_to_ids = {}
+
+        map_table = _get_map_table(contents, key_to_ids)
+        self.assertDictEqual({}, map_table)
+
+    def test_map_table_no_duplicates_2(self):
+        contents = contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
+                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'short')))),
+                    'pss:ttp-00000000-0000-0000-0000-000000000002':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
+                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'longer')))),
+                    'pss:ttp-00000000-0000-0000-0000-000000000003':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000003',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
+                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'even longer'))))}
+
+        key_to_ids = {'key1': ['pss:ttp-00000000-0000-0000-0000-000000000001'],
+                      'key2':['pss:ttp-00000000-0000-0000-0000-000000000002'],
+                      'key3': ['pss:ttp-00000000-0000-0000-0000-000000000003']}
+        map_table = _get_map_table(contents, key_to_ids)
+
+        self.assertDictEqual({},map_table)
+
+    def test_map_table_3_duplicates(self):
+        contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
+                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'short')))),
+                    'pss:ttp-00000000-0000-0000-0000-000000000002':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
+                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'longer')))),
+                    'pss:ttp-00000000-0000-0000-0000-000000000003':mock.create_autospec(
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000003',
+                        api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
+                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'even longer'))))}
+
+        key_to_ids = {'key1': ['pss:ttp-00000000-0000-0000-0000-000000000001', 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                               'pss:ttp-00000000-0000-0000-0000-000000000003']}
+
+        map_table = _get_map_table(contents, key_to_ids)
+
+        self.assertDictEqual({'pss:ttp-00000000-0000-0000-0000-000000000001': 'pss:ttp-00000000-0000-0000-0000-000000000003',
+                              'pss:ttp-00000000-0000-0000-0000-000000000002': 'pss:ttp-00000000-0000-0000-0000-000000000003'},
+                             map_table)
