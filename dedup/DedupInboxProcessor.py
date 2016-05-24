@@ -287,7 +287,7 @@ def _existing_title_and_capecs(local):
     for found_ttp in existing_ttps:
         capec_ids = [found_capec['capec'] for found_capec in found_ttp['capecs']]
         key = create_capec_title_key(found_ttp['title'], capec_ids)
-        existing_title_capec_string_to_id.setdefault(key,[]).append(found_ttp['_id'])
+        existing_title_capec_string_to_id[key] = found_ttp['_id']
 
     return existing_title_capec_string_to_id
 
