@@ -85,9 +85,17 @@ def extract_visualiser(request, ids):
     safe_type_names = [type_name.replace(" ", "") for type_name in type_names]
     str_ids = [str(id_) for id_ in indicator_ids]
 
+    ind_information=[]
+    for item in range(0, len(str_ids)):
+        ind_information.append({
+            'str_ids': str_ids[item],
+            'type_names': type_names[item],
+            'safe_type_names': safe_type_names[item]
+        })
+
     return render(request, "extract_visualiser.html", {
         "indicator_ids": str_ids,
-        "indicator_information": zip(str_ids, type_names, safe_type_names),
+        "indicator_information": ind_information,
         "kill_chain_phases": {item["phase_id"]: item["name"] for item in KILL_CHAIN_PHASES}
     })
 

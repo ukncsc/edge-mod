@@ -8,29 +8,41 @@
 {% endblock %}
 
 {% block body-content %}
+
     <ul class="nav nav-tabs">
-        {% for stix_id, typename, typenamesafe in indicator_information %}
-            {% if forloop.first %}
-                <li class="active"><a data-toggle="tab" id="{{ stix_id }}" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
-            {% else %}
-                <li><a data-toggle="tab" id="{{ stix_id }}" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
-            {% endif %}
-        {% endfor %}
+        <!--ko foreach: indicatorInformation -->
+            <!-- ko if: $index()==0 -->
+                <li class="active"><a data-toggle="tab" data-bind="attr: { id: str_ids, href: '#' +safe_type_names}">
+                    <span data-bind="text: type_names"></span> </a></li>
+            <!-- /ko -->
+            <!-- ko ifnot: $index()==0 -->
+            <li><a data-toggle="tab" data-bind="attr: {id: str_ids, href: '#' +safe_type_names}">
+                    <span data-bind="text:type_names"></span></a></li>
+            <!-- /ko -->
+        <!-- /ko -->
     </ul>
 
     <div class="tab-content">
-    {% for stix_id, typename, typenamesafe in indicator_information %}
-        {% if forloop.first %}
-        <div id="{{ typenamesafe }}" class="tab-pane fade in active">
-        {% else %}
-        <div id="{{ typenamesafe }}" class="tab-pane fade">
-        {% endif %}
-            <a href="/indicator/build/{{ stix_id }}"> Edit Indicator Draft: {{ stix_id }} </a>
-            <div id="extract-visualiser" class="flexbox hflex">
-                <!-- ko template: { name: 'Graph' , data: findByLabel('{{ stix_id }}')} --><!-- /ko -->
+        <!-- ko foreach: indicatorInformation -->
+            <!-- ko if: $index()==0 -->
+                <div class="tab-pane fade in active" data-bind="attr: {id: safe_type_names}">
+                    <a data-bind="attr: {href: '/indicator/build/' + str_ids}">Edit Indicator Draft:
+                        <span data-bind="text: str_ids"></span></a>
+                    <div id="extract-visualiser" class="flexbox hflex">
+                        <!-- ko template: { name: 'Graph' , data: $parent.findByLabel($data.str_ids)} --><!-- /ko -->
+                    </div>
             </div>
-        </div>
-    {% endfor %}
+            <!--/ko-->
+                <!-- ko ifnot:$index()==0 -->
+                <div class="tab-pane fade" data-bind="attr: {id: safe_type_names}">
+                    <a data-bind="attr: {href: '/indicator/build/' + str_ids}">Edit Indicator Draft:
+                        <span data-bind="text: str_ids"></span></a>
+                    <div id="extract-visualiser" class="flexbox hflex">
+                        <!-- ko template: { name: 'Graph' , data: $parent.findByLabel($data.str_ids)} --><!-- /ko -->
+                    </div>
+                </div>
+            <!--/ko-->
+        <!-- /ko -->
     </div>
 {% endblock %}
 

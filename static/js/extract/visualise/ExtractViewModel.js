@@ -13,9 +13,10 @@ define([
 
     var ExtractViewModel = declare(null, {
         declaredClass: "ExtractViewModel",
-        constructor: function (rootIds) {
+        constructor: function (rootIds, indicatorInformation) {
             this.viewModels = ko.observableArray([]);
             this.viewModelsById = {};
+            this.indicatorInformation = ko.observableArray(indicatorInformation);
 
             this.viewModels.subscribe(function () {
                 if (this.viewModels().length == rootIds.length) {
