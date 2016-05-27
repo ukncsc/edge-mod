@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block body-content %}
-
+    <input type="hidden" id="refreshed" value="no">
     <ul class="nav nav-tabs">
         <!--ko foreach: indicatorInformation -->
             <!-- ko if: $index()==0 -->
@@ -31,7 +31,7 @@
                     <div id="extract-visualiser" class="flexbox hflex">
                         <!-- ko template: { name: 'Graph' , data: $parent.findByLabel($data.str_ids)} --><!-- /ko -->
                     </div>
-            </div>
+                </div>
             <!--/ko-->
                 <!-- ko ifnot:$index()==0 -->
                 <div class="tab-pane fade" data-bind="attr: {id: safe_type_names}">
@@ -70,6 +70,22 @@
         var root_ids = Object.freeze({{ indicator_ids|safe }});
         var indicator_information = Object.freeze({{ indicator_information|safe }});
         var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
+    </script>
+    <script>
+    window.onunload = function(){};
+    var data = {
+            'root_ids': window['root_ids'],
+            'indicator_information': window['indicator_information']
+        };
+        var e = document.getElementById("refreshed");
+        if(e.value=="no"){
+            e.value="yes";
+        } else {
+            postJSON('/adapter/certuk_mod/ajax/extract_visualiser/check/', data, function(success){
+                window['root_ids']= success.data['root_ids'];
+                window['indicator_information']=success.data['indicator_information'];
+            })
+        }
     </script>
     <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="extract/visualise/main"></script>
 {% endblock %}

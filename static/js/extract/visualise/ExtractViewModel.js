@@ -28,7 +28,7 @@ define([
                         topic.publish(topics.RESIZE, e.target.id);
                     });
                 }
-            }.bind(this))
+            }.bind(this));
 
             for (var i = 0; i < rootIds.length; i++) {
                 this.initViewModel(rootIds[i])

@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 
+from django.views.decorators.csrf import csrf_exempt
 from users.decorators import login_required_ajax
 from users.models import Draft
 from edge.inbox import InboxError
@@ -362,3 +363,26 @@ def extract_visualiser_item_get(request, node_id):
         }, status=200)
     except Exception as e:
         return JsonResponse(dict(e), status=500)
+
+@csrf_exempt
+def extract_visualiser_check_objects(request):
+    body = json.loads(request.body)
+    ids = get_db().drafts.find({
+        'draft.id': {
+            '$in': body['root_ids']
+        },
+    },{
+        'draft.id':1
+    })
+    new_data = {}
+    root_ids = []
+    indicator_information = []
+    for found_data in ids:
+        if found_data['draft']['id'] in body['root_ids']:
+            index = body['root_ids'].index(found_data['draft']['id'])
+            new_data.setdefault('root_ids',[]).append(found_data['draft']['id'])
+            new_data.setdefault('indicator_information',[]).append(body['indicator_information'][index])
+    if new_data is not {}:
+        return JsonResponse({'data': new_data}, status=200)
+    else:
+        return JsonResponse({'message': 'No indicators left'}, status=404)
