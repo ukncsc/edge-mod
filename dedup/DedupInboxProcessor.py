@@ -254,7 +254,7 @@ def _coalesce_non_observable_duplicates(contents, map_table):
     return out
 
 
-def _create_capec_title_key(title, capec_ids):
+def create_capec_title_key(title, capec_ids):
     capec_join = ",".join(sorted(capec_ids))
     return title.strip().lower() + ": " + capec_join
 
@@ -311,7 +311,7 @@ def _package_title_capec_string_to_ids(contents, local):
             capec_ids = [capecs.capec_id for capecs in ttp.api_object.obj.behavior.attack_patterns if capecs.capec_id]
             title = ttp.api_object.obj.title
             if len(capec_ids) != 0:
-                key = _create_capec_title_key(title, capec_ids)
+                key = create_capec_title_key(title, capec_ids)
                 title_capec_string_to_ids.setdefault(key, []).append(id_)
     return title_capec_string_to_ids
 
@@ -322,8 +322,9 @@ def _existing_title_and_capecs(local):
     existing_title_capec_string_to_id = {}
     for found_ttp in existing_ttps:
         capec_ids = [found_capec['capec'] for found_capec in found_ttp['capecs']]
-        key = _create_capec_title_key(found_ttp['title'], capec_ids)
+        key = create_capec_title_key(found_ttp['title'], capec_ids)
         existing_title_capec_string_to_id[key] = found_ttp['_id']
+
     return existing_title_capec_string_to_id
 
 
@@ -385,6 +386,7 @@ def _existing_tgts_with_cves(local):
         cve_ids = [found_cve['cve'] for found_cve in found_tgt['cves']]
         key = ",".join(sorted(cve_ids))
         existing_cves_to_ids[key] = found_tgt['_id']
+
     return existing_cves_to_ids
 
 
@@ -402,6 +404,7 @@ def _new_tgt_cve_dedup(contents, hashes, user, local):
 
 def _existing_tgt_cve_dedup(contents, hashes, user, local):
     existing_cve_ids_to_id = _existing_tgts_with_cves(local)
+
     cve_to_tgt_ids = _package_cve_id_to_ids(contents, local)
 
     map_table = {
@@ -412,7 +415,6 @@ def _existing_tgt_cve_dedup(contents, hashes, user, local):
 
     message = _generate_message("Remapped %d " + ('local' if local else 'external') +
                                 " namespace Exploit Targets to existing Targets based on CVE-IDs", contents, out)
-
     return out, message
 
 
