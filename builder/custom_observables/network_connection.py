@@ -6,7 +6,6 @@ from edge.tools import rgetattr
 from adapters.certuk_mod.builder.custom_observable_definition import CustomObservableDefinition
 from indicator.observable_object_generator import ObservableObjectGenerator
 
-
 class NetworkConnectionObservableDefinition(CustomObservableDefinition):
 
     def __init__(self):
@@ -31,19 +30,31 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
 
         return network_connection
 
-    def get_socket(self, socket_object):
-        socket = dict()
-        socket['ip_address'] = rgetattr(socket_object, ['ip_address', 'address_value'], '')
-        socket['hostname'] = rgetattr(socket_object, ['hostname', 'hostname_value'], '')
-        socket['port'] = rgetattr(socket_object, ['port', 'port_value'], '')
-        socket['protocol'] = rgetattr(socket_object, ['port', 'layer4protocol'], '')
-        return socket
+    def get_socket_description(self, socket_object):
+        address = rgetattr(socket_object, ['ip_address', 'address_value'], '')
+        hostname = rgetattr(socket_object, ['hostname', 'hostname_value'], '')
+        port = rgetattr(socket_object, ['port', 'port_value'], '')
+        protocol = rgetattr(socket_object, ['port', 'layer4protocol'], '')
+
+        if address:
+            combined = str(address)
+        elif hostname:
+            combined = str(hostname)
+        else:
+            combined = '(unknown)'
+
+        if port:
+            combined += str(port)
+        if protocol:
+            combined += str(protocol)
+
+        return str(combined)
 
     def summary_value_generator(self, obj):
-        src_socket_address = self.get_socket(rgetattr(obj, ['_object', 'properties', 'source_socket_address']))
-        dst_socket_address = self.get_socket(rgetattr(obj, ['_object', 'properties', 'destination_socket_address']))
-
-        network_connection_object = {"source_socket_address": src_socket_address, "destination_socket_address": dst_socket_address}
+        network_connection_object = "Source Socket Address: "
+        network_connection_object += self.get_socket_description(rgetattr(obj, ['_object', 'properties', 'source_socket_address']))
+        network_connection_object += " Destination Socket Address: "
+        network_connection_object += self.get_socket_description(rgetattr(obj, ['_object', 'properties', 'destination_socket_address']))
         return network_connection_object
 
     def to_draft_handler(self, observable, tg, load_by_id, id_ns=''):

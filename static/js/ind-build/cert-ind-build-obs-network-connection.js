@@ -51,8 +51,18 @@ define([
                         this.objectTitle(title.substring(0, 80));
                     }
                     return ko.utils.extend(sup.call(this), {
-                        source_socket_address: this.source_socket_address(),
-                        destination_socket_address: this.destination_socket_address()
+                        source_socket_address: {
+                            port: this.source_socket_address().port(),
+                            protocol: this.source_socket_address().protocol(),
+                            ip_address: this.source_socket_address().ip_address(),
+                            hostname: this.source_socket_address().hostname()
+                        },
+                        destination_socket_address: {
+                            port: this.destination_socket_address().port(),
+                            protocol: this.destination_socket_address().protocol(),
+                            ip_address: this.destination_socket_address().ip_address(),
+                            hostname: this.destination_socket_address().hostname()
+                        }
                     })
                 };
             })

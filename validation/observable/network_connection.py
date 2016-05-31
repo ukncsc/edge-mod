@@ -58,7 +58,7 @@ class NetworkConnectionValidationInfo(ObservableValidationInfo):
         hostname = observable_data.get('hostname')
 
         port_validation = cls.__validate_port(port)
-        protocol_validation = cls.__validate_protocol(protocol)
+        protocol_validation = None # cls.__validate_protocol(protocol)
         ip_address_validation = None
         hostname_validation = None
 
