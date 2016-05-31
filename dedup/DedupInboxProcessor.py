@@ -259,39 +259,54 @@ def _create_capec_title_key(title, capec_ids):
     return title.strip().lower() + ": " + capec_join
 
 
+def _set_id_to_description_length(contents, ids):
+    id_to_description_length = {}
+    for id_ in ids:
+            if contents[id_].api_object.obj.description is not None:
+                id_to_description_length[id_] = len(contents[id_].api_object.obj.description.value)
+    return id_to_description_length
+
+
+def _set_master(ids, id_to_description_length):
+    if id_to_description_length == {}:
+        master = ids[0]
+    else:
+        master = sorted(id_to_description_length.items(), key=operator.itemgetter(1))[-1][0]
+    return master
+
+
 def _get_map_table(contents, key_to_ids):
     map_table = {}
     for key, ids in key_to_ids.iteritems():
         if len(ids) <= 1:
             continue
 
-        id_to_description_length = {}
-        for id in ids:
-            if contents[id].api_object.obj.description is not None:
-                id_to_description_length[id] = len(contents[id].api_object.obj.description.value)
-        if id_to_description_length == {}:
-            master = ids[0]
-        else:
-            master = sorted(id_to_description_length.items(), key = operator.itemgetter(1))[-1][0]
+        id_to_description_length = _set_id_to_description_length(contents, ids)
+        master = _set_master(ids, id_to_description_length)
         ids.remove(master)
         for dup in ids:
             map_table[dup] = master
     return map_table
 
 
-def _package_ttps_to_consider(contents, local):
+def _package_objects_to_consider(contents, local, type_, property_):
     ids_to_objects_to_consider = {}
     for id_, io in contents.iteritems():
         is_local = rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE
         correct_ns = is_local if local else (not is_local)
         if not correct_ns:
             continue
-        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'ttp' and len(
-                rgetattr(contents.get(id_, None), PROPERTY_CAPEC, '')) > 0:
+        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == type_ and len(
+                rgetattr(contents.get(id_, None), property_, '')) > 0:
             ids_to_objects_to_consider.setdefault(id_, []).append(io)
+    return ids_to_objects_to_consider
+
+
+def _package_title_capec_string_to_ids(contents, local):
+    package_ttps_to_consider = _package_objects_to_consider(contents, local, 'ttp', PROPERTY_CAPEC)
 
     title_capec_string_to_ids = {}
-    for id_, ttps in ids_to_objects_to_consider.iteritems():
+    for id_, ttps in package_ttps_to_consider.iteritems():
         for ttp in ttps:
             capec_ids = [capecs.capec_id for capecs in ttp.api_object.obj.behavior.attack_patterns if capecs.capec_id]
             title = ttp.api_object.obj.title
@@ -315,7 +330,7 @@ def _existing_title_and_capecs(local):
 def _existing_ttp_capec_dedup(contents, hashes, user, local):
     existing_title_capec_string_to_id = _existing_title_and_capecs(local)
 
-    ttp_title_capec_string_to_ids = _package_ttps_to_consider(contents, local)
+    ttp_title_capec_string_to_ids = _package_title_capec_string_to_ids(contents, local)
 
     map_table = {
         id_[0]: existing_title_capec_string_to_id[key] for key, id_ in ttp_title_capec_string_to_ids.iteritems() if
@@ -325,13 +340,12 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
     out = _coalesce_non_observable_duplicates(contents, map_table)
 
     message = _generate_message("Remapped %d " + ('local' if local else 'external') +
-                                " namespace TTPs to existing TTPs based on CAPEC-IDs and title"
-                                , contents, out)
+                                " namespace TTPs to existing TTPs based on CAPEC-IDs and title", contents, out)
     return out, message
 
 
 def _new_ttp_capec_dedup(contents, hashes, user, local):
-    ttp_title_capec_string_to_ids = _package_ttps_to_consider(contents, local)
+    ttp_title_capec_string_to_ids = _package_title_capec_string_to_ids(contents, local)
 
     map_table = _get_map_table(contents, ttp_title_capec_string_to_ids)
 
@@ -346,27 +360,12 @@ def _new_ttp_local_ns_capec_dedup(contents, hashes, user):
     return _new_ttp_capec_dedup(contents, hashes, user, True)
 
 
-def _new_ttp_external_ns_capec_dedup(contents, hashes, user):
-    return _new_ttp_capec_dedup(contents, hashes, user, False)
-
-
 def _existing_ttp_local_ns_capec_dedup(contents, hashes, user):
     return _existing_ttp_capec_dedup(contents, hashes, user, True)
 
 
-def _existing_ttp_external_ns_capec_dedup(contents, hashes, user):
-    return _existing_ttp_capec_dedup(contents, hashes, user, False)
-
-def _package_tgts_to_consider(contents, local):
-    package_tgts_to_consider = {}
-    for id_, io in contents.iteritems():
-        is_local = rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE
-        correct_ns = is_local if local else (not is_local)
-        if not correct_ns:
-            continue
-        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'tgt' and len(
-                rgetattr(contents.get(id_, None), PROPERTY_CVE, '')) > 0:
-            package_tgts_to_consider.setdefault(id_, []).append(io)
+def _package_cve_id_to_ids(contents, local):
+    package_tgts_to_consider = _package_objects_to_consider(contents, local, 'tgt', PROPERTY_CVE)
 
     cves_to_ids = {}
     for id_, tgts in package_tgts_to_consider.iteritems():
@@ -376,6 +375,7 @@ def _package_tgts_to_consider(contents, local):
                 key = ",".join(sorted(cves))
                 cves_to_ids.setdefault(key, []).append(id_)
     return cves_to_ids
+
 
 def _existing_tgts_with_cves(local):
     existing_cves = cve_finder(local)
@@ -389,7 +389,7 @@ def _existing_tgts_with_cves(local):
 
 
 def _new_tgt_cve_dedup(contents, hashes, user, local):
-    cve_to_tgt_ids = _package_tgts_to_consider(contents, local)
+    cve_to_tgt_ids = _package_cve_id_to_ids(contents, local)
 
     map_table = _get_map_table(contents, cve_to_tgt_ids)
 
@@ -397,12 +397,12 @@ def _new_tgt_cve_dedup(contents, hashes, user, local):
 
     message = _generate_message("Merged %d " + ('local' if local else 'external') +
                                 " namespace Exploit Targets in the supplied package based on CVE-IDs", contents, out)
-
     return out, message
+
 
 def _existing_tgt_cve_dedup(contents, hashes, user, local):
     existing_cve_ids_to_id = _existing_tgts_with_cves(local)
-    cve_to_tgt_ids = _package_tgts_to_consider(contents, local)
+    cve_to_tgt_ids = _package_cve_id_to_ids(contents, local)
 
     map_table = {
         id_[0]: existing_cve_ids_to_id[key] for key, id_ in cve_to_tgt_ids.iteritems() if key in existing_cve_ids_to_id
@@ -415,11 +415,14 @@ def _existing_tgt_cve_dedup(contents, hashes, user, local):
 
     return out, message
 
+
 def _new_tgt_local_ns_cve_dedup(contents, hashes, user):
     return _new_tgt_cve_dedup(contents, hashes, user, True)
 
+
 def _existing_tgt_local_ns_cve_dedup(contents, hashes, user):
     return _existing_tgt_cve_dedup(contents, hashes, user, True)
+
 
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
@@ -427,8 +430,8 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
         _new_ttp_local_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in local NS
         _existing_ttp_local_ns_capec_dedup,  # dedup against existing TTPs matched by CAPEC-IDs and Title in local NS
-        _new_tgt_local_ns_cve_dedup, # removes new tgts matched by CVE-ID in incoming package in local NS
-        _existing_tgt_local_ns_cve_dedup, # dedup against existing tgts matched by CVE-ID in local NS
+        _new_tgt_local_ns_cve_dedup,  # removes new tgts matched by CVE-ID in incoming package in local NS
+        _existing_tgt_local_ns_cve_dedup,  # dedup against existing tgts matched by CVE-ID in local NS
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 

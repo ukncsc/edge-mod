@@ -20,11 +20,11 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import \
     _generate_message,\
     _is_matching_file, \
     _coalesce_non_observable_duplicates, \
-    _package_ttps_to_consider, \
-    _package_tgts_to_consider, \
+    _package_title_capec_string_to_ids, \
+    _package_cve_id_to_ids, \
     _get_map_table
 
-
+EXTERNAL_NAMESPACE = "Matt's Namespace"
 def create_file(file_name=None, md5=None, sha1=None, sha256=None):
     file_ = File()
     file_.file_name = file_name
@@ -176,18 +176,18 @@ class DedupInboxProcessorTests(unittest.TestCase):
         contents = {'matt:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'matt:ttp-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
-                        obj = mock.create_autospec(TTP, title='Shouldn\'t match', id_ns = "Matt's namespce",
+                        obj = mock.create_autospec(TTP, title='Shouldn\'t match', id_ns = EXTERNAL_NAMESPACE,
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')])))),
                     'matt:ttp-00000000-0000-0000-0000-000000000002': mock.create_autospec(
                         InboxItem, id= 'matt:ttp-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
-                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = "Matt's namespace",
+                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = EXTERNAL_NAMESPACE,
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_to_consider(contents, True)
-        package_ttps_external = _package_ttps_to_consider(contents, False)
+        package_ttps_local = _package_title_capec_string_to_ids(contents, True)
+        package_ttps_external = _package_title_capec_string_to_ids(contents, False)
 
         self.assertDictEqual({}, package_ttps_local)
         self.assertDictEqual({'shouldn\'t match: CAPEC-163': ['matt:ttp-00000000-0000-0000-0000-000000000001'],
@@ -208,8 +208,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_to_consider(contents, True)
-        package_ttps_external = _package_ttps_to_consider(contents, False)
+        package_ttps_local = _package_title_capec_string_to_ids(contents, True)
+        package_ttps_external = _package_title_capec_string_to_ids(contents, False)
 
         self.assertDictEqual({'shouldn\'t match: CAPEC-163': ['pss:ttp-00000000-0000-0000-0000-000000000001'],
                               'should match: CAPEC-163': ['pss:ttp-00000000-0000-0000-0000-000000000002']},
@@ -220,7 +220,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
         contents = {'matt:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
-                        obj = mock.create_autospec(TTP, title='Should match', id_ns = "Matt's Namespace",
+                        obj = mock.create_autospec(TTP, title='Should match', id_ns = EXTERNAL_NAMESPACE,
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')])))),
                     'pss:ttp-00000000-0000-0000-0000-000000000002': mock.create_autospec(
@@ -230,8 +230,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_to_consider(contents, True)
-        package_ttps_non_local = _package_ttps_to_consider(contents, False)
+        package_ttps_local = _package_title_capec_string_to_ids(contents, True)
+        package_ttps_non_local = _package_title_capec_string_to_ids(contents, False)
 
         self.assertDictEqual({'should match: CAPEC-163':
                                   ['pss:ttp-00000000-0000-0000-0000-000000000002']}, package_ttps_local)
@@ -242,18 +242,18 @@ class DedupInboxProcessorTests(unittest.TestCase):
         contents = {'matt:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'matt:ttp-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
-                        obj = mock.create_autospec(TTP, title='Should match', id_ns = "Matt's namespce",
+                        obj = mock.create_autospec(TTP, title='Should match', id_ns = EXTERNAL_NAMESPACE,
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')])))),
                     'matt:ttp-00000000-0000-0000-0000-000000000002': mock.create_autospec(
                         InboxItem, id= 'matt:ttp-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
-                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = "Matt's namespace",
+                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = EXTERNAL_NAMESPACE,
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_to_consider(contents, True)
-        package_ttps_external = _package_ttps_to_consider(contents, False)
+        package_ttps_local = _package_title_capec_string_to_ids(contents, True)
+        package_ttps_external = _package_title_capec_string_to_ids(contents, False)
 
         self.assertDictEqual({}, package_ttps_local)
         self.assertDictEqual({'should match: CAPEC-163': [
@@ -274,8 +274,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-163')]))))}
 
-        package_ttps_local = _package_ttps_to_consider(contents, True)
-        package_ttps_external = _package_ttps_to_consider(contents, False)
+        package_ttps_local = _package_title_capec_string_to_ids(contents, True)
+        package_ttps_external = _package_title_capec_string_to_ids(contents, False)
 
         self.assertDictEqual({'should match: CAPEC-163': [
             'pss:ttp-00000000-0000-0000-0000-000000000001', 'pss:ttp-00000000-0000-0000-0000-000000000002'
@@ -289,14 +289,14 @@ class DedupInboxProcessorTests(unittest.TestCase):
                     'External:ttp-00000000-0000-0000-0000-000000000002': mock.create_autospec(
                         InboxItem, id= 'External:ttp-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
-                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = "Matt's namespace",
+                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = EXTERNAL_NAMESPACE,
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-1'),
                                            mock.create_autospec(AttackPattern, capec_id = 'CAPEC-2')])))),
                     'External:ttp-00000000-0000-0000-0000-000000000003': mock.create_autospec(
                         InboxItem, id= 'External:ttp-00000000-0000-0000-0000-000000000003',
                         api_object = mock.create_autospec(ApiObject, ty='ttp',
-                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = "Another namespace",
+                        obj = mock.create_autospec(TTP,  title='Should match', id_ns = EXTERNAL_NAMESPACE,
                         behavior = mock.create_autospec(Behavior,
                         attack_patterns = [mock.create_autospec(AttackPattern, capec_id = 'CAPEC-1'),
                                            mock.create_autospec(AttackPattern, capec_id = 'CAPEC-2')])))),
@@ -310,8 +310,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                                            mock.create_autospec(AttackPattern, capec_id = 'CAPEC-3')]))))
                     }
 
-        package_ttps_local = _package_ttps_to_consider(contents, True)
-        package_ttps_external = _package_ttps_to_consider(contents, False)
+        package_ttps_local = _package_title_capec_string_to_ids(contents, True)
+        package_ttps_external = _package_title_capec_string_to_ids(contents, False)
 
         self.assertDictEqual({'should match: CAPEC-1,CAPEC-2,CAPEC-3':
                                   ['pss:ttp-00000000-0000-0000-0000-000000000003']}, package_ttps_local)
@@ -323,16 +323,16 @@ class DedupInboxProcessorTests(unittest.TestCase):
         contents = {'matt:tgt-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='tgt',
-                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespce",
+                        obj = mock.create_autospec(ExploitTarget, id_ns = EXTERNAL_NAMESPACE,
                         vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')]))),
                     'matt:tgt-00000000-0000-0000-0000-000000000002': mock.create_autospec(
                         InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='tgt',
-                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        obj = mock.create_autospec(ExploitTarget, id_ns = EXTERNAL_NAMESPACE,
                         vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1112')])))}
 
-        package_tgts_local = _package_tgts_to_consider(contents, True)
-        package_tgts_external = _package_tgts_to_consider(contents, False)
+        package_tgts_local = _package_cve_id_to_ids(contents, True)
+        package_tgts_external = _package_cve_id_to_ids(contents, False)
 
         self.assertDictEqual({}, package_tgts_local)
         self.assertDictEqual({'CVE-2015-1111': ['matt:tgt-00000000-0000-0000-0000-000000000001'],
@@ -350,8 +350,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         obj = mock.create_autospec(ExploitTarget, id_ns = LOCAL_NAMESPACE,
                         vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1112')])))}
 
-        package_tgts_local = _package_tgts_to_consider(contents, True)
-        package_tgts_external = _package_tgts_to_consider(contents, False)
+        package_tgts_local = _package_cve_id_to_ids(contents, True)
+        package_tgts_external = _package_cve_id_to_ids(contents, False)
 
         self.assertDictEqual({'CVE-2015-1111': ['pss:tgt-00000000-0000-0000-0000-000000000001'],
                              'CVE-2015-1112': ['pss:tgt-00000000-0000-0000-0000-000000000002']}, package_tgts_local)
@@ -361,7 +361,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
         contents = {'matt:tgt-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='tgt',
-                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        obj = mock.create_autospec(ExploitTarget, id_ns = EXTERNAL_NAMESPACE,
                         vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')]))),
                     'pss:tgt-00000000-0000-0000-0000-000000000002': mock.create_autospec(
                         InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000002',
@@ -369,8 +369,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         obj = mock.create_autospec(ExploitTarget, id_ns = LOCAL_NAMESPACE,
                         vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1112')])))}
 
-        package_tgts_local = _package_tgts_to_consider(contents, True)
-        package_tgts_external = _package_tgts_to_consider(contents, False)
+        package_tgts_local = _package_cve_id_to_ids(contents, True)
+        package_tgts_external = _package_cve_id_to_ids(contents, False)
 
         self.assertDictEqual({'CVE-2015-1112': ['pss:tgt-00000000-0000-0000-0000-000000000002']}
                              ,package_tgts_local)
@@ -381,16 +381,16 @@ class DedupInboxProcessorTests(unittest.TestCase):
         contents = {'matt:tgt-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='tgt',
-                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        obj = mock.create_autospec(ExploitTarget, id_ns = EXTERNAL_NAMESPACE,
                         vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')]))),
                     'matt:tgt-00000000-0000-0000-0000-000000000002': mock.create_autospec(
                         InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='tgt',
-                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        obj = mock.create_autospec(ExploitTarget, id_ns = EXTERNAL_NAMESPACE,
                         vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')])))}
 
-        package_tgts_local = _package_tgts_to_consider(contents, True)
-        package_tgts_external = _package_tgts_to_consider(contents, False)
+        package_tgts_local = _package_cve_id_to_ids(contents, True)
+        package_tgts_external = _package_cve_id_to_ids(contents, False)
 
         self.assertDictEqual({}, package_tgts_local)
         self.assertDictEqual({'CVE-2015-1111': ['matt:tgt-00000000-0000-0000-0000-000000000002',
@@ -409,8 +409,8 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         obj = mock.create_autospec(ExploitTarget, id_ns = LOCAL_NAMESPACE,
                         vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2015-1111')])))}
 
-        package_tgts_local = _package_tgts_to_consider(contents, True)
-        package_tgts_external = _package_tgts_to_consider(contents, False)
+        package_tgts_local = _package_cve_id_to_ids(contents, True)
+        package_tgts_external = _package_cve_id_to_ids(contents, False)
 
         self.assertDictEqual({'CVE-2015-1111': ['pss:tgt-00000000-0000-0000-0000-000000000002',
                                                 'pss:tgt-00000000-0000-0000-0000-000000000001']}
@@ -431,16 +431,16 @@ class DedupInboxProcessorTests(unittest.TestCase):
                     'matt:tgt-00000000-0000-0000-0000-000000000001': mock.create_autospec(
                         InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='tgt',
-                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        obj = mock.create_autospec(ExploitTarget, id_ns = EXTERNAL_NAMESPACE,
                         vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2016-1111')]))),
                     'matt:tgt-00000000-0000-0000-0000-000000000002': mock.create_autospec(
                         InboxItem, id= 'matt:tgt-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='tgt',
-                        obj = mock.create_autospec(ExploitTarget, id_ns = "Matt's namespace",
+                        obj = mock.create_autospec(ExploitTarget, id_ns = EXTERNAL_NAMESPACE,
                         vulnerabilities = [mock.create_autospec(Vulnerability, cve_id = 'CVE-2016-1112')])))}
 
-        package_tgts_local = _package_tgts_to_consider(contents, True)
-        package_tgts_external = _package_tgts_to_consider(contents, False)
+        package_tgts_local = _package_cve_id_to_ids(contents, True)
+        package_tgts_external = _package_cve_id_to_ids(contents, False)
 
         self.assertDictEqual({'CVE-2015-1111': ['pss:tgt-00000000-0000-0000-0000-000000000002',
                                                 'pss:tgt-00000000-0000-0000-0000-000000000001']}
