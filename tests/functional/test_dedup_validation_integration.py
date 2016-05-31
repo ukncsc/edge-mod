@@ -12,7 +12,6 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'repository.settings'
 
 
 class DedupFunctionalTests(edge_test.TestCase):
-
     fixtures = ['stix']
 
     def assert_load_file_ok(self, file_name):
@@ -56,12 +55,16 @@ class DedupFunctionalTests(edge_test.TestCase):
     def test_DedupInboxProcessor_validate_IndicatorPackageNoTTPs(self):
         self.assert_raises_inbox_error('IndicatorPackageNoTTPs.xml')
 
+    @mock.patch('adapters.certuk_mod.dedup.DedupInboxProcessor.LOCAL_NAMESPACE', "http://www.purplesecure.com")
+    @mock.patch('adapters.certuk_mod.dedup.property_finder.LOCAL_NAMESPACE', "http://www.purplesecure.com")
     def test_DedupInboxProcessor_validate_correct_ttp_dedup_message_remapping(self):
         ip = self.create_inbox_from_file('TTP-PackageWithRemapping.xml')
         ip.run()
         remap = 'Remapped 11 local namespace TTPs to existing TTPs based on CAPEC-IDs and title'
         self.assertEqual(ip.filter_messages[1], remap)
 
+    @mock.patch('adapters.certuk_mod.dedup.DedupInboxProcessor.LOCAL_NAMESPACE', "http://www.purplesecure.com")
+    @mock.patch('adapters.certuk_mod.dedup.property_finder.LOCAL_NAMESPACE', "http://www.purplesecure.com")
     def test_DedupInboxProcessor_validate_correct_ttp_dedup_message_merge_and_remapping(self):
         ip = self.create_inbox_from_file('TTP-PackageWithMergeAndRemapping.xml')
         ip.run()
@@ -70,6 +73,7 @@ class DedupFunctionalTests(edge_test.TestCase):
         self.assertEqual(ip.filter_messages[1], merge)
         self.assertEqual(ip.filter_messages[2], remap)
 
+    @mock.patch('adapters.certuk_mod.dedup.DedupInboxProcessor.LOCAL_NAMESPACE', "http://www.purplesecure.com")
     def test_DedupInboxProcessor_validate_correct_ttp_dedup_message_merge(self):
         ip = self.create_inbox_from_file('TTP-PackageWithMerge.xml')
         ip.run()
