@@ -89,7 +89,7 @@ define([
             var drag = d3.behavior.drag()
                 .on("drag", function (d) {
                     //Filter all but left mouse button
-                    if (d3.event.sourceEvent === null || d3.event.sourceEvent.which !== 1){
+                    if (d3.event.sourceEvent === null || d3.event.sourceEvent.which !== 1) {
                         return;
                     }
 
@@ -130,8 +130,10 @@ define([
             graphModel
                 .d3Layout()
                 .on("tick", function () {
-                    var x_middle = container[0][0].viewBox.animVal.width / 2;
-                    var y_middle = container[0][0].viewBox.animVal.height / 2;
+
+                    var viewBox = container[0][0].viewBox;
+                    var x_middle = viewBox.animVal != null ? viewBox.animVal.width / 2 : 0;
+                    var y_middle = viewBox.animVal != null ? viewBox.animVal.height / 2 : 0;
 
                     nodeSelector.attr("transform", function (d) {
                         if (d === nodeSelected) { //Without this, the dragged node jumps out double its dragged distance
