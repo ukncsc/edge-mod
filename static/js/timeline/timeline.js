@@ -63,7 +63,6 @@ define([
                     .append("svg")
                     .attr("width", width)
                     .attr("height", svg_height)
-                    .attr('transform', 'translate(' + margin.left + ',0)')
                     .attr('preserveAspectRatio', 'xMinYMin slice')
                     .append('g')
                     .attr('transform', 'translate(' + margin.left + ',0)')
