@@ -105,12 +105,11 @@ class IncidentValidationInfo(ObjectValidationInfo):
         missing_a_source = False
         missing_an_id = False
 
-        if incident_data.get('external_ids'):
-            for ex_id in incident_data.get('external_ids'):
-                if not ex_id['source']:
-                    missing_a_source = True
-                if not ex_id['id']:
-                    missing_an_id = True
+        for ex_id in incident_data.get('external_ids', []):
+            if not ex_id['source']:
+                missing_a_source = True
+            if not ex_id['id']:
+                missing_an_id = True
 
         if missing_a_source or missing_an_id:
             validation_string = ""

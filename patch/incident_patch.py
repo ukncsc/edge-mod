@@ -10,7 +10,7 @@ from django.conf import settings
 
 from stix.common import vocabs
 from stix.incident.time import Time as StixTime
-from stix.incident import IncidentCategories, IntendedEffects, DiscoveryMethods
+from stix.incident import IncidentCategories, IntendedEffects, DiscoveryMethods, ExternalID
 
 from incident import views
 
@@ -21,7 +21,7 @@ from edge.tools import cleanstrings, rgetattr
 from edge import IDManager, NamespaceNotConfigured, incident
 from rbac import user_can_edit
 
-from stix.incident import ExternalID
+
 
 CATEGORIES = vocabs.IncidentCategory._ALLOWED_VALUES
 TIME_TYPES = (("first_malicious_action", "First Malicious Action", False),
@@ -126,7 +126,7 @@ def from_draft_wrapper(wrapped_func):
         StixTime.from_dict(draft.get('time'), target.time)
 
         target.external_ids = []
-        for ex_id in draft.get('external_ids'):
+        for ex_id in draft.get('external_ids', []):
             target.external_ids.append(ExternalID(ex_id['id'], ex_id['source']))
 
         target.coordinators = [EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in

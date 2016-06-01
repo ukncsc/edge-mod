@@ -1,6 +1,4 @@
 <template type="text/html" id="ExternalIdsPanel">
-
-
     <div data-bind="if: $data == $parent.section().value()">
         <div class="panel-heading">External IDs
             <button class="btn btn-default btn-xs btn-add" data-bind="click: add, visible: $parent.mode().isEditable()">
@@ -12,13 +10,13 @@
                 <div id="identity-element" class="row" data-bind="foreach:items">
                     <div class="form-group">
                         <div class="input-group col-sm-12">
-                            <label for="source_field" class="col-lg-1 control-label">Source</label>
-                            <div class="col-lg-4">
+                            <label for="source_field" class="col-sm-1 control-label">Source</label>
+                            <div class="col-sm-4">
                                 <input data-bind="value: source, valueUpdate: 'afterkeydown', disable: $root.mode().isReadOnly()"
                                        class="form-control" id="source_field" name="source_field">
                             </div>
-                            <label for="id_field" class="col-lg-1 control-label">ID</label>
-                            <div class="col-lg-4">
+                            <label for="id_field" class="col-sm-1 control-label">ID</label>
+                            <div class="col-sm-4">
                                 <input data-bind="value: id, valueUpdate: 'afterkeydown', disable: $root.mode().isReadOnly()"
                                        class="form-control" id="id_field" name="id_field">
                             </div>
@@ -31,7 +29,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
