@@ -49,6 +49,7 @@ class IncidentValidationInfo(ObjectValidationInfo):
 
         # Custom check
         self.time = field_validation.get('time')
+        self.external_ids = field_validation.get('external_ids')
 
     @classmethod
     def validate(cls, **incident_data):
@@ -60,7 +61,7 @@ class IncidentValidationInfo(ObjectValidationInfo):
                                                                         'No valid Indicator confidence value')
         elif confidence == HighMediumLow.TERM_UNKNOWN:
             common_field_validation['confidence'] = FieldValidationInfo(
-                    ValidationStatus.WARN, 'Indicator confidence value is set to \'Unknown\'')
+                ValidationStatus.WARN, 'Indicator confidence value is set to \'Unknown\'')
 
         status = incident_data.get('status')
         if status not in cls.STATUS_VALUES:
@@ -100,5 +101,25 @@ class IncidentValidationInfo(ObjectValidationInfo):
 
         if time_validation_string:
             common_field_validation['time'] = FieldValidationInfo(ValidationStatus.ERROR, time_validation_string)
+
+        missing_a_source = False
+        missing_an_id = False
+
+        if incident_data.get('external_ids'):
+            for ex_id in incident_data.get('external_ids'):
+                if not ex_id['source']:
+                    missing_a_source = True
+                if not ex_id['id']:
+                    missing_an_id = True
+
+        if missing_a_source or missing_an_id:
+            validation_string = ""
+            if missing_a_source:
+                validation_string += "An External ID source field is empty"
+            if missing_an_id:
+                if missing_a_source:
+                    validation_string += " - "
+                validation_string += "An External ID id field is empty"
+            common_field_validation['external_ids'] = FieldValidationInfo(ValidationStatus.ERROR, validation_string)
 
         return cls(**common_field_validation)
