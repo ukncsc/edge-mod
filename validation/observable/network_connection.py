@@ -58,7 +58,7 @@ class NetworkConnectionValidationInfo(ObservableValidationInfo):
         hostname = observable_data.get('hostname')
 
         port_validation = cls.__validate_port(port)
-        protocol_validation = None # cls.__validate_protocol(protocol)
+        protocol_validation = cls.__validate_protocol(protocol)
         ip_address_validation = None
         hostname_validation = None
 
@@ -66,7 +66,7 @@ class NetworkConnectionValidationInfo(ObservableValidationInfo):
             ip_address_validation = hostname_validation = \
                 FieldValidationInfo(ValidationStatus.ERROR, 'Only one of IP address or Hostname must be completed')
         elif ip_address:
-            ip_address_validation = SocketValidationInfo.__validate_ip_address(ip_address)
+            ip_address_validation = cls.__validate_ip_address(ip_address)
         elif hostname:
             hostname_validation = HostnameValidationInfo.validate_hostname_value(False, hostname)
 
