@@ -50,7 +50,7 @@ define([
                 }.bind(this),
 
                 function (error) {
-                    showErrorModal(error.message)
+                    showErrorModal(error.message, false)
                 });
         },
 
@@ -68,7 +68,7 @@ define([
                     base_url + encodeURIComponent(id),
                     function (error, response) {
                         if (error) {
-                            showErrorModal(error);
+                            showErrorModal(error, false);
                         }
 
                         graph.loadData(response);
@@ -76,13 +76,9 @@ define([
                 );
             },
             function (result) {
-                showErrorModal(JSON.parse(result.responseText)['Error'])
+                showErrorModal(JSON.parse(result.responseText)['Error'], false)
             }
         );
-    }
-
-    function showErrorModal(message) {
-         showErrorModal(message, false);
     }
 
     function no(type) {

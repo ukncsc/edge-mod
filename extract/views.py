@@ -103,7 +103,11 @@ def summarise_draft_observable(d):
                     result += " " + summarise_draft_observable(item)
                 else:
                     result += " " + str(item)
-        elif value and value != 'None' and key != 'id' and key != 'id_ns' and key != 'objectType':
+        elif value and value != 'None' \
+                and key != 'id' \
+                and key != 'id_ns' \
+                and key != 'objectType' \
+                and key != 'description':
             try:
                 result += value.decode('utf-8')
             except UnicodeError:
@@ -242,6 +246,8 @@ def merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types):
     obs_to_keep = draft_obs[0]
     obs_to_dump = draft_obs[1:]
     for draft_ob in obs_to_dump:
+        if draft_ob.get('description'):
+            obs_to_keep['description'] = obs_to_keep.get('description', '') + " & " + draft_ob['description']
         if draft_ob['file_name']:
             obs_to_keep['file_name'] = draft_ob['file_name']
         for hash_type in hash_types:
@@ -322,7 +328,8 @@ def extract_visualiser_item_get(request, node_id):
         view_obs = dict(id=node_id)
         view_obs['object'] = {'properties':
                                   {'xsi:type': observable['objectType'],
-                                   'value': observable_to_name(observable, DRAFT_ID_SEPARATOR in node_id)}}
+                                   'value': observable_to_name(observable, DRAFT_ID_SEPARATOR in node_id),
+                                   'description': observable.get('description', '')}}
         return view_obs
 
     def is_draft_ind():

@@ -1,4 +1,5 @@
 import pymongo
+import operator
 
 from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong, \
     drop_envelopes, INBOX_DROP_ENVELOPES
@@ -6,8 +7,10 @@ from edge.generic import create_package, EdgeObject
 from mongoengine.connection import get_db
 from adapters.certuk_mod.validation import ValidationStatus
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
+from .property_finder import capec_finder, cve_finder
 from edge.tools import rgetattr
 from .edges import dedup_collections
+from edge import LOCAL_NAMESPACE
 
 PROPERTY_TYPE = ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE']
 PROPERTY_FILENAME = ['api_object', 'obj', 'object_', 'properties', 'file_name']
@@ -17,6 +20,8 @@ PROPERTY_SHA224 = ['api_object', 'obj', 'object_', 'properties', 'sha224']
 PROPERTY_SHA256 = ['api_object', 'obj', 'object_', 'properties', 'sha256']
 PROPERTY_SHA384 = ['api_object', 'obj', 'object_', 'properties', 'sha384']
 PROPERTY_SHA512 = ['api_object', 'obj', 'object_', 'properties', 'sha512']
+PROPERTY_CAPEC = ['api_object', 'obj', 'behavior', 'attack_patterns']
+PROPERTY_CVE = ['api_object', 'obj', 'vulnerabilities']
 
 
 def _get_sighting_count(obs):
@@ -42,10 +47,10 @@ def _update_existing_properties(additional_sightings, additional_file_hashes, us
         api_object = edge_object.to_ApiObject()
         _merge_properties(api_object, id_, count, additional_file_hashes)
         inbox_processor.add(InboxItem(
-                api_object=api_object,
-                etlp=edge_object.etlp,
-                etou=edge_object.etou,
-                esms=edge_object.esms
+            api_object=api_object,
+            etlp=edge_object.etlp,
+            etou=edge_object.etou,
+            esms=edge_object.esms
         ))
     inbox_processor.run()
 
@@ -240,10 +245,195 @@ def _new_hash_dedup(contents, hashes, user):
     return out, message
 
 
+def _coalesce_non_observable_duplicates(contents, map_table):
+    out = {}
+    for id_, io in contents.iteritems():
+        if id_ not in map_table:
+            io.api_object = io.api_object.remap(map_table)
+            out[id_] = io
+    return out
+
+
+def create_capec_title_key(title, capec_ids):
+    capec_join = ",".join(sorted(capec_ids))
+    return title.strip().lower() + ": " + capec_join
+
+
+def _set_id_to_description_length(contents, ids):
+    id_to_description_length = {}
+    for id_ in ids:
+            if contents[id_].api_object.obj.description is not None:
+                id_to_description_length[id_] = len(contents[id_].api_object.obj.description.value)
+    return id_to_description_length
+
+
+def _set_master(ids, id_to_description_length):
+    if id_to_description_length == {}:
+        master = ids[0]
+    else:
+        master = sorted(id_to_description_length.items(), key=operator.itemgetter(1))[-1][0]
+    return master
+
+
+def _get_map_table(contents, key_to_ids):
+    map_table = {}
+    for key, ids in key_to_ids.iteritems():
+        if len(ids) <= 1:
+            continue
+
+        id_to_description_length = _set_id_to_description_length(contents, ids)
+        master = _set_master(ids, id_to_description_length)
+        ids.remove(master)
+        for dup in ids:
+            map_table[dup] = master
+    return map_table
+
+
+def _package_objects_to_consider(contents, local, type_, property_):
+    ids_to_objects_to_consider = {}
+    for id_, io in contents.iteritems():
+        is_local = rgetattr(contents.get(id_, None), ['api_object', 'obj', 'id_ns'], '') == LOCAL_NAMESPACE
+        correct_ns = is_local if local else (not is_local)
+        if not correct_ns:
+            continue
+        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == type_ and len(
+                rgetattr(contents.get(id_, None), property_, '')) > 0:
+            ids_to_objects_to_consider.setdefault(id_, []).append(io)
+    return ids_to_objects_to_consider
+
+
+def _package_title_capec_string_to_ids(contents, local):
+    package_ttps_to_consider = _package_objects_to_consider(contents, local, 'ttp', PROPERTY_CAPEC)
+
+    title_capec_string_to_ids = {}
+    for id_, ttps in package_ttps_to_consider.iteritems():
+        for ttp in ttps:
+            capec_ids = [capecs.capec_id for capecs in ttp.api_object.obj.behavior.attack_patterns if capecs.capec_id]
+            title = ttp.api_object.obj.title
+            if len(capec_ids) != 0:
+                key = create_capec_title_key(title, capec_ids)
+                title_capec_string_to_ids.setdefault(key, []).append(id_)
+    return title_capec_string_to_ids
+
+
+def _existing_title_and_capecs(local):
+    existing_ttps = capec_finder(local)
+
+    existing_title_capec_string_to_id = {}
+    for found_ttp in existing_ttps:
+        capec_ids = [found_capec['capec'] for found_capec in found_ttp['capecs']]
+        key = create_capec_title_key(found_ttp['title'], capec_ids)
+        existing_title_capec_string_to_id[key] = found_ttp['_id']
+
+    return existing_title_capec_string_to_id
+
+
+def _existing_ttp_capec_dedup(contents, hashes, user, local):
+    existing_title_capec_string_to_id = _existing_title_and_capecs(local)
+
+    ttp_title_capec_string_to_ids = _package_title_capec_string_to_ids(contents, local)
+
+    map_table = {
+        id_[0]: existing_title_capec_string_to_id[key] for key, id_ in ttp_title_capec_string_to_ids.iteritems() if
+        key in existing_title_capec_string_to_id
+        }
+
+    out = _coalesce_non_observable_duplicates(contents, map_table)
+
+    message = _generate_message("Remapped %d " + ('local' if local else 'external') +
+                                " namespace TTPs to existing TTPs based on CAPEC-IDs and title", contents, out)
+    return out, message
+
+
+def _new_ttp_capec_dedup(contents, hashes, user, local):
+    ttp_title_capec_string_to_ids = _package_title_capec_string_to_ids(contents, local)
+
+    map_table = _get_map_table(contents, ttp_title_capec_string_to_ids)
+
+    out = _coalesce_non_observable_duplicates(contents, map_table)
+
+    message = _generate_message("Merged %d " + ('local' if local else 'external') +
+                                " namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
+    return out, message
+
+
+def _new_ttp_local_ns_capec_dedup(contents, hashes, user):
+    return _new_ttp_capec_dedup(contents, hashes, user, True)
+
+
+def _existing_ttp_local_ns_capec_dedup(contents, hashes, user):
+    return _existing_ttp_capec_dedup(contents, hashes, user, True)
+
+
+def _package_cve_id_to_ids(contents, local):
+    package_tgts_to_consider = _package_objects_to_consider(contents, local, 'tgt', PROPERTY_CVE)
+
+    cves_to_ids = {}
+    for id_, tgts in package_tgts_to_consider.iteritems():
+        for tgt in tgts:
+            cves = [cve.cve_id for cve in tgt.api_object.obj.vulnerabilities if cve.cve_id]
+            if len(cves) != 0:
+                key = ",".join(sorted(cves))
+                cves_to_ids.setdefault(key, []).append(id_)
+    return cves_to_ids
+
+
+def _existing_tgts_with_cves(local):
+    existing_cves = cve_finder(local)
+
+    existing_cves_to_ids = {}
+    for found_tgt in existing_cves:
+        cve_ids = [found_cve['cve'] for found_cve in found_tgt['cves']]
+        key = ",".join(sorted(cve_ids))
+        existing_cves_to_ids[key] = found_tgt['_id']
+
+    return existing_cves_to_ids
+
+
+def _new_tgt_cve_dedup(contents, hashes, user, local):
+    cve_to_tgt_ids = _package_cve_id_to_ids(contents, local)
+
+    map_table = _get_map_table(contents, cve_to_tgt_ids)
+
+    out = _coalesce_non_observable_duplicates(contents, map_table)
+
+    message = _generate_message("Merged %d " + ('local' if local else 'external') +
+                                " namespace Exploit Targets in the supplied package based on CVE-IDs", contents, out)
+    return out, message
+
+
+def _existing_tgt_cve_dedup(contents, hashes, user, local):
+    existing_cve_ids_to_id = _existing_tgts_with_cves(local)
+
+    cve_to_tgt_ids = _package_cve_id_to_ids(contents, local)
+
+    map_table = {
+        id_[0]: existing_cve_ids_to_id[key] for key, id_ in cve_to_tgt_ids.iteritems() if key in existing_cve_ids_to_id
+    }
+
+    out = _coalesce_non_observable_duplicates(contents, map_table)
+
+    message = _generate_message("Remapped %d " + ('local' if local else 'external') +
+                                " namespace Exploit Targets to existing Targets based on CVE-IDs", contents, out)
+    return out, message
+
+
+def _new_tgt_local_ns_cve_dedup(contents, hashes, user):
+    return _new_tgt_cve_dedup(contents, hashes, user, True)
+
+
+def _existing_tgt_local_ns_cve_dedup(contents, hashes, user):
+    return _existing_tgt_cve_dedup(contents, hashes, user, True)
+
+
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
         _new_hash_dedup,  # removes new STIX objects matched by hash
         _existing_hash_dedup,  # removes existing STIX objects matched by hash
+        _new_ttp_local_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in local NS
+        _existing_ttp_local_ns_capec_dedup,  # dedup against existing TTPs matched by CAPEC-IDs and Title in local NS
+        _new_tgt_local_ns_cve_dedup,  # removes new tgts matched by CVE-ID in incoming package in local NS
+        _existing_tgt_local_ns_cve_dedup,  # dedup against existing tgts matched by CVE-ID in local NS
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 
@@ -264,7 +454,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
                 if package_item.api_object.obj.related_packages:
                     related_packages = package_item.api_object.obj.related_packages
                     related_package_ids = related_package_ids.union(
-                            {related_package.item.idref for related_package in related_packages})
+                        {related_package.item.idref for related_package in related_packages})
 
             top_level_package_ids = set(package_items.keys()).difference(related_package_ids)
             if len(top_level_package_ids) > 1:

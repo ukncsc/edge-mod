@@ -11,7 +11,7 @@ define([
 
     var ViewModel = declare(null, {
         declaredClass: "ViewModel",
-        constructor: function (rootId, graphData, graph_url, graph_svg_id, item_url, panel_actions) {
+        constructor: function (rootId, graphData, graph_url, item_url, panel_actions) {
             this.rootId = ko.computed(function () {
                 return rootId;
             });
@@ -22,8 +22,6 @@ define([
             this.panel_actions = ko.computed(function () {
                 return panel_actions;
             });
-
-            this.png_converter = new PNGConverter(graph_svg_id);
 
             this.item_url = ko.computed(function () {
                 return item_url;
@@ -47,17 +45,19 @@ define([
             this.graph().selectNode(data.id());
         },
         onSelectedNodeChanged: function (newNode) {
-            d3.json(
-                this.item_url() + encodeURIComponent(newNode.id()),
-                function (error, response) {
-                    if (error) {
-                        throw new Error(error);
-                    }
-                    this.selectedObject.bind(this)(
-                        new StixPackage(response["package"], response["root_id"], response["validation_info"])
-                    );
-                }.bind(this)
-            )
+                d3.json(
+                    this.item_url() + encodeURIComponent(newNode.id()),
+                    function (error, response) {
+                        if (error) {
+                            throw new Error(error);
+                        }
+                        if (this.graph().selectedNode().id() == newNode.id()) {
+                            this.selectedObject.bind(this)(
+                                new StixPackage(response["package"], response["root_id"], response["validation_info"])
+                            );
+                        }
+                    }.bind(this)
+                );
         },
         onRowClicked: function () {
             // implements a click handler required by the review template. Does nothing here.
@@ -70,12 +70,12 @@ define([
             }
             return templateName;
         },
-        saveAsPNG : function () {
-            this.png_converter.savetoPNG(this.rootId());
+        saveAsPNG : function (data, event) {
+            PNGConverter.savetoPNG(event, this.rootId());
         }
     });
 
-    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*String*/ graph_svg_id,
+    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url,
                                    /*PanelActions*/panel_actions, /*function*/ onLoadedCallback,
                                    /*function*/ onErrorCallback) {
         d3.json(
@@ -84,7 +84,7 @@ define([
                 if (error) {
                     onErrorCallback(error);
                 } else {
-                    onLoadedCallback(new ViewModel(rootId, response, graph_url, graph_svg_id, item_url, panel_actions));
+                    onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url, panel_actions));
                 }
             }
         );
