@@ -66,6 +66,14 @@ g.ko-d3-graph-node image.unselected {
     filter: grayscale(100%) brightness(150%);
 }
 
+g.ko-d3-graph-node image.unselected.broken {
+    filter: invert(80%) blur(0.5px);
+}
+
+g.ko-d3-graph-node image.related.broken {
+    filter: invert(80%) blur(0.5px);
+}
+
 .clear_bg {
     -webkit-appearance: none!important;
     outline: none!important;
@@ -91,6 +99,11 @@ line.ko-d3-graph-link.backlink {
     stroke-width: 3;
 }
 
+line.ko-d3-graph-link.broken{
+    stroke: #BA3C46;
+    stroke-width:2;
+}
+
 line.ko-d3-graph-link.edge.related {
     stroke: #999;
     stroke-width: 2;
@@ -104,6 +117,11 @@ line.ko-d3-graph-link.match.related {
 line.ko-d3-graph-link.backlink.related {
     stroke: #229924;
     stroke-width: 4;
+}
+
+line.ko-d3-graph-link.broken.related {
+    stroke: #8a2d36;
+    stroke-width:4;
 }
 
 dl.dl-horizontal dd {

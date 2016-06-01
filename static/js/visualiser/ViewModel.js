@@ -5,8 +5,9 @@ define([
     "./graph/Graph",
     "../stix/StixPackage",
     "./toPNG/PNGConverter",
-    "./graph/forceGraphBinding"
-], function (declare, ko, d3, Graph, StixPackage, PNGConverter) {
+    "./graph/forceGraphBinding",
+    "common/modal/show-error-modal"
+], function (declare, ko, d3, Graph, StixPackage, PNGConverter, forceGraph, showErrorModal) {
     "use strict";
 
     var ViewModel = declare(null, {
@@ -97,11 +98,13 @@ define([
                 this.item_url() + encodeURIComponent(newNode.id()),
                 function (error, response) {
                     if (error) {
-                        throw new Error(error);
+                        showErrorModal(JSON.parse(error.responseText)['error'], false);
                     }
-                    this.selectedObject.bind(this)(
-                        new StixPackage(response["package"], response["root_id"], response["validation_info"])
-                    );
+                    else if (this.graph().selectedNode().id() == newNode.id()){
+                        this.selectedObject.bind(this)(
+                            new StixPackage(response["package"], response["root_id"], response["validation_info"])
+                        );
+                    }
                 }.bind(this)
             )
         },

@@ -23,12 +23,15 @@ define([
             this.depth = ko.computed(function () {
                 return nodeData.depth;
             });
+            this.relType = ko.computed(function() {
+                return nodeData.rel_type
+            });
             this.isSelected = ko.observable(false);
             this.isChecked = ko.observable(false);
 
             this.isRelated = ko.observable(false);
             this.className = ko.computed(function () {
-                return this.isSelected() ? "selected" : this.isRelated() ? "related" : "unselected";
+                return this.isSelected() ? "selected" : this.isRelated() ? "related " + this.relType(): "unselected " + this.relType();
             }, this);
         },
         isRoot: function () {

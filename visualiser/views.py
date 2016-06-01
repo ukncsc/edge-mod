@@ -56,7 +56,7 @@ def get_backlinks(id_):
 
 
 def get_matches(id_):
-    eo = EdgeObject.load(id_);
+    eo = EdgeObject.load(id_)
     return [doc['_id'] for doc in
             get_db().stix.find({'data.hash': eo.doc['data']['hash'], 'type': eo.ty, '_id': {'$ne': eo.id_}},
                                {'_id': 1})]
@@ -77,14 +77,26 @@ def depth_first_iterate(root_node, bl_ids, id_matches):
             title = node.summary.get("title", None)
             if title is None:
                 title = build_title(node)
-            nodes.append(dict(id=node_id, type=node.ty, title=title, depth=depth))
+            nodes.append(dict(id=node_id, type=node.ty, title=title, depth=depth, rel_type=rel_type))
         else:
             idx = id_to_idx[node_id]
         if parent_idx is not None:
             links.append({"source": parent_idx, "target": idx, "rel_type": rel_type})
         if is_new_node:
             if "backlink" not in rel_type and "match" not in rel_type:
-                stack.extend((depth + 1, idx, edge.fetch(), "edge") for edge in node.edges)
+                for edge in node.edges:
+                    try:
+                        stack.append((depth + 1, idx, edge.fetch(), "edge"))
+                    except EdgeError as e:
+                        if e.message == edge.id_ + " not found":
+                            summary = {'title': '', 'type': edge.ty, 'value': '', '_id': edge.id_, 'cv': '', 'tg': '',
+                                       'data': {'idns': '', 'etlp': '', 'summary': {'title': None},
+                                        'hash': '', 'api': ''}, 'created_by_organization': ''}
+                            obj = EdgeObject(summary)
+                            stack.append((depth + 1, idx, obj, "broken"))
+                            continue
+                    except Exception as e:
+                        raise e
             if node_id in bl_ids:
                 for eoId in [val for doc in get_backlinks(node_id) for val in doc['value'].keys()]:
                     stack.append((depth + 1, idx, EdgeObject.load(eoId), "backlink"))
@@ -116,6 +128,11 @@ def visualiser_item_get(request, id_):
             "package": package.to_dict(),
             "validation_info": validation_info.validation_dict
         }, status=200)
+    except EdgeError as e:
+        if e.message == id_ + " not found":
+            return JsonResponse({'error': e.message}, status = 404)
+        else:
+            return JsonResponse({'error': e.message}, status = 500)
     except Exception as e:
         return JsonResponse(dict(e), status=500)
 

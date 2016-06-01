@@ -122,13 +122,13 @@ define([
 
             var nodeSelector = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
-                .data(graphModel.nodes()).call(dragNode).on("mouseenter", function (d) {
+                .data(graphModel.nodes()).call(dragNode).on("mousemove", function (d) {
                         var x_middle = container[0][0].clientWidth / 2;
                         var y_middle = container[0][0].clientHeight / 2;
                         var iWidth =(d.imageWidth() / 2) * currentScale;
                         var iHeight =(d.imageHeight() / 2) * currentScale;
                         tooltip.transition()
-                            .duration(200)
+                            .duration(300)
                             .style("opacity", 0.8);
                         tooltip.html(
                             "<div class=\"btn-group\" role=\"group\" aria-label=\"\">" +
@@ -156,17 +156,16 @@ define([
                             .style("left", ((x_middle + iWidth +  (d.x - x_middle) * currentScale) + currentXOffset) + "px")
                             .style("top",  ((y_middle - iHeight + (d.y - y_middle) * currentScale) + currentYOffset) + "px");
                         ko.applyBindings(viewModel, tooltip[0][0].childNodes[0]);
+                });
 
-
-                    })
-
-                ;
-
-            container.on("mouseover", function (d) {
-                tooltip.transition()
-                    .duration(300)
-                    .style("opacity", 0);
+                container.on("mouseover", function (d) {
+                    tooltip.transition()
+                        .duration(300)
+                        .style("opacity", 0);
             });
+
+            var showMatchingAndBacklinks = container
+                .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
 
             var linkSelector = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.linkClass)

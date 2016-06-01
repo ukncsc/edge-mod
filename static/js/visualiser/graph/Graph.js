@@ -151,7 +151,7 @@ define([
             }.bind(this));
 
             this.links().splice(0, this.links().length);
-            this.links().push.apply(this.links(), newLinks)
+            this.links().push.apply(this.links(), newLinks);
             this.links.valueHasMutated();
             this.d3Layout().start();
             /*this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
