@@ -192,6 +192,10 @@ class DBIncidentPatch(incident.DBIncident):
         IntendedEffects.from_dict(update_obj.intended_effects.to_dict(), self.intended_effects)
         DiscoveryMethods.from_dict(update_obj.discovery_methods.to_dict(), self.discovery_methods)
 
+        self.external_ids  = []
+        for ex_id in update_obj.external_ids:
+            self.external_ids.append(ExternalID(ex_id.value, ex_id.source))
+
     @classmethod
     def api_from_dict(cls, data):
         return cls.from_dict(data)
