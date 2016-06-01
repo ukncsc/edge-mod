@@ -9,6 +9,9 @@ define([
     return declare(null, {
 
         create_timeline: function (div, rootId, graph_url) {
+            if (typeof this.document === "undefined") {
+                return;
+            }
             var elem = d3.select("#" + div)[0][0];
             if (elem ===  null) {
                 return;
