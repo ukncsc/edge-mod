@@ -7,7 +7,7 @@ define([
     "use strict";
 
     return declare(AbstractBuilderForm, {
-        declaredClass: "ExternalIds",
+        declaredClass: "ExternalIDs",
 
         constructor: declare.superCall(function (sup) {
             return function () {

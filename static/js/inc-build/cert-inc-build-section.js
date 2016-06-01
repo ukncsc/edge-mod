@@ -18,7 +18,7 @@ define([
     "inc-build/cert-inc-build-coordinators",
     "inc-build/cert-inc-build-external-ids",
     "common/cert-messages"
-], function (ko, declare, AttributedActors, Times, Categories, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Coordinators, ExternalIds, Messages) {
+], function (ko, declare, AttributedActors, Times, Categories, DiscoveryMethods, Effects, General, IntendedEffects, LeveragedTTPs, RelatedIncidents, RelatedIndicators, RelatedObservables, TrustGroups, Victims, Responders, Coordinators, ExternalIDs, Messages) {
     "use strict";
     function indexBy(items, pname) {
         var indexed = {};
@@ -47,7 +47,7 @@ define([
                 ko.observable(new LeveragedTTPs()),
                 ko.observable(new AttributedActors()),
                 ko.observable(new RelatedIncidents()),
-                ko.observable(new ExternalIds())
+                ko.observable(new ExternalIDs())
             ]);
             this._byLabel = indexBy(this.options, "label");
             this.value = ko.observable(
