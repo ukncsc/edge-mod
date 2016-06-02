@@ -55,23 +55,18 @@ g.ko-d3-graph-node {
 }
 
 g.ko-d3-graph-node image.selected {
+    -webkit-filter: drop-shadow(0 0 8px black) contrast(150%);
     filter: drop-shadow(0 0 8px black) contrast(150%);
 }
 
 g.ko-d3-graph-node image.related {
+    -webkit-filter: grayscale(33%);
     filter: grayscale(33%);
 }
 
 g.ko-d3-graph-node image.unselected {
+    -webkit-filter: grayscale(100%) brightness(150%);
     filter: grayscale(100%) brightness(150%);
-}
-
-g.ko-d3-graph-node image.unselected.broken {
-    filter: invert(80%) blur(0.5px);
-}
-
-g.ko-d3-graph-node image.related.broken {
-    filter: invert(80%) blur(0.5px);
 }
 
 .clear_bg {
@@ -101,7 +96,7 @@ line.ko-d3-graph-link.backlink {
 
 line.ko-d3-graph-link.broken{
     stroke: #BA3C46;
-    stroke-width:2;
+    stroke-width:1;
 }
 
 line.ko-d3-graph-link.edge.related {
@@ -120,8 +115,8 @@ line.ko-d3-graph-link.backlink.related {
 }
 
 line.ko-d3-graph-link.broken.related {
-    stroke: #8a2d36;
-    stroke-width:4;
+    stroke: #BA3C46;
+    stroke-width:2;
 }
 
 dl.dl-horizontal dd {

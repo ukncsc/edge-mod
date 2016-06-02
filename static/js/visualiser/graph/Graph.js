@@ -20,6 +20,8 @@ define([
             this.d3Layout = ko.computed(function () {
                 return _d3Layout;
             });
+            this.backlinks = ko.observableArray([]);
+            this.matches = ko.observableArray([]);
             // create proxy observables for all [gs]etters on _d3Layout with the default value provided by D3
             var _pendingUpdate = null;
             ko.utils.objectForEach(_d3Layout, function (name, value) {
@@ -117,7 +119,7 @@ define([
             var currentNodes = this.nodes();
             var newNodes = [];
 
-            var indiciesToRemove = []
+            var indiciesToRemove = [];
             //var originalNodes = []
             ko.utils.arrayForEach(graphData.nodes, function (nodeData, i) {
                 var existingNode = this.nodeAlreadyExists(currentNodes, nodeData);
@@ -132,7 +134,7 @@ define([
             }.bind(this));
 
             this.nodes().splice(0, this.nodes().length);
-            this.nodes().push.apply(this.nodes(), newNodes)
+            this.nodes().push.apply(this.nodes(), newNodes);
             this.nodes.valueHasMutated();
 
 
@@ -196,12 +198,12 @@ define([
             }
         },
         call_action: function (action) {
-            var checked_node_ids = []
+            var checked_node_ids = [];
             ko.utils.arrayForEach(this.nodes(), function (node) {
                 if (node.isChecked()) {
                     checked_node_ids.push(node.id());
                 }
-            })
+            });
             action(checked_node_ids, this);
         },
         appendData: function (graphData) {

@@ -24,14 +24,26 @@ define([
                 return nodeData.depth;
             });
             this.relType = ko.computed(function() {
-                return nodeData.rel_type
+                return nodeData.rel_type;
             });
+            this.hasBacklinks = ko.computed(function() {
+                return nodeData.has_backlinks ? "backlinks" : "";
+            });
+            this.hasMatches = ko.computed(function() {
+                return nodeData.has_matches ? "matches" : "";
+            });
+            this.matchesAndBacklinks = ko.computed(function() {
+                return (this.hasBacklinks() + " " + this.hasMatches());
+            }, this);
             this.isSelected = ko.observable(false);
             this.isChecked = ko.observable(false);
 
+            this.isBackLinkShown = ko.observable(false);
+            this.isMatchesShown = ko.observable(false);
+
             this.isRelated = ko.observable(false);
             this.className = ko.computed(function () {
-                return this.isSelected() ? "selected" : this.isRelated() ? "related " + this.relType(): "unselected " + this.relType();
+                return this.isSelected() ? "selected" : this.isRelated() ? "related " + this.matchesAndBacklinks(): "unselected " + this.matchesAndBacklinks();
             }, this);
         },
         isRoot: function () {

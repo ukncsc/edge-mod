@@ -122,22 +122,40 @@ define([
 
             var nodeSelector = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
-                .data(graphModel.nodes()).call(dragNode).on("mousemove", function (d) {
-                        var x_middle = container[0][0].clientWidth / 2;
-                        var y_middle = container[0][0].clientHeight / 2;
-                        var iWidth =(d.imageWidth() / 2) * currentScale;
-                        var iHeight =(d.imageHeight() / 2) * currentScale;
+                .data(graphModel.nodes()).call(dragNode);
+
+            function getBacklinkAddButton(id, backlinksShown) {
+                return backlinksShown ? "" : "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusBacklinkClicked.bind($data,'" + id + "')\"><span class='green clear_bg'>BackLinks</span></button></a>";
+            }
+
+            function getBacklinkMinusButton(id, backlinksShown) {
+                return backlinksShown ? "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusBacklinkClicked.bind($data,'" + id + "')\"><span class='green clear_bg'>BackLinks</span></button></a>" : "";
+            }
+
+            function getMatchesAddbutton(id, matchesShown) {
+                return matchesShown ? "" : "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusMatchesClicked.bind($data,'" + id + "')\"><span class='blue clear_bg' style='color: #002a80'>Matches</span></button></a>";
+            }
+
+            function getMatchesMinusButton(id, matchesShown) {
+                return matchesShown ? "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusMatchesClicked.bind($data,'" + id + "')\"><span class='clear_bg' style='color: #002a80'>Matches</span></button></a>" : "";
+            }
+
+            var matchingAndBacklinks = container
+                .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
+                .data(graphModel.nodes()).on("mousemove", function (d) {
+                    var x_middle = container[0][0].clientWidth / 2;
+                    var y_middle = container[0][0].clientHeight / 2;
+                    var iWidth = (d.imageWidth() / 2) * currentScale;
+                    var iHeight = (d.imageHeight() / 2) * currentScale;
+                    if (d.relType() != 'broken') {
                         tooltip.transition()
                             .duration(300)
                             .style("opacity", 0.8);
                         tooltip.html(
-                            "<div class=\"btn-group\" role=\"group\" aria-label=\"\">" +
+                                "<div class=\"btn-group\" role=\"group\" aria-label=\"\">" +
                                 "<div class=\"dropdown btn-group\" role=\"group\" aria-label=\"\">" +
                                 "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-plus blue clear_bg\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
-                                "<div class=\"dropdown-menu clear_bg\">" +
-
-                                "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusBacklinkClicked.bind($data,'" + d.id() + "')\"><span class='green clear_bg'>BackLinks</span></button></a>" +
-                                "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusMatchesClicked.bind($data,'" + d.id() + "')\"><span class='blue clear_bg' style='color: #002a80'>Matches</span></button></a>" +
+                                "<div class=\"dropdown-menu clear_bg\">" + getBacklinkAddButton(d.id(), d.isBackLinkShown()) + getMatchesAddbutton(d.id(), d.isMatchesShown()) +
 
                                 "</div>" +
                                 "</div>" +
@@ -145,27 +163,38 @@ define([
                                 "<div class=\"dropdown btn-group\" role=\"group\" aria-label=\"\">" +
                                 "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-minus blue clear_bg\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
                                 "<div class=\"dropdown-menu clear_bg\">" +
-                                "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusBacklinkClicked.bind($data,'" + d.id() + "')\"><span class='green clear_bg'>BackLinks</span></button></a>" +
-                                "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusMatchesClicked.bind($data,'" + d.id() + "')\"><span class='clear_bg' style='color: #002a80'>Matches</span></button></a>" +
+                                getBacklinkMinusButton(d.id(), d.isBackLinkShown()) + getMatchesMinusButton(d.id(), d.isMatchesShown())
+                                +
                                 "</div>" +
-                                "</div>"+
+                                "</div>" +
                                 "<button type=\"button\" class=\"btn btn-secondary glyphicon glyphicon-home blue clear_bg\" data-bind=\"click:$data.onNewRootId.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
                                 "<button type=\"button\" class=\"btn btn-secondary glyphicon glyphicon-share-alt blue clear_bg\" data-bind=\"click:$data.onExternalPublish.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
                                 "</div>"
                             )
-                            .style("left", ((x_middle + iWidth +  (d.x - x_middle) * currentScale) + currentXOffset) + "px")
-                            .style("top",  ((y_middle - iHeight + (d.y - y_middle) * currentScale) + currentYOffset) + "px");
+                            .style("left", ((x_middle + iWidth + (d.x - x_middle) * currentScale) + currentXOffset) + "px")
+                            .style("top", ((y_middle - iHeight + (d.y - y_middle) * currentScale) + currentYOffset) + "px");
+                    }
+                    else {
+                        tooltip.transition()
+                            .duration(100)
+                            .style("opacity", 0.8);
+                        tooltip.html(
+                            "<button type=\"button\" class=\"btn btn-danger clear_bg\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"><span class='clear_bg'>Broken node</span></button>"
+                        )
+                        .style("left", ((x_middle + iWidth + (d.x - x_middle) * currentScale) + currentXOffset) + "px")
+                        .style("top", ((y_middle - iHeight + (d.y - y_middle) * currentScale) + currentYOffset) + "px");
+                    }
                         ko.applyBindings(viewModel, tooltip[0][0].childNodes[0]);
                 });
 
-                container.on("mouseover", function (d) {
-                    tooltip.transition()
-                        .duration(300)
-                        .style("opacity", 0);
+            container.on("mouseover", function (d) {
+                tooltip.transition()
+                    .duration(300)
+                    .style("opacity", 0);
             });
 
             var showMatchingAndBacklinks = container
-                .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
+                .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass);
 
             var linkSelector = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.linkClass)

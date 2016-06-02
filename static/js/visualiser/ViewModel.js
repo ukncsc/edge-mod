@@ -18,8 +18,6 @@ define([
             this.rootId = ko.computed(function () {
                 return rootId;
             });
-            this.backlinks = ko.observableArray();
-            this.matches = ko.observableArray();
 
             this.graph_url = ko.computed(function () {
                 return graph_url;
@@ -59,8 +57,8 @@ define([
         },
 
         onNewRootId: function (data, scope) {
-            this.backlinks.removeAll();
-            this.matches.removeAll();
+            this.graph().backlinks.removeAll();
+            this.graph().matches.removeAll();
             this.rootId = ko.computed(function () {
                 return data;
             });
@@ -68,26 +66,30 @@ define([
 
         },
         onPlusBacklinkClicked: function (data, scope) {
-            this.backlinks.push(data);
+            this.graph().backlinks.push(data);
+            this.graph().findNode(data).isBackLinkShown(true);
             this.getWithOthers();
         },
         onMinusBacklinkClicked: function (data, scope) {
-            this.backlinks.remove(data);
+            this.graph().backlinks.remove(data);
+            this.graph().findNode(data).isBackLinkShown(false);
             this.getWithOthers();
         },
         onPlusMatchesClicked: function (data, scope) {
-            this.matches.push(data);
+            this.graph().matches.push(data);
+            this.graph().findNode(data).isMatchesShown(true);
             this.getWithOthers();
         },
         onMinusMatchesClicked: function (data, scope) {
-            this.matches.remove(data);
+            this.graph().matches.remove(data);
+            this.graph().findNode(data).isMatchesShown(false);
             this.getWithOthers();
         },
         getWithOthers: function () {
             postJSON(this.graph_url() + "get_with_others/", {
                     'id': this.rootId(),
-                    'id_bls': this.backlinks(),
-                    'id_matches': this.matches()
+                    'id_bls': this.graph().backlinks(),
+                    'id_matches': this.graph().matches()
                 }, function (result) {
                     this.graph().loadData(result);
                 }.bind(this)

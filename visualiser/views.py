@@ -62,6 +62,28 @@ def get_matches(id_):
                                {'_id': 1})]
 
 
+def backlinks_exist(id_):
+    checker = ''
+    backlinks = get_backlinks(id_)
+    print backlinks.count()
+    if backlinks.count():
+        checker = True
+    else:
+        checker = False
+    return checker
+
+
+def matches_exist(id_):
+    checker = ''
+    backlinks = get_matches(id_)
+    print len(backlinks)
+    if len(backlinks):
+        checker = True
+    else:
+        checker = False
+    return checker
+
+
 def depth_first_iterate(root_node, bl_ids, id_matches):
     nodes = []
     links = []
@@ -77,7 +99,12 @@ def depth_first_iterate(root_node, bl_ids, id_matches):
             title = node.summary.get("title", None)
             if title is None:
                 title = build_title(node)
-            nodes.append(dict(id=node_id, type=node.ty, title=title, depth=depth, rel_type=rel_type))
+            if rel_type is 'broken':
+                backlinks, matches = False, False
+            else:
+                backlinks, matches, = backlinks_exist(node_id), matches_exist(node_id)
+            nodes.append(dict(id=node_id, type=node.ty, title=title, depth=depth, rel_type=rel_type,
+                              has_backlinks = backlinks, has_matches = matches))
         else:
             idx = id_to_idx[node_id]
         if parent_idx is not None:
