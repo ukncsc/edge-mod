@@ -2,7 +2,8 @@ define([
     "./change-tracker",
     "./identity",
     "./cert-messages",
-    "./topic"
+    "./topic",
+    "./cert-abstract-builder-form"
 ], function () {
 
 });
