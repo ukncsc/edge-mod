@@ -18,8 +18,8 @@ define([
             load: declare.superCall(function (sup) {
                 return function (data) {
                     sup.call(this, data);
-                    this.source_socket_address(data["source_socket_address"] || new indicator_builder.ObservableSocket);
-                    this.destination_socket_address(data["destination_socket_address"] || new indicator_builder.ObservableSocket);
+                    this.source_socket_address().load(data["source_socket_address"] || new indicator_builder.ObservableSocket);
+                    this.destination_socket_address().load(data["destination_socket_address"] || new indicator_builder.ObservableSocket);
                 };
             }),
 

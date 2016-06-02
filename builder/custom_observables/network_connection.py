@@ -1,7 +1,4 @@
 from cybox.objects.network_connection_object import NetworkConnection
-from cybox.objects.socket_address_object import SocketAddress, Port
-from cybox.objects.address_object import Address
-from cybox.objects.hostname_object import Hostname
 from edge.tools import rgetattr
 from adapters.certuk_mod.builder.custom_observable_definition import CustomObservableDefinition
 from indicator.observable_object_generator import ObservableObjectGenerator
@@ -30,31 +27,44 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
 
         return network_connection
 
-    def get_socket_description(self, socket_object):
+    def get_socket(self, socket_object):
         address = rgetattr(socket_object, ['ip_address', 'address_value'], '')
         hostname = rgetattr(socket_object, ['hostname', 'hostname_value'], '')
         port = rgetattr(socket_object, ['port', 'port_value'], '')
         protocol = rgetattr(socket_object, ['port', 'layer4protocol'], '')
 
-        if address:
-            combined = str(address)
-        elif hostname:
-            combined = str(hostname)
+        socket = {
+            "ip_address": str(address),
+            "hostname": str(hostname),
+            "port": int(port),
+            "protocol": str(protocol)
+        }
+        return socket
+
+    def get_socket_summary(self, socket_object):
+        socket = self.get_socket(socket_object)
+
+        if socket['ip_address']:
+            combined = str(socket['ip_address'])
+        elif socket['hostname']:
+            combined = str(socket['hostname'])
         else:
             combined = '(unknown)'
 
-        if port:
-            combined += str(port)
-        if protocol:
-            combined += str(protocol)
+        if socket['port']:
+            combined += ":"
+            combined += str(socket['port'])
+        if socket['protocol']:
+            combined += ":"
+            combined += str(socket['protocol'])
 
         return str(combined)
 
     def summary_value_generator(self, obj):
         network_connection_object = "Source Socket Address: "
-        network_connection_object += self.get_socket_description(rgetattr(obj, ['_object', 'properties', 'source_socket_address']))
-        network_connection_object += " Destination Socket Address: "
-        network_connection_object += self.get_socket_description(rgetattr(obj, ['_object', 'properties', 'destination_socket_address']))
+        network_connection_object += self.get_socket_summary(rgetattr(obj, ['_object', 'properties', 'source_socket_address']))
+        network_connection_object += ": Destination Socket Address: "
+        network_connection_object += self.get_socket_summary(rgetattr(obj, ['_object', 'properties', 'destination_socket_address']))
         return network_connection_object
 
     def to_draft_handler(self, observable, tg, load_by_id, id_ns=''):
@@ -64,5 +74,6 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
             'id_ns': id_ns,
             'title': rgetattr(observable, ['title'], ''),
             'description': str(rgetattr(observable, ['description'], '')),
-            'network_connection': self.summary_value_generator(observable)
+            'source_socket_address': self.get_socket(rgetattr(observable, ['_object', 'properties', 'source_socket_address'])),
+            'destination_socket_address': self.get_socket(rgetattr(observable, ['_object', 'properties', 'destination_socket_address']))
         }
