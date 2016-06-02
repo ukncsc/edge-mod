@@ -2,4 +2,5 @@
 
 {% block extra-read-only-observable-templates %}
     <div data-bind="template: { name: 'http-session-readonly', if: objectType=='HTTP Session'}"></div>
+    <div data-bind="template: { name: 'network-connection-readonly', if: objectType=='Network Connection'}"></div>
 {% endblock %}
