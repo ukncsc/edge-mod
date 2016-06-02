@@ -11,7 +11,6 @@ define([
         constructor: declare.superCall(function (sup) {
             return function () {
                 sup.call(this, "Network Connection");
-                this.summary = ko.observable("");
                 this.source_socket_address = ko.observable(new ChildSocket);
                 this.source_socket_address().reviewOnly = ko.computed(function () {
                     return this.reviewOnly();
@@ -20,14 +19,12 @@ define([
                 this.destination_socket_address().reviewOnly = ko.computed(function () {
                     return this.reviewOnly();
                 }, this);
-
             }
         }),
 
         load: declare.superCall(function (sup) {
             return function (data) {
                 sup.call(this, data);
-                this.summary(data["summary"] || "");
                 this.source_socket_address().load(data["source_socket_address"] || new ChildSocket);
                 this.destination_socket_address().load(data["destination_socket_address"] || new ChildSocket);
             };
@@ -65,7 +62,6 @@ define([
                     this.objectTitle(this.generateSummary());
                 }
                 return ko.utils.extend(sup.call(this), {
-                    summary: this.generateSummary(),
                     source_socket_address: {
                         port: this.source_socket_address().port(),
                         protocol: this.source_socket_address().protocol(),
