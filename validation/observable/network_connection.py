@@ -1,7 +1,4 @@
-from adapters.certuk_mod.validation import ValidationStatus, FieldValidationInfo
-
 from observable import ObservableValidationInfo
-from hostname import HostnameValidationInfo
 from socket_validator import validate_socket
 
 

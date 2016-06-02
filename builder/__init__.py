@@ -4,5 +4,5 @@ from adapters.certuk_mod.builder.custom_observables.network_connection import Ne
 
 CUSTOM_OBSERVABLES = (
     HTTPSessionObservableDefinition(),
-    NetworkConnectionObservableDefinition(),
+    NetworkConnectionObservableDefinition()
 )

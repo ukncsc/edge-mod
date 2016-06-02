@@ -3,6 +3,7 @@ from edge.tools import rgetattr
 from adapters.certuk_mod.builder.custom_observable_definition import CustomObservableDefinition
 from indicator.observable_object_generator import ObservableObjectGenerator
 
+
 class NetworkConnectionObservableDefinition(CustomObservableDefinition):
 
     def __init__(self):
@@ -10,10 +11,7 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
             object_type='NetworkConnectionObjectType',
             human_readable_type='Network Connection',
             can_batch_create=False,
-            custom_id_prefix='network_connection',
-            builder_to_stix_object=NetworkConnectionObservableDefinition.builder_to_stix_object,
-            summary_value_generator=NetworkConnectionObservableDefinition.summary_value_generator,
-            to_draft_handler=NetworkConnectionObservableDefinition.to_draft_handler
+            custom_id_prefix='network_connection'
         )
 
     def builder_to_stix_object(self, object_data):
