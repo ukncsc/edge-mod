@@ -2,13 +2,17 @@ define([
     "dcl/dcl",
     "d3",
     "common/moment-shim",
+    "common/window-shim",
     "common/modal/show-error-modal",
     "timeline/d3-tooltip"
-], function (declare, d3, moment, showErrorModal, errorContentTemplate) {
+], function (declare, d3, moment, window, showErrorModal, errorContentTemplate) {
     "use strict";
     return declare(null, {
 
         create_timeline: function (div, rootId, graph_url) {
+            if (typeof window.document === "undefined") {
+                return;
+            }
             var elem = d3.select("#" + div)[0][0];
             if (elem ===  null) {
                 return;
@@ -63,7 +67,6 @@ define([
                     .append("svg")
                     .attr("width", width)
                     .attr("height", svg_height)
-                    .attr('transform', 'translate(' + margin.left + ',0)')
                     .attr('preserveAspectRatio', 'xMinYMin slice')
                     .append('g')
                     .attr('transform', 'translate(' + margin.left + ',0)')

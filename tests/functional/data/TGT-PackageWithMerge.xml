@@ -1,0 +1,87 @@
+<stix:STIX_Package 
+	xmlns:cyboxCommon="http://cybox.mitre.org/common-2"
+	xmlns:cybox="http://cybox.mitre.org/cybox-2"
+	xmlns:cyboxVocabs="http://cybox.mitre.org/default_vocabularies-2"
+	xmlns:marking="http://data-marking.mitre.org/Marking-1"
+	xmlns:tlpMarking="http://data-marking.mitre.org/extensions/MarkingStructure#TLP-1"
+	xmlns:edge="http://soltra.com/"
+	xmlns:et="http://stix.mitre.org/ExploitTarget-1"
+	xmlns:stixCommon="http://stix.mitre.org/common-1"
+	xmlns:stixVocabs="http://stix.mitre.org/default_vocabularies-1"
+	xmlns:stix="http://stix.mitre.org/stix-1"
+	xmlns:pss="http://www.purplesecure.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="edge:Package-520bc0d1-7dae-43d2-a404-30cb6e9c1d6e" version="1.1.1" timestamp="2016-05-17T09:27:41.983964+00:00">
+    <stix:STIX_Header>
+        <stix:Handling>
+            <marking:Marking>
+                <marking:Controlled_Structure>../../../../descendant-or-self::node() | ../../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+            </marking:Marking>
+        </stix:Handling>
+    </stix:STIX_Header>
+    <stix:Exploit_Targets>
+        <stixCommon:Exploit_Target id="pss:tgt-1fdd927a-9b5b-449e-a16b-61aa7834eec5" timestamp="2016-05-17T09:27:39.135048+00:00" xsi:type='et:ExploitTargetType'>
+            <et:Title>MATTS TARGET</et:Title>
+            <et:Vulnerability>
+                <et:Title>yyyy</et:Title>
+            </et:Vulnerability>
+            <et:Vulnerability>
+                <et:Title>Another</et:Title>
+                <et:CVE_ID>CVE-2014-74</et:CVE_ID>
+            </et:Vulnerability>
+            <et:Vulnerability>
+                <et:Title>Liam</et:Title>
+                <et:CVE_ID>CVE-2015-5849</et:CVE_ID>
+            </et:Vulnerability>
+            <et:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+                </marking:Marking>
+            </et:Handling>
+        </stixCommon:Exploit_Target>
+		<stixCommon:Exploit_Target id="pss:tgt-dupe5" timestamp="2016-05-17T09:27:39.135048+00:00" xsi:type='et:ExploitTargetType'>
+            <et:Title>MATTS TARGET</et:Title>
+            <et:Vulnerability>
+                <et:Title>yyyy</et:Title>
+            </et:Vulnerability>
+            <et:Vulnerability>
+                <et:Title>Another</et:Title>
+                <et:CVE_ID>CVE-2014-74</et:CVE_ID>
+            </et:Vulnerability>
+            <et:Vulnerability>
+                <et:Title>Liam</et:Title>
+                <et:CVE_ID>CVE-2015-5849</et:CVE_ID>
+            </et:Vulnerability>
+			<et:Vulnerability>
+                <et:Title>Liam</et:Title>
+            </et:Vulnerability>
+            <et:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+                </marking:Marking>
+            </et:Handling>
+        </stixCommon:Exploit_Target>
+		<stixCommon:Exploit_Target id="pss:tgt-1fdd927a-9b5b-449e-a16asdb-61aa7834eec5" timestamp="2016-05-17T09:27:39.135048+00:00" xsi:type='et:ExploitTargetType'>
+            <et:Title>MATTS</et:Title>
+            <et:Vulnerability>
+                <et:Title>yyyy</et:Title>
+            </et:Vulnerability>
+            <et:Vulnerability>
+                <et:Title>Another</et:Title>
+                <et:CVE_ID>CVE-2014-74</et:CVE_ID>
+            </et:Vulnerability>
+            <et:Vulnerability>
+                <et:Title>Liam</et:Title>
+                <et:CVE_ID>CVE-2015-5849</et:CVE_ID>
+            </et:Vulnerability>
+            <et:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+                </marking:Marking>
+            </et:Handling>
+        </stixCommon:Exploit_Target>
+    </stix:Exploit_Targets>
+</stix:STIX_Package>

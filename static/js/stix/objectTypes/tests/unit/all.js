@@ -5,7 +5,8 @@ define([
     "./File",
     "./HttpSession",
     "./SocketAddress",
-    "./WindowsRegistryKey"
+    "./WindowsRegistryKey",
+    "./NetworkConnection"
 ], function () {
 
 });

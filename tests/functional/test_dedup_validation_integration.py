@@ -1,6 +1,7 @@
 import os
 import io
 import subprocess
+import mock
 
 import repository.test as edge_test
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
@@ -11,7 +12,6 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'repository.settings'
 
 
 class DedupFunctionalTests(edge_test.TestCase):
-
     fixtures = ['stix']
 
     def assert_load_file_ok(self, file_name):
@@ -29,7 +29,7 @@ class DedupFunctionalTests(edge_test.TestCase):
         self.assertRaises(InboxError, ip.run)
 
     def loaddata(self, labels):
-         for label in labels:
+        for label in labels:
             pathname = os.path.dirname(__file__) + '/ttps/' + label + '.json'
             subprocess.Popen(['mongoimport', '-d', edge_test.TEST_DB_NAME, '-c', label, '--file', pathname],
                              stdout=subprocess.PIPE).communicate()
@@ -55,13 +55,17 @@ class DedupFunctionalTests(edge_test.TestCase):
     def test_DedupInboxProcessor_validate_IndicatorPackageNoTTPs(self):
         self.assert_raises_inbox_error('IndicatorPackageNoTTPs.xml')
 
-    def test_DedupInboxProcessor_validate_correct_dedup_message_remapping(self):
+    @mock.patch('adapters.certuk_mod.dedup.DedupInboxProcessor.LOCAL_NAMESPACE', "http://www.purplesecure.com")
+    @mock.patch('adapters.certuk_mod.dedup.property_finder.LOCAL_NAMESPACE', "http://www.purplesecure.com")
+    def test_DedupInboxProcessor_validate_correct_ttp_dedup_message_remapping(self):
         ip = self.create_inbox_from_file('TTP-PackageWithRemapping.xml')
         ip.run()
         remap = 'Remapped 11 local namespace TTPs to existing TTPs based on CAPEC-IDs and title'
         self.assertEqual(ip.filter_messages[1], remap)
 
-    def test_DedupInboxProcessor_validate_correct_dedup_message_merge_and_remapping(self):
+    @mock.patch('adapters.certuk_mod.dedup.DedupInboxProcessor.LOCAL_NAMESPACE', "http://www.purplesecure.com")
+    @mock.patch('adapters.certuk_mod.dedup.property_finder.LOCAL_NAMESPACE', "http://www.purplesecure.com")
+    def test_DedupInboxProcessor_validate_correct_ttp_dedup_message_merge_and_remapping(self):
         ip = self.create_inbox_from_file('TTP-PackageWithMergeAndRemapping.xml')
         ip.run()
         merge = 'Merged 2 local namespace TTPs in the supplied package based on CAPEC-IDs and title'
@@ -69,9 +73,34 @@ class DedupFunctionalTests(edge_test.TestCase):
         self.assertEqual(ip.filter_messages[1], merge)
         self.assertEqual(ip.filter_messages[2], remap)
 
-    def test_DedupInboxProcessor_validate_correct_dedup_message_merge(self):
+    @mock.patch('adapters.certuk_mod.dedup.DedupInboxProcessor.LOCAL_NAMESPACE', "http://www.purplesecure.com")
+    def test_DedupInboxProcessor_validate_correct_ttp_dedup_message_merge(self):
         ip = self.create_inbox_from_file('TTP-PackageWithMerge.xml')
         ip.run()
         merge = 'Merged 3 local namespace TTPs in the supplied package based on CAPEC-IDs and title'
         self.assertEqual(ip.filter_messages[1], merge)
 
+    @mock.patch('adapters.certuk_mod.dedup.DedupInboxProcessor.LOCAL_NAMESPACE', 'http://www.purplesecure.com')
+    def test_DedupInboxProcessor_validate_correct_tgt_dedup_message_merge(self):
+        ip = self.create_inbox_from_file('TGT-PackageWithMerge.xml')
+        ip.run()
+        merge = 'Merged 2 local namespace Exploit Targets in the supplied package based on CVE-IDs'
+        self.assertEqual(ip.filter_messages[1], merge)
+
+    @mock.patch('adapters.certuk_mod.dedup.DedupInboxProcessor.LOCAL_NAMESPACE', 'http://www.purplesecure.com')
+    @mock.patch('adapters.certuk_mod.dedup.property_finder.LOCAL_NAMESPACE', 'http://www.purplesecure.com')
+    def test_DedupInboxProcessor_validate_correct_tgt_dedup_message_remapping(self):
+        ip = self.create_inbox_from_file('TGT-PackageWithRemapping.xml')
+        ip.run()
+        remap = 'Remapped 2 local namespace Exploit Targets to existing Targets based on CVE-IDs'
+        self.assertEqual(ip.filter_messages[1], remap)
+
+    @mock.patch('adapters.certuk_mod.dedup.DedupInboxProcessor.LOCAL_NAMESPACE', 'http://www.purplesecure.com')
+    @mock.patch('adapters.certuk_mod.dedup.property_finder.LOCAL_NAMESPACE', 'http://www.purplesecure.com')
+    def test_DedupInboxProcessor_validate_correct_tgt_dedup_message_merge_and_remapping(self):
+        ip = self.create_inbox_from_file('TGT-PackageWithMergeAndRemapping.xml')
+        ip.run()
+        merge = 'Merged 5 local namespace Exploit Targets in the supplied package based on CVE-IDs'
+        remap = 'Remapped 2 local namespace Exploit Targets to existing Targets based on CVE-IDs'
+        self.assertEqual(ip.filter_messages[1], merge)
+        self.assertEqual(ip.filter_messages[2], remap)
