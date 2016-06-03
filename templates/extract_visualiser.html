@@ -8,29 +8,41 @@
 {% endblock %}
 
 {% block body-content %}
+    <input type="hidden" id="refreshed" value="no">
     <ul class="nav nav-tabs">
-        {% for stix_id, typename, typenamesafe in indicator_information %}
-            {% if forloop.first %}
-                <li class="active"><a data-toggle="tab" id="{{ stix_id }}" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
-            {% else %}
-                <li><a data-toggle="tab" id="{{ stix_id }}" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
-            {% endif %}
-        {% endfor %}
+        <!--ko foreach: viewModels -->
+        <!-- ko if: $index()==0 -->
+        <li class="active"><a data-toggle="tab" data-bind="attr: { id: $data.rootId, href: '#' + $parent.findSafeTypeByLabel($data.rootId())}">
+            <span data-bind="text: $parent.findTypeByLabel($data.rootId())"></span> </a></li>
+        <!-- /ko -->
+        <!-- ko ifnot: $index()==0 -->
+        <li><a data-toggle="tab" data-bind="attr: {id: $data.rootId, href: '#' + $parent.findSafeTypeByLabel($data.rootId())}">
+            <span data-bind="text:$parent.findTypeByLabel($data.rootId())"></span></a></li>
+        <!-- /ko -->
+        <!-- /ko -->
     </ul>
 
     <div class="tab-content">
-    {% for stix_id, typename, typenamesafe in indicator_information %}
-        {% if forloop.first %}
-        <div id="{{ typenamesafe }}" class="tab-pane fade in active">
-        {% else %}
-        <div id="{{ typenamesafe }}" class="tab-pane fade">
-        {% endif %}
-            <a href="/indicator/build/{{ stix_id }}"> Edit Indicator Draft: {{ stix_id }} </a>
+        <!-- ko foreach: viewModels -->
+        <!-- ko if: $index()==0 -->
+        <div class="tab-pane fade in active" data-bind="attr: {id: $parent.findSafeTypeByLabel($data.rootId())}">
+            <a data-bind="attr: {href: '/indicator/build/' + $data.rootId()}">Edit Indicator Draft:
+                <span data-bind="text: $data.rootId"></span></a>
             <div id="extract-visualiser" class="flexbox hflex">
-                <!-- ko template: { name: 'Graph' , data: findByLabel('{{ stix_id }}')} --><!-- /ko -->
+                <!-- ko template: { name: 'Graph' , data: $parent.findByLabel($data.rootId())} --><!-- /ko -->
             </div>
         </div>
-    {% endfor %}
+        <!--/ko-->
+        <!-- ko ifnot:$index()==0 -->
+        <div class="tab-pane fade" data-bind="attr: {id: $parent.findSafeTypeByLabel($data.rootId())}">
+            <a data-bind="attr: {href: '/indicator/build/' + $data.rootId()}">Edit Indicator Draft:
+                <span data-bind="text: $data.rootId"></span></a>
+            <div id="extract-visualiser" class="flexbox hflex">
+                <!-- ko template: { name: 'Graph' , data: $parent.findByLabel($data.rootId())} --><!-- /ko -->
+            </div>
+        </div>
+        <!--/ko-->
+        <!-- /ko -->
     </div>
 {% endblock %}
 
@@ -40,6 +52,7 @@
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/stickytape.js' %}"></script>
     <script>
+        window.onunload = function(){};
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
