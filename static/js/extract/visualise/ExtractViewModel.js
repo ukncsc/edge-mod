@@ -19,8 +19,6 @@ define([
             this.failedIds = ko.observableArray([])
             this.indicatorInformationTypeById = {};
 
-            this.indicatorInformation = ko.observableArray(indicatorInformation);
-
             this.viewModels.subscribe(function () {
                 if (this.viewModels().length + this.failedIds().length == rootIds.length) {
                     ko.applyBindings(
