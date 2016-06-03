@@ -27,14 +27,12 @@ define([
                 return nodeData.rel_type;
             });
             this.hasBacklinks = ko.computed(function() {
-                return nodeData.has_backlinks ? "backlinks" : "";
+                return nodeData.has_backlinks;
             });
             this.hasMatches = ko.computed(function() {
-                return nodeData.has_matches ? "matches" : "";
+                return nodeData.has_matches;
             });
-            this.matchesAndBacklinks = ko.computed(function() {
-                return (this.hasBacklinks() + " " + this.hasMatches());
-            }, this);
+
             this.isSelected = ko.observable(false);
             this.isChecked = ko.observable(false);
 
@@ -43,7 +41,7 @@ define([
 
             this.isRelated = ko.observable(false);
             this.className = ko.computed(function () {
-                return this.isSelected() ? "selected" : this.isRelated() ? "related " + this.matchesAndBacklinks(): "unselected " + this.matchesAndBacklinks();
+                return this.isSelected() ? "selected" : this.isRelated() ? "related" : "unselected";
             }, this);
         },
         isRoot: function () {

@@ -63,25 +63,28 @@ def get_matches(id_):
 
 
 def backlinks_exist(id_):
-    checker = ''
-    backlinks = get_backlinks(id_)
-    print backlinks.count()
+    backlinks, exists = get_backlinks(id_), ''
     if backlinks.count():
-        checker = True
+        exists = True
     else:
-        checker = False
-    return checker
+        exists = False
+    return exists
 
 
 def matches_exist(id_):
-    checker = ''
-    backlinks = get_matches(id_)
-    print len(backlinks)
-    if len(backlinks):
-        checker = True
+    matches, exists = get_matches(id_), ''
+    if len(matches):
+        exists = True
     else:
-        checker = False
-    return checker
+        exists = False
+    return exists
+
+
+def create_broken_node(edge):
+    summary = {'title': '', 'type': edge.ty, 'value': '', '_id': edge.id_, 'cv': '', 'tg': '',
+                                       'data': {'idns': '', 'etlp': '', 'summary': {'title': None},
+                                        'hash': '', 'api': ''}, 'created_by_organization': ''}
+    return EdgeObject(summary)
 
 
 def depth_first_iterate(root_node, bl_ids, id_matches):
@@ -104,7 +107,7 @@ def depth_first_iterate(root_node, bl_ids, id_matches):
             else:
                 backlinks, matches, = backlinks_exist(node_id), matches_exist(node_id)
             nodes.append(dict(id=node_id, type=node.ty, title=title, depth=depth, rel_type=rel_type,
-                              has_backlinks = backlinks, has_matches = matches))
+                              has_backlinks=backlinks, has_matches=matches))
         else:
             idx = id_to_idx[node_id]
         if parent_idx is not None:
@@ -116,10 +119,7 @@ def depth_first_iterate(root_node, bl_ids, id_matches):
                         stack.append((depth + 1, idx, edge.fetch(), "edge"))
                     except EdgeError as e:
                         if e.message == edge.id_ + " not found":
-                            summary = {'title': '', 'type': edge.ty, 'value': '', '_id': edge.id_, 'cv': '', 'tg': '',
-                                       'data': {'idns': '', 'etlp': '', 'summary': {'title': None},
-                                        'hash': '', 'api': ''}, 'created_by_organization': ''}
-                            obj = EdgeObject(summary)
+                            obj = create_broken_node(edge)
                             stack.append((depth + 1, idx, obj, "broken"))
                             continue
                     except Exception as e:
@@ -157,9 +157,9 @@ def visualiser_item_get(request, id_):
         }, status=200)
     except EdgeError as e:
         if e.message == id_ + " not found":
-            return JsonResponse({'error': e.message}, status = 404)
+            return JsonResponse({'error': e.message}, status=404)
         else:
-            return JsonResponse({'error': e.message}, status = 500)
+            return JsonResponse({'error': e.message}, status=500)
     except Exception as e:
         return JsonResponse(dict(e), status=500)
 
