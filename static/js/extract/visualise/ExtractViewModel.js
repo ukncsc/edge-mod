@@ -16,10 +16,13 @@ define([
         constructor: function (rootIds, indicatorInformation) {
             this.viewModels = ko.observableArray([]);
             this.viewModelsById = {};
+            this.failedIds = ko.observableArray([])
+            this.indicatorInformationTypeById = {};
+
             this.indicatorInformation = ko.observableArray(indicatorInformation);
 
             this.viewModels.subscribe(function () {
-                if (this.viewModels().length == rootIds.length) {
+                if (this.viewModels().length + this.failedIds().length == rootIds.length) {
                     ko.applyBindings(
                         this,
                         document.getElementById('content')
@@ -31,6 +34,7 @@ define([
             }.bind(this));
 
             for (var i = 0; i < rootIds.length; i++) {
+                this.indicatorInformationTypeById[rootIds[i]] = indicatorInformation[i];
                 this.initViewModel(rootIds[i])
             }
         },
@@ -51,12 +55,18 @@ define([
                 }.bind(this),
 
                 function (error) {
-                    showErrorModal(error.message, false)
-                });
+                    this.failedIds.push(id);
+                }.bind(this));
         },
 
         findByLabel: function (label) {
             return this.viewModelsById[label]
+        },
+        findTypeByLabel: function (label) {
+            return this.indicatorInformationTypeById[label].type_name;
+        },
+        findSafeTypeByLabel: function (label) {
+            return this.indicatorInformationTypeById[label].safe_type_name;
         }
     });
 

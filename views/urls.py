@@ -31,7 +31,6 @@ publisher_urls = [
     (r'^ajax/extract_visualiser/item/(?P<node_id>.*)$', 'views.extract_visualiser_item_get', 'extract_visualiser_ajax_item'),
     (r'^ajax/extract_visualiser/merge_observables/.*$', 'views.extract_visualiser_merge_observables', 'extract_visualiser_ajax_merge_observables'),
     (r'^ajax/extract_visualiser/delete_observables/.*$', 'views.extract_visualiser_delete_observables', 'extract_visualiser_ajax_delete_observables'),
-    (r'^ajax/extract_visualiser/check/$', 'views.extract_visualiser_check_objects', None),
 
     (r'^incident_timeline/$', 'views.timeline_discover', 'timeline_discover'),
     (r'^incident_timeline/(?P<id_>' + VALID_STIX_ID + ')$', 'views.incident_timeline', 'incident_timeline'),

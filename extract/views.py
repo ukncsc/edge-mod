@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 
-from django.views.decorators.csrf import csrf_exempt
 from users.decorators import login_required_ajax
 from users.models import Draft
 from edge.inbox import InboxError
@@ -86,12 +85,12 @@ def extract_visualiser(request, ids):
     safe_type_names = [type_name.replace(" ", "") for type_name in type_names]
     str_ids = [str(id_) for id_ in indicator_ids]
 
-    ind_information=[]
+    ind_information = []
     for item in range(0, len(str_ids)):
         ind_information.append({
-            'str_ids': str_ids[item],
-            'type_names': type_names[item],
-            'safe_type_names': safe_type_names[item]
+            'str_id': str_ids[item],
+            'type_name': type_names[item],
+            'safe_type_name': safe_type_names[item]
         })
 
     return render(request, "extract_visualiser.html", {
@@ -222,8 +221,8 @@ def extract_visualiser_get(request, id_):
 
         draft_object = Draft.load(id_, request.user)
         return JsonResponse(iterate_draft(), status=200)
-    except EdgeError as e:
-        return JsonResponse(dict(e), status=500)
+    except Exception as e:
+        return JsonResponse({'error': e.message}, status=400)
 
 
 def can_merge_observables(draft_obs_offsets, draft_ind, hash_types):
@@ -338,7 +337,7 @@ def extract_visualiser_item_get(request, node_id):
         view_obs['object'] = {'properties':
                                   {'xsi:type': observable['objectType'],
                                    'value': observable_to_name(observable, DRAFT_ID_SEPARATOR in node_id),
-                                   'description' : observable['description']}}
+                                   'description': observable['description']}}
         return view_obs
 
     def is_draft_ind():
@@ -362,27 +361,4 @@ def extract_visualiser_item_get(request, node_id):
             "validation_info": validation_dict
         }, status=200)
     except Exception as e:
-        return JsonResponse(dict(e), status=500)
-
-@csrf_exempt
-def extract_visualiser_check_objects(request):
-    body = json.loads(request.body)
-    ids = get_db().drafts.find({
-        'draft.id': {
-            '$in': body['root_ids']
-        },
-    },{
-        'draft.id':1
-    })
-    new_data = {}
-    root_ids = []
-    indicator_information = []
-    for found_data in ids:
-        if found_data['draft']['id'] in body['root_ids']:
-            index = body['root_ids'].index(found_data['draft']['id'])
-            new_data.setdefault('root_ids',[]).append(found_data['draft']['id'])
-            new_data.setdefault('indicator_information',[]).append(body['indicator_information'][index])
-    if new_data is not {}:
-        return JsonResponse({'data': new_data}, status=200)
-    else:
-        return JsonResponse({'message': 'No indicators left'}, status=404)
+        return JsonResponse({"error": e.message}, status=500)
