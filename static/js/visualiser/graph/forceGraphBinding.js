@@ -136,11 +136,11 @@ define([
             }
 
             function getBacklinkMinusButton(id, backlinksShown) {
-                return backlinksShown ? "<button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusBacklinkClicked.bind($data,'" + id + "')\"><span class='fa-signal glyphicon glyphicon-arrow-left clear_bg'></span></button>" : "";
+                return backlinksShown ? "<button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusBacklinkClicked.bind($data,'" + id + "')\"><span class='fa-signal glyphicon glyphicon-arrow-left clear_bg green'></span></button>" : "";
             }
 
             function getMatchesAddbutton(id, matchesShown, hasMatches) {
-                return ((!hasMatches) || (hasMatches && matchesShown)) ? "" : "<button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusMatchesClicked.bind($data,'" + id + "')\"><span class='blue icon-rotated clear_bg glyphicon glyphicon-pause blue'/></button>";
+                return ((!hasMatches) || (hasMatches && matchesShown)) ? "" : "<button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusMatchesClicked.bind($data,'" + id + "')\"><span class='blue icon-rotated clear_bg glyphicon glyphicon-pause' style='color: #002a80'/></button>";
             }
 
             function getMatchesMinusButton(id, matchesShown) {
@@ -164,6 +164,7 @@ define([
             var matchingAndBacklinks = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
                 .data(graphModel.nodes()).on("mousemove", function (d) {
+                    graphModel.d3Layout().stop();
                     var x_middle = container[0][0].clientWidth / 2;
                     var y_middle = container[0][0].clientHeight / 2;
                     var iWidth = (d.imageWidth() / 2) * currentScale;
@@ -200,6 +201,11 @@ define([
                     .duration(300)
                     .style("opacity", 0);
             });
+            container.on("mousedown", function (d) {
+                tooltip.transition()
+                    .duration(100)
+                    .style("opacity", 0);
+            });
 
             var showMatchingAndBacklinks = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass);
@@ -226,6 +232,7 @@ define([
                             + ")scale(" + currentScale + ")";
                     });
 
+                    tooltip.style("opacity", 0);
 
                     linkSelector.attr("x1", function (d) {
                             return (x_middle + (d.source.x - x_middle) * currentScale) + currentXOffset;
