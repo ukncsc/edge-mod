@@ -81,7 +81,18 @@ def extract_visualiser(request, ids):
     request.breadcrumbs([("Extract Visualiser", "")])
 
     indicator_ids = [id_ for id_ in json.loads(ids) if is_valid_stix_id(id_)]
-    type_names = [str(Draft.load(id_, request.user)['indicatorType']) for id_ in indicator_ids]
+
+    type_names = []
+    indicator_ids_to_remove = []
+    for ind_id in indicator_ids:
+        try:
+            type_names.append(str(Draft.load(ind_id, request.user)['indicatorType']))
+        except:
+            indicator_ids_to_remove.append(ind_id)
+
+    for ind_id in indicator_ids_to_remove:
+        indicator_ids.remove(ind_id)
+
     safe_type_names = [type_name.replace(" ", "") for type_name in type_names]
     str_ids = [str(id_) for id_ in indicator_ids]
 
@@ -217,7 +228,7 @@ def extract_visualiser_get(request, id_):
 
     try:
         if not is_valid_stix_id(id_):
-            return JsonResponse({"invalid stix id: " + id_}, status=200)
+           return JsonResponse({'error': "invalid id"}, status=400)
 
         draft_object = Draft.load(id_, request.user)
         return JsonResponse(iterate_draft(), status=200)
