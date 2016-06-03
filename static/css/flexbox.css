@@ -9,6 +9,7 @@
 
 .vflex {
     flex-flow: column nowrap;
+    flex: 0 0 448px;
 }
 
 .flex-before {
