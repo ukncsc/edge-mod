@@ -25,6 +25,25 @@
     overflow-y: auto;
 }
 
+.fa-signal:after {
+    content: "";
+    position: absolute;
+    width: 3px;
+    height: 141.421356%;
+    top: -20.710678%;
+    display: block;
+    background: red;
+    left: 50%;
+    transform: translate(-50%, 0) rotate(45deg);
+}
+
+.icon-rotated {
+    transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+}
+
 #extract-visualiser {
     overflow: hidden;
     position: fixed;

@@ -132,19 +132,19 @@ define([
                 .data(graphModel.nodes()).call(dragNode);
 
             function getBacklinkAddButton(id, backlinksShown, hasBacklinks) {
-                return ((!hasBacklinks) || (hasBacklinks && backlinksShown)) ? "" : "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusBacklinkClicked.bind($data,'" + id + "')\"><span class='green clear_bg'>BackLinks</span></button></a>";
+                return ((!hasBacklinks) || (hasBacklinks && backlinksShown)) ? "" : "<button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusBacklinkClicked.bind($data,'" + id + "')\"><span class='green glyphicon glyphicon-arrow-left clear_bg'></span></button>";
             }
 
             function getBacklinkMinusButton(id, backlinksShown) {
-                return backlinksShown ? "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusBacklinkClicked.bind($data,'" + id + "')\"><span class='green clear_bg'>BackLinks</span></button></a>" : "";
+                return backlinksShown ? "<a class=\"clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusBacklinkClicked.bind($data,'" + id + "')\"><span class='green fa-signal glyphicon glyphicon-arrow-left clear_bg'></span></button></a>" : "";
             }
 
             function getMatchesAddbutton(id, matchesShown, hasMatches) {
-                return ((!hasMatches) || (hasMatches && matchesShown)) ? "" : "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusMatchesClicked.bind($data,'" + id + "')\"><span class='blue clear_bg' style='color: #002a80'>Matches</span></button></a>";
+                return ((!hasMatches) || (hasMatches && matchesShown)) ? "" : "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusMatchesClicked.bind($data,'" + id + "')\"><span class='blue icon-rotated clear_bg glyphicon glyphicon-pause blue' style='color: #002a80'></span></button></a>";
             }
 
             function getMatchesMinusButton(id, matchesShown) {
-                return matchesShown ? "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusMatchesClicked.bind($data,'" + id + "')\"><span class='clear_bg' style='color: #002a80'>Matches</span></button></a>" : "";
+                return matchesShown ? "<a class=\"clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusMatchesClicked.bind($data,'" + id + "')\"><span class='clear_bg fa-signal icon-rotated glyphicon glyphicon-pause' style='color: #002a80'></span></button></a>" : "";
             }
 
             function showPlusButton(id, hasBacklinks, hasMatches, isBackLinkShown, isMatchesShown) {
@@ -152,22 +152,13 @@ define([
                     return ""
                 }
                 else{
-                    return "<div class=\"btn-group\" role=\"group\" aria-label=\"\">" +
-                "<div class=\"dropdown btn-group\" role=\"group\" aria-label=\"\">" +
-                "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-plus blue clear_bg\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
-                "<div class=\"dropdown-menu clear_bg\">" + getBacklinkAddButton(id, isBackLinkShown, hasBacklinks) + getMatchesAddbutton(id, isMatchesShown, hasMatches) +
-                "</div>" + "</div>"
+                    return getBacklinkAddButton(id, isBackLinkShown, hasBacklinks) + getMatchesAddbutton(id, isMatchesShown, hasMatches)
                 }
             }
 
             function showMinusButton(id, isBackLinkShown, isMatchesShown) {
-                return (isBackLinkShown || isMatchesShown) ? "<div class=\"dropdown btn-group\" role=\"group\" aria-label=\"\">" +
-                    "<button type=\"button\" class=\"btn btn-secondary dropdown-toggle glyphicon glyphicon-minus blue clear_bg\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
-                    "<div class=\"dropdown-menu clear_bg\">" +
-                    getBacklinkMinusButton(id, isBackLinkShown) + getMatchesMinusButton(id, isMatchesShown)
-                    +
-                    "</div>" +
-                    "</div>"  : ""
+                return (isBackLinkShown || isMatchesShown) ?
+                    getBacklinkMinusButton(id, isBackLinkShown) + getMatchesMinusButton(id, isMatchesShown) : "";
             }
 
             var matchingAndBacklinks = container
@@ -184,8 +175,8 @@ define([
                         tooltip.html(
                                 showPlusButton(d.id(), d.hasBacklinks(), d.hasMatches(), d.isBackLinkShown(), d.isMatchesShown()) +
                                 showMinusButton(d.id(), d.isBackLinkShown(), d.isMatchesShown()) +
-                                "<button type=\"button\" class=\"btn btn-secondary glyphicon glyphicon-home blue clear_bg\" data-bind=\"click:$data.onNewRootId.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
-                                "<button type=\"button\" class=\"btn btn-secondary glyphicon glyphicon-share-alt blue clear_bg\" data-bind=\"click:$data.onExternalPublish.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
+                                "<button type=\"button\" class=\"btn btn-default glyphicon glyphicon-home blue clear_bg\" data-bind=\"click:$data.onNewRootId.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
+                                "<button type=\"button\" class=\"btn btn-default glyphicon glyphicon-info-sign blue clear_bg\" data-bind=\"click:$data.onExternalPublish.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
                                 "</div>"
                             )
                             .style("left", ((x_middle + iWidth + (d.x - x_middle) * currentScale) + currentXOffset) + "px")
