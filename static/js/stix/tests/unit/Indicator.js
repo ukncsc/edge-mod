@@ -21,15 +21,17 @@ define([
     "stix/TTP",
     "intern/dojo/text!./data/Indicator_package_01.json",
     "intern/dojo/text!./data/Indicator_package_02.json",
-    "intern/dojo/text!./data/Indicator_package_03.json"
-], function (registerSuite, assert, ReviewValue, StixPackage, CourseOfAction, Indicator, Observable, TTP, package01, package02, package03) {
+    "intern/dojo/text!./data/Indicator_package_03.json",
+    "intern/dojo/text!./data/Indicator_package_04.json"
+], function (registerSuite, assert, ReviewValue, StixPackage, CourseOfAction, Indicator, Observable, TTP, package01, package02, package03, package04) {
     "use strict";
 
     // statics go here
     var packageData = Object.freeze({
         "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3619": Object.freeze(JSON.parse(package01)),
         "fireeye:indicator-35dc3aed-d934-41c8-b920-5a5c9e814d41": Object.freeze(JSON.parse(package02)),
-        "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d": Object.freeze(JSON.parse(package03))
+        "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d": Object.freeze(JSON.parse(package03)),
+        "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3629": Object.freeze(JSON.parse(package04)),
     });
 
     return registerSuite(function () {
@@ -233,6 +235,16 @@ define([
                     assert.isFalse(actual.isEmpty());
                     assert.equal(actual.value(), "pss:TTP-f5ddf190-b7b0-4c33-a9f4-f2beb6453d04");
                 }
+            },
+            "no observable indicator": {
+                setup: function () {
+                    loadPackage("purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3629");
+                },
+                "has correct observables": function () {
+                    var actual = classUnderTest.observables();
+                    assert.instanceOf(actual, ReviewValue);
+                    assert.isTrue(actual.isEmpty());
+                },
             }
         }
     });

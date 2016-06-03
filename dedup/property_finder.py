@@ -41,3 +41,42 @@ def capec_finder(local):
         }, {
             '$sort': {'created_on': 1}
         }], cursor={})
+
+def cve_finder(local):
+    if local:
+        namespace = LOCAL_NAMESPACE
+    else:
+        namespace = {'$ne': LOCAL_NAMESPACE}
+    return get_db().stix.aggregate([
+        {
+            '$match': {
+                'type': 'tgt',
+                'data.idns': namespace,
+                'data.api.vulnerabilities': {
+                    '$exists': 'true'
+                }
+            }
+        },
+        {
+            '$unwind': '$data.api.vulnerabilities'
+        },
+        {
+            '$match': {
+                'data.api.vulnerabilities.cve_id': {
+                    '$exists': 'true'
+                }
+            }
+        },
+        {
+            '$group': {
+                '_id': '$_id',
+                'cves': {
+                    '$push': {
+                        'cve': '$data.api.vulnerabilities.cve_id'
+                    }
+                }
+            }
+        },
+        {
+            '$sort': {'created_on': 1}
+        }], cursor={})

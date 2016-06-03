@@ -34,6 +34,7 @@ publisher_urls = [
 
     (r'^incident_timeline/$', 'views.timeline_discover', 'timeline_discover'),
     (r'^incident_timeline/(?P<id_>' + VALID_STIX_ID + ')$', 'views.incident_timeline', 'incident_timeline'),
+    (r'^incident_timeline/missing/$', 'views.incident_timeline_not_found', 'incident_timeline_not_found'),
     (r'^ajax/incident_timeline/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_incident_timeline', 'ajax_incident_timeline'),
 
     (r'^clone/$', 'views.clone', 'clone_to_draft'),

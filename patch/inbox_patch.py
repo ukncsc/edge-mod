@@ -161,5 +161,7 @@ InboxProcessor.add = name_space_check
 
 
 def apply_patch():
-    SignalRegistry().signal('inbox.post-merge').connect(update_created_on)
+    signal = SignalRegistry().signal('inbox.post-merge')
+    if not signal.is_connected(update_created_on):
+        signal.connect(update_created_on)
     InboxProcessorForBuilders.add = add
