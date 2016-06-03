@@ -52,7 +52,7 @@ define([
         namespace: "[a-z][\\w\\d-]+",
         type: "[a-z]+",
         uuid: "[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}",
-        draft: ":draft:\\d{1,5}"
+        draft: ":draft:[a-f\\d]{32}"
     });
 
     function resolveAlias(type) {

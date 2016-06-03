@@ -189,7 +189,10 @@ def extract_visualiser_get(request, id_):
             obs_id = observable.get('id', create_draft_observable_id(observable))
             id_to_idx[obs_id] = Counter.idx
 
-            append_node(dict(id=obs_id, type='obs', title=observable_to_name(observable, is_draft_obs()), depth=1))
+            append_node(dict(id=obs_id, type='obs',
+                             title=observable_to_name(observable, is_draft_obs()),
+                             depth=1))
+
             links.append({"source": 0, "target": id_to_idx[obs_id], "rel_type": "edge"})
 
             if not is_deduped():
@@ -205,7 +208,7 @@ def extract_visualiser_get(request, id_):
                         append_node(dict(id=indicator_obj.id_, type=indicator_obj.ty,
                                          title=build_title(indicator_obj), depth=2))
 
-                    links.append({"source": id_to_idx[indicator_obj.id_], "target": id_to_idx[obs_id]})
+                    links.append({"source": id_to_idx[indicator_obj.id_], "target": id_to_idx[obs_id], "rel_type": "backlink"})
 
         return dict(nodes=nodes, links=links)
 

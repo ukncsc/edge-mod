@@ -8,7 +8,7 @@ define([
 ], function (ko, d3, $, topic, topics) {
     "use strict";
 
-    function noPlusButton (hasBacklinks, hasMatches, isBackLinkShown, isMatchesShown) {
+    function noPlusButton(hasBacklinks, hasMatches, isBackLinkShown, isMatchesShown) {
         return ((!hasBacklinks) && (!hasMatches)
         || (isBackLinkShown && isMatchesShown)
         || (hasMatches && isMatchesShown && !(hasBacklinks))
@@ -148,25 +148,26 @@ define([
             }
 
             function showPlusButton(id, hasBacklinks, hasMatches, isBackLinkShown, isMatchesShown) {
-                if(noPlusButton(hasBacklinks, hasMatches, isBackLinkShown, isMatchesShown)) {
+                if (noPlusButton(hasBacklinks, hasMatches, isBackLinkShown, isMatchesShown)) {
                     return ""
                 }
-                else{
+                else {
                     return getBacklinkAddButton(id, isBackLinkShown, hasBacklinks) + getMatchesAddbutton(id, isMatchesShown, hasMatches)
                 }
             }
 
             function showMinusButton(id, isBackLinkShown, isMatchesShown) {
                 return (isBackLinkShown || isMatchesShown) ?
-                    getBacklinkMinusButton(id, isBackLinkShown) + getMatchesMinusButton(id, isMatchesShown) : "";
+                getBacklinkMinusButton(id, isBackLinkShown) + getMatchesMinusButton(id, isMatchesShown) : "";
             }
 
             var matchingAndBacklinks = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
                 .data(graphModel.nodes()).on("mousemove", function (d) {
                     graphModel.d3Layout().stop();
-                    var x_middle = container[0][0].clientWidth / 2;
-                    var y_middle = container[0][0].clientHeight / 2;
+                    var viewBox = container[0][0].viewBox;
+                    var x_middle = viewBox.animVal != null ? viewBox.animVal.width / 2 : 0;
+                    var y_middle = viewBox.animVal != null ? viewBox.animVal.height / 2 : 0;
                     var iWidth = (d.imageWidth() / 2) * currentScale;
                     var iHeight = (d.imageHeight() / 2) * currentScale;
                     if (d.relType() != 'broken') {
@@ -189,21 +190,16 @@ define([
                             .style("opacity", 0.8);
                         tooltip.html(
                             "<button type=\"button\" class=\"btn btn-danger clear_bg\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"><span class='clear_bg'>Broken node</span></button>"
-                        )
-                        .style("left", ((x_middle + iWidth + (d.x - x_middle) * currentScale) + currentXOffset) + "px")
-                        .style("top", ((y_middle - iHeight + (d.y - y_middle) * currentScale) + currentYOffset) + "px");
+                            )
+                            .style("left", ((x_middle + iWidth + (d.x - x_middle) * currentScale) + currentXOffset) + "px")
+                            .style("top", ((y_middle - iHeight + (d.y - y_middle) * currentScale) + currentYOffset) + "px");
                     }
-                        ko.applyBindings(viewModel, tooltip[0][0].childNodes[0]);
+                    ko.applyBindings(viewModel, tooltip[0][0].childNodes[0]);
                 });
 
             container.on("mouseover", function (d) {
                 tooltip.transition()
                     .duration(300)
-                    .style("opacity", 0);
-            });
-            container.on("mousedown", function (d) {
-                tooltip.transition()
-                    .duration(100)
                     .style("opacity", 0);
             });
 
@@ -218,8 +214,9 @@ define([
             graphModel
                 .d3Layout()
                 .on("tick", function () {
-                    var x_middle = container[0][0].clientWidth / 2;
-                    var y_middle = container[0][0].clientHeight / 2;
+                    var viewBox = container[0][0].viewBox;
+                    var x_middle = viewBox.animVal != null ? viewBox.animVal.width / 2 : 0;
+                    var y_middle = viewBox.animVal != null ? viewBox.animVal.height / 2 : 0;
 
                     nodeSelector.attr("transform", function (d) {
                         if (d === nodeSelected) { //Without this, the dragged node jumps out double its dragged distance
