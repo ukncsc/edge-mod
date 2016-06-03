@@ -8,7 +8,6 @@
 {% endblock %}
 
 {% block body-content %}
-    <input type="hidden" id="refreshed" value="no">
     <ul class="nav nav-tabs">
         <!--ko foreach: viewModels -->
         <!-- ko if: $index()==0 -->
@@ -21,7 +20,7 @@
         <!-- /ko -->
         <!-- /ko -->
     </ul>
-
+    
     <div class="tab-content">
         <!-- ko foreach: viewModels -->
         <!-- ko if: $index()==0 -->
