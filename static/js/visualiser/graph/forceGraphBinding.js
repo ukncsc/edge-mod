@@ -172,7 +172,7 @@ define([
                         tooltip.transition()
                             .duration(200)
                             .style("opacity", 0.8);
-                        tooltip.html(
+                        tooltip.html("<div class=\"dropdown btn-group\" role=\"group\" aria-label=\"\">" +
                                 showPlusButton(d.id(), d.hasBacklinks(), d.hasMatches(), d.isBackLinkShown(), d.isMatchesShown()) +
                                 showMinusButton(d.id(), d.isBackLinkShown(), d.isMatchesShown()) +
                                 "<button type=\"button\" class=\"btn btn-default glyphicon glyphicon-home blue clear_bg\" data-bind=\"click:$data.onNewRootId.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
