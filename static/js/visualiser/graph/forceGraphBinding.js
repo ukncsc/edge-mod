@@ -132,19 +132,19 @@ define([
                 .data(graphModel.nodes()).call(dragNode);
 
             function getBacklinkAddButton(id, backlinksShown, hasBacklinks) {
-                return ((!hasBacklinks) || (hasBacklinks && backlinksShown)) ? "" : "<button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusBacklinkClicked.bind($data,'" + id + "')\"><span class='green glyphicon glyphicon-arrow-left clear_bg'></span></button>";
+                return ((!hasBacklinks) || (hasBacklinks && backlinksShown)) ? "" : "<button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusBacklinkClicked.bind($data,'" + id + "')\"><span class='green glyphicon glyphicon-arrow-left clear_bg'/></button>";
             }
 
             function getBacklinkMinusButton(id, backlinksShown) {
-                return backlinksShown ? "<a class=\"clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusBacklinkClicked.bind($data,'" + id + "')\"><span class='green fa-signal glyphicon glyphicon-arrow-left clear_bg'></span></button></a>" : "";
+                return backlinksShown ? "<button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusBacklinkClicked.bind($data,'" + id + "')\"><span class='fa-signal glyphicon glyphicon-arrow-left clear_bg'></span></button>" : "";
             }
 
             function getMatchesAddbutton(id, matchesShown, hasMatches) {
-                return ((!hasMatches) || (hasMatches && matchesShown)) ? "" : "<a class=\"dropdown-item clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusMatchesClicked.bind($data,'" + id + "')\"><span class='blue icon-rotated clear_bg glyphicon glyphicon-pause blue' style='color: #002a80'></span></button></a>";
+                return ((!hasMatches) || (hasMatches && matchesShown)) ? "" : "<button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data.onPlusMatchesClicked.bind($data,'" + id + "')\"><span class='blue icon-rotated clear_bg glyphicon glyphicon-pause blue'/></button>";
             }
 
             function getMatchesMinusButton(id, matchesShown) {
-                return matchesShown ? "<a class=\"clear_bg\" href=\"#\"><button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusMatchesClicked.bind($data,'" + id + "')\"><span class='clear_bg fa-signal icon-rotated glyphicon glyphicon-pause' style='color: #002a80'></span></button></a>" : "";
+                return matchesShown ? "<button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusMatchesClicked.bind($data,'" + id + "')\"><span class='clear_bg fa-signal icon-rotated glyphicon glyphicon-pause' style='color: #002a80'></span></button>" : "";
             }
 
             function showPlusButton(id, hasBacklinks, hasMatches, isBackLinkShown, isMatchesShown) {
