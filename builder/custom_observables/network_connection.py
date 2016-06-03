@@ -29,7 +29,7 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
         address = rgetattr(socket_object, ['ip_address', 'address_value'], '')
         hostname = rgetattr(socket_object, ['hostname', 'hostname_value'], '')
         port = rgetattr(socket_object, ['port', 'port_value'], '')
-        protocol = rgetattr(socket_object, ['port', 'layer4protocol'], '')
+        protocol = rgetattr(socket_object, ['port', 'layer4_protocol'], '')
 
         socket = {
             "ip_address": str(address),
