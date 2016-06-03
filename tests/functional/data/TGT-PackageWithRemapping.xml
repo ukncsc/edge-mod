@@ -1,0 +1,58 @@
+<stix:STIX_Package 
+	xmlns:cyboxCommon="http://cybox.mitre.org/common-2"
+	xmlns:cybox="http://cybox.mitre.org/cybox-2"
+	xmlns:cyboxVocabs="http://cybox.mitre.org/default_vocabularies-2"
+	xmlns:marking="http://data-marking.mitre.org/Marking-1"
+	xmlns:tlpMarking="http://data-marking.mitre.org/extensions/MarkingStructure#TLP-1"
+	xmlns:edge="http://soltra.com/"
+	xmlns:et="http://stix.mitre.org/ExploitTarget-1"
+	xmlns:stixCommon="http://stix.mitre.org/common-1"
+	xmlns:stixVocabs="http://stix.mitre.org/default_vocabularies-1"
+	xmlns:stix="http://stix.mitre.org/stix-1"
+	xmlns:pss="http://www.purplesecure.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="edge:Package-825fa998-370b-4b19-9f9c-6971a19985c6" version="1.1.1" timestamp="2016-05-20T09:29:36.062944+00:00">
+    <stix:STIX_Header>
+        <stix:Handling>
+            <marking:Marking>
+                <marking:Controlled_Structure>../../../../descendant-or-self::node() | ../../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+            </marking:Marking>
+        </stix:Handling>
+    </stix:STIX_Header>
+    <stix:Exploit_Targets>
+        <stixCommon:Exploit_Target id="pss:tgt-773d5a82-23d6-40f3-a360-a46b590ae9dq" timestamp="2016-05-20T09:29:29.275083+00:00" xsi:type='et:ExploitTargetType'>
+            <et:Title>ccc</et:Title>
+            <et:Vulnerability>
+                <et:Title>dfgdg</et:Title>
+                <et:CVE_ID>CVE-2015-8888</et:CVE_ID>
+            </et:Vulnerability>
+            <et:Vulnerability>
+                <et:Title></et:Title>
+                <et:CVE_ID>CVE-2016-1119</et:CVE_ID>
+            </et:Vulnerability>
+            <et:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+                </marking:Marking>
+            </et:Handling>
+        </stixCommon:Exploit_Target>
+		<stixCommon:Exploit_Target id="pss:tgt-773d5a82-23d6-40f3-a360-a46b590ae9de" timestamp="2016-05-20T09:29:29.275083+00:00" xsi:type='et:ExploitTargetType'>
+            <et:Title>ccc</et:Title>
+            <et:Vulnerability>
+                <et:Title>dfgdg</et:Title>
+                <et:CVE_ID>CVE-2015-8855</et:CVE_ID>
+            </et:Vulnerability>
+            <et:Vulnerability>
+                <et:Title></et:Title>
+                <et:CVE_ID>CVE-2015-1119</et:CVE_ID>
+            </et:Vulnerability>
+            <et:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+                </marking:Marking>
+            </et:Handling>
+        </stixCommon:Exploit_Target>
+    </stix:Exploit_Targets>
+</stix:STIX_Package>

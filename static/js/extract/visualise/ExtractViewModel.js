@@ -2,31 +2,37 @@ define([
     "dcl/dcl",
     "knockout",
     "d3",
-    "common/modal/Modal",
+    "common/modal/show-error-modal",
+    "common/topic",
     "visualiser/ViewModel",
     "visualiser/panel-action/PanelActionsBuilder",
     "visualiser/panel-action/PanelAction",
-    "kotemplate!modal-error-content:publisher/templates/error-modal-content.html"
-], function (declare, ko, d3, Modal, ViewModel, PanelActionsBuilder, PanelAction, errorContentTemplate) {
-
+    "visualiser/graph/topics"
+], function (declare, ko, d3, showErrorModal, topic, ViewModel, PanelActionsBuilder, PanelAction, topics) {
     var base_url = "/adapter/certuk_mod/ajax/extract_visualiser/";
 
     var ExtractViewModel = declare(null, {
         declaredClass: "ExtractViewModel",
-        constructor: function (rootIds) {
+        constructor: function (rootIds, indicatorInformation) {
             this.viewModels = ko.observableArray([]);
             this.viewModelsById = {};
+            this.failedIds = ko.observableArray([])
+            this.indicatorInformationTypeById = {};
 
             this.viewModels.subscribe(function () {
-                if (this.viewModels().length == rootIds.length) {
+                if (this.viewModels().length + this.failedIds().length == rootIds.length) {
                     ko.applyBindings(
                         this,
                         document.getElementById('content')
                     );
+                    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                        topic.publish(topics.RESIZE, e.target.id);
+                    });
                 }
-            }.bind(this))
+            }.bind(this));
 
             for (var i = 0; i < rootIds.length; i++) {
+                this.indicatorInformationTypeById[rootIds[i]] = indicatorInformation[i];
                 this.initViewModel(rootIds[i])
             }
         },
@@ -47,12 +53,18 @@ define([
                 }.bind(this),
 
                 function (error) {
-                    showErrorModal(error.message)
-                });
+                    this.failedIds.push(id);
+                }.bind(this));
         },
 
         findByLabel: function (label) {
             return this.viewModelsById[label]
+        },
+        findTypeByLabel: function (label) {
+            return this.indicatorInformationTypeById[label].type_name;
+        },
+        findSafeTypeByLabel: function (label) {
+            return this.indicatorInformationTypeById[label].safe_type_name;
         }
     });
 
@@ -65,7 +77,7 @@ define([
                     base_url + encodeURIComponent(id),
                     function (error, response) {
                         if (error) {
-                            showErrorModal(error);
+                            showErrorModal(error, false);
                         }
 
                         graph.loadData(response);
@@ -73,19 +85,9 @@ define([
                 );
             },
             function (result) {
-                showErrorModal(JSON.parse(result.responseText)['Error'])
+                showErrorModal(JSON.parse(result.responseText)['Error'], false)
             }
         );
-    }
-
-    function showErrorModal(message) {
-        (new Modal({
-            title: "Error",
-            titleIcon: "glyphicon-warning-sign",
-            contentData: message,
-            contentTemplate: errorContentTemplate.id,
-            width: "90%"
-        })).show();
     }
 
     function no(type) {

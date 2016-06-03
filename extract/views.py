@@ -81,13 +81,32 @@ def extract_visualiser(request, ids):
     request.breadcrumbs([("Extract Visualiser", "")])
 
     indicator_ids = [id_ for id_ in json.loads(ids) if is_valid_stix_id(id_)]
-    type_names = [str(Draft.load(id_, request.user)['indicatorType']) for id_ in indicator_ids]
+
+    type_names = []
+    indicator_ids_to_remove = []
+    for ind_id in indicator_ids:
+        try:
+            type_names.append(str(Draft.load(ind_id, request.user)['indicatorType']))
+        except:
+            indicator_ids_to_remove.append(ind_id)
+
+    for ind_id in indicator_ids_to_remove:
+        indicator_ids.remove(ind_id)
+
     safe_type_names = [type_name.replace(" ", "") for type_name in type_names]
     str_ids = [str(id_) for id_ in indicator_ids]
 
+    ind_information = []
+    for item in range(0, len(str_ids)):
+        ind_information.append({
+            'str_id': str_ids[item],
+            'type_name': type_names[item],
+            'safe_type_name': safe_type_names[item]
+        })
+
     return render(request, "extract_visualiser.html", {
         "indicator_ids": str_ids,
-        "indicator_information": zip(str_ids, type_names, safe_type_names),
+        "indicator_information": ind_information,
         "kill_chain_phases": {item["phase_id"]: item["name"] for item in KILL_CHAIN_PHASES}
     })
 
@@ -103,7 +122,11 @@ def summarise_draft_observable(d):
                     result += " " + summarise_draft_observable(item)
                 else:
                     result += " " + str(item)
-        elif value and value != 'None' and key != 'id' and key != 'id_ns' and key != 'objectType':
+        elif value and value != 'None' \
+                and key != 'id' \
+                and key != 'id_ns' \
+                and key != 'objectType' \
+                and key != 'description':
             try:
                 result += value.decode('utf-8')
             except UnicodeError:
@@ -209,8 +232,8 @@ def extract_visualiser_get(request, id_):
 
         draft_object = Draft.load(id_, request.user)
         return JsonResponse(iterate_draft(), status=200)
-    except EdgeError as e:
-        return JsonResponse(dict(e), status=500)
+    except Exception as e:
+        return JsonResponse({'error': e.message}, status=400)
 
 
 def can_merge_observables(draft_obs_offsets, draft_ind, hash_types):
@@ -242,6 +265,8 @@ def merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types):
     obs_to_keep = draft_obs[0]
     obs_to_dump = draft_obs[1:]
     for draft_ob in obs_to_dump:
+        if draft_ob.get('description'):
+            obs_to_keep['description'] = obs_to_keep.get('description', '') + " & " + draft_ob['description']
         if draft_ob['file_name']:
             obs_to_keep['file_name'] = draft_ob['file_name']
         for hash_type in hash_types:
@@ -322,7 +347,9 @@ def extract_visualiser_item_get(request, node_id):
         view_obs = dict(id=node_id)
         view_obs['object'] = {'properties':
                                   {'xsi:type': observable['objectType'],
-                                   'value': observable_to_name(observable, DRAFT_ID_SEPARATOR in node_id)}}
+                                   'value': observable_to_name(observable, DRAFT_ID_SEPARATOR in node_id),
+                                   'description': observable.get('description', '')}}
+
         return view_obs
 
     def is_draft_ind():
@@ -346,4 +373,4 @@ def extract_visualiser_item_get(request, node_id):
             "validation_info": validation_dict
         }, status=200)
     except Exception as e:
-        return JsonResponse(dict(e), status=500)
+        return JsonResponse({"error": e.message}, status=500)

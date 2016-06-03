@@ -1,0 +1,123 @@
+<stix:STIX_Package 
+	xmlns:cyboxCommon="http://cybox.mitre.org/common-2"
+	xmlns:cybox="http://cybox.mitre.org/cybox-2"
+	xmlns:cyboxVocabs="http://cybox.mitre.org/default_vocabularies-2"
+	xmlns:marking="http://data-marking.mitre.org/Marking-1"
+	xmlns:tlpMarking="http://data-marking.mitre.org/extensions/MarkingStructure#TLP-1"
+	xmlns:edge="http://soltra.com/"
+	xmlns:et="http://stix.mitre.org/ExploitTarget-1"
+	xmlns:ttp="http://stix.mitre.org/TTP-1"
+	xmlns:stixCommon="http://stix.mitre.org/common-1"
+	xmlns:stixVocabs="http://stix.mitre.org/default_vocabularies-1"
+	xmlns:stix="http://stix.mitre.org/stix-1"
+	xmlns:pss="http://www.purplesecure.com"
+	xmlns:fireeye="http://www.fireeye.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="edge:Package-ded8b8f9-10a1-4e32-840a-00552d2e9bec" version="1.1.1" timestamp="2016-04-19T13:30:44.865761+00:00">
+    <stix:STIX_Header>
+        <stix:Handling>
+            <marking:Marking>
+                <marking:Controlled_Structure>../../../../descendant-or-self::node() | ../../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+            </marking:Marking>
+        </stix:Handling>
+    </stix:STIX_Header>
+    <stix:TTPs>
+		<stix:TTP id="pss:ttp-capec16" timestamp="2016-04-19T13:30:41.765424+00:00" xsi:type='ttp:TTPType'>
+            <ttp:Title>Capec16</ttp:Title>
+            <ttp:Behavior>
+                <ttp:Attack_Patterns>
+                    <ttp:Attack_Pattern capec_id="CAPEC-16">
+                        <ttp:Title>Dan</ttp:Title>
+                    </ttp:Attack_Pattern>
+                </ttp:Attack_Patterns>
+            </ttp:Behavior>
+            <ttp:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+                </marking:Marking>
+            </ttp:Handling>
+        </stix:TTP>
+		<stix:TTP id="pss:ttp-capec16-duplicate" timestamp="2015-04-19T13:30:41.765424+00:00" xsi:type='ttp:TTPType'>
+            <ttp:Title>Capec16</ttp:Title>
+			<ttp:Description>THIS DESCRIPTION IS LONGER THAN THE OTHER </ttp:Description>
+            <ttp:Behavior>
+                <ttp:Attack_Patterns>
+                    <ttp:Attack_Pattern capec_id="CAPEC-16">
+                        <ttp:Title>Joe</ttp:Title>
+                    </ttp:Attack_Pattern>
+                </ttp:Attack_Patterns>
+            </ttp:Behavior>
+            <ttp:Exploit_Targets>
+                <ttp:Exploit_Target>
+                    <stixCommon:Exploit_Target idref="pss:tgt-a83702ab-1690-45d2-a204-df7143019d1a" xsi:type='et:ExploitTargetType'/>
+                </ttp:Exploit_Target>
+            </ttp:Exploit_Targets>
+            <ttp:Related_TTPs>
+                <ttp:Related_TTP>
+                    <stixCommon:TTP idref="pss:ttp-f83592b1-80ba-4b02-81b4-70567bca92a2" xsi:type='ttp:TTPType'/>
+                </ttp:Related_TTP>
+            </ttp:Related_TTPs>
+            <ttp:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+                </marking:Marking>
+            </ttp:Handling>
+        </stix:TTP>
+		<stix:TTP id="pss:ttp-capec16-duplicatethird" timestamp="2016-04-19T13:30:41.765424+00:00" xsi:type='ttp:TTPType'>
+            <ttp:Title>Capec16   </ttp:Title>
+			<ttp:Description>This is another description and it's going to be longer so we should take this as the master</ttp:Description>
+            <ttp:Behavior>
+                <ttp:Attack_Patterns>
+                    <ttp:Attack_Pattern capec_id="CAPEC-16">
+                        <ttp:Title>Joe</ttp:Title>
+                    </ttp:Attack_Pattern>
+                </ttp:Attack_Patterns>
+            </ttp:Behavior>
+            <ttp:Exploit_Targets>
+                <ttp:Exploit_Target>
+                    <stixCommon:Exploit_Target idref="pss:tgt-a83702ab-1690-45d2-a204-df7143019d1a" xsi:type='et:ExploitTargetType'/>
+                </ttp:Exploit_Target>
+            </ttp:Exploit_Targets>
+            <ttp:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+                </marking:Marking>
+            </ttp:Handling>
+        </stix:TTP>
+		<stix:TTP id="pss:ttp-capec16-duplicatefourth" timestamp="2016-04-19T13:30:41.765424+00:00" xsi:type='ttp:TTPType'>
+            <ttp:Title>Capec16   </ttp:Title>
+            <ttp:Behavior>
+                <ttp:Attack_Patterns>
+                    <ttp:Attack_Pattern capec_id="CAPEC-16">
+                        <ttp:Title>Joe</ttp:Title>
+                    </ttp:Attack_Pattern>
+                </ttp:Attack_Patterns>
+            </ttp:Behavior>
+            <ttp:Exploit_Targets>
+                <ttp:Exploit_Target>
+                    <stixCommon:Exploit_Target idref="pss:tgt-a83702ab-1690-45d2-a204-df7143019d1a" xsi:type='et:ExploitTargetType'/>
+                </ttp:Exploit_Target>
+            </ttp:Exploit_Targets>
+            <ttp:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+                </marking:Marking>
+            </ttp:Handling>
+        </stix:TTP>
+    </stix:TTPs>
+    <stix:Exploit_Targets>
+        <stixCommon:Exploit_Target id="pss:tgt-a83702ab-1690-45d2-a204-df7143019d1a" timestamp="2016-04-19T13:30:30.640159+00:00" xsi:type='et:ExploitTargetType'>
+            <et:Title>THIS IS A TARGET</et:Title>
+            <et:Handling>
+                <marking:Marking>
+                    <marking:Controlled_Structure>../../../descendant-or-self::node() | ../../../descendant-or-self::node()/@*</marking:Controlled_Structure>
+                    <marking:Marking_Structure xsi:type='tlpMarking:TLPMarkingStructureType' color="WHITE"/>
+                </marking:Marking>
+            </et:Handling>
+        </stixCommon:Exploit_Target>
+    </stix:Exploit_Targets>
+</stix:STIX_Package>

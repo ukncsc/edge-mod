@@ -1,9 +1,9 @@
 define([
     "./change-tracker",
-    "./publish-subscribe",
     "./identity",
     "./cert-messages",
-    "./topic"
+    "./topic",
+    "./cert-abstract-builder-form"
 ], function () {
 
 });

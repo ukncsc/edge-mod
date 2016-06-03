@@ -1,0 +1,256 @@
+{
+  "stix_header": {},
+  "courses_of_action": [
+    {
+      "impact": {
+        "timestamp": "2015-07-30T08:53:08.662255+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662278+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "Minor productivity loss",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "AMBER",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "efficacy": {
+        "timestamp": "2015-07-30T08:53:08.662300+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662322+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "Won't do it again",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "title": "Shoot the employee",
+      "timestamp": "2015-07-30T08:53:08.662108+00:00",
+      "cost": {
+        "timestamp": "2015-07-30T08:53:08.662193+00:00",
+        "confidence": {
+          "timestamp": "2015-07-30T08:53:08.662227+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "High"
+          }
+        },
+        "description": "None",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "objective": {
+        "description": "Deterrent to others",
+        "applicability_confidence": {
+          "timestamp": "2015-07-30T08:53:08.662356+00:00",
+          "value": {
+            "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+            "value": "Medium"
+          }
+        }
+      },
+      "type": {
+        "xsi:type": "stixVocabs:CourseOfActionTypeVocab-1.0",
+        "value": "Eradication"
+      },
+      "id": "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064",
+      "stage": {
+        "xsi:type": "stixVocabs:COAStageVocab-1.0",
+        "value": "Response"
+      }
+    }
+  ],
+  "timestamp": "2015-08-14T14:25:38.089368+00:00",
+  "ttps": {
+    "ttps": [
+      {
+        "handling": [
+          {
+            "controlled_structure": "../../../descendant-or-self::node()",
+            "marking_structures": [
+              {
+                "color": "AMBER",
+                "xsi:type": "tlpMarking:TLPMarkingStructureType"
+              }
+            ]
+          }
+        ],
+        "title": "pjb.vbs",
+        "timestamp": "2015-07-30T08:49:32.286574+00:00",
+        "intended_effects": [
+          {
+            "timestamp": "2015-07-30T08:49:32.286657+00:00",
+            "value": {
+              "xsi:type": "stixVocabs:IntendedEffectVocab-1.0",
+              "value": "Unauthorized Access"
+            }
+          }
+        ],
+        "behavior": {
+          "malware_instances": [
+            {
+              "xsi:type": null,
+              "names": [
+                "pjb.vbs"
+              ],
+              "types": [
+                {
+                  "xsi:type": "stixVocabs:MalwareTypeVocab-1.0",
+                  "value": "Bot - Loader"
+                }
+              ],
+              "title": "pjb.vbs"
+            }
+          ]
+        },
+        "id": "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32"
+      }
+    ]
+  },
+  "version": "1.1.1",
+  "indicators": [
+    {
+      "confidence": {
+        "timestamp": "2015-08-07T10:14:50.359668+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "High"
+        }
+      },
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "RED",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            },
+            {
+              "statement": "Unclassified",
+              "xsi:type": "simpleMarking:SimpleMarkingStructureType"
+            },
+            {
+              "statement": "Public",
+              "xsi:type": "simpleMarking:SimpleMarkingStructureType"
+            },
+            {
+              "terms_of_use": "Public Domain",
+              "xsi:type": "TOUMarking:TermsOfUseMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "description": "Every field, collection, etc has a value",
+      "producer": {
+        "identity": {
+          "name": "Purple Secure Systems"
+        },
+        "time": {
+          "received_time": "2014-10-15T13:58:00"
+        }
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "Malware Artifacts"
+        }
+      ],
+      "title": "Fully populated indicator",
+      "suggested_coas": {
+        "suggested_coas": [
+          {
+            "course_of_action": {
+              "idref": "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064"
+            }
+          }
+        ]
+      },
+      "timestamp": "2015-08-07T10:14:50.359503+00:00",
+      "indicated_ttps": [
+        {
+          "ttp": {
+            "idref": "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32"
+          }
+        }
+      ],
+      "related_indicators": {
+        "related_indicators": [
+          {
+            "indicator": {
+              "idref": "purple-secure-systems:Indicator-7fc78054-e6f4-4b13-b3fc-44b1f4e2d9b8"
+            }
+          }
+        ]
+      },
+      "kill_chain_phases": {
+        "kill_chain_phases": [
+          {
+            "phase_id": "stix:TTP-af1016d6-a744-4ed7-ac91-00fe2272185a"
+          }
+        ]
+      },
+      "short_description": "Every field has a value",
+      "id": "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3629"
+    },
+    {
+      "confidence": {
+        "timestamp": "2015-06-29T14:11:56.227110+00:00",
+        "value": {
+          "xsi:type": "stixVocabs:HighMediumLowVocab-1.0",
+          "value": "Medium"
+        }
+      },
+      "indicator_types": [
+        {
+          "xsi:type": "stixVocabs:IndicatorTypeVocab-1.1",
+          "value": "IP Watchlist"
+        }
+      ],
+      "description": "141015indicators546_705.csv; Zbot.ppy malware, Kill Chain Phase:Post-compromise",
+      "producer": {
+        "identity": {
+          "name": "CERT-UK"
+        },
+        "time": {
+          "received_time": "2014-10-15T13:58:00"
+        }
+      },
+      "title": "Zbot.ppy malware",
+      "timestamp": "2015-06-29T14:11:56.226804+00:00",
+      "handling": [
+        {
+          "controlled_structure": "../../../descendant-or-self::node()",
+          "marking_structures": [
+            {
+              "color": "GREEN",
+              "xsi:type": "tlpMarking:TLPMarkingStructureType"
+            }
+          ]
+        }
+      ],
+      "id": "purple-secure-systems:Indicator-7fc78054-e6f4-4b13-b3fc-44b1f4e2d9b8"
+    }
+  ],
+  "id": "purple-secure-systems:Package-4f1f820a-1bf5-4bfc-8357-26778eda0369"
+}

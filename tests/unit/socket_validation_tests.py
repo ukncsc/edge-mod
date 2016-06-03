@@ -39,28 +39,6 @@ class SocketValidationTests(unittest.TestCase):
         self.assertEqual(socket_validation.hostname.status, ValidationStatus.ERROR)
         self.assertEqual(socket_validation.ip_address.status, ValidationStatus.ERROR)
 
-    @mock.patch('adapters.certuk_mod.validation.observable.socket_type.AddressValidationInfo')
-    def test_Validate_IfIPAddressInvalid_Warn(self, mock_address_validator):
-        mock_address_validator.is_ipv4.return_value = False
-        mock_address_validator.is_ipv6.return_value = False
-
-        socket_validation = SocketValidationInfo.validate(ip_address='something')
-        self.assertEqual(socket_validation.ip_address.status, ValidationStatus.WARN)
-
-    @mock.patch('adapters.certuk_mod.validation.observable.socket_type.AddressValidationInfo')
-    def test_Validate_IfIPAddressValid_Pass(self, mock_address_validator):
-        mock_address_validator.is_ipv4.return_value = True
-        mock_address_validator.is_ipv6.return_value = False
-
-        socket_validation = SocketValidationInfo.validate(ip_address='something')
-        self.assertIsNone(socket_validation.ip_address)
-
-        mock_address_validator.is_ipv4.return_value = False
-        mock_address_validator.is_ipv6.return_value = True
-
-        socket_validation = SocketValidationInfo.validate(ip_address='something')
-        self.assertIsNone(socket_validation.ip_address)
-
     @mock.patch('adapters.certuk_mod.validation.observable.hostname.HostnameValidationInfo.validate_hostname_value')
     def test_Validate_IfHostname_CallValidateHostnameValue(self, mock_hostname_validator):
         mock_hostname_validator.return_value = FieldValidationInfo(ValidationStatus.INFO, 'Testing function call...')
