@@ -228,7 +228,7 @@ def extract_visualiser_get(request, id_):
 
     try:
         if not is_valid_stix_id(id_):
-           return JsonResponse({'error': "invalid id"}, status=400)
+            return JsonResponse({"invalid stix id: " + id_}, status=200)
 
         draft_object = Draft.load(id_, request.user)
         return JsonResponse(iterate_draft(), status=200)
