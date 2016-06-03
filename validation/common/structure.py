@@ -9,6 +9,7 @@ from adapters.certuk_mod.validation.observable.domain import DomainNameValidatio
 from adapters.certuk_mod.validation.observable.file import FileValidationInfo
 from adapters.certuk_mod.validation.observable.hostname import HostnameValidationInfo
 from adapters.certuk_mod.validation.observable.mutex import MutexValidationInfo
+from adapters.certuk_mod.validation.observable.network_connection import NetworkConnectionValidationInfo
 
 
 class ObservableStructureConverter(object):
@@ -40,7 +41,8 @@ class ObservableStructureConverter(object):
             'Registry Key': RegistryKeyValidationInfo.TYPE,
             'Email': EmailValidationInfo.TYPE,
             'HTTP Session': HTTPSessionValidationInfo.TYPE,
-            'Socket': SocketValidationInfo.TYPE
+            'Socket': SocketValidationInfo.TYPE,
+            'Network Connection': NetworkConnectionValidationInfo.TYPE
         }
 
         object_type = object_type_map.get(object_type_short)
@@ -61,7 +63,8 @@ class ObservableStructureConverter(object):
             ArtifactValidationInfo.TYPE: ObservableStructureConverter.__artifact_package_to_simple,
             HostnameValidationInfo.TYPE: ObservableStructureConverter.__hostname_package_to_simple,
             MutexValidationInfo.TYPE: ObservableStructureConverter.__mutex_package_to_simple,
-            RegistryKeyValidationInfo.TYPE: ObservableStructureConverter.__registry_key_package_to_simple
+            RegistryKeyValidationInfo.TYPE: ObservableStructureConverter.__registry_key_package_to_simple,
+            NetworkConnectionValidationInfo.TYPE: ObservableStructureConverter.__network_connection_package_to_simple
         }
         return conversion_handlers.get(object_type)
 
@@ -174,6 +177,13 @@ class ObservableStructureConverter(object):
             simple['hostname'] = ObservableStructureConverter.flatten_property_value_field(
                 hostname.get('hostname_value'))
 
+        return simple
+
+    @staticmethod
+    def __network_connection_package_to_simple(builder_dict):
+        simple = builder_dict.copy()
+        simple['source_socket_address'] = ObservableStructureConverter.__socket_package_to_simple(simple.pop('source_socket_address', {}))
+        simple['destination_socket_address'] = ObservableStructureConverter.__socket_package_to_simple(simple.pop('destination_socket_address', {}))
         return simple
 
     @staticmethod

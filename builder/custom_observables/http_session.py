@@ -17,10 +17,7 @@ class HTTPSessionObservableDefinition(CustomObservableDefinition):
             object_type='HTTPSessionObjectType',
             human_readable_type='HTTP Session',
             can_batch_create=False,
-            custom_id_prefix='http_session',
-            builder_to_stix_object=HTTPSessionObservableDefinition.builder_to_stix_object,
-            summary_value_generator=HTTPSessionObservableDefinition.summary_value_generator,
-            to_draft_handler=HTTPSessionObservableDefinition.to_draft_handler
+            custom_id_prefix='http_session'
         )
 
     def builder_to_stix_object(self, object_data):
