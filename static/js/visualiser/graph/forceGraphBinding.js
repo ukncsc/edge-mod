@@ -80,7 +80,8 @@ define([
             var minZoom = 0.3;
             var maxZoom = 5;
 
-            var tooltip = d3.select("#graph-node-tooltip");
+            var parent = d3.select(container[0][0].parentElement);
+            var tooltip = parent.select('#graph-node-tooltip');
 
             var zoom = d3.behavior.zoom()
                 .scaleExtent([minZoom, maxZoom])
@@ -168,8 +169,8 @@ define([
                         return;
                     }
                     var viewBox = container[0][0].viewBox;
-                    var x_middle = viewBox.animVal != null ? viewBox.animVal.width / 2 : 0;
-                    var y_middle = viewBox.animVal != null ? viewBox.animVal.height / 2 : 0;
+                    var x_middle = (viewBox.animVal != null ? viewBox.animVal.width / 2 : 0);
+                    var y_middle = (viewBox.animVal != null ? viewBox.animVal.height / 2 : 0);
                     var iWidth = (d.imageWidth() / 2) * currentScale;
                     var iHeight = (d.imageHeight() / 2) * currentScale;
                     if (d.relType() != 'broken') {
