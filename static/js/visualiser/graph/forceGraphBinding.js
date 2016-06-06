@@ -162,6 +162,16 @@ define([
                 getBacklinkMinusButton(id, isBackLinkShown) + getMatchesMinusButton(id, isMatchesShown) : "";
             }
 
+            function showPublishButton(id, relType){
+                if(relType == 'draft') {
+                    return "";
+                }
+                else {
+                    return "<button type=\"button\" class=\"btn btn-default glyphicon glyphicon-home blue clear_bg\" data-bind=\"click:$data.onNewRootId.bind($data,'" + id + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
+                            "<button type=\"button\" class=\"btn btn-default glyphicon glyphicon-info-sign blue clear_bg\" data-bind=\"click:$data.onExternalPublish.bind($data,'" + id + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>";
+                }
+            }
+
             var matchingAndBacklinks = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
                 .data(graphModel.nodes()).on("mousemove", function (d) {
@@ -177,8 +187,7 @@ define([
                         tooltip.html("<div class=\"dropdown btn-group\" role=\"group\" aria-label=\"\">" +
                                 showPlusButton(d.id(), d.hasBacklinks(), d.hasMatches(), d.isBackLinkShown(), d.isMatchesShown()) +
                                 showMinusButton(d.id(), d.isBackLinkShown(), d.isMatchesShown()) +
-                                "<button type=\"button\" class=\"btn btn-default glyphicon glyphicon-home blue clear_bg\" data-bind=\"click:$data.onNewRootId.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
-                                "<button type=\"button\" class=\"btn btn-default glyphicon glyphicon-info-sign blue clear_bg\" data-bind=\"click:$data.onExternalPublish.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
+                                showPublishButton(d.id(), d.relType()) +
                                 "</div>"
                             )
                             .style("left", ((x_middle + iWidth + (d.x - x_middle) * currentScale) + currentXOffset) + "px")

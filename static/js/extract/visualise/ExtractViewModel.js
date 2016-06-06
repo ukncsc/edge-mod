@@ -16,7 +16,7 @@ define([
         constructor: function (rootIds, indicatorInformation) {
             this.viewModels = ko.observableArray([]);
             this.viewModelsById = {};
-            this.failedIds = ko.observableArray([])
+            this.failedIds = ko.observableArray([]);
             this.indicatorInformationTypeById = {};
 
             this.viewModels.subscribe(function () {
@@ -42,7 +42,7 @@ define([
                 id,
                 base_url,
                 base_url + "item/",
-                "",
+                "/adapter/certuk_mod/review/",
                 "visualiser-graph",
 
                 (new PanelActionsBuilder())

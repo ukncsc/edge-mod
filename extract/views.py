@@ -17,7 +17,7 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.extract.ioc_wrapper import parse_file, IOCParseException
 from adapters.certuk_mod.common.views import error_with_message
 from adapters.certuk_mod.common.objectid import is_valid_stix_id
-from adapters.certuk_mod.visualiser.views import visualiser_item_get
+from adapters.certuk_mod.visualiser.views import visualiser_item_get, matches_exist, backlinks_exist
 
 DRAFT_ID_SEPARATOR = ":draft:"
 
@@ -188,7 +188,7 @@ def extract_visualiser_get(request, id_):
             Counter.idx += 1
 
         def create_draft_observable_id(obs):
-            d = hashlib.md5(obs['title'].encode("utf-8")).hexdigest();
+            d = hashlib.md5(obs['title'].encode("utf-8")).hexdigest()
             return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + d
 
         def is_draft_obs():
@@ -200,7 +200,7 @@ def extract_visualiser_get(request, id_):
         nodes = []
         links = []
 
-        append_node(dict(id=draft_object['id'], type='ind', title="draft: " + draft_object['title'], depth=0))
+        append_node(dict(id=draft_object['id'], type='ind', title="draft: " + draft_object['title'], depth=0, rel_type='draft'))
 
         id_to_idx = {}
         for i in xrange(len(draft_object['observables'])):
@@ -208,9 +208,16 @@ def extract_visualiser_get(request, id_):
             obs_id = observable.get('id', create_draft_observable_id(observable))
             id_to_idx[obs_id] = Counter.idx
 
-            append_node(dict(id=obs_id, type='obs',
+            if is_deduped():
+                backlinks, matches = backlinks_exist(obs_id), matches_exist(obs_id)
+                append_node(dict(id=obs_id, type='obs',
                              title=observable_to_name(observable, is_draft_obs()),
-                             depth=1))
+                             depth=1, rel_type= 'edge', has_backlinks=backlinks, has_matches=matches))
+            else:
+                append_node(dict(id=obs_id, type='obs',
+                             title=observable_to_name(observable, is_draft_obs()),
+                             depth=1, rel_type='draft'))
+
 
             links.append({"source": 0, "target": id_to_idx[obs_id], "rel_type": "edge"})
 
@@ -289,7 +296,7 @@ def get_draft_obs_offset(draft_ind, id_):
     for i in xrange(len(draft_ind['observables'])):
         obs = draft_ind['observables'][i]
         if hashlib.md5(obs['title']).hexdigest() == hash_:
-            return i;
+            return i
     return -1
 
 
@@ -377,7 +384,7 @@ def extract_visualiser_item_get(request, node_id):
         elif is_draft_ind():
             package_dict = build_ind_package_from_draft(Draft.load(node_id, request.user))
         else:  # Non-draft
-            return visualiser_item_get(request, node_id);
+            return visualiser_item_get(request, node_id)
 
         return JsonResponse({
             "root_id": node_id,
