@@ -165,9 +165,6 @@ define([
             var matchingAndBacklinks = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
                 .data(graphModel.nodes()).on("mousemove", function (d) {
-                    if (!tickEnded) {
-                        return;
-                    }
                     var viewBox = container.node().viewBox;
                     var x_middle = (viewBox.animVal != null ? viewBox.animVal.width / 2 : 0);
                     var y_middle = (viewBox.animVal != null ? viewBox.animVal.height / 2 : 0);
@@ -206,6 +203,8 @@ define([
                     .style("opacity", 0);
             });
 
+
+
             var showMatchingAndBacklinks = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass);
 
@@ -213,12 +212,10 @@ define([
                 .selectAll("." + ko.bindingHandlers.forceGraph.linkClass)
                 .data(graphModel.links());
 
-            var tickEnded = false;
             container.call(zoom).call(drag);
             graphModel
                 .d3Layout()
                 .on("tick", function () {
-                    tickEnded = false;
                     var viewBox = container.node().viewBox;
                     var x_middle = viewBox.animVal != null ? viewBox.animVal.width / 2 : 0;
                     var y_middle = viewBox.animVal != null ? viewBox.animVal.height / 2 : 0;
@@ -246,7 +243,7 @@ define([
                         .attr("y2", function (d) {
                             return (y_middle + (d.target.y - y_middle) * currentScale) + currentYOffset;
                         });
-                }).on('end', function() { tickEnded = true;})
+                })
         }
     };
 });
