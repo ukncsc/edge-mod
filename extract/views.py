@@ -17,7 +17,8 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.extract.ioc_wrapper import parse_file, IOCParseException
 from adapters.certuk_mod.common.views import error_with_message
 from adapters.certuk_mod.common.objectid import is_valid_stix_id
-from adapters.certuk_mod.visualiser.views import visualiser_item_get, matches_exist, backlinks_exist
+from adapters.certuk_mod.visualiser.views import visualiser_item_get
+from adapters.certuk_mod.visualiser.graph import create_graph
 
 DRAFT_ID_SEPARATOR = ":draft:"
 
@@ -143,109 +144,60 @@ def observable_to_name(observable, is_draft):
 
 @login_required_ajax
 def extract_visualiser_get(request, id_):
-    def get_backlinks(id_, eo_filter):
-        ids = get_db().stix_backlinks.find({
-            '_id': {
-                '$in': [id_]
-            },
-        }, {
-            'value': 1
-        })
-
-        def eo_filter_generator():
-            for eoId in [val for doc in ids for val in doc['value'].keys()]:
-                try:
-                    eo = EdgeObject.load(eoId)
-                except EdgeError:
-                    continue
-                if eo_filter(eo):
-                    yield eo
-
-        return [x for x in eo_filter_generator()]
-
-    def is_observable(eo):
-        return "obs" == eo.ty
-
-    def is_indicator(eo):
-        return "ind" == eo.ty
-
-    def build_title(node):
-        node_type = node.summary.get("type")
-        try:
-            return {
-                "ObservableComposition": node.obj.observable_composition.operator
-            }.get(node_type, node.id_)
-        except AttributeError:
-            return node.id_
-
-    def iterate_draft():
-
-        class Counter:
-            idx = 0
-
-        def append_node(data):
-            nodes.append(data)
-            Counter.idx += 1
-
-        def create_draft_observable_id(obs):
-            d = hashlib.md5(obs['title'].encode("utf-8")).hexdigest()
-            return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + d
-
-        def is_draft_obs():
-            return not is_deduped()
-
-        def is_deduped():
-            return 'id' in observable
-
-        nodes = []
-        links = []
-
-        append_node(dict(id=draft_object['id'], type='ind', title="draft: " + draft_object['title'], depth=0, rel_type='draft'))
-
-        id_to_idx = {}
-        for i in xrange(len(draft_object['observables'])):
-            observable = draft_object['observables'][i]
-            obs_id = observable.get('id', create_draft_observable_id(observable))
-            id_to_idx[obs_id] = Counter.idx
-
-            if is_deduped():
-                backlinks, matches = backlinks_exist(obs_id), matches_exist(obs_id)
-                append_node(dict(id=obs_id, type='obs',
-                             title=observable_to_name(observable, is_draft_obs()),
-                             depth=1, rel_type= 'edge', has_backlinks=backlinks, has_matches=matches))
-            else:
-                append_node(dict(id=obs_id, type='obs',
-                             title=observable_to_name(observable, is_draft_obs()),
-                             depth=1, rel_type='draft'))
-
-
-            links.append({"source": 0, "target": id_to_idx[obs_id], "rel_type": "edge"})
-
-            if not is_deduped():
-                continue
-
-            for obs_composition in get_backlinks(observable['id'], is_observable):
-                if obs_composition.id_ in id_to_idx:
-                    continue
-
-                for indicator_obj in get_backlinks(obs_composition.id_, is_indicator):
-                    if indicator_obj.id_ not in id_to_idx:
-                        id_to_idx[indicator_obj.id_] = Counter.idx
-                        append_node(dict(id=indicator_obj.id_, type=indicator_obj.ty,
-                                         title=build_title(indicator_obj), depth=2))
-
-                    links.append({"source": id_to_idx[indicator_obj.id_], "target": id_to_idx[obs_id], "rel_type": "backlink"})
-
-        return dict(nodes=nodes, links=links)
-
     try:
         if not is_valid_stix_id(id_):
             return JsonResponse({"invalid stix id: " + id_}, status=200)
 
-        draft_object = Draft.load(id_, request.user)
-        return JsonResponse(iterate_draft(), status=200)
+        return JsonResponse(iterate_draft(Draft.load(id_, request.user), [], [], [], []), status=200)
     except Exception as e:
         return JsonResponse({'error': e.message}, status=400)
+
+
+@login_required_ajax
+def extract_visualiser_get_extended(request):
+    json_data = json.loads(request.body)
+    root_id = json_data['id']
+    bl_ids = json_data['id_bls']
+    id_matches = json_data['id_matches']
+    hide_edge_ids = json_data['hide_edge_ids']
+    show_edge_ids = json_data['show_edge_ids']
+    try:
+        return JsonResponse(
+            iterate_draft(Draft.load(root_id, request.user), bl_ids, id_matches, hide_edge_ids, show_edge_ids),
+            status=200)
+    except Exception as e:
+        return JsonResponse({'error': e.message}, status=400)
+
+def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
+
+    def create_draft_observable_id(obs):
+        d = hashlib.md5(obs['title'].encode("utf-8")).hexdigest()
+        return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + d
+
+    def create_draft_obs_node(obs_id, title):
+        summary = {'title': title, 'type': 'obs', 'value': '', '_id': obs_id, 'cv': '', 'tg': '',
+                   'data': {'idns': '', 'etlp': '', 'summary': {'title': title},
+                            'hash': '', 'api': ''}, 'created_by_organization': ''}
+        return EdgeObject(summary)
+
+    def create_draft_ind_node(ind_id, title):
+        summary = {'title': title, 'type': 'ind', 'value': '', '_id': ind_id, 'cv': '', 'tg': '',
+                   'data': {'idns': '', 'etlp': '', 'summary': {'title': title},
+                            'hash': '', 'api': ''}, 'created_by_organization': ''}
+        return EdgeObject(summary)
+
+    stack = []
+    for i in xrange(len(draft_object['observables'])):
+        observable = draft_object['observables'][i]
+        obs_id = observable.get('id', create_draft_observable_id(observable))
+        if DRAFT_ID_SEPARATOR in obs_id:
+            stack.append((1, 0, create_draft_obs_node(obs_id, observable_to_name(observable, True)), "draft"))
+        else:
+            stack.append((1, 0, EdgeObject.load(obs_id), "edge"))
+
+    stack.append((0, None, create_draft_ind_node(draft_object['id'], draft_object['title']), "draft"))
+
+    return create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids)
 
 
 def can_merge_observables(draft_obs_offsets, draft_ind, hash_types):

@@ -98,7 +98,7 @@ define([
             this.getWithOthers();
         },
         getWithOthers: function () {
-            postJSON(this.graph_url() + "get_with_others/", {
+            postJSON(this.graph_url() + "get_extended/", {
                     'id': this.rootId(),
                     'id_bls': this.graph().backlinks(),
                     'id_matches': this.graph().matches(),

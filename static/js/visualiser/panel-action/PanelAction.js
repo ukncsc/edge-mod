@@ -6,14 +6,10 @@ define([
 
     return declare(null, {
         declaredClass: "PanelAction",
-        constructor: function (applies_to_references/*function*/, applies_to_referenced_by/*function*/,
+        constructor: function (applies_to_link/*function*/,
                                action/*function*/, action_name/*String*/, glyphicon_name/*String*/) {
-            this.applies_to_references = ko.computed(function () {
-                return applies_to_references;
-            });
-
-            this.applies_to_referenced_by = ko.computed(function () {
-                return applies_to_referenced_by;
+            this.applies_to_link = ko.computed(function () {
+                return applies_to_link;
             });
 
             this.action_name = ko.computed(function () {

@@ -7,7 +7,8 @@
             <span class="glyphicon glyphicon-download"></span>
         </button>
         <div class="tooltip" id="graph-node-tooltip" style={'opacity':0}></div>
-        <svg id="visualiser-graph" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+        <svg id="visualiser-graph" version="1.1" xmlns="http://www.w3.org/2000/svg"
+             xmlns:xlink="http://www.w3.org/1999/xlink"
              preserveAspectRatio="xMidYMid meet"
              style="display:none;"
              data-bind="
@@ -64,7 +65,7 @@
                 <dt>References</dt>
                 <!-- ko foreach: parentOf -->
                 <dd data-bind=" attr: {title: id} ">
-                    <!-- ko if: $parents[2].panel_actions().show_reference_check(type()) -->
+                    <!-- ko if: $parents[2].panel_actions().show_check(type(), 'edge') -->
                     <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
                     <!-- /ko -->
                     <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
@@ -78,6 +79,9 @@
                 <dt>Matching Objects</dt>
                 <!-- ko foreach: matches -->
                 <dd data-bind=" attr: {title: id} ">
+                    <!-- ko if: $parents[2].panel_actions().show_check(type(), 'match') -->
+                    <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
+                    <!-- /ko -->
                     <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
                     &nbsp;<span data-bind="text:title,
                     click:$parents[2].onNodeClicked.bind($parents[2])"></span>
@@ -90,6 +94,23 @@
                 <dt>Backlinks</dt>
                 <!-- ko foreach: backlinks -->
                 <dd data-bind=" attr: {title: id} ">
+                    <!-- ko if: $parents[2].panel_actions().show_check(type(), 'backlink') -->
+                    <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
+                    <!-- /ko -->
+                    <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
+                    &nbsp;<span data-bind="text:title,
+                    click:$parents[2].onNodeClicked.bind($parents[2])"></span>
+                </dd>
+                <!-- /ko -->
+                <!-- /ko -->
+
+                <!-- ko if: drafts.length > 0 -->
+                <dt>Drafts</dt>
+                <!-- ko foreach: drafts -->
+                <dd data-bind=" attr: {title: id} ">
+                    <!-- ko if: $parents[2].panel_actions().show_check(type(), 'draft') -->
+                    <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
+                    <!-- /ko -->
                     <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
                     &nbsp;<span data-bind="text:title,
                     click:$parents[2].onNodeClicked.bind($parents[2])"></span>
