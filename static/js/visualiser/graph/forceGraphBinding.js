@@ -80,7 +80,7 @@ define([
             var minZoom = 0.3;
             var maxZoom = 5;
 
-            var parent = d3.select(container[0][0].parentElement);
+            var parent = d3.select(element.parentElement);
             var tooltip = parent.select('#graph-node-tooltip');
 
             var zoom = d3.behavior.zoom()
@@ -168,7 +168,7 @@ define([
                     if (!tickEnded) {
                         return;
                     }
-                    var viewBox = container[0][0].viewBox;
+                    var viewBox = container.node().viewBox;
                     var x_middle = (viewBox.animVal != null ? viewBox.animVal.width / 2 : 0);
                     var y_middle = (viewBox.animVal != null ? viewBox.animVal.height / 2 : 0);
                     var iWidth = (d.imageWidth() / 2) * currentScale;
@@ -197,7 +197,7 @@ define([
                             .style("left", ((x_middle + iWidth + (d.x - x_middle) * currentScale) + currentXOffset) + "px")
                             .style("top", ((y_middle - iHeight + (d.y - y_middle) * currentScale) + currentYOffset) + "px");
                     }
-                    ko.applyBindings(viewModel, tooltip[0][0].childNodes[0]);
+                    ko.applyBindings(viewModel, tooltip.node().childNodes[0]);
                 });
 
             container.on("mouseover", function (d) {
@@ -219,7 +219,7 @@ define([
                 .d3Layout()
                 .on("tick", function () {
                     tickEnded = false;
-                    var viewBox = container[0][0].viewBox;
+                    var viewBox = container.node().viewBox;
                     var x_middle = viewBox.animVal != null ? viewBox.animVal.width / 2 : 0;
                     var y_middle = viewBox.animVal != null ? viewBox.animVal.height / 2 : 0;
 
