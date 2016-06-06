@@ -148,6 +148,14 @@ define([
                 return matchesShown ? "<button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onMinusMatchesClicked.bind($data,'" + id + "')\"><span class='clear_bg fa-signal icon-rotated glyphicon glyphicon-pause' style='color: #002a80'></span></button>" : "";
             }
 
+            function showEdgesButton(id, hasEdges, edgesShown) {
+                if (!hasEdges){
+                    return "";
+                }
+                return edgesShown ? "<button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onHideEdges.bind($data,'" + id + "')\"><span class='fa-signal glyphicon glyphicon-eye-open clear_bg grey'></span></button>"
+                                    : "<button type=\"button\" class=\"btn btn-default clear_bg\"  data-bind=\"click:$data.onShowEdges.bind($data,'" + id + "')\"><span class='glyphicon glyphicon-eye-open clear_bg grey'></span></button>";
+            }
+
             function showPlusButton(id, hasBacklinks, hasMatches, isBackLinkShown, isMatchesShown) {
                 if (noPlusButton(hasBacklinks, hasMatches, isBackLinkShown, isMatchesShown)) {
                     return ""
@@ -168,15 +176,16 @@ define([
                     var viewBox = container.node().viewBox;
                     var x_middle = (viewBox.animVal != null ? viewBox.animVal.width / 2 : 0);
                     var y_middle = (viewBox.animVal != null ? viewBox.animVal.height / 2 : 0);
-                    var iWidth = (d.imageWidth() / 2) * currentScale;
-                    var iHeight = (d.imageHeight() / 2) * currentScale;
+                    var iWidth = (d.imageWidth() / 5) * currentScale;
+                    var iHeight = (d.imageHeight() / 5) * currentScale;
                     if (d.relType() != 'broken') {
                         tooltip.transition()
                             .duration(200)
                             .style("opacity", 0.8);
-                        tooltip.html("<div class=\"dropdown btn-group\" role=\"group\" aria-label=\"\">" +
+                        tooltip.html("<div class=\"btn-group\" role=\"group\" aria-label=\"\">" +
                                 showPlusButton(d.id(), d.hasBacklinks(), d.hasMatches(), d.isBackLinkShown(), d.isMatchesShown()) +
                                 showMinusButton(d.id(), d.isBackLinkShown(), d.isMatchesShown()) +
+                                showEdgesButton(d.id(), d.hasEdges(), d.isEdgesShown()) +
                                 "<button type=\"button\" class=\"btn btn-default glyphicon glyphicon-home blue clear_bg\" data-bind=\"click:$data.onNewRootId.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
                                 "<button type=\"button\" class=\"btn btn-default glyphicon glyphicon-info-sign blue clear_bg\" data-bind=\"click:$data.onExternalPublish.bind($data,'" + d.id() + "')\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\"></button>" +
                                 "</div>"

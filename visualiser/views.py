@@ -82,16 +82,20 @@ def matches_exist(id_):
 
 def create_broken_node(edge):
     summary = {'title': '', 'type': edge.ty, 'value': '', '_id': edge.id_, 'cv': '', 'tg': '',
-                                       'data': {'idns': '', 'etlp': '', 'summary': {'title': None},
-                                        'hash': '', 'api': ''}, 'created_by_organization': ''}
+               'data': {'idns': '', 'etlp': '', 'summary': {'title': None},
+                        'hash': '', 'api': ''}, 'created_by_organization': ''}
     return EdgeObject(summary)
 
 
-def depth_first_iterate(root_node, bl_ids, id_matches):
+def depth_first_iterate(root_node, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
     nodes = []
     links = []
     id_to_idx = {}
     stack = [(0, None, root_node, "edge")]
+
+    def show_edges(rel_type, node_id):
+        return ("backlink" not in rel_type and "match" not in rel_type) or (node_id in show_edge_ids)
+
     while stack:
         depth, parent_idx, node, rel_type = stack.pop()
         node_id = node.id_
@@ -107,23 +111,25 @@ def depth_first_iterate(root_node, bl_ids, id_matches):
             else:
                 backlinks, matches, = backlinks_exist(node_id), matches_exist(node_id)
             nodes.append(dict(id=node_id, type=node.ty, title=title, depth=depth, rel_type=rel_type,
-                              has_backlinks=backlinks, has_matches=matches))
+                              has_backlinks=backlinks, has_matches=matches, has_edges=len(node.edges) != 0,
+                              edges_shown=show_edges(rel_type, node_id), matches_shown=node_id in id_matches, backlinks_shown = node_id in bl_ids))
         else:
             idx = id_to_idx[node_id]
         if parent_idx is not None:
             links.append({"source": parent_idx, "target": idx, "rel_type": rel_type})
         if is_new_node:
-            if "backlink" not in rel_type and "match" not in rel_type:
-                for edge in node.edges:
-                    try:
-                        stack.append((depth + 1, idx, edge.fetch(), "edge"))
-                    except EdgeError as e:
-                        if e.message == edge.id_ + " not found":
-                            obj = create_broken_node(edge)
-                            stack.append((depth + 1, idx, obj, "broken"))
-                            continue
-                    except Exception as e:
-                        raise e
+            if show_edges(rel_type, node_id):
+                if node_id not in hide_edge_ids:
+                    for edge in node.edges:
+                        try:
+                            stack.append((depth + 1, idx, edge.fetch(), "edge"))
+                        except EdgeError as e:
+                            if e.message == edge.id_ + " not found":
+                                obj = create_broken_node(edge)
+                                stack.append((depth + 1, idx, obj, "broken"))
+                                continue
+                        except Exception as e:
+                            raise e
             if node_id in bl_ids:
                 for eoId in [val for doc in get_backlinks(node_id) for val in doc['value'].keys()]:
                     stack.append((depth + 1, idx, EdgeObject.load(eoId), "backlink"))
@@ -138,7 +144,7 @@ def depth_first_iterate(root_node, bl_ids, id_matches):
 def visualiser_get(request, id_):
     try:
         root_edge_object = PublisherEdgeObject.load(id_)
-        graph = depth_first_iterate(root_edge_object, [], [])
+        graph = depth_first_iterate(root_edge_object, [], [], [], [])
         return JsonResponse(graph, status=200)
     except Exception as e:
         return JsonResponse(dict(e), status=500)
@@ -170,9 +176,11 @@ def visualiser_get_with_others(request):
     root_id = json_data['id']
     bl_ids = json_data['id_bls']
     id_matches = json_data['id_matches']
+    hide_edge_ids = json_data['hide_edge_ids']
+    show_edge_ids = json_data['show_edge_ids']
     try:
         root_edge_object = PublisherEdgeObject.load(root_id)
-        graph = depth_first_iterate(root_edge_object, bl_ids, id_matches)
+        graph = depth_first_iterate(root_edge_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids)
         return JsonResponse(graph, status=200)
     except Exception as e:
         return JsonResponse(dict(e), status=500)

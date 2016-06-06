@@ -75,6 +75,18 @@ define([
             this.graph().findNode(data).isBackLinkShown(false);
             this.getWithOthers();
         },
+        onShowEdges: function (data, scope) {
+            this.graph().no_edges.remove(data);
+            this.graph().edges.push(data);
+            this.graph().findNode(data).isEdgesShown(true);
+            this.getWithOthers();
+        },
+        onHideEdges: function (data, scope) {
+            this.graph().no_edges.push(data);
+            this.graph().edges.remove(data);
+            this.graph().findNode(data).isEdgesShown(false);
+            this.getWithOthers();
+        },
         onPlusMatchesClicked: function (data, scope) {
             this.graph().matches.push(data);
             this.graph().findNode(data).isMatchesShown(true);
@@ -89,7 +101,9 @@ define([
             postJSON(this.graph_url() + "get_with_others/", {
                     'id': this.rootId(),
                     'id_bls': this.graph().backlinks(),
-                    'id_matches': this.graph().matches()
+                    'id_matches': this.graph().matches(),
+                    'hide_edge_ids': this.graph().no_edges(),
+                    'show_edge_ids': this.graph().edges()
                 }, function (result) {
                     this.graph().loadData(result);
                 }.bind(this)
