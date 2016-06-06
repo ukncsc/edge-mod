@@ -32,12 +32,16 @@ define([
             this.hasMatches = ko.computed(function() {
                 return nodeData.has_matches;
             });
+            this.hasEdges = ko.computed(function() {
+                return nodeData.has_edges;
+            });
 
             this.isSelected = ko.observable(false);
             this.isChecked = ko.observable(false);
 
-            this.isBackLinkShown = ko.observable(false);
-            this.isMatchesShown = ko.observable(false);
+            this.isBackLinkShown = ko.observable(nodeData.backlinks_shown);
+            this.isMatchesShown = ko.observable(nodeData.matches_shown);
+            this.isEdgesShown = ko.observable(nodeData.edges_shown);
 
             this.isRelated = ko.observable(false);
             this.className = ko.computed(function () {
