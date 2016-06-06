@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% load site_tags %} {% load staticfiles %}
 
 {% block head-content %}
-<link rel="stylesheet" href="/adapter/certuk_mod{% static 'css/inc-build.css' %}">
+    <link rel="stylesheet" href="/adapter/certuk_mod{% static 'css/inc-build.css' %}">
 {% endblock %}
 
 {% block body-content %}
@@ -13,7 +13,6 @@
     {% include 'cert-inc-build-general.html' %}
     {% include 'draft_list.html' %}
     {% include 'cert-inc-build-time.html' %}
-    {% include 'cert-inc-build-external-ids.html' %}
 
     <div class="obj-title"
          data-bind="templateWithContext: { name: 'builder-hdr', data: $root, context: { imgsrc: '{% static 'img/hex/hex_inc.png' %}', typeName: 'Incident' }  }"></div>
@@ -68,7 +67,6 @@
                 <div data-bind="template: { name: 'ListSelectsPanel', data: section().findByLabel('Discovery Methods') }"></div>
                 <div data-bind="template: { name: 'ListSelectsPanel', data: section().findByLabel('Categories') }"></div>
                 <div data-bind="template: { name: 'ListSelectsPanel', data: section().findByLabel('Intended Effects') }"></div>
-                <div data-bind="template: { name: 'ExternalIdsPanel', data: section().findByLabel('External IDs') }"></div>
             </div>
         </div>
     </div>
@@ -117,6 +115,7 @@
         incident_builder.time_types_list = {{ time_types_list|safe }};
         incident_builder.discovery_methods_list = {{ discovery_methods|safe }};
         incident_builder.intended_effects_list = {{ intended_effects|safe }};
+        incident_builder.handling_caveats = {{ handling_caveats|safe }};
 
         incident_builder.time_zone = '{{ time_zone }}';
         incident_builder.marking_priorities = {{ marking_priorities|safe }};

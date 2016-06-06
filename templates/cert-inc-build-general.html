@@ -130,6 +130,23 @@
                             </select>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">Handling Caveats</label>
+                        <!-- ko if: handling_caveat.hasValidation -->
+                        <span class="validation-error"
+                              data-bind="visible: handling_caveat.hasError, text: handling_caveat.errorMessage, disable: $root.mode().isReadOnly()"></span>
+                        <!-- /ko -->
+                        <div class="col-lg-3">
+                            <select class="form-control" data-bind="options: handling_caveats,
+                                           disable: $root.mode().isReadOnly(),
+                                           value: markings,
+                                           optionsCaption: 'Choose...'"
+                                    id='handling_caveats'
+                                    name='handling_caveats'>
+                            </select>
+                        </div>
+                    </div>
                     {% block extra-fields %}{% endblock %}
                 </fieldset>
             </div>

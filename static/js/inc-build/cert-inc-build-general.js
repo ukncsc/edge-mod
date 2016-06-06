@@ -73,6 +73,15 @@ define([
                     }
                 });
 
+                this.handling_caveat = ko.observable().extend({
+                    requiredGrouped: {
+                        required: true,
+                        group: this.validationGroup,
+                        displayMessage: "You need to select a handling caveat for your indicator"
+                    }
+                });
+
+                this.handling_caveats = ko.observableArray([]);
                 this.statuses = ko.observableArray([]);
                 this.marking_priorities = ko.observableArray([]);
                 this.confidences = ko.observableArray([]);
@@ -87,6 +96,7 @@ define([
             this.statuses(optionLists.statuses_list);
             this.categories(optionLists.categories_list);
             this.marking_priorities(optionLists.marking_priorities);
+            this.handling_caveats(optionLists.handling_caveats);
         },
 
         addReporter: function () {
@@ -114,6 +124,7 @@ define([
             } else {
                 this.markings(data["markings"] || "");
             }
+            this.handling_caveat(data["handling_caveat"] || "");
 
             this.status.subscribe(function (data) {
                 Topic.publish(topics.STATUS_CHANGE, data);
@@ -129,7 +140,8 @@ define([
                 confidence: this.confidence(),
                 reporter: {'identity': this.reporter().to_json()},
                 tlp: this.tlp(),
-                markings: this.markings()
+                markings: this.markings(),
+                handling_caveat: this.handling_caveat()
             };
         }
     });

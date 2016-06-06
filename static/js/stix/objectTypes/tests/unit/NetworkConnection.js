@@ -34,12 +34,12 @@ define([
             },
             "has correct properties": function () {
                 var expectedProperties = [
-                    {"label": "Source Socket Address.ip", "value": "192.168.57.101"},
-                    {"label": "Source Socket Address.port", "value": "8443"},
-                    {"label": "Source Socket Address.protocol", "value": "https"},
-                    {"label": "Destination Socket Address.host", "value": "localhost"},
-                    {"label": "Destination Socket Address.port", "value": "87"},
-                    {"label": "Destination Socket Address.protocol", "value": "http"}
+                    {"label": "Src IP", "value": "192.168.57.101"},
+                    {"label": "Src Port", "value": "8443"},
+                    {"label": "Src Protocol", "value": "https"},
+                    {"label": "Dst Host", "value": "localhost"},
+                    {"label": "Dst Port", "value": "87"},
+                    {"label": "Dst Protocol", "value": "http"}
 
                 ];
                 var actualProperties = classUnderTest.properties();
