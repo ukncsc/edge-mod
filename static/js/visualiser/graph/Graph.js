@@ -48,8 +48,7 @@ define([
                     parentOf: [],
                     childOf: [],
                     matches: [],
-                    no_edges:[],
-                    edges:[],
+                    drafts: [],
                     backlinks: []
                 };
                 ko.utils.arrayForEach(this.nodes(), function (node) {
@@ -67,6 +66,8 @@ define([
                                 linkedNodes.matches.push(link.target);
                             } else  if (link.relType() === "backlink") {
                                 linkedNodes.backlinks.push(link.target);
+                            }  else  if (link.relType() === "draft") {
+                                linkedNodes.drafts.push(link.target);
                             }
                             link.target.isRelated(true);
                             isRelatedLink = true;

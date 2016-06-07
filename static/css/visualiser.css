@@ -115,45 +115,39 @@ g.ko-d3-graph-node image.unselected {
     display: block;
 }
 
-line.ko-d3-graph-link.edge {
+.edge {
     stroke: #999;
-    stroke-width: .5;
+    color: #999;
 }
 
-line.ko-d3-graph-link.match {
+.match {
     stroke: #2d5b99;
-    stroke-width: .5;
+    color: #2d5b99;
 }
 
-line.ko-d3-graph-link.backlink {
+.backlink {
     stroke: #229924;
+    color: #229924;
+}
+
+.draft {
+    stroke: #992a98;
+    color: #992a98;
+}
+
+.broken {
+    stroke: #BA3C46;
+    color: #BA3C46;
+}
+
+line.ko-d3-graph-link {
     stroke-width: .5;
 }
 
-line.ko-d3-graph-link.broken {
-    stroke: #BA3C46;
-    stroke-width: .5;
-}
-
-line.ko-d3-graph-link.edge.related {
-    stroke: #999;
+line.ko-d3-graph-link.related {
     stroke-width: 3;
 }
 
-line.ko-d3-graph-link.match.related {
-    stroke: #2d5b99;
-    stroke-width: 3;
-}
-
-line.ko-d3-graph-link.backlink.related {
-    stroke: #229924;
-    stroke-width: 3;
-}
-
-line.ko-d3-graph-link.broken.related {
-    stroke: #BA3C46;
-    stroke-width: 3;
-}
 
 dl.dl-horizontal dd {
     margin-left: 160px;

@@ -23,8 +23,8 @@ define([
             this.depth = ko.computed(function () {
                 return nodeData.depth;
             });
-            this.relType = ko.computed(function() {
-                return nodeData.rel_type;
+            this.nodeType = ko.computed(function() {
+                return nodeData.node_type;
             });
             this.hasBacklinks = ko.computed(function() {
                 return nodeData.has_backlinks;
