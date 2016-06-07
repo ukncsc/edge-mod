@@ -105,6 +105,8 @@ define([
                         return;
                     }
 
+                    d3.event.sourceEvent.preventDefault();
+
                     if (nodeSelected !== null) {
                         updateDraggedNode(nodeSelected);
                     }
@@ -132,9 +134,11 @@ define([
 
             var nodeSelector = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
-                .data(graphModel.nodes()).call(dragNode);
-
-
+                .data(graphModel.nodes()).call(dragNode).on("click", function (d) {
+                    if (!d3.event.defaultPrevented) {
+                        viewModel.onNodeClicked(d);
+                    }
+                });
 
             var matchingAndBacklinks = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
@@ -144,7 +148,6 @@ define([
 
             container.on("mouseover", function (d) {
                 tooltip.hide();
-
             });
 
 

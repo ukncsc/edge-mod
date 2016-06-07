@@ -30,8 +30,7 @@
 
             <!-- ko foreach: nodes -->
             <g class="ko-d3-graph-node" data-bind="
-                        attr: { title: title },
-                        click: $parents[1].onNodeClicked.bind($parents[1])
+                        attr: { title: title }
                     ">
 
                 <!-- ko if: hasEdges -->
