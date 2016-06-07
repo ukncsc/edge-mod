@@ -63,15 +63,15 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
     nodes = []
     links = []
 
-    def create_broken_node(edge):
+    def create_external_reference(edge):
         summary = {'title': '', 'type': edge.ty, 'value': '', '_id': edge.id_, 'cv': '', 'tg': '',
                    'data': {'idns': '', 'etlp': '', 'summary': {'title': None},
                             'hash': '', 'api': ''}, 'created_by_organization': ''}
         return EdgeObject(summary)
 
     def get_node_type(rel_type):
-        if rel_type == 'broken':
-            return 'broken'
+        if rel_type == 'external_ref':
+            return 'external_ref'
         if rel_type == 'draft':
             return 'draft'
         return 'normal'
@@ -89,7 +89,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
             title = node.summary.get("title", None)
             if title is None:
                 title = build_title(node)
-            if node_type is 'broken' or node_type is 'draft':
+            if node_type is 'external_ref' or node_type is 'draft':
                 backlinks, matches = False, False
             else:
                 backlinks, matches, = backlinks_exist(node_id), matches_exist(node_id)
@@ -110,8 +110,8 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
                             stack.append((depth + 1, idx, edge.fetch(), "edge"))
                         except EdgeError as e:
                             if e.message == edge.id_ + " not found":
-                                obj = create_broken_node(edge)
-                                stack.append((depth + 1, idx, obj, "broken"))
+                                obj = create_external_reference(edge)
+                                stack.append((depth + 1, idx, obj, "external_ref"))
                                 continue
                         except Exception as e:
                             raise e

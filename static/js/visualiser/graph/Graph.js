@@ -129,7 +129,6 @@ define([
             ko.utils.arrayForEach(graphData.nodes, function (nodeData, i) {
                 var existingNode = this.nodeAlreadyExists(currentNodes, nodeData);
                 if (!existingNode) {
-                    console.log("Keep an existing node");
                     newNodes.push(new Node(nodeData));
                 } else {
                     //originalNodes.push(existingNode);
@@ -149,7 +148,6 @@ define([
             ko.utils.arrayForEach(graphData.links, function (linkData, i) {
                 var existingLink = this.linkAlreadyExists(currentLinks, _rawNodes[linkData.source], _rawNodes[linkData.target]);
                 if (existingLink) {
-                    console.log("Keep an existing link");
                     newLinks.push(existingLink);
                 } else {
                     newLinks.push(new Link(_rawNodes[linkData.source], _rawNodes[linkData.target], linkData.rel_type));
