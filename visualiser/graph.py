@@ -69,11 +69,19 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
                             'hash': '', 'api': ''}, 'created_by_organization': ''}
         return EdgeObject(summary)
 
+    def get_node_type(rel_type):
+        if rel_type == 'broken':
+            return 'broken'
+        if rel_type == 'draft':
+            return 'draft'
+        return 'normal'
+
     id_to_idx = {}
 
     while stack:
         depth, parent_idx, node, rel_type = stack.pop()
         node_id = node.id_
+        node_type = get_node_type(rel_type)
         is_new_node = node_id not in id_to_idx
         if is_new_node:
             idx = len(nodes)
@@ -81,12 +89,12 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
             title = node.summary.get("title", None)
             if title is None:
                 title = build_title(node)
-            if rel_type is 'broken' or rel_type is 'draft':
+            if node_type is 'broken' or node_type is 'draft':
                 backlinks, matches = False, False
             else:
                 backlinks, matches, = backlinks_exist(node_id), matches_exist(node_id)
 
-            nodes.append(dict(id=node_id, type=node.ty, title=title, depth=depth, rel_type=rel_type,
+            nodes.append(dict(id=node_id, type=node.ty, title=title, depth=depth, node_type=node_type,
                               has_backlinks=backlinks, has_matches=matches, has_edges=len(node.edges) != 0,
                               edges_shown=show_edges(rel_type, node_id), matches_shown=node_id in id_matches,
                               backlinks_shown=node_id in bl_ids))

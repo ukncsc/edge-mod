@@ -62,7 +62,7 @@
                 <!-- ko with: selectedLinkedNodes -->
 
                 <!-- ko if: parentOf.length > 0 -->
-                <dt>References</dt>
+                <dt class="edge">References</dt>
                 <!-- ko foreach: parentOf -->
                 <dd data-bind=" attr: {title: id} ">
                     <!-- ko if: $parents[2].panel_actions().show_check(type(), 'edge') -->
@@ -76,7 +76,7 @@
                 <!-- /ko -->
 
                 <!-- ko if: matches.length > 0 -->
-                <dt>Matching Objects</dt>
+                <dt class="match">Matching Objects</dt>
                 <!-- ko foreach: matches -->
                 <dd data-bind=" attr: {title: id} ">
                     <!-- ko if: $parents[2].panel_actions().show_check(type(), 'match') -->
@@ -91,7 +91,7 @@
                 <!-- /ko -->
 
                 <!-- ko if: backlinks.length > 0 -->
-                <dt>Backlinks</dt>
+                <dt class="backlink">Backlinks</dt>
                 <!-- ko foreach: backlinks -->
                 <dd data-bind=" attr: {title: id} ">
                     <!-- ko if: $parents[2].panel_actions().show_check(type(), 'backlink') -->
@@ -105,7 +105,7 @@
                 <!-- /ko -->
 
                 <!-- ko if: drafts.length > 0 -->
-                <dt>Drafts</dt>
+                <dt class="draft">Drafts</dt>
                 <!-- ko foreach: drafts -->
                 <dd data-bind=" attr: {title: id} ">
                     <!-- ko if: $parents[2].panel_actions().show_check(type(), 'draft') -->
