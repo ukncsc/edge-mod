@@ -23,7 +23,6 @@ define([
             this.backlinks = ko.observableArray([]);
             this.matches = ko.observableArray([]);
             this.no_edges = ko.observableArray([]);
-            this.no_edges = ko.observableArray([]);
             this.edges = ko.observableArray([]);
             // create proxy observables for all [gs]etters on _d3Layout with the default value provided by D3
             var _pendingUpdate = null;

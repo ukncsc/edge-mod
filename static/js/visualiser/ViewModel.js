@@ -59,6 +59,8 @@ define([
         onNewRootId: function (data, scope) {
             this.graph().backlinks.removeAll();
             this.graph().matches.removeAll();
+            this.graph().edges.removeAll();
+            this.graph().no_edges.removeAll();
             this.rootId = ko.computed(function () {
                 return data;
             });

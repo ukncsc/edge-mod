@@ -74,7 +74,7 @@
             <dl data-bind="visible:true" class="linkedNodes" style="display:none">
                 <!-- ko with: selectedLinkedNodes -->
 
-                <!-- ko if: parentOf.length > 0 -->
+
                 <dt class="edge">References</dt>
                 <!-- ko foreach: parentOf -->
                 <dd data-bind=" attr: {title: id} ">
@@ -86,9 +86,9 @@
                     click:$parents[2].onNodeClicked.bind($parents[2])"></span>
                 </dd>
                 <!-- /ko -->
-                <!-- /ko -->
 
-                <!-- ko if: matches.length > 0 -->
+
+
                 <dt class="match">Matching Objects</dt>
                 <!-- ko foreach: matches -->
                 <dd data-bind=" attr: {title: id} ">
@@ -101,9 +101,9 @@
                 </dd>
 
                 <!-- /ko -->
-                <!-- /ko -->
 
-                <!-- ko if: backlinks.length > 0 -->
+
+
                 <dt class="backlink">Backlinks</dt>
                 <!-- ko foreach: backlinks -->
                 <dd data-bind=" attr: {title: id} ">
@@ -115,9 +115,8 @@
                     click:$parents[2].onNodeClicked.bind($parents[2])"></span>
                 </dd>
                 <!-- /ko -->
-                <!-- /ko -->
 
-                <!-- ko if: drafts.length > 0 -->
+
                 <dt class="draft">Drafts</dt>
                 <!-- ko foreach: drafts -->
                 <dd data-bind=" attr: {title: id} ">
@@ -128,7 +127,6 @@
                     &nbsp;<span data-bind="text:title,
                     click:$parents[2].onNodeClicked.bind($parents[2])"></span>
                 </dd>
-                <!-- /ko -->
                 <!-- /ko -->
 
                 <br>

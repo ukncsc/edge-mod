@@ -3,7 +3,7 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
-from edge.generic import EdgeObject, EdgeError
+from edge.generic import EdgeError
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.objectid import discover as objectid_discover

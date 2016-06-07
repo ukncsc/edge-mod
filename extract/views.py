@@ -19,6 +19,7 @@ from adapters.certuk_mod.common.views import error_with_message
 from adapters.certuk_mod.common.objectid import is_valid_stix_id
 from adapters.certuk_mod.visualiser.views import visualiser_item_get
 from adapters.certuk_mod.visualiser.graph import create_graph
+from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 
 DRAFT_ID_SEPARATOR = ":draft:"
 
@@ -138,7 +139,7 @@ def summarise_draft_observable(d):
 
 def observable_to_name(observable, is_draft):
     if is_draft:
-        return "draft: " + observable['objectType'] + ":" + observable['title']
+        return observable['objectType'] + ":" + observable['title']
     return observable['id']
 
 
@@ -166,10 +167,17 @@ def extract_visualiser_get_extended(request):
             iterate_draft(Draft.load(root_id, request.user), bl_ids, id_matches, hide_edge_ids, show_edge_ids),
             status=200)
     except Exception as e:
+        pass
+
+    try:
+        root_edge_object = PublisherEdgeObject.load(root_id)
+        graph = create_graph([(0, None, root_edge_object, "edge")], [], [], [], [])
+        return JsonResponse(graph, status=200)
+    except Exception as e:
         return JsonResponse({'error': e.message}, status=400)
 
-def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
 
+def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
     def create_draft_observable_id(obs):
         d = hashlib.md5(obs['title'].encode("utf-8")).hexdigest()
         return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + d
