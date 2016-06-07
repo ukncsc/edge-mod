@@ -113,9 +113,9 @@ g.ko-d3-graph-node image.unselected {
 }
 
 .edge {
-    stroke: #999;
-    color: #999;
-    fill: #999;
+    stroke: #908d5e;
+    color: #908d5e;
+    fill: #908d5e;
 }
 
 .match {
