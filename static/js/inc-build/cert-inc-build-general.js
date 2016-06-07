@@ -119,12 +119,18 @@ define([
 
             this.confidence(data["confidence"] || "");
             this.tlp(data["tlp"] || "");
+
             if ("markings" in data && data["markings"].length == 0) {
                 this.markings("");
             } else {
                 this.markings(data["markings"] || "");
             }
-            this.handling_caveat(data["handling_caveat"] || "");
+
+            if ("handling_caveat" in data && data["handling_caveat"].length == 0) {
+                this.handling_caveat("");
+            } else {
+                this.handling_caveat(data["handling_caveat"] || "");
+            }
 
             this.status.subscribe(function (data) {
                 Topic.publish(topics.STATUS_CHANGE, data);

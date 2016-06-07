@@ -11,12 +11,14 @@ from django.conf import settings
 from stix.common import vocabs
 from stix.incident.time import Time as StixTime
 from stix.incident import IncidentCategories, IntendedEffects, DiscoveryMethods
+from stix_extension.handling_marking import HandlingMarkingStructure
 
 from incident import views
 
 from edge.common import EdgeInformationSource
 from edge.generic import WHICH_DBOBJ, FROM_DICT_DISPATCH
 from edge.tools import cleanstrings, rgetattr
+from edge.handling import handling_to_draft
 
 from edge import IDManager, NamespaceNotConfigured, incident
 from rbac import user_can_edit
@@ -127,6 +129,12 @@ def from_draft_wrapper(wrapped_func):
 
         target.coordinators = [ EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in draft.get('coordinators', [])]
 
+        # Edge sets handling by looking for magic strings, tlp and markings, (handing_from draft in handling.py).
+        # This is the easiest/least hacky way of adding a new marking. Should patch and refactor that function
+        # so that it takes a map and creates the markings.
+        target.handling.markings[0].marking_structures.append(
+                HandlingMarkingStructure(draft.get('handling_caveat')))
+
         return target
 
     return classmethod(_w)
@@ -156,6 +164,8 @@ class DBIncidentPatch(incident.DBIncident):
                     draft.get('time')[key] = new_value
                 else:
                     value['value'] = DBIncidentPatch.convert_to_and_strip_config_timezone(value['value'])
+
+        draft['handling_caveat'] = handling_to_draft(inc, "caveat")
 
         return draft
 
