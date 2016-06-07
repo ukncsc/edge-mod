@@ -7,7 +7,8 @@
             <span class="glyphicon glyphicon-download"></span>
         </button>
         <div class="tooltip" id="graph-node-tooltip" style={'opacity':0}></div>
-        <svg id="visualiser-graph" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+        <svg id="visualiser-graph" version="1.1" xmlns="http://www.w3.org/2000/svg"
+             xmlns:xlink="http://www.w3.org/1999/xlink"
              preserveAspectRatio="xMidYMid meet"
              style="display:none;"
              data-bind="
@@ -32,6 +33,19 @@
                         attr: { title: title },
                         click: $parents[1].onNodeClicked.bind($parents[1])
                     ">
+
+                <!-- ko if: hasEdges -->
+                <circle data-bind="attr: {cx: 5*imageWidth()/16 , cy: -(3*imageHeight()/8), r: (0.58*imageHeight()/6)}"
+                        fill="#999" stroke="black" stroke-width="0"/>
+                <!-- /ko -->
+                <!-- ko if: hasBacklinks -->
+                <circle data-bind="attr: {cx: 3*imageWidth()/8, cy: -(imageHeight()/4), r: (0.58*imageHeight()/6)}"
+                        fill="#229924 " stroke="black" stroke-width="0"/>
+                <!-- /ko -->
+                <!-- ko if: hasMatches -->
+                <circle data-bind="attr: {cx: 7*imageWidth()/16 , cy: - (imageHeight()/8), r: (0.58*imageHeight()/6)}"
+                        fill="blue" stroke="black" stroke-width="0"/>
+                <!-- /ko -->
 
                 <image xlink:href="{% static 'img/hex/hex_.png' %}" class="" data-bind="
                             attr: {

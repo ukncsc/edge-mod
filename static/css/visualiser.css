@@ -82,6 +82,12 @@ svg {
 
 g.ko-d3-graph-node {
     cursor: pointer;
+    stroke: red;
+    stroke-width: 20;
+}
+
+#selected {
+    border: 2px solid green;
 }
 
 g.ko-d3-graph-node image.selected {
