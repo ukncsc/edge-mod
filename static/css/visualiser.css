@@ -118,16 +118,19 @@ g.ko-d3-graph-node image.unselected {
 .edge {
     stroke: #999;
     color: #999;
+    fill: #999;
 }
 
 .match {
     stroke: #2d5b99;
     color: #2d5b99;
+    fill: #2d5b99;
 }
 
 .backlink {
     stroke: #229924;
     color: #229924;
+    fill: #229924;
 }
 
 .draft {

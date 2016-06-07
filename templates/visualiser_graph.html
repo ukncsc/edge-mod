@@ -36,15 +36,15 @@
 
                 <!-- ko if: hasEdges -->
                 <circle data-bind="attr: {cx: 5*imageWidth()/16 , cy: -(3*imageHeight()/8), r: (0.58*imageHeight()/6)}"
-                        fill="#999" stroke="black" stroke-width="0"/>
+                        class="edge" stroke-width="0"/>
                 <!-- /ko -->
                 <!-- ko if: hasBacklinks -->
                 <circle data-bind="attr: {cx: 3*imageWidth()/8, cy: -(imageHeight()/4), r: (0.58*imageHeight()/6)}"
-                        fill="#229924 " stroke="black" stroke-width="0"/>
+                        class="backlink" stroke-width="0"/>
                 <!-- /ko -->
                 <!-- ko if: hasMatches -->
                 <circle data-bind="attr: {cx: 7*imageWidth()/16 , cy: - (imageHeight()/8), r: (0.58*imageHeight()/6)}"
-                        fill="blue" stroke="black" stroke-width="0"/>
+                        class="match" stroke-width="0"/>
                 <!-- /ko -->
 
                 <image xlink:href="{% static 'img/hex/hex_.png' %}" class="" data-bind="
