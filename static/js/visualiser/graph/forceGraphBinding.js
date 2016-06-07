@@ -133,7 +133,6 @@ define([
                 .data(graphModel.nodes()).call(dragNode);
 
             function createToggleButton(type, glyphicon, state, callback, id) {
-            function createToggleButton(type, glyphicon, state, callback, id) {
                 return "<button type=\"button\" class=\"btn btn-default clear_bg\" aria-label=\"Left Align\" data-bind=\"click:$data." + callback + ".bind($data,'" + id + "')\">"
                     + "<span class='" + type + " glyphicon glyphicon-" + glyphicon + (state ? " fa-signal " : " ") + "clear_bg'>"
                     + "</span>"
