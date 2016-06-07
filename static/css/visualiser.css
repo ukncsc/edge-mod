@@ -91,17 +91,14 @@ g.ko-d3-graph-node {
 }
 
 g.ko-d3-graph-node image.selected {
-    -webkit-filter: drop-shadow(0 0 8px black) contrast(150%);
     filter: drop-shadow(0 0 8px black) contrast(150%);
 }
 
 g.ko-d3-graph-node image.related {
-    -webkit-filter: grayscale(.3) contrast(150%);
     filter: grayscale(.3) contrast(150%);
 }
 
 g.ko-d3-graph-node image.unselected {
-    -webkit-filter: grayscale(.7);
     filter: grayscale(.7);
 }
 
@@ -138,13 +135,13 @@ g.ko-d3-graph-node image.unselected {
     color: #992a98;
 }
 
-.broken {
+.external_ref {
     stroke: #BA3C46;
     color: #BA3C46;
 }
 
 line.ko-d3-graph-link {
-    stroke-width: .5;
+    stroke-width: .7;
 }
 
 line.ko-d3-graph-link.related {

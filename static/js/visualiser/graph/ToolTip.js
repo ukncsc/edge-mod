@@ -1,6 +1,6 @@
 define([
     "dcl/dcl",
-    "knockout",
+    "knockout"
 ], function (declare, ko) {
     "use strict";
 
@@ -63,7 +63,7 @@ define([
             var y_middle = (viewBox.animVal != null ? viewBox.animVal.height / 2 : 0);
             var iWidth = (d.imageWidth() / 4) * currentScale;
             var iHeight = (d.imageHeight() / 4) * currentScale;
-            if (d.nodeType() != 'broken') {
+            if (d.nodeType() != 'external_ref') {
                 this.tooltip.transition()
                     .duration(200)
                     .style("opacity", 0.8);
@@ -83,7 +83,7 @@ define([
                     .style("opacity", 0.8);
                 this.tooltip.html(
                         "<button type=\"button\" class=\"btn btn-danger clear_bg\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
-                        "<span class='clear_bg'>Broken node</span>" +
+                        "<span class='clear_bg'>External Reference</span>" +
                         "</button>"
                     )
                     .style("left", ((x_middle + iWidth + (d.x - x_middle) * currentScale) + currentXOffset) + "px")
