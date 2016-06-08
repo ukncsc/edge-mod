@@ -47,6 +47,9 @@ define([
             this.className = ko.computed(function () {
                 return this.isSelected() ? "selected" : this.isRelated() ? "related" : "unselected";
             }, this);
+            this.filterValue = ko.computed(function () {
+                return this.isSelected() ? "Selected" : this.isRelated() ? "Related" : "Unselected";
+            }, this);
         },
         isRoot: function () {
             return this.depth() === 0;
