@@ -42,9 +42,9 @@ class ExtractVisualiserTests(unittest.TestCase):
 
         self.draft_obs0 = {'title': 'test0', 'objectType': 'File', 'filename': "abc.txt"}
         self.draft_obs1 = {'title': 'test1', 'objectType': 'File',
-                            'hashes': [{'hash_type': 'md5', 'hash_value': '123123123'}]}
+                           'hashes': [{'hash_type': 'md5', 'hash_value': '123123123'}]}
 
-        self.obs0 = {'id':self.id_obs0, 'title': 'test1', 'objectType': 'File',
+        self.obs0 = {'id': self.id_obs0, 'title': 'test1', 'objectType': 'File',
                       'hashes': [{'hash_type': 'md5', 'hash_value': '123123123'}]}
 
     class mockJsonResponse:
@@ -53,7 +53,7 @@ class ExtractVisualiserTests(unittest.TestCase):
 
     def test_extract_visualiser_item_simple(self):
 
-        draft_ind = {'id': self.ind_id_, 'observables': [self.draft_obs0, self.draft_obs1], 'title':""}
+        draft_ind = {'id': self.ind_id_, 'observables': [self.draft_obs0, self.draft_obs1], 'title': ""}
 
         self.mock_draft_load.return_value = draft_ind
         self.mock_draft_list.return_value = [draft_ind]
@@ -61,15 +61,15 @@ class ExtractVisualiserTests(unittest.TestCase):
         with mock.patch('adapters.certuk_mod.extract.views.JsonResponse', self.mockJsonResponse):
             response = extract_visualiser_get(self.mock_request, self.ind_id_)
 
-        self.assertEqual(len(response.content['nodes']), 3);
-        self.assertEqual(len(response.content['links']), 2);
+        self.assertEqual(len(response.content['nodes']), 3)
+        self.assertEqual(len(response.content['links']), 2)
 
     def test_extract_visualiser_item_with_backlinks(self):
         mock_db_instance = mock.MagicMock()
         self.mock_get_db.return_value = mock_db_instance
-        mock_db_instance.stix_backlinks.find = mock.MagicMock(return_value=[{'value': {'indicator:backlink':''}}])
+        mock_db_instance.stix_backlinks.find = mock.MagicMock(return_value=[{'value': {'indicator:backlink': ''}}])
 
-        draft_ind = {'id': self.ind_id_, 'observables': [self.obs0, self.draft_obs1], 'title':""}
+        draft_ind = {'id': self.ind_id_, 'observables': [self.obs0, self.draft_obs1], 'title': ""}
         obs_comp = mock.MagicMock()
         obs_comp.id = "obs_comp_id"
         obs_comp.ty = "obs"
@@ -79,21 +79,21 @@ class ExtractVisualiserTests(unittest.TestCase):
         bl_ind.ty = "ind"
 
         self.mock_draft_load.return_value = draft_ind
-        self.mock_edge_load.side_effect =  [obs_comp, bl_ind]
+        self.mock_edge_load.side_effect = [obs_comp, bl_ind]
         self.mock_draft_list.return_value = [draft_ind]
 
         with mock.patch('adapters.certuk_mod.extract.views.JsonResponse', self.mockJsonResponse):
             response = extract_visualiser_get(self.mock_request, self.ind_id_)
 
-        self.assertEqual(len(response.content['nodes']), 4);
-        self.assertEqual(len(response.content['links']), 3);
+        self.assertEqual(len(response.content['nodes']), 4)
+        self.assertEqual(len(response.content['links']), 3)
 
     def test_extract_visualiser_item_with_backlinks_but_draft(self):
         mock_db_instance = mock.MagicMock()
         self.mock_get_db.return_value = mock_db_instance
-        mock_db_instance.stix_backlinks.find = mock.MagicMock(return_value=[{'value': {'indicator:backlink':''}}])
+        mock_db_instance.stix_backlinks.find = mock.MagicMock(return_value=[{'value': {'indicator:backlink': ''}}])
 
-        draft_ind = {'id': self.ind_id_, 'observables': [self.draft_obs0, self.draft_obs1], 'title':""}
+        draft_ind = {'id': self.ind_id_, 'observables': [self.draft_obs0, self.draft_obs1], 'title': ""}
         obs_comp = mock.MagicMock()
         obs_comp.id = "obs_comp_id"
         obs_comp.obj.observable_composition.operator = 'Or'
@@ -103,7 +103,7 @@ class ExtractVisualiserTests(unittest.TestCase):
         bl_ind.ty = "ind"
 
         self.mock_draft_load.return_value = draft_ind
-        self.mock_edge_load.side_effect =  [obs_comp, bl_ind]
+        self.mock_edge_load.side_effect = [obs_comp, bl_ind]
         self.mock_draft_list.return_value = [draft_ind]
 
         class mock_json_response:
@@ -113,5 +113,5 @@ class ExtractVisualiserTests(unittest.TestCase):
         with mock.patch('adapters.certuk_mod.extract.views.JsonResponse', mock_json_response):
             response = extract_visualiser_get(self.mock_request, self.ind_id_)
 
-        self.assertEqual(len(response.content['nodes']), 3);
-        self.assertEqual(len(response.content['links']), 2);
+        self.assertEqual(len(response.content['nodes']), 3)
+        self.assertEqual(len(response.content['links']), 2)

@@ -78,7 +78,7 @@
             <!-- /ko -->
         </svg>
     </div>
-    {# TODO: extract detail panel to separate template #}
+
     <div id="visualiser-detail" class="flex-after flexbox vflex panel-default">
         <div class="flex-before panel-heading">
             <h3 class="panel-title">Details</h3>
@@ -96,7 +96,7 @@
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: matches, title: 'Matching Objects', cssClass: 'match'}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanelDrafts', data: {realData: drafts, title: 'Drafts', cssClass:'draft'}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: childOf, title: 'Referenced By', cssClass: 'edge'}}"></div>
-                
+
                 <!-- /ko -->
             </dl>
             <!-- /ko -->
