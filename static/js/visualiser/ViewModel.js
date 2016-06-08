@@ -50,6 +50,9 @@ define([
             }.bind(this), 100);
         },
         onNodeClicked: function (data) {
+            if (data.nodeType() === 'external_ref') {
+                return;
+            }
             this.graph().selectNode(data.id());
         },
         onExternalPublish: function (data, scope) {

@@ -77,11 +77,30 @@
 
                 <!-- ko if: parentOf.length === 0 -->
                 <span font-stlye="italic">(none)</span>
+                <br>
                 <!-- /ko -->
 
                 <!-- ko foreach: parentOf -->
                 <dd data-bind=" attr: {title: id} ">
                     <!-- ko if: $parents[2].panel_actions().show_check(type(), 'edge') -->
+                    <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
+                    <!-- /ko -->
+                    <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
+                    &nbsp;<span data-bind="text:title,
+                    click:$parents[2].onNodeClicked.bind($parents[2])"></span>
+                </dd>
+                <!-- /ko -->
+                <br>
+                <dt class="external_ref">External References</dt>
+
+                <!-- ko if: external_refs.length === 0 -->
+                <span font-stlye="italic">(none)</span>
+                <br>
+                <!-- /ko -->
+
+                <!-- ko foreach: external_refs -->
+                <dd data-bind=" attr: {title: id} ">
+                    <!-- ko if: $parents[2].panel_actions().show_check(type(), 'external_ref') -->
                     <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
                     <!-- /ko -->
                     <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
@@ -95,6 +114,7 @@
 
                 <!-- ko if: backlinks.length === 0 -->
                 <span font-stlye="italic">(none)</span>
+                <br>
                 <!-- /ko -->
                 <!-- ko foreach: backlinks -->
                 <dd data-bind=" attr: {title: id} ">
@@ -113,6 +133,7 @@
 
                 <!-- ko if: matches.length === 0 -->
                 <span font-stlye="italic">(none)</span>
+                <br>
                 <!-- /ko -->
 
                 <!-- ko foreach: matches -->
@@ -133,6 +154,7 @@
 
                 <!-- ko if: drafts.length === 0 -->
                 <span font-stlye="italic">(none)</span>
+                <br>
                 <!-- /ko -->
 
                 <!-- ko foreach: drafts -->
@@ -161,12 +183,13 @@
                     </button>
                     <!-- /ko -->
                 </div>
-                 <!-- /ko -->
+                <!-- /ko -->
                 <br>
                 <dt class="edge">Referenced By</dt>
 
                 <!-- ko if: childOf.length === 0 -->
                 <span font-stlye="italic">(none)</span>
+                <br>
                 <!-- /ko -->
 
                 <!-- ko foreach: childOf -->
