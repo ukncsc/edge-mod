@@ -55,7 +55,6 @@ define([
         onExternalPublish: function (data, scope) {
             window.open(this.publish_url() + encodeURIComponent(data));
         },
-
         onNewRootId: function (data, scope) {
             this.graph().backlinks.removeAll();
             this.graph().matches.removeAll();

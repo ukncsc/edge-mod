@@ -49,13 +49,6 @@ def matches_exist(id_):
     return exists
 
 
-def create_broken_node(edge):
-    summary = {'title': '', 'type': edge.ty, 'value': '', '_id': edge.id_, 'cv': '', 'tg': '',
-               'data': {'idns': '', 'etlp': '', 'summary': {'title': None},
-                        'hash': '', 'api': ''}, 'created_by_organization': ''}
-    return EdgeObject(summary)
-
-
 def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
     def show_edges(rel_type, node_id):
         return ("backlink" not in rel_type and "match" not in rel_type) or (node_id in show_edge_ids)

@@ -83,7 +83,6 @@ define([
             }, this).extend(RATE_LIMIT);
             this.loadData(graphData);
         },
-
         nodeAlreadyExists: function (currentNodes, nodeData) {
             var existingNode = null;
             ko.utils.arrayForEach(currentNodes, function (node) {
@@ -98,7 +97,6 @@ define([
             });
             return existingNode;
         },
-
         linkAlreadyExists: function (currentLinks, sourceData, targetData) {
             var existingLink = null;
             ko.utils.arrayForEach(currentLinks, function (link) {
@@ -117,24 +115,19 @@ define([
             });
             return existingLink;
         },
-
         loadData: function (graphData) {
             this.d3Layout().stop();
 
             var currentNodes = this.nodes();
             var newNodes = [];
 
-            var indiciesToRemove = [];
-            //var originalNodes = []
             ko.utils.arrayForEach(graphData.nodes, function (nodeData, i) {
                 var existingNode = this.nodeAlreadyExists(currentNodes, nodeData);
                 if (!existingNode) {
                     newNodes.push(new Node(nodeData));
                 } else {
-                    //originalNodes.push(existingNode);
                     newNodes.push(existingNode);
                 }
-
             }.bind(this));
 
             this.nodes().splice(0, this.nodes().length);
@@ -152,25 +145,12 @@ define([
                 } else {
                     newLinks.push(new Link(_rawNodes[linkData.source], _rawNodes[linkData.target], linkData.rel_type));
                 }
-
             }.bind(this));
 
             this.links().splice(0, this.links().length);
             this.links().push.apply(this.links(), newLinks);
             this.links.valueHasMutated();
             this.d3Layout().start();
-            /*this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
-             if (wasOriginalNode(originalNodes, _rawNodes[linkData.source]) && wasOriginalNode(originalNodes, _rawNodes[linkData.target]))
-             return new Link(_rawNodes[linkData.source], _rawNodes[linkData.target]);
-             }.bind(this))); */
-
-            //var currentLinks = this.links();
-            //var /*Node[]*/ _rawNodes = this.nodes.peek();
-            //this.links(ko.utils.arrayMap(graphData.links, function (linkData) {
-            //if (!linkAlreadyExists(currentLinks, linkData)) {
-            //     return new Link(_rawNodes[linkData.source], _rawNodes[linkData.target]);
-            //}
-            // }.bind(this)));
         },
         applyBindingValues: function (bindingValues) {
             ko.utils.objectForEach(bindingValues, function (name, value) {
