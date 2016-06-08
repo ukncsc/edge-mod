@@ -1,5 +1,5 @@
 {% load staticfiles %}
-
+{% include 'visualiser_panel.html' %}
 <template id="Graph">
     <div id="graph-container" class="flex-main">
         <button type="button" class="btn btn-default btn-lg pull-right" style="position:absolute;top:5px;left:20px;"
@@ -73,114 +73,12 @@
             <dl data-bind="visible:true" class="linkedNodes" style="display:none">
                 <!-- ko with: selectedLinkedNodes -->
 
-                <dt class="edge">References</dt>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: parentOf, title: 'References', cssClass:'edge'}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: backlinks, title: 'Backlinks', cssClass: 'backlink'}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: matches, title: 'Matching Objects', cssClass: 'match'}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanelDrafts', data: {realData: drafts, title: 'Drafts', cssClass:'draft'}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: childOf, title: 'Referenced By', cssClass: 'edge'}}"></div>
 
-                <!-- ko if: parentOf.length === 0 -->
-                <span font-stlye="italic">(none)</span>
-                <!-- /ko -->
-
-                <!-- ko foreach: parentOf -->
-                <dd data-bind=" attr: {title: id} ">
-                    <!-- ko if: $parents[2].panel_actions().show_check(type(), 'edge') -->
-                    <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
-                    <!-- /ko -->
-                    <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
-                    &nbsp;<span data-bind="text:title,
-                    click:$parents[2].onNodeClicked.bind($parents[2])"></span>
-                </dd>
-                <!-- /ko -->
-
-                <br>
-                <dt class="backlink">Backlinks</dt>
-
-                <!-- ko if: backlinks.length === 0 -->
-                <span font-stlye="italic">(none)</span>
-                <!-- /ko -->
-                <!-- ko foreach: backlinks -->
-                <dd data-bind=" attr: {title: id} ">
-                    <!-- ko if: $parents[2].panel_actions().show_check(type(), 'backlink') -->
-                    <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
-                    <!-- /ko -->
-                    <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
-                    &nbsp;<span data-bind="text:title,
-                    click:$parents[2].onNodeClicked.bind($parents[2])"></span>
-                </dd>
-                <!-- /ko -->
-
-
-                <br>
-                <dt class="match">Matching Objects</dt>
-
-                <!-- ko if: matches.length === 0 -->
-                <span font-stlye="italic">(none)</span>
-                <!-- /ko -->
-
-                <!-- ko foreach: matches -->
-                <dd data-bind=" attr: {title: id} ">
-                    <!-- ko if: $parents[2].panel_actions().show_check(type(), 'match') -->
-                    <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
-                    <!-- /ko -->
-                    <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
-                    &nbsp;<span data-bind="text:title,
-                    click:$parents[2].onNodeClicked.bind($parents[2])"></span>
-                </dd>
-
-                <!-- /ko -->
-
-
-                <br>
-                <dt class="draft">Drafts</dt>
-
-                <!-- ko if: drafts.length === 0 -->
-                <span font-stlye="italic">(none)</span>
-                <!-- /ko -->
-
-                <!-- ko foreach: drafts -->
-                <dd data-bind=" attr: {title: id} ">
-                    <!-- ko if: $parents[2].panel_actions().show_check(type(), 'draft') -->
-                    <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
-                    <!-- /ko -->
-                    <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
-                    &nbsp;<span data-bind="text:title,
-                    click:$parents[2].onNodeClicked.bind($parents[2])"></span>
-                </dd>
-                <!-- /ko -->
-
-
-                <div class="btn-group" role="group">
-                    <!-- ko foreach: $parents[1].panel_actions().actions -->
-                    <button type="button" data-toggle="tooltip" class="btn btn-default" data-bind="attr: {title:action_name},
-                        click:$parents[1].call_action.bind($parents[1], $data.action())">
-                        <!-- ko if: glyphicon_name -->
-                        <span data-bind="css: glyphicon_name"></span>
-                        <!-- /ko -->
-                        <!-- ko ifnot: glyphicon_name -->
-                        <!--ko text: action_name--><!--/ko-->
-                        <!-- /ko -->
-                    </button>
-                    <!-- /ko -->
-                </div>
-
-                <br>
-                <dt class="edge">Referenced By</dt>
-
-                <!-- ko if: childOf.length === 0 -->
-                <span font-stlye="italic">(none)</span>
-                <!-- /ko -->
-
-                <!-- ko foreach: childOf -->
-                <dd data-bind="
-                    attr: {
-                        title: id
-                    },
-                    click:$parents[2].onNodeClicked.bind($parents[2])
-                ">
-                    <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'
-                                        }">&nbsp;<span data-bind="text:title"></span>
-                </dd>
-
-                <!-- /ko -->
-                <!-- /ko -->
                 <!-- /ko -->
             </dl>
             <!-- /ko -->

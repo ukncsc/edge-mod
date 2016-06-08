@@ -57,10 +57,14 @@ define([
             });
             sizeToParent(element, graphModel);
 
-
             ko.utils.domNodeDisposal.addDisposeCallback(element, function () {
                 handle.remove();
             });
+
+            viewModel.currentScale = 1;
+            viewModel.currentXOffset = 0;
+            viewModel.currentYOffset = 0;
+
             // Tell Knockout that we've already dealt with child bindings
             return {
                 controlsDescendantBindings: true
@@ -69,10 +73,6 @@ define([
         update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             var graphModel = valueAccessor()();
             var container = d3.select(element);
-
-            var currentScale = 1;
-            var currentXOffset = 0;
-            var currentYOffset = 0;
 
             var nodeSelected = null;
             var nodeSelectedX = null;
@@ -89,19 +89,22 @@ define([
                 .scaleExtent([minZoom, maxZoom])
                 .on("zoom", function (d, i) {
                     //Filter all but left mouse button
-                    if (d3.event.sourceEvent === null || d3.event.sourceEvent.which !== 1
-                        || d3.event.scale == currentScale) {
+                    if (d3.event.sourceEvent === null || d3.event.sourceEvent.type !== 'wheel'
+                        || d3.event.scale == viewModel.currentScale) {
                         return;
                     }
 
-                    currentScale = d3.event.scale;
+                    viewModel.currentScale = d3.event.scale;
                     graphModel.d3Layout().resume();
                 });
+
+            d3.behavior.zoom()
+                .scale(viewModel.currentScale);
 
             var drag = d3.behavior.drag()
                 .on("drag", function (d) {
                     //Filter all but left mouse button
-                    if (d3.event.sourceEvent === null || d3.event.sourceEvent.which !== 1) {
+                    if (d3.event.sourceEvent === null || d3.event.sourceEvent.button !== 0) {
                         return;
                     }
 
@@ -111,8 +114,8 @@ define([
                         updateDraggedNode(nodeSelected);
                     }
                     else {
-                        currentXOffset = currentXOffset + d3.event.dx;
-                        currentYOffset = currentYOffset + d3.event.dy;
+                        viewModel.currentXOffset = viewModel.currentXOffset + d3.event.dx;
+                        viewModel.currentYOffset = viewModel.currentYOffset + d3.event.dy;
                     }
                     graphModel.d3Layout().resume();
                 })
@@ -128,8 +131,8 @@ define([
 
 
             function updateDraggedNode(d) {
-                nodeSelectedX = d.x = d.x + d3.event.dx / currentScale;
-                nodeSelectedY = d.y = d.y + d3.event.dy / currentScale;
+                nodeSelectedX = d.x = d.x + d3.event.dx / viewModel.currentScale;
+                nodeSelectedY = d.y = d.y + d3.event.dy / viewModel.currentScale;
             }
 
             var nodeSelector = container
@@ -143,7 +146,7 @@ define([
             var matchingAndBacklinks = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
                 .data(graphModel.nodes()).on("mousemove", function (d) {
-                    tooltip.setNodeTooltip(d, currentScale, currentXOffset, currentYOffset);
+                    tooltip.setNodeTooltip(d, viewModel.currentScale, viewModel.currentXOffset, viewModel.currentYOffset);
                 });
 
             container.on("mouseover", function (d) {
@@ -172,22 +175,22 @@ define([
                             d.y = nodeSelectedY;
                         }
 
-                        return "translate(" + ((x_middle + (d.x - x_middle) * currentScale) + currentXOffset)
-                            + "," + ((y_middle + (d.y - y_middle) * currentScale) + currentYOffset)
-                            + ")scale(" + currentScale + ")";
+                        return "translate(" + ((x_middle + (d.x - x_middle) * viewModel.currentScale) + viewModel.currentXOffset)
+                            + "," + ((y_middle + (d.y - y_middle) * viewModel.currentScale) + viewModel.currentYOffset)
+                            + ")scale(" + viewModel.currentScale + ")";
                     });
 
                     linkSelector.attr("x1", function (d) {
-                            return (x_middle + (d.source.x - x_middle) * currentScale) + currentXOffset;
+                            return (x_middle + (d.source.x - x_middle) * viewModel.currentScale) + viewModel.currentXOffset;
                         })
                         .attr("y1", function (d) {
-                            return (y_middle + (d.source.y - y_middle) * currentScale) + currentYOffset;
+                            return (y_middle + (d.source.y - y_middle) * viewModel.currentScale) + viewModel.currentYOffset;
                         })
                         .attr("x2", function (d) {
-                            return (x_middle + (d.target.x - x_middle) * currentScale) + currentXOffset;
+                            return (x_middle + (d.target.x - x_middle) * viewModel.currentScale) + viewModel.currentXOffset;
                         })
                         .attr("y2", function (d) {
-                            return (y_middle + (d.target.y - y_middle) * currentScale) + currentYOffset;
+                            return (y_middle + (d.target.y - y_middle) * viewModel.currentScale) + viewModel.currentYOffset;
                         });
                 })
         }

@@ -64,7 +64,6 @@ define([
                 return data;
             });
             this.getWithOthers();
-
         },
         onPlusBacklinkClicked: function (data, scope) {
             this.graph().backlinks.push(data);
@@ -136,12 +135,10 @@ define([
             }
             return templateName;
         },
-
         saveAsPNG: function (data, event) {
             PNGConverter.savetoPNG(event, this.rootId());
         }
     });
-
     ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*String*/ publish_url, /*String*/ graph_svg_id,
                                    /*PanelActions*/panel_actions, /*function*/ onLoadedCallback,
                                    /*function*/ onErrorCallback) {

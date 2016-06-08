@@ -43,12 +43,13 @@ define([
             this.selectedNode = ko.observable(null);
             this.selectedLinkedNodes = ko.computed(function () {
                 var selectedNode = this.selectedNode();
+
                 var linkedNodes = {
-                    parentOf: [],
-                    childOf: [],
-                    matches: [],
-                    drafts: [],
-                    backlinks: []
+                    parentOf: {rel_type:'edge', values: []},
+                    childOf: {rel_type: 'childOf', values:[]},
+                    matches: {rel_type: 'match', values:[]},
+                    drafts: {rel_type: 'draft', values:[]},
+                    backlinks: {rel_type: 'backlink', values:[]}
                 };
                 ko.utils.arrayForEach(this.nodes(), function (node) {
                     node.isRelated(false);
@@ -60,19 +61,19 @@ define([
                         var isRelatedLink = false;
                         if (link.source.index === findIndex) {
                             if (link.relType() === "edge") {
-                                linkedNodes.parentOf.push(link.target);
+                                linkedNodes.parentOf['values'].push(link.target);
                             } else  if (link.relType() === "match") {
-                                linkedNodes.matches.push(link.target);
+                                linkedNodes.matches['values'].push(link.target);
                             } else  if (link.relType() === "backlink") {
-                                linkedNodes.backlinks.push(link.target);
+                                linkedNodes.backlinks['values'].push(link.target);
                             }  else  if (link.relType() === "draft") {
-                                linkedNodes.drafts.push(link.target);
+                                linkedNodes.drafts['values'].push(link.target);
                             }
                             link.target.isRelated(true);
                             isRelatedLink = true;
                         }
                         if (link.target.index === findIndex) {
-                            linkedNodes.childOf.push(link.source);
+                            linkedNodes.childOf['values'].push(link.source);
                             link.source.isRelated(true);
                             isRelatedLink = true;
                         }

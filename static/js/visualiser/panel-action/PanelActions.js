@@ -15,7 +15,7 @@ define([
                 if (action.applies_to_link()(type, rel_type)) {
                     result = true;
                 }
-            })
+            });
 
             return result;
         }
