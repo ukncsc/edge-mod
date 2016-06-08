@@ -101,6 +101,35 @@ define([
             d3.behavior.zoom()
                 .scale(viewModel.currentScale);
 
+            /*The code below is ugly but is needed because d3 won't handle both .call(zoom) and .call(drag) on the container
+             It's dragSuppress functionality is called twice and the unSuppress state reset gets confused. Only seems to be a problem
+             for Firefox
+             */
+
+            function resetStyle() {
+                var style = d3_documentElement(container[0][0]).style;
+                style[d3_vendorSymbol(style, "userSelect")] = "";
+            }
+
+            /*copied from d3*/
+            function d3_vendorSymbol(object, name) {
+                if (name in object) return name;
+                name = name.charAt(0).toUpperCase() + name.slice(1);
+                for (var i = 0, n = d3_vendorPrefixes.length; i < n; ++i) {
+                    var prefixName = d3_vendorPrefixes[i] + name;
+                    if (prefixName in object) return prefixName;
+                }
+            }
+            /*copied from d3*/
+            var d3_vendorPrefixes = ["webkit", "ms", "moz", "Moz", "o", "O"];
+
+            /*copied from d3*/
+            function d3_documentElement(node) {
+                return node && (node.ownerDocument || node.document || node).documentElement;
+            }
+
+            /*end*/
+
             var drag = d3.behavior.drag()
                 .on("drag", function (d) {
                     //Filter all but left mouse button
@@ -121,8 +150,8 @@ define([
                 })
                 .on("dragend", function (d) {
                     nodeSelected = null;
+                    resetStyle();
                 });
-
 
 
             function updateDraggedNode(d) {
