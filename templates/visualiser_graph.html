@@ -146,10 +146,11 @@
                 </dd>
                 <!-- /ko -->
 
-
+                <!-- ko if: $parents[1].panel_actions().actions().length > 0 -->
+                <br>
                 <div class="btn-group" role="group">
                     <!-- ko foreach: $parents[1].panel_actions().actions -->
-                    <button type="button" data-toggle="tooltip" class="btn btn-default" data-bind="attr: {title:action_name},
+                    <button type="button" data-toggle="tooltip" class="btn panel-button" data-bind="attr: {title:action_name},
                         click:$parents[1].call_action.bind($parents[1], $data.action())">
                         <!-- ko if: glyphicon_name -->
                         <span data-bind="css: glyphicon_name"></span>
@@ -160,7 +161,7 @@
                     </button>
                     <!-- /ko -->
                 </div>
-
+                 <!-- /ko -->
                 <br>
                 <dt class="edge">Referenced By</dt>
 
