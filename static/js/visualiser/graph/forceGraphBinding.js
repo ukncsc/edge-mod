@@ -123,11 +123,6 @@ define([
                     nodeSelected = null;
                 });
 
-            var dragNode = d3.behavior.drag()
-                .on("dragstart", function (d) {
-                    graphModel.d3Layout().stop();
-                    nodeSelected = d;
-                });
 
 
             function updateDraggedNode(d) {
@@ -137,7 +132,11 @@ define([
 
             var nodeSelector = container
                 .selectAll("." + ko.bindingHandlers.forceGraph.nodeClass)
-                .data(graphModel.nodes()).call(dragNode).on("click", function (d) {
+                .data(graphModel.nodes())
+                .on("mousedown", function (d) {
+                    graphModel.d3Layout().stop();
+                    nodeSelected = d;})
+                .on("click", function (d) {
                     if (!d3.event.defaultPrevented) {
                         viewModel.onNodeClicked(d);
                     }
