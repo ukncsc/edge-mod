@@ -21,7 +21,22 @@
                 linkStrength:0.25,
                 visible: true
             ">
+            <defs>
+                <filter id="Unselected" filterUnits="objectBoundingBox"
+                        x="0%" y="0%" width="100%" height="100%">
+                    <feColorMatrix type="saturate" in="SourceGraphic" values="0.2"/>
+                </filter>
 
+                <filter id="Related" filterUnits="objectBoundingBox"
+                        x="0%" y="0%" width="100%" height="100%">
+                    <feColorMatrix type="saturate" in="SourceGraphic" values="0.7"/>
+                </filter>
+
+                <filter id="Selected" filterUnits="objectBoundingBox"
+                        x="0%" y="0%" width="100%" height="100%">
+                    <feColorMatrix type="saturate" in="SourceGraphic" values="1.4"/>
+                </filter>
+            </defs>
             <!-- ko foreach: links -->
             <line class="ko-d3-graph-link" data-bind="
                         attr: { class: className }
@@ -46,7 +61,8 @@
                         class="match" stroke-width="0"/>
                 <!-- /ko -->
 
-                <image xlink:href="{% static 'img/hex/hex_.png' %}" class="" data-bind="
+                <image xlink:href="{% static 'img/hex/hex_.png' %}" class=""
+                       data-bind="
                             attr: {
                                 id: id(),
                                 class: className,
@@ -54,7 +70,8 @@
                                 height: imageHeight(),
                                 width: imageWidth(),
                                 x: imageX(),
-                                y: imageY()
+                                y: imageY(),
+                                filter: 'url(#' + filterValue() + ')'
                             }
                         "></image>
             </g>
@@ -74,11 +91,12 @@
                 <!-- ko with: selectedLinkedNodes -->
 
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: parentOf, title: 'References', cssClass:'edge'}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: externalRefs, title: 'External References', cssClass:'external_ref'}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: backlinks, title: 'Backlinks', cssClass: 'backlink'}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: matches, title: 'Matching Objects', cssClass: 'match'}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanelDrafts', data: {realData: drafts, title: 'Drafts', cssClass:'draft'}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: childOf, title: 'Referenced By', cssClass: 'edge'}}"></div>
-
+                
                 <!-- /ko -->
             </dl>
             <!-- /ko -->

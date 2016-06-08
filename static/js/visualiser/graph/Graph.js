@@ -49,7 +49,8 @@ define([
                     childOf: {rel_type: 'childOf', values:[]},
                     matches: {rel_type: 'match', values:[]},
                     drafts: {rel_type: 'draft', values:[]},
-                    backlinks: {rel_type: 'backlink', values:[]}
+                    backlinks: {rel_type: 'backlink', values:[]},
+                    externalRefs: {rel_type: 'external_ref', values: []}
                 };
                 ko.utils.arrayForEach(this.nodes(), function (node) {
                     node.isRelated(false);
@@ -68,6 +69,8 @@ define([
                                 linkedNodes.backlinks['values'].push(link.target);
                             }  else  if (link.relType() === "draft") {
                                 linkedNodes.drafts['values'].push(link.target);
+                            } else  if (link.relType() === "external_ref") {
+                                linkedNodes.externalRefs['values'].push(link.target);
                             }
                             link.target.isRelated(true);
                             isRelatedLink = true;
