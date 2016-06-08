@@ -21,8 +21,7 @@ define([
         "time_zones_list": incident_builder.time_zones_list,
         "time_types_list": incident_builder.time_types_list,
         "marking_priorities": incident_builder.marking_priorities,
-        "time_zone": incident_builder.time_zone,
-        "handling_caveats": incident_builder.handling_caveats
+        "time_zone": incident_builder.time_zone
     });
 
     vm.id(incident_builder.id);

@@ -36,11 +36,10 @@ TIME_TYPES = (("first_malicious_action", "First Malicious Action", False),
 
 MARKING_PRIORITIES = ("UK HMG Priority: [C1]", "UK HMG Priority: [C2]", "UK HMG Priority: [C3]")
 
-HANDLING_CAVEATS = ("SENSITIVE A", "SENSITIVE B", "SENSITIVE C", "SENSITIVE D")
-
 configuration = settings.ACTIVE_CONFIG
 
-PRETTY_TIME_TYPE = {item[0]:item[1] for item in TIME_TYPES}
+PRETTY_TIME_TYPE = {item[0]: item[1] for item in TIME_TYPES}
+
 
 def get_build_template(static, id_, id_ns):
     return {
@@ -53,7 +52,6 @@ def get_build_template(static, id_, id_ns):
         'categories': json.dumps(CATEGORIES),
         'time_types_list': json.dumps(TIME_TYPES),
         'marking_priorities': json.dumps(MARKING_PRIORITIES),
-        'handling_caveats': json.dumps(HANDLING_CAVEATS),
         'confidences': json.dumps(static['confidences']),
         'tlps': json.dumps(static['tlps']),
         'trustgroups': json.dumps(static['trustgroups']),
@@ -61,8 +59,9 @@ def get_build_template(static, id_, id_ns):
         'intended_effects': json.dumps(static['intended_effects']),
         'ajax_uri': reverse('incident_ajax'),
         'object_type': "incident",
-        'time_zone':  datetime.datetime.now(settings.LOCAL_TZ).tzname()
+        'time_zone': datetime.datetime.now(settings.LOCAL_TZ).tzname()
     }
+
 
 @login_required
 def incident_build(request):
@@ -99,7 +98,6 @@ def incident_view(request, id, edit=False):
         'categories': json.dumps(CATEGORIES),
         'time_types_list': json.dumps(TIME_TYPES),
         'marking_priorities': json.dumps(MARKING_PRIORITIES),
-        'handling_caveats': json.dumps(HANDLING_CAVEATS),
         'confidences': json.dumps(static['confidences']),
         'tlps': json.dumps(static['tlps']),
         'trustgroups': json.dumps(static['trustgroups']),
@@ -107,7 +105,7 @@ def incident_view(request, id, edit=False):
         'intended_effects': json.dumps(static['intended_effects']),
         'ajax_uri': reverse('incident_ajax'),
         'object_type': "incident",
-        'time_zone':  datetime.datetime.now(settings.LOCAL_TZ).tzname()
+        'time_zone': datetime.datetime.now(settings.LOCAL_TZ).tzname()
     })
 
 
@@ -127,11 +125,11 @@ def from_draft_wrapper(wrapped_func):
         target.time = StixTime()
         StixTime.from_dict(draft.get('time'), target.time)
 
-        target.coordinators = [ EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in draft.get('coordinators', [])]
+        target.coordinators = [EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in
+                               draft.get('coordinators', [])]
 
         # Edge sets handling by looking for magic strings, tlp and markings, (handing_from draft in handling.py).
-        # This is the easiest/least hacky way of adding a new marking. Should patch and refactor that function
-        # so that it takes a map and creates the markings.
+        # This is the easiest/least hacky way of adding a new marking.
         target.handling.markings[0].marking_structures.append(
                 HandlingMarkingStructure(draft.get('handling_caveat')))
 
@@ -173,7 +171,6 @@ class DBIncidentPatch(incident.DBIncident):
     def append_config_timezone(time_dict):
         offset = datetime.datetime.now(settings.LOCAL_TZ).isoformat()[-6:]
         time_dict['value'] = time_dict.get('value') + offset
-
 
     @staticmethod
     def convert_to_and_strip_config_timezone(time_str):

@@ -9,6 +9,13 @@ define([
 ], function (declare, ko, AbstractBuilderForm, Messages, CERTIdentity, Topic, topics) {
     "use strict";
 
+    var configText = {
+        "SENSITIVE A": "LABEL A",
+        "SENSITIVE B": "LABEL B",
+        "SENSITIVE C": "LABEL C",
+        "SENSITIVE D": "LABEL D"
+    }
+
     return declare(AbstractBuilderForm, {
         declaredClass: "General",
 
@@ -73,13 +80,15 @@ define([
                     }
                 });
 
-                this.handling_caveat = ko.observable().extend({
-                    requiredGrouped: {
-                        required: true,
-                        group: this.validationGroup,
-                        displayMessage: "You need to select a handling caveat for your indicator"
-                    }
-                });
+                this.handling_caveat = ko.observable(null);
+
+                /*  this.handling_caveat = ko.observable().extend({
+                 requiredGrouped: {
+                 required: true,
+                 group: this.validationGroup,
+                 displayMessage: "You need to select a handling caveat for your indicator"
+                 }
+                 });    */
 
                 this.handling_caveats = ko.observableArray([]);
                 this.statuses = ko.observableArray([]);
@@ -96,7 +105,37 @@ define([
             this.statuses(optionLists.statuses_list);
             this.categories(optionLists.categories_list);
             this.marking_priorities(optionLists.marking_priorities);
-            this.handling_caveats(optionLists.handling_caveats);
+            this.handling_caveats(this.generateCaveatLabelArray(configText));
+        },
+
+        generateCaveatLabelArray: function (configText) {
+            var LabelList = []
+            for (var key in configText) {
+                if (configText.hasOwnProperty(key)) {
+                    LabelList.push(configText[key])
+                }
+            }
+            return LabelList
+        },
+
+        findValueOfCaveat: function (configText, label) {
+            for (var key in configText) {
+                if (configText.hasOwnProperty(key)) {
+                    if (configText[key] == label) {
+                        return key
+                    }
+                }
+            }
+        },
+
+        getLabelForCaveat: function (configText, value) {
+            for (var key in configText) {
+                if (configText.hasOwnProperty(key)) {
+                    if (key == value) {
+                        return configText[key]
+                    }
+                }
+            }
         },
 
         addReporter: function () {
@@ -129,7 +168,7 @@ define([
             if ("handling_caveat" in data && data["handling_caveat"].length == 0) {
                 this.handling_caveat("");
             } else {
-                this.handling_caveat(data["handling_caveat"] || "");
+                this.handling_caveat(this.getLabelForCaveat(configText, data["handling_caveat"]) || "");
             }
 
             this.status.subscribe(function (data) {
@@ -147,7 +186,7 @@ define([
                 reporter: {'identity': this.reporter().to_json()},
                 tlp: this.tlp(),
                 markings: this.markings(),
-                handling_caveat: this.handling_caveat()
+                handling_caveat: this.findValueOfCaveat(configText, this.handling_caveat())
             };
         }
     });
