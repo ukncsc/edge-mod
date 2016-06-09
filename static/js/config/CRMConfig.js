@@ -6,7 +6,6 @@ define([
 
     return declare(baseMongoConfig, {
         declaredClass: "CRMConfig",
-
         constructor: declare.superCall(function (sup) {
             return function () {
                 sup.call(this);
@@ -21,7 +20,6 @@ define([
         _parseResponse: function (response) {
             this.CRMURL(response["crmURL"]);
         },
-
 
         save: function () {
             if (this.isValid(this.CRMURL())) {

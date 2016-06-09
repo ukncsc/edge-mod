@@ -3,21 +3,29 @@
         <h3 class="panel-title">Handling Caveats</h3>
     </div>
     <div class="panel-body">
-
-        <div class="row">
-            <div class="col-sm-3">
-                <h5>Field Names: </h5>
+        <div data-bind="foreach: handling_caveats">
+            <div class="row">
+                <div class="col-sm-2">
+                    <h5>Sharing Group: </h5>
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-control" data-bind="value: $data.group">
+                </div>
+                <div class="col-sm-1">
+                    <h5>Label: </h5>
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-control" data-bind="value: $data.label">
+                </div>
             </div>
-
-            <div class="col-sm-5">
-                <input class="form-control" data-bind="value: CRMURL">
-            </div>
-
-            <div class="col-sm-4">
-                <button class="btn btn-default pull-right"
-                        data-bind="click: onSave">Save
-                </button>
-            </div>
+        </div>
+        <div class="row col-sm-3 pull-right">
+            <button class="btn btn-default"
+                    data-bind="click: addGroup">Add Group
+            </button>
+            <button class="btn btn-default"
+                    data-bind="click: save">Save
+            </button>
         </div>
     </div>
 
