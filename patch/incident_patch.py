@@ -10,7 +10,7 @@ from django.conf import settings
 
 from stix.common import vocabs
 from stix.incident.time import Time as StixTime
-from stix.incident import IncidentCategories, IntendedEffects, DiscoveryMethods
+from stix.incident import IncidentCategories, IntendedEffects, DiscoveryMethods, ExternalID
 from stix_extension.handling_marking import HandlingMarkingStructure
 
 from incident import views
@@ -125,6 +125,10 @@ def from_draft_wrapper(wrapped_func):
         target.time = StixTime()
         StixTime.from_dict(draft.get('time'), target.time)
 
+        target.external_ids = []
+        for ex_id in draft.get('external_ids', []):
+            target.external_ids.append(ExternalID(ex_id['id'], ex_id['source']))
+
         target.coordinators = [EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in
                                draft.get('coordinators', [])]
 
@@ -163,6 +167,11 @@ class DBIncidentPatch(incident.DBIncident):
                 else:
                     value['value'] = DBIncidentPatch.convert_to_and_strip_config_timezone(value['value'])
 
+        if inc.external_ids:
+            draft['external_ids'] = []
+            for ex_id in inc.external_ids:
+                draft['external_ids'].append({'source': ex_id.source, 'id': ex_id.value})
+
         draft['handling_caveat'] = handling_to_draft(inc, "caveat")
 
         return draft
@@ -190,6 +199,10 @@ class DBIncidentPatch(incident.DBIncident):
 
         IntendedEffects.from_dict(update_obj.intended_effects.to_dict(), self.intended_effects)
         DiscoveryMethods.from_dict(update_obj.discovery_methods.to_dict(), self.discovery_methods)
+
+        self.external_ids = []
+        for ex_id in update_obj.external_ids:
+            self.external_ids.append(ExternalID(ex_id.value, ex_id.source))
 
     @classmethod
     def api_from_dict(cls, data):
