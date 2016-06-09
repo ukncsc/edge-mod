@@ -30,7 +30,7 @@ define([
 
         //abstract
         save: function () {
-            //stub
+            //stub - does nothing here
         },
 
         saveData: function (/*String*/ url, data,/*String*/ successMessage, /*String*/ errorMessage) {
