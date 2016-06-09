@@ -3,6 +3,7 @@
     <dt data-bind="attr: {class: cssClass}"><span data-bind="text: title"></span></dt>
     <!-- ko if: realData['values'].length === 0 -->
     <span font-stlye="italic">(none)</span>
+
     <!-- /ko -->
 
     <!-- ko foreach: realData['values'] -->
@@ -15,7 +16,7 @@
                     click:$parent.model.onNodeClicked.bind($parent.model)"></span>
     </dd>
     <!-- /ko -->
-    <br>
+
 </template>
 
 <template id="VisualiserPanelDrafts">

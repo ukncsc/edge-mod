@@ -11,37 +11,24 @@
 
     <ul class="nav nav-tabs">
         <!--ko foreach: viewModels -->
-        <!-- ko if: $index()==0 -->
-        <li class="active"><a data-toggle="tab" data-bind="attr: { id: $data.rootId, href: '#' + $parent.findSafeTypeByLabel($data.rootId())}">
-            <span data-bind="text: $parent.findTypeByLabel($data.rootId())"></span> </a></li>
-        <!-- /ko -->
-        <!-- ko ifnot: $index()==0 -->
-        <li><a data-toggle="tab" data-bind="attr: {id: $data.rootId, href: '#' + $parent.findSafeTypeByLabel($data.rootId())}">
-            <span data-bind="text:$parent.findTypeByLabel($data.rootId())"></span></a></li>
-        <!-- /ko -->
+        <li data-bind="attr: {class: ($index()==0) ? 'active' : ''}">
+            <a data-toggle="tab" data-bind="attr: { id: $data.rootId, href: '#' + $parent.findSafeTypeByLabel($data.rootId())}">
+            <span data-bind="text: $parent.findTypeByLabel($data.rootId())"></span>
+            </a>
+        </li>
         <!-- /ko -->
     </ul>
-    
+
     <div class="tab-content">
         <!-- ko foreach: viewModels -->
-        <!-- ko if: $index()==0 -->
-        <div class="tab-pane fade in active" data-bind="attr: {id: $parent.findSafeTypeByLabel($data.rootId())}">
+        <div data-bind="attr: {class: ($index()==0) ? 'tab-pane fade in active' : 'tab-pane fade', id: $parent.findSafeTypeByLabel($data.rootId())}">
             <a data-bind="attr: {href: '/indicator/build/' + $data.rootId()}">Edit Indicator Draft:
                 <span data-bind="text: $data.rootId"></span></a>
             <div id="extract-visualiser" class="flexbox hflex">
-                <!-- ko template: { name: 'Graph' , data:  {model:$parent.findByLabel($data.rootId()), id:'0'}} --><!-- /ko -->
+                <!-- ko template: { name: 'Graph' , data:  {model:$parent.findByLabel($data.rootId()), id:$index()}} -->
+                <!-- /ko -->
             </div>
         </div>
-        <!--/ko-->
-        <!-- ko ifnot:$index()==0 -->
-        <div class="tab-pane fade" data-bind="attr: {id: $parent.findSafeTypeByLabel($data.rootId())}">
-            <a data-bind="attr: {href: '/indicator/build/' + $data.rootId()}">Edit Indicator Draft:
-                <span data-bind="text: $data.rootId"></span></a>
-            <div id="extract-visualiser" class="flexbox hflex">
-                <!-- ko template: { name: 'Graph' , data: {model:$parent.findByLabel($data.rootId()), id:$index()}} --><!-- /ko -->
-            </div>
-        </div>
-        <!--/ko-->
         <!-- /ko -->
     </div>
 {% endblock %}
@@ -52,7 +39,7 @@
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/stickytape.js' %}"></script>
     <script>
-        window.onunload = function(){};
+        window.onunload = function () {};
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
