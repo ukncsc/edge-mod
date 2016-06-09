@@ -29,7 +29,7 @@
             <a data-bind="attr: {href: '/indicator/build/' + $data.rootId()}">Edit Indicator Draft:
                 <span data-bind="text: $data.rootId"></span></a>
             <div id="extract-visualiser" class="flexbox hflex">
-                <!-- ko template: { name: 'Graph' , data: $parent.findByLabel($data.rootId())} --><!-- /ko -->
+                <!-- ko template: { name: 'Graph' , data:  {model:$parent.findByLabel($data.rootId()), id:'0'}} --><!-- /ko -->
             </div>
         </div>
         <!--/ko-->
@@ -38,7 +38,7 @@
             <a data-bind="attr: {href: '/indicator/build/' + $data.rootId()}">Edit Indicator Draft:
                 <span data-bind="text: $data.rootId"></span></a>
             <div id="extract-visualiser" class="flexbox hflex">
-                <!-- ko template: { name: 'Graph' , data: $parent.findByLabel($data.rootId())} --><!-- /ko -->
+                <!-- ko template: { name: 'Graph' , data: {model:$parent.findByLabel($data.rootId()), id:$index()}} --><!-- /ko -->
             </div>
         </div>
         <!--/ko-->

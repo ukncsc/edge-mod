@@ -1,7 +1,7 @@
 {% load staticfiles %}
 {% include 'visualiser_panel.html' %}
-<template id="Graph">
-    <div id="graph-container" class="flex-main">
+<template id="Graph" >
+    <div id="graph-container" class="flex-main" data-bind="with: model">
         <button type="button" class="btn btn-default btn-lg pull-right" style="position:absolute;top:5px;left:20px;"
                 data-bind="click: saveAsPNG">
             <span class="glyphicon glyphicon-download"></span>
@@ -22,17 +22,28 @@
                 visible: true
             ">
             <defs>
-                <filter id="Unselected" filterUnits="objectBoundingBox"
+
+                <filter data-bind="
+                            attr: {
+                                id: $parents[1].id + 'Unselected'
+                                 }",
+                        filterUnits="objectBoundingBox"
                         x="0%" y="0%" width="100%" height="100%">
                     <feColorMatrix type="saturate" in="SourceGraphic" values="0.2"/>
                 </filter>
 
-                <filter id="Related" filterUnits="objectBoundingBox"
+                <filter data-bind="
+                            attr: {
+                                id: $parents[1].id + 'Related'
+                                 }", filterUnits="objectBoundingBox"
                         x="0%" y="0%" width="100%" height="100%">
                     <feColorMatrix type="saturate" in="SourceGraphic" values="0.7"/>
                 </filter>
 
-                <filter id="Selected" filterUnits="objectBoundingBox"
+                <filter data-bind="
+                            attr: {
+                                id: $parents[1].id + 'Selected'
+                                 }",filterUnits="objectBoundingBox"
                         x="0%" y="0%" width="100%" height="100%">
                     <feColorMatrix type="saturate" in="SourceGraphic" values="1.4"/>
                 </filter>
@@ -70,7 +81,9 @@
                                 height: imageHeight(),
                                 width: imageWidth(),
                                 x: imageX(),
-                                y: imageY()
+                                y: imageY(),
+                                filter: 'url(#' + $parents[2].id + filterValue() + ')'
+
                             }
                         "></image>
             </g>
@@ -78,7 +91,9 @@
         </svg>
     </div>
 
-    <div id="visualiser-detail" class="flex-after flexbox vflex panel-default">
+    {# TODO: extract detail panel to separate template #}
+    <div id="visualiser-detail" class="flex-after flexbox vflex panel-default" data-bind="with: model">
+
         <div class="flex-before panel-heading">
             <h3 class="panel-title">Details</h3>
         </div>
@@ -89,12 +104,12 @@
             <dl data-bind="visible:true" class="linkedNodes" style="display:none">
                 <!-- ko with: selectedLinkedNodes -->
 
-                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: parentOf, title: 'References', cssClass:'edge'}}"></div>
-                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: externalRefs, title: 'External References', cssClass:'external_ref'}}"></div>
-                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: backlinks, title: 'Backlinks', cssClass: 'backlink'}}"></div>
-                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: matches, title: 'Matching Objects', cssClass: 'match'}}"></div>
-                <div data-bind="template: {name: 'VisualiserPanelDrafts', data: {realData: drafts, title: 'Drafts', cssClass:'draft'}}"></div>
-                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: childOf, title: 'Referenced By', cssClass: 'edge'}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: parentOf, title: 'References', cssClass:'edge', model: $parents[1]}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: externalRefs, title: 'External References', cssClass:'external_ref', model: $parents[1]}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: backlinks, title: 'Backlinks', cssClass: 'backlink', model: $parents[1]}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: matches, title: 'Matching Objects', cssClass: 'match', model: $parents[1]}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanelDrafts', data: {realData: drafts, title: 'Drafts', cssClass:'draft', model: $parents[1]}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: childOf, title: 'Referenced By', cssClass: 'edge', model: $parents[1]}}"></div>
 
                 <!-- /ko -->
             </dl>

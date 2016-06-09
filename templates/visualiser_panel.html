@@ -7,12 +7,12 @@
 
     <!-- ko foreach: realData['values'] -->
     <dd data-bind=" attr: {title: id} ">
-        <!-- ko if: $parents[4].panel_actions().show_check(type(), $parent.realData['rel_type']) -->
+        <!-- ko if: $parent.model.panel_actions().show_check(type(), $parent.realData['rel_type']) -->
         <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
         <!-- /ko -->
         <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + type() + '_20.png'}">
         &nbsp;<span data-bind="text:title,
-                    click:$parents[4].onNodeClicked.bind($parents[4])"></span>
+                    click:$parent.model.onNodeClicked.bind($parent.model)"></span>
     </dd>
     <!-- /ko -->
     <br>
@@ -23,7 +23,7 @@
 
     <!-- ko if: realData['values'].length > 0 -->
     <div class="btn-group" role="group">
-        <!-- ko foreach: $parents[2].panel_actions().actions -->
+        <!-- ko foreach: model.panel_actions().actions -->
         <button type="button" data-toggle="tooltip" class="btn btn-default" data-bind="attr: {title:action_name},
                         click:$parents[2].call_action.bind($parents[2], $data.action())">
             <!-- ko if: glyphicon_name -->
