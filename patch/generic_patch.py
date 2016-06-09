@@ -2,15 +2,14 @@ from itertools import chain
 
 from stix.core.stix_package import STIXHeader, STIXPackage
 from stix.data_marking import Marking, MarkingSpecification
-from stix.extensions.marking.tlp import TLPMarkingStructure
-from stix.extensions.marking.terms_of_use_marking import TermsOfUseMarkingStructure
 from stix.extensions.marking.simple_marking import SimpleMarkingStructure
-from stix_extension.handling_marking import HandlingMarkingStructure
+from stix.extensions.marking.terms_of_use_marking import TermsOfUseMarkingStructure
+from stix.extensions.marking.tlp import TLPMarkingStructure
 
 from edge import stixbase
-
-from edge.handling import PackageXPath
 from edge.generic import PACKAGE_ADD_DISPATCH, EdgeObject
+from edge.handling import PackageXPath
+from stix_extension.handling_marking import HandlingMarkingStructure
 
 
 def capsulize_patch(self, pkg_id, enable_bfs=False):

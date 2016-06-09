@@ -104,7 +104,7 @@ define([
         },
 
         generateCaveatLabelArray: function (sharingGroups) {
-            var LabelList = []
+            var LabelList = [];
             for (var key in sharingGroups) {
                 if (sharingGroups.hasOwnProperty(key)) {
                     LabelList.push(sharingGroups[key])

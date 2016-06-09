@@ -81,8 +81,8 @@ define([
                     assert.isFalse(actual.isEmpty());
                     assert.equal(actual.value(), "RED");
                 },
-                "has correct Handling Caveats": function () {
-                    var actual = classUnderTest.handlingCaveats();
+                "has correct Marking": function () {
+                    var actual = classUnderTest.marking();
                     assert.instanceOf(actual, ReviewValue);
                     assert.isFalse(actual.isEmpty());
                     assert.equal(actual.value(), "Unclassified, Public");

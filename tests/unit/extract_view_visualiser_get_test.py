@@ -85,8 +85,8 @@ class ExtractVisualiserTests(unittest.TestCase):
         with mock.patch('adapters.certuk_mod.extract.views.JsonResponse', self.mockJsonResponse):
             response = extract_visualiser_get(self.mock_request, self.ind_id_)
 
-        self.assertEqual(len(response.content['nodes']), 3);
-        self.assertEqual(len(response.content['links']), 2);
+        self.assertEqual(len(response.content['nodes']), 4);
+        self.assertEqual(len(response.content['links']), 3);
 
     def test_extract_visualiser_item_with_backlinks_but_draft(self):
         mock_db_instance = mock.MagicMock()

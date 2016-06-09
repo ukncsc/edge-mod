@@ -1,26 +1,24 @@
-import json
 import datetime
+import json
 from dateutil import parser as dtparser
 
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.conf import settings
 
 from stix.common import vocabs
-from stix.incident.time import Time as StixTime
 from stix.incident import IncidentCategories, IntendedEffects, DiscoveryMethods, ExternalID
+from stix.incident.time import Time as StixTime
 from stix_extension.handling_marking import HandlingMarkingStructure
 
-from incident import views
-
+from edge import IDManager, NamespaceNotConfigured, incident
 from edge.common import EdgeInformationSource
 from edge.generic import WHICH_DBOBJ, FROM_DICT_DISPATCH
-from edge.tools import cleanstrings, rgetattr
 from edge.handling import handling_to_draft
-
-from edge import IDManager, NamespaceNotConfigured, incident
+from edge.tools import cleanstrings, rgetattr
+from incident import views
 from rbac import user_can_edit
 
 CATEGORIES = vocabs.IncidentCategory._ALLOWED_VALUES
@@ -104,7 +102,6 @@ def incident_view(request, id, edit=False):
         'discovery_methods': json.dumps(static['discovery_methods']),
         'intended_effects': json.dumps(static['intended_effects']),
         'ajax_uri': reverse('incident_ajax'),
-        'object_type': "incident",
         'time_zone': datetime.datetime.now(settings.LOCAL_TZ).tzname()
     })
 
