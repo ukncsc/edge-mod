@@ -221,7 +221,7 @@ def extract_visualiser_get_extended(request):
 
     try:
         root_edge_object = PublisherEdgeObject.load(root_id)
-        graph = create_graph([(0, None, root_edge_object, "edge")], [], [], [], [])
+        graph = create_graph([(0, None, root_edge_object, "edge")], bl_ids, id_matches, hide_edge_ids, show_edge_ids)
         return JsonResponse(graph, status=200)
     except Exception as e:
         return JsonResponse({'error': e.message}, status=400)
