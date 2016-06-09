@@ -1,4 +1,5 @@
 import json
+from mongoengine.connection import get_db
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -6,7 +7,6 @@ from django.http import JsonResponse
 
 from users.decorators import login_required_ajax
 from edge.inbox import InboxError
-from mongoengine.connection import get_db
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.retention.purge import STIXPurge
