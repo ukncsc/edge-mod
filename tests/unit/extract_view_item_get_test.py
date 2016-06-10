@@ -3,7 +3,7 @@ import unittest
 import mock
 import hashlib
 from adapters.certuk_mod.extract.views import extract_visualiser_item_get
-
+from adapters.certuk_mod.extract.extract_actions import summarise_draft_observable
 
 class ExtractTests(unittest.TestCase):
     def setUp(self):
@@ -87,8 +87,8 @@ class ExtractTests(unittest.TestCase):
         id_obs0 = 'observable:123:draft:' + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
         id_obs1 = 'observable:123:draft:' + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
 
-        draft_obs0 = {'id': id_obs0, 'title':u'ééé' , 'objectType': 'file', 'value':123}
-        draft_obs1 = {'id': id_obs1, 'title': 'test1', 'objectType': 'file', 'value':456}
+        draft_obs0 = {'id': id_obs0, 'title':u'ééé' , 'objectType': 'file', 'value':'123'}
+        draft_obs1 = {'id': id_obs1, 'title': 'test1', 'objectType': 'file', 'value':'456'}
         draft_ind = {'draft': {'id': id_}, 'observables': [draft_obs0, draft_obs1]}
 
         self.mock_draft_list.return_value = [draft_ind]
@@ -106,3 +106,7 @@ class ExtractTests(unittest.TestCase):
         assert (len(response.content['package']['observables']['observables']) == 1)
         assert (response.content['package']['observables']['observables'][0]['object']['properties']['value'] == u'file:ééé')
         self.mock_get_item.assert_not_called()
+
+        summary = summarise_draft_observable(draft_obs0);
+        assert (summary == '123ééé')
+
