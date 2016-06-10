@@ -52,11 +52,15 @@ define([
                 var errorMessage = "An error occurred while attempting to save the sharing groups configuration";
                 this.saveData("set_sharing_groups/", configObject, successMessage, errorMessage);
             } else {
-                this.createErrorModal("All Handling Caveat mappings must be non-null pairs of strings.")
+                this.createErrorModal("All Handling Caveat mappings must be non-null pairs of strings." +
+                    " There must be no duplicate Stix or Display Values")
             }
         },
 
         isValid: function (handlingCaveatArray) {
+            if(this.containsDuplicates(this.handling_caveats())){
+                return false
+            }
             var arrayLength = handlingCaveatArray.length;
             for (var index = 0; index < arrayLength; index++) {
                 if (this.isValidString(handlingCaveatArray[index]['stix_value']) == false ||
@@ -64,6 +68,19 @@ define([
                     return false
             }
             return true
+        },
+
+        containsDuplicates: function (handlingCaveats) {
+            var stixValueArray = handlingCaveats.map(function(caveat){return caveat.stix_value});
+            var displayValueArray = handlingCaveats.map(function(caveat){return caveat.display_value});
+
+            if(this.hasDuplicates(stixValueArray) || this.hasDuplicates(displayValueArray)){
+                return true
+            }
+        },
+
+        hasDuplicates: function (array) {
+          return (new Set(array)).size !== array.length;
         },
 
         isValidString: function (/*String*/ string) {
