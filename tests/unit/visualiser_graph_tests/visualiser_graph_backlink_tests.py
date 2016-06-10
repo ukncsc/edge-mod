@@ -32,7 +32,7 @@ class VisualiserGraphBacklinkTests(unittest.TestCase):
         self.mock_edge_reference = mock.create_autospec(EdgeReference, id_='purple', ty='ind')
         self.mock_backlink = mock.create_autospec(EdgeObject, id_='purple', summary={'title': ''}, ty='ind', edges=[])
         self.mock_backlink2 = mock.create_autospec(EdgeObject, id_='matt', summary={'title': ''}, ty='coa',
-                                               edges=[])
+                                                   edges=[])
 
         self.backlink_node = {'id': 'purple', 'backlinks_shown': True, 'depth': 0, 'edges_shown': False,
                               'has_backlinks': self.mock_backlinks_exist(), 'has_edges': False, 'matches_shown': False,
@@ -40,9 +40,9 @@ class VisualiserGraphBacklinkTests(unittest.TestCase):
                               'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
 
         self.backlink_node2 = {'id': 'matt', 'backlinks_shown': False, 'depth': 1, 'edges_shown': False,
-                          'has_backlinks': self.mock_backlinks_exist(), 'has_edges': False, 'matches_shown': False,
-                          'title': '',
-                          'type': 'coa', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
+                               'has_backlinks': self.mock_backlinks_exist(), 'has_edges': False, 'matches_shown': False,
+                               'title': '',
+                               'type': 'coa', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
 
     def test_create_graph_with_backlink_rel_type(self):
         bl_ids = ['purple']
