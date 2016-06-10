@@ -7,7 +7,7 @@
     <!-- /ko -->
 
     <!-- ko foreach: realData['values'] -->
-    <dd data-bind=" attr: {title: id} ">
+    <dd data-bind=" attr: {title: id() + '\n' + title()} ">
         <!-- ko if: $parent.model.panel_actions().show_check(type(), $parent.realData['rel_type']) -->
         <label class="checkbox-inline"><input type="checkbox" data-bind="checked: isChecked"></label>
         <!-- /ko -->
