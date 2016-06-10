@@ -1,5 +1,6 @@
 import unittest
 import mock
+import hashlib
 from adapters.certuk_mod.extract.views import extract_visualiser_get
 
 
@@ -35,13 +36,18 @@ class ExtractVisualiserTests(unittest.TestCase):
         self.mock_edge_load_patcher.stop()
 
     def init_stix_objects(self):
+
+        obs0_title = 'test0'
+        obs1_title = 'test1'
+
+        self.draft_obs_id0 = 'observable:123:draft:' + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
+        self.draft_obs_id1 = 'observable:123:draft:' + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
+
         self.ind_id_ = 'indicator:123'
-        self.draft_id_obs0 = 'observable:123:draft:0'
-        self.draft_id_obs1 = 'observable:123:draft:1'
         self.id_obs0 = 'observable:123'
 
-        self.draft_obs0 = {'title': 'test0', 'objectType': 'File', 'filename': "abc.txt"}
-        self.draft_obs1 = {'title': 'test1', 'objectType': 'File',
+        self.draft_obs0 = {'title': obs0_title, 'objectType': 'File', 'filename': "abc.txt"}
+        self.draft_obs1 = {'title': obs1_title, 'objectType': 'File',
                            'hashes': [{'hash_type': 'md5', 'hash_value': '123123123'}]}
 
         self.obs0 = {'id': self.id_obs0, 'title': 'test1', 'objectType': 'File',
@@ -85,8 +91,8 @@ class ExtractVisualiserTests(unittest.TestCase):
         with mock.patch('adapters.certuk_mod.extract.views.JsonResponse', self.mockJsonResponse):
             response = extract_visualiser_get(self.mock_request, self.ind_id_)
 
-        self.assertEqual(len(response.content['nodes']), 4)
-        self.assertEqual(len(response.content['links']), 3)
+        self.assertEqual(len(response.content['nodes']), 3)
+        self.assertEqual(len(response.content['links']), 2)
 
     def test_extract_visualiser_item_with_backlinks_but_draft(self):
         mock_db_instance = mock.MagicMock()

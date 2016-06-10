@@ -1,5 +1,6 @@
 import unittest
 import mock
+import hashlib
 import json
 from adapters.certuk_mod.extract.views import extract_visualiser_merge_observables
 
@@ -33,10 +34,15 @@ class ExtractMergeTests(unittest.TestCase):
         self.mock_draft_delete_patcher.stop()
 
     def init_stix_objects(self):
-        self.draft_obs_id0 = 'observable:123:draft:0'
-        self.draft_obs_id1 = 'observable:123:draft:1'
-        self.draft_obs0 = {'id': self.draft_obs_id0, 'title': '', 'objectType': 'File', 'file_name': "abc.txt", 'hashes':[]}
-        self.draft_obs1 = {'id': self.draft_obs_id1, 'title': '', 'objectType': 'File', 'file_name':'',
+
+        obs0_title = 'test0'
+        obs1_title = 'test1'
+
+        self.draft_obs_id0 = 'observable:123:draft:' + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
+        self.draft_obs_id1 = 'observable:123:draft:' + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
+
+        self.draft_obs0 = {'id': self.draft_obs_id0, 'title': obs0_title, 'objectType': 'File', 'file_name': "abc.txt", 'hashes':[]}
+        self.draft_obs1 = {'id': self.draft_obs_id1, 'title': obs1_title, 'objectType': 'File', 'file_name':'',
                       'hashes': [{'hash_type': 'MD5', 'hash_value': '123123123'}]}
 
         self.draft_ind_id = 'indicator:123'
