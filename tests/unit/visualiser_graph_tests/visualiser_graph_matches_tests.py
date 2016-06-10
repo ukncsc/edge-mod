@@ -5,7 +5,7 @@ from edge.generic import EdgeObject, EdgeReference
 from adapters.certuk_mod.visualiser.graph import create_graph
 
 
-class VisualiserGraphBacklinkTests(unittest.TestCase):
+class VisualiserGraphMatchesTests(unittest.TestCase):
     def setUp(self):
         self.mock_build_title_patcher = mock.patch('adapters.certuk_mod.visualiser.graph.build_title')
         self.mock_backlinks_exist_patcher = mock.patch('adapters.certuk_mod.visualiser.graph.backlinks_exist')
@@ -30,35 +30,36 @@ class VisualiserGraphBacklinkTests(unittest.TestCase):
 
     def init_stix_objects(self):
         self.mock_edge_reference = mock.create_autospec(EdgeReference, id_='purple', ty='ind')
-        self.mock_backlink = mock.create_autospec(EdgeObject, id_='purple', summary={'title': ''}, ty='ind', edges=[])
-        self.mock_backlink2 = mock.create_autospec(EdgeObject, id_='matt', summary={'title': ''}, ty='coa',
+        self.mock_matching = mock.create_autospec(EdgeObject, id_='purple', summary={'title': ''}, ty='ind', edges=[])
+        self.mock_matching2 = mock.create_autospec(EdgeObject, id_='orange', summary={'title': ''}, ty='coa',
                                                edges=[])
 
-        self.backlink_node = {'id': 'purple', 'backlinks_shown': True, 'depth': 0, 'edges_shown': False,
-                              'has_backlinks': self.mock_backlinks_exist(), 'has_edges': False, 'matches_shown': False,
+        self.matching_node = {'id': 'purple', 'backlinks_shown': False, 'depth': 0, 'edges_shown': False,
+                              'has_backlinks': self.mock_backlinks_exist(), 'has_edges': False, 'matches_shown': True,
                               'title': '',
                               'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
 
-        self.backlink_node2 = {'id': 'matt', 'backlinks_shown': False, 'depth': 1, 'edges_shown': False,
+        self.matching_node2 = {'id': 'orange', 'backlinks_shown': False, 'depth': 1, 'edges_shown': False,
                           'has_backlinks': self.mock_backlinks_exist(), 'has_edges': False, 'matches_shown': False,
                           'title': '',
                           'type': 'coa', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
 
-    def test_create_graph_with_backlink_rel_type(self):
-        bl_ids = ['purple']
-        stack = [(0, None, self.mock_backlink, 'backlink')]
-        response = create_graph(stack, bl_ids, [], [], [])
-        self.assertEquals(response['nodes'], [self.backlink_node])
+    def test_create_graph_with_match_rel_type(self):
+        id_matches = ['purple']
+        stack = [(0, None, self.mock_matching, 'match')]
+        response = create_graph(stack, [], id_matches, [], [])
+        self.assertEquals(response['nodes'], [self.matching_node])
         self.assertEquals(response['links'], [])
 
     @mock.patch('adapters.certuk_mod.visualiser.graph.EdgeObject')
-    def test_create_graph_with_backlink_links(self, mock_edge_object):
-        self.mock_get_backlinks.return_value = [{'_id': 'matt', 'value': {'purple': 'obs'}}]
-        mock_edge_object.load.return_value = self.mock_backlink2
-        bl_ids = ['purple']
-        stack = [(0, None, self.mock_backlink, 'backlink')]
-        response = create_graph(stack, bl_ids, [], [], [])
-        links = [{'source': 0, 'target': 1, 'rel_type': 'backlink'}]
-        self.assertEquals(response['nodes'][0], self.backlink_node)
-        self.assertEquals(response['nodes'][1], self.backlink_node2)
-        self.assertEquals(response['links'], links)
+    def test_create_graph_with_match_link(self, mock_edge_object):
+        id_matches = ['purple']
+        self.mock_get_matches.return_value = ['matt']
+        mock_edge_object.load.return_value = self.mock_matching2
+        stack = [(0, None, self.mock_matching, 'match')]
+        response = create_graph(stack, [], id_matches, [], [])
+        links = [{'source': 0, 'target': 1, 'rel_type': 'match'}]
+        self.assertEqual(response['nodes'][0], self.matching_node)
+        self.assertEqual(response['nodes'][1], self.matching_node2)
+        self.assertEqual(response['links'], links)
+
