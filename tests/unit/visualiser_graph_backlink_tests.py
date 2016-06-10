@@ -41,7 +41,6 @@ class VisualiserGraphBacklinkTests(unittest.TestCase):
                               'title': '',
                               'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
 
-
         self.mock_edge_reference = mock.create_autospec(EdgeReference, id_='purple', ty='ind')
         self.mock_edge2 = mock.create_autospec(EdgeObject, id_='matt', summary={'title': ''}, ty='coa',
                                                edges=[self.mock_edge_reference])
@@ -52,3 +51,8 @@ class VisualiserGraphBacklinkTests(unittest.TestCase):
         response = create_graph(stack, bl_ids, [], [], [])
         self.assertEquals(response['nodes'], [self.backlink_node])
         self.assertEquals(response['links'], [])
+
+    def test_create_graph_with_backlink_links(self):
+        bl_ids = ['purple']
+        stack = [(0, None, self.mock_edge, 'backlink')]
+        response = create_graph(stack, bl_ids, [], [], [])
