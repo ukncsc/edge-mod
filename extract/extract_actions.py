@@ -22,10 +22,11 @@ def summarise_draft_observable(d):
                 and key != 'id_ns' \
                 and key != 'objectType' \
                 and key != 'description':
-            try:
+
+            if isinstance(value, str):
                 result += value.decode('utf-8')
-            except UnicodeError:
-                result += value.decode('ascii')
+            elif isinstance(value, unicode):
+                result += value
     return result
 
 

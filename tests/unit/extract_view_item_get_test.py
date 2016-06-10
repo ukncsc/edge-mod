@@ -101,12 +101,38 @@ class ExtractTests(unittest.TestCase):
         with mock.patch('adapters.certuk_mod.extract.views.JsonResponse', mockJsonResponse):
             response = extract_visualiser_item_get(self.mock_request, id_obs0)
 
-        assert (response.content['root_id'] == id_obs0)
-        assert (response.content['validation_info'] == {})
-        assert (len(response.content['package']['observables']['observables']) == 1)
         assert (response.content['package']['observables']['observables'][0]['object']['properties']['value'] == u'file:ééé')
         self.mock_get_item.assert_not_called()
 
         summary = summarise_draft_observable(draft_obs0);
-        assert (summary == '123ééé')
+        assert (summary == u'123ééé')
+
+    def test_extract_visualiser_item_get_draft_observable_utf8encoded(self):
+        id_ = 'indicator:123'
+
+        obs0_title = u'ééé'.encode('utf-8')
+        obs1_title = 'test1'
+
+        id_obs0 = 'observable:123:draft:' + hashlib.md5(obs0_title).hexdigest()
+        id_obs1 = 'observable:123:draft:' + hashlib.md5(obs1_title).hexdigest()
+
+        draft_obs0 = {'id': id_obs0, 'title':u'ééé' , 'objectType': 'file', 'value':'123'}
+        draft_obs1 = {'id': id_obs1, 'title': 'test1', 'objectType': 'file', 'value':'456'}
+        draft_ind = {'draft': {'id': id_}, 'observables': [draft_obs0, draft_obs1]}
+
+        self.mock_draft_list.return_value = [draft_ind]
+        self.mock_draft_load.return_value = draft_ind
+
+        class mockJsonResponse:
+            def __init__(self, *args, **kwargs):
+                self.content = args[0]
+
+        with mock.patch('adapters.certuk_mod.extract.views.JsonResponse', mockJsonResponse):
+            response = extract_visualiser_item_get(self.mock_request, id_obs0)
+
+        assert (response.content['package']['observables']['observables'][0]['object']['properties']['value'] == u'file:ééé')
+        self.mock_get_item.assert_not_called()
+
+        summary = summarise_draft_observable(draft_obs0);
+        assert (summary == u'123ééé')
 
