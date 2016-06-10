@@ -1,5 +1,7 @@
 import json
 from mongoengine.connection import get_db
+from defusedxml import EntitiesForbidden
+from lxml.etree import XMLSyntaxError
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -52,9 +54,9 @@ def extract_upload(request):
                                   "Error parsing file: " + e.message + " content from parser was " + stream.buf)
     try:
         ip = DedupInboxProcessor(validate=False, user=request.user, streams=[(stream, None)])
-    except InboxError as e:
+    except (InboxError, EntitiesForbidden, XMLSyntaxError) as e:
         return error_with_message(request,
-                                  "Error parsing stix xml: " + e.message + " content from parser was " + stream.buf)
+                                  "Error parsing stix xml: " + e.message + " content from ioc_parser was " + stream.buf)
     ip.run()
 
     indicators = [inbox_item for _, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
