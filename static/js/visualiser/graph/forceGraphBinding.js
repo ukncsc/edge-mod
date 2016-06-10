@@ -137,8 +137,6 @@ define([
                         return;
                     }
 
-                    d3.event.sourceEvent.preventDefault();
-
                     if (nodeSelected !== null) {
                         updateDraggedNode(nodeSelected);
                     }
@@ -166,7 +164,7 @@ define([
                     graphModel.d3Layout().stop();
                     nodeSelected = d;})
                 .on("click", function (d) {
-                    if (!d3.event.defaultPrevented) {
+                    if (!nodeSelected) {
                         viewModel.onNodeClicked(d);
                     }
                 });
