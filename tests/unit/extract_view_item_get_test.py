@@ -2,7 +2,7 @@
 import unittest
 import mock
 import hashlib
-from adapters.certuk_mod.extract.views import extract_visualiser_item_get
+from adapters.certuk_mod.extract.views import extract_visualiser_item_get, DRAFT_ID_SEPARATOR
 from adapters.certuk_mod.extract.extract_actions import summarise_draft_observable
 
 class ExtractTests(unittest.TestCase):
@@ -55,8 +55,8 @@ class ExtractTests(unittest.TestCase):
         obs0_title = 'test0'
         obs1_title = 'test1'
 
-        id_obs0 = 'observable:123:draft:' + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
-        id_obs1 = 'observable:123:draft:' + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
+        id_obs0 = 'observable:123' + DRAFT_ID_SEPARATOR + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
+        id_obs1 = 'observable:123' + DRAFT_ID_SEPARATOR + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
 
         draft_obs0 = {'id': id_obs0, 'title': obs0_title, 'objectType': 'file'}
         draft_obs1 = {'id': id_obs1, 'title': obs1_title, 'objectType': 'file'}
@@ -84,8 +84,8 @@ class ExtractTests(unittest.TestCase):
         obs0_title = u'ééé'
         obs1_title = 'test1'
 
-        id_obs0 = 'observable:123:draft:' + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
-        id_obs1 = 'observable:123:draft:' + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
+        id_obs0 = 'observable:123' + DRAFT_ID_SEPARATOR +  hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
+        id_obs1 = 'observable:123' + DRAFT_ID_SEPARATOR +  hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
 
         draft_obs0 = {'id': id_obs0, 'title':u'ééé' , 'objectType': 'file', 'value':'123'}
         draft_obs1 = {'id': id_obs1, 'title': 'test1', 'objectType': 'file', 'value':'456'}
@@ -113,8 +113,8 @@ class ExtractTests(unittest.TestCase):
         obs0_title = u'ééé'.encode('utf-8')
         obs1_title = 'test1'
 
-        id_obs0 = 'observable:123:draft:' + hashlib.md5(obs0_title).hexdigest()
-        id_obs1 = 'observable:123:draft:' + hashlib.md5(obs1_title).hexdigest()
+        id_obs0 = 'observable:123' + DRAFT_ID_SEPARATOR +  hashlib.md5(obs0_title).hexdigest()
+        id_obs1 = 'observable:123' + DRAFT_ID_SEPARATOR +  hashlib.md5(obs1_title).hexdigest()
 
         draft_obs0 = {'id': id_obs0, 'title':u'ééé' , 'objectType': 'file', 'value':'123'}
         draft_obs1 = {'id': id_obs1, 'title': 'test1', 'objectType': 'file', 'value':'456'}

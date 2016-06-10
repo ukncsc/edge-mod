@@ -1,7 +1,7 @@
 import unittest
 import mock
 import hashlib
-from adapters.certuk_mod.extract.views import extract_visualiser_get
+from adapters.certuk_mod.extract.views import extract_visualiser_get ,DRAFT_ID_SEPARATOR
 
 
 class ExtractVisualiserTests(unittest.TestCase):
@@ -40,8 +40,8 @@ class ExtractVisualiserTests(unittest.TestCase):
         obs0_title = 'test0'
         obs1_title = 'test1'
 
-        self.draft_obs_id0 = 'observable:123:draft:' + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
-        self.draft_obs_id1 = 'observable:123:draft:' + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
+        self.draft_obs_id0 = 'observable:123' + DRAFT_ID_SEPARATOR + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
+        self.draft_obs_id1 = 'observable:123' + DRAFT_ID_SEPARATOR + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
 
         self.ind_id_ = 'indicator:123'
         self.id_obs0 = 'observable:123'

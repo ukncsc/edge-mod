@@ -2,7 +2,7 @@ import unittest
 import mock
 import json
 import hashlib
-from adapters.certuk_mod.extract.views import extract_visualiser_delete_observables
+from adapters.certuk_mod.extract.views import extract_visualiser_delete_observables, DRAFT_ID_SEPARATOR
 
 
 class ExtractDeleteTests(unittest.TestCase):
@@ -30,8 +30,8 @@ class ExtractDeleteTests(unittest.TestCase):
         obs0_title = 'test0'
         obs1_title = 'test1'
 
-        self.draft_obs_id0 = 'observable:123:draft:' + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
-        self.draft_obs_id1 = 'observable:123:draft:' + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
+        self.draft_obs_id0 = 'observable:123' + DRAFT_ID_SEPARATOR + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
+        self.draft_obs_id1 = 'observable:123' + DRAFT_ID_SEPARATOR + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
 
         self.draft_obs0 = {'id': self.draft_obs_id0, 'title': obs0_title, 'objectType': 'File', 'file_name': "abc.txt", 'hashes':[]}
         self.draft_obs1 = {'id': self.draft_obs_id1, 'title': obs1_title, 'objectType': 'File', 'file_name':'',
