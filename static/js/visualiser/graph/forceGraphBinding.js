@@ -137,8 +137,6 @@ define([
                         return;
                     }
 
-                    d3.event.sourceEvent.preventDefault();
-
                     if (nodeSelected !== null) {
                         updateDraggedNode(nodeSelected);
                     }
