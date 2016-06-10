@@ -14,7 +14,9 @@ define([
             getJSON(url, {}, function (response) {
                 this._parseResponse(response);
             }.bind(this), function (error) {
-                this.createErrorModal(errorMessage + " (" + error + ").")
+                if (error.responseText != "{\"message\": \"'NoneType' object has no attribute 'get'\"}") {
+                    this.createErrorModal(errorMessage + " (" + error + ").")
+                }
             }.bind(this));
         },
 
@@ -33,7 +35,11 @@ define([
             //stub - does nothing here
         },
 
-        saveData: function (/*String*/ url, data,/*String*/ successMessage, /*String*/ errorMessage) {
+        isValid: function (data) {
+            //stub - does nothing here
+        },
+
+        saveData: function (/*String*/ url, data, /*String*/ successMessage, /*String*/ errorMessage) {
             postJSON(url, data, function (response) {
                 this._onSuccesfulSave(response, successMessage);
             }.bind(this), function (error) {
