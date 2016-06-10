@@ -126,6 +126,6 @@ def get_draft_obs_offset(draft_ind, id_):
     hash_ = id_.split(':')[-1]
     for i in xrange(len(draft_ind['observables'])):
         obs = draft_ind['observables'][i]
-        if hashlib.md5(obs['title']).hexdigest() == hash_:
+        if hashlib.md5(obs['title'].encode('utf-8')).hexdigest() == hash_:
             return i
     return -1
