@@ -40,21 +40,9 @@ class VisualiserGraphNodeTests(unittest.TestCase):
                               'has_backlinks': self.mock_backlinks_exist(), 'has_edges': True, 'matches_shown': False, 'title': '',
                               'type': 'coa', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
 
-        self.matching_node = {'id': 'purple', 'backlinks_shown': False, 'depth': 0, 'edges_shown': False,
-                              'has_backlinks': self.mock_backlinks_exist(), 'has_edges': False, 'matches_shown': True, 'title': '',
-                              'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
-
-        self.backlink_node = {'id': 'purple', 'backlinks_shown': True, 'depth': 0, 'edges_shown': False,
+        self.edge_node3 = {'id': 'purple', 'backlinks_shown': False, 'depth': 1, 'edges_shown': True,
                               'has_backlinks': self.mock_backlinks_exist(), 'has_edges': False, 'matches_shown': False, 'title': '',
                               'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
-
-        self.external_node = {'id': 'purple', 'backlinks_shown': False, 'depth': 0, 'edges_shown': True,
-                              'has_backlinks': False, 'has_edges': False, 'matches_shown': False, 'title': '',
-                              'type': 'ind', 'node_type': 'external_ref', 'has_matches': False}
-
-        self.draft_node = {'id': 'purple', 'backlinks_shown': False, 'depth': 0, 'edges_shown': True,
-                              'has_backlinks': False, 'has_edges': False, 'matches_shown': False, 'title': '',
-                              'type': 'ind', 'node_type': 'draft', 'has_matches': False}
 
         self.mock_edge_reference = mock.create_autospec(EdgeReference, id_='purple', ty='ind')
         self.mock_edge2 = mock.create_autospec(EdgeObject, id_='matt', summary={'title': ''}, ty='coa', edges=[self.mock_edge_reference])
@@ -82,26 +70,5 @@ class VisualiserGraphNodeTests(unittest.TestCase):
         response = create_graph(stack, [], [], [], [])
         links = [{'source': 0, 'target': 1, 'rel_type': 'edge'}]
         self.assertDictEqual(response['nodes'][0], self.edge_node2)
-        self.assertDictEqual(response['nodes'][1], self.edge_node)
+        self.assertDictEqual(response['nodes'][1], self.edge_node3)
         self.assertEquals(response['links'], links)
-
-
-
-
-
-
-    # @mock.patch('adapters.certuk_mod.visualiser.graph.matches_exist')
-    # @mock.patch('adapters.certuk_mod.visualiser.graph.backlinks_exist')
-    # def test_create_graph_show_edges(self, mock_backlinks_exist, mock_matches_exist):
-    #     mock_edge = mock.create_autospec(EdgeObject, id_='matt', summary={'title': ''}, ty='ind', edges=[])
-    #     stack = [(0, None, mock_edge, 'edge')]
-    #     mock_backlinks_exist.return_value = False
-    #     mock_matches_exist.return_value = False
-    #     response = create_graph(stack, [], [], [], [])
-    #     correct_nodes = {'id': 'matt', 'backlinks_shown': False, 'depth': 0, 'edges_shown': True,
-    #                           'has_backlinks': False, 'has_edges': False, 'matches_shown': False, 'title': '',
-    #                           'type': 'ind', 'node_type': 'normal', 'has_matches': False}
-    #     self.assertDictEqual(response['nodes'][0], correct_nodes)
-    #     self.assertEquals(response['links'], [])
-
-

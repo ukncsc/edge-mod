@@ -29,8 +29,6 @@ class VisualiserGraphBacklinkTests(unittest.TestCase):
         self.mock_get_matches_patcher.stop()
 
     def init_stix_objects(self):
-        self.mock_edge_title_None = mock.create_autospec(EdgeObject, id_='matt', summary={'title': None}, ty='ind',
-                                                         edges=[])
         self.mock_edge = mock.create_autospec(EdgeObject, id_='purple', summary={'title': ''}, ty='ind', edges=[])
 
         self.edge_node = {'id': 'purple', 'backlinks_shown': False, 'depth': 1, 'edges_shown': True,
@@ -38,28 +36,11 @@ class VisualiserGraphBacklinkTests(unittest.TestCase):
                           'title': '',
                           'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
 
-        self.edge_node2 = {'id': 'matt', 'backlinks_shown': False, 'depth': 0, 'edges_shown': True,
-                           'has_backlinks': self.mock_backlinks_exist(), 'has_edges': True, 'matches_shown': False,
-                           'title': '',
-                           'type': 'coa', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
-
-        self.matching_node = {'id': 'purple', 'backlinks_shown': False, 'depth': 0, 'edges_shown': False,
-                              'has_backlinks': self.mock_backlinks_exist(), 'has_edges': False, 'matches_shown': True,
-                              'title': '',
-                              'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
-
         self.backlink_node = {'id': 'purple', 'backlinks_shown': True, 'depth': 0, 'edges_shown': False,
                               'has_backlinks': self.mock_backlinks_exist(), 'has_edges': False, 'matches_shown': False,
                               'title': '',
                               'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
 
-        self.external_node = {'id': 'purple', 'backlinks_shown': False, 'depth': 0, 'edges_shown': True,
-                              'has_backlinks': False, 'has_edges': False, 'matches_shown': False, 'title': '',
-                              'type': 'ind', 'node_type': 'external_ref', 'has_matches': False}
-
-        self.draft_node = {'id': 'purple', 'backlinks_shown': False, 'depth': 0, 'edges_shown': True,
-                           'has_backlinks': False, 'has_edges': False, 'matches_shown': False, 'title': '',
-                           'type': 'ind', 'node_type': 'draft', 'has_matches': False}
 
         self.mock_edge_reference = mock.create_autospec(EdgeReference, id_='purple', ty='ind')
         self.mock_edge2 = mock.create_autospec(EdgeObject, id_='matt', summary={'title': ''}, ty='coa',
