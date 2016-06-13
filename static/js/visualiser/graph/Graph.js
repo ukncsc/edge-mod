@@ -45,11 +45,11 @@ define([
                 var selectedNode = this.selectedNode();
 
                 var linkedNodes = {
-                    parentOf: {rel_type:'edge', values: []},
-                    childOf: {rel_type: 'childOf', values:[]},
-                    matches: {rel_type: 'match', values:[]},
-                    drafts: {rel_type: 'draft', values:[]},
-                    backlinks: {rel_type: 'backlink', values:[]},
+                    parentOf: {rel_type: 'edge', values: []},
+                    childOf: {rel_type: 'childOf', values: []},
+                    matches: {rel_type: 'match', values: []},
+                    drafts: {rel_type: 'draft', values: []},
+                    backlinks: {rel_type: 'backlink', values: []},
                     externalRefs: {rel_type: 'external_ref', values: []}
                 };
                 ko.utils.arrayForEach(this.nodes(), function (node) {
@@ -63,13 +63,13 @@ define([
                         if (link.source.index === findIndex) {
                             if (link.relType() === "edge") {
                                 linkedNodes.parentOf['values'].push(link.target);
-                            } else  if (link.relType() === "match") {
+                            } else if (link.relType() === "match") {
                                 linkedNodes.matches['values'].push(link.target);
-                            } else  if (link.relType() === "backlink") {
+                            } else if (link.relType() === "backlink") {
                                 linkedNodes.backlinks['values'].push(link.target);
-                            }  else  if (link.relType() === "draft") {
+                            } else if (link.relType() === "draft") {
                                 linkedNodes.drafts['values'].push(link.target);
-                            } else  if (link.relType() === "external_ref") {
+                            } else if (link.relType() === "external_ref") {
                                 linkedNodes.externalRefs['values'].push(link.target);
                             }
                             link.target.isRelated(true);
@@ -88,36 +88,23 @@ define([
             this.loadData(graphData);
         },
         nodeAlreadyExists: function (currentNodes, nodeData) {
-            var existingNode = null;
-            ko.utils.arrayForEach(currentNodes, function (node) {
-                if (!existingNode) {
-                    if (nodeData.depth === node.depth() &&
-                        nodeData.id === node.id() &&
-                        nodeData.title === node.title() &&
-                        nodeData.type === node.type()) {
-                        existingNode = node;
-                    }
+            for (var i = 0, j = currentNodes.length; i < j; i++) {
+                var node = currentNodes[i];
+                if (nodeData.id === node.id()) {
+                    return node;
                 }
-            });
-            return existingNode;
+            }
+            return null;
         },
         linkAlreadyExists: function (currentLinks, sourceData, targetData) {
-            var existingLink = null;
-            ko.utils.arrayForEach(currentLinks, function (link) {
-                if (!existingLink) {   //toDo, link rel type?
-                    if (sourceData.depth() === link.source.depth() &&
-                        sourceData.id() === link.source.id() &&
-                        sourceData.title() === link.source.title() &&
-                        sourceData.type() === link.source.type() &&
-                        targetData.depth() === link.target.depth() &&
-                        targetData.id() === link.target.id() &&
-                        targetData.title() === link.target.title() &&
-                        targetData.type() === link.target.type()) {
-                        existingLink = link;
-                    }
+            for (var i = 0, j = currentLinks.length; i < j; i++) {
+                var link = currentLinks[i];
+                if (sourceData.id() === link.source.id() &&
+                    targetData.id() === link.target.id()) {
+                    return link;
                 }
-            });
-            return existingLink;
+            }
+            return null;
         },
         loadData: function (graphData) {
             this.d3Layout().stop();
