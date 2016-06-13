@@ -57,7 +57,7 @@ class VisualiserGraphNodeTests(unittest.TestCase):
                            'title': '',
                            'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
 
-        self.edge_node4 = {'id': 'blue', 'backlinks_shown': False, 'depth': 0, 'edges_shown': True,
+        self.edge_node4 = {'id': 'blue', 'backlinks_shown': False, 'depth': 0, 'edges_shown': False,
                            'has_backlinks': self.mock_backlinks_exist(), 'has_edges': True, 'matches_shown': False,
                            'title': '',
                            'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
