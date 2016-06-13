@@ -66,41 +66,41 @@ define([
             this.rootId = ko.computed(function () {
                 return data;
             });
-            this.getWithOthers();
+            this.getExtended();
         },
         onPlusBacklinkClicked: function (data, scope) {
             this.graph().backlinks.push(data);
             this.graph().findNode(data).isBackLinkShown(true);
-            this.getWithOthers();
+            this.getExtended();
         },
         onMinusBacklinkClicked: function (data, scope) {
             this.graph().backlinks.remove(data);
             this.graph().findNode(data).isBackLinkShown(false);
-            this.getWithOthers();
+            this.getExtended();
         },
         onShowEdges: function (data, scope) {
             this.graph().no_edges.remove(data);
             this.graph().edges.push(data);
             this.graph().findNode(data).isEdgesShown(true);
-            this.getWithOthers();
+            this.getExtended();
         },
         onHideEdges: function (data, scope) {
             this.graph().no_edges.push(data);
             this.graph().edges.remove(data);
             this.graph().findNode(data).isEdgesShown(false);
-            this.getWithOthers();
+            this.getExtended();
         },
         onPlusMatchesClicked: function (data, scope) {
             this.graph().matches.push(data);
             this.graph().findNode(data).isMatchesShown(true);
-            this.getWithOthers();
+            this.getExtended();
         },
         onMinusMatchesClicked: function (data, scope) {
             this.graph().matches.remove(data);
             this.graph().findNode(data).isMatchesShown(false);
-            this.getWithOthers();
+            this.getExtended();
         },
-        getWithOthers: function () {
+        getExtended: function () {
             postJSON(this.graph_url() + "get_extended/", {
                     'id': this.rootId(),
                     'id_bls': this.graph().backlinks(),
