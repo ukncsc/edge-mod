@@ -78,7 +78,7 @@ class PackageValidationInfo(object):
                 if len(other_properties.get('external_ids', [])):
                     field_validation = {'external_ids': FieldValidationInfo(
                         ValidationStatus.WARN,
-                        r'External IDs will be included within the published object')
+                        r'External IDs exist within an Incident in the package')
                     }
                     incident_validation.update({id_: ObjectValidationInfo(**field_validation).validation_dict})
             else:
