@@ -11,7 +11,7 @@ from adapters.certuk_mod.common.objectid import discover as objectid_discover
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
-from adapters.certuk_mod.visualiser.graph import create_graph
+from adapters.certuk_mod.visualiser.graph import create_graph, REL_TYPE_EDGE
 
 
 @login_required
@@ -37,7 +37,7 @@ def visualiser_not_found(request):
 def visualiser_get(request, id_):
     try:
         root_edge_object = PublisherEdgeObject.load(id_)
-        graph = create_graph([(0, None, root_edge_object, "edge")], [], [], [], [])
+        graph = create_graph([(0, None, root_edge_object, REL_TYPE_EDGE)], [], [], [], [])
         return JsonResponse(graph, status=200)
     except Exception as e:
         return JsonResponse({'error': e.message}, status=500)
@@ -73,7 +73,7 @@ def visualiser_get_extended(request):
     show_edge_ids = json_data['show_edge_ids']
     try:
         root_edge_object = PublisherEdgeObject.load(root_id)
-        graph = create_graph([(0, None, root_edge_object, "edge")], bl_ids, match_ids, hide_edge_ids, show_edge_ids)
+        graph = create_graph([(0, None, root_edge_object, REL_TYPE_EDGE)], bl_ids, match_ids, hide_edge_ids, show_edge_ids)
         return JsonResponse(graph, status=200)
     except Exception as e:
         return JsonResponse({'error': e.message}, status=500)

@@ -1,6 +1,24 @@
 from edge.generic import EdgeObject, EdgeError
 from mongoengine.connection import get_db
 
+REL_TYPE_EDGE = "edge"
+REL_TYPE_MATCH = "match"
+REL_TYPE_BACKLINK = "backlink"
+REL_TYPE_DRAFT = "draft"
+REL_TYPE_EXT = "external_ref"
+
+NODE_TYPE_DRAFT = "draft"
+NODE_TYPE_EXT = "external_ref"
+NODE_TYPE_NORM = "normal"
+
+LINK_TO_NODE_TYPE = {
+    REL_TYPE_EDGE: NODE_TYPE_NORM,
+    REL_TYPE_MATCH: NODE_TYPE_NORM,
+    REL_TYPE_BACKLINK: NODE_TYPE_NORM,
+    REL_TYPE_DRAFT: NODE_TYPE_DRAFT,
+    REL_TYPE_EXT: NODE_TYPE_EXT
+}
+
 
 def build_title(node):
     node_type = node.summary.get("type")
@@ -42,7 +60,7 @@ def matches_exist(id_):
 
 def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
     def show_edges(rel_type, node_id):
-        return (("backlink" not in rel_type and "match" not in rel_type) or (node_id in show_edge_ids)) and \
+        return ((REL_TYPE_BACKLINK != rel_type and REL_TYPE_MATCH != rel_type) or (node_id in show_edge_ids)) and \
                (node_id not in hide_edge_ids)
 
     nodes = []
@@ -55,12 +73,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
         return EdgeObject(summary)
 
     def get_node_type(rel_type):
-        if rel_type == 'external_ref':
-            return 'external_ref'
-        if rel_type == 'draft':
-            return 'draft'
-        return 'normal'
-
+        return LINK_TO_NODE_TYPE[rel_type]
     id_to_idx = {}
 
     while stack:
@@ -74,7 +87,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
             title = node.summary.get("title", None)
             if title is None:
                 title = build_title(node)
-            if node_type is 'external_ref' or node_type is 'draft':
+            if node_type is NODE_TYPE_EXT or node_type is NODE_TYPE_DRAFT:
                 backlinks, matches = False, False
             else:
                 backlinks, matches, = backlinks_exist(node_id), matches_exist(node_id)
@@ -93,19 +106,19 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
             if show_edges(rel_type, node_id):
                 for edge in node.edges:
                     try:
-                        stack.append((depth + 1, idx, edge.fetch(), "edge"))
+                        stack.append((depth + 1, idx, edge.fetch(), REL_TYPE_EDGE))
                     except EdgeError as e:
                         if e.message == edge.id_ + " not found":
                             obj = create_external_reference(edge)
-                            stack.append((depth + 1, idx, obj, "external_ref"))
+                            stack.append((depth + 1, idx, obj, REL_TYPE_EXT))
                             continue
                     except Exception as e:
                         raise e
             if node_id in bl_ids:
                 for eoId in [val for doc in get_backlinks(node_id) for val in doc['value'].keys()]:
-                    stack.append((depth + 1, idx, EdgeObject.load(eoId), "backlink"))
+                    stack.append((depth + 1, idx, EdgeObject.load(eoId), REL_TYPE_BACKLINK))
             if node_id in id_matches:
                 for eoId in get_matches(node_id):
-                    stack.append((depth + 1, idx, EdgeObject.load(eoId), "match"))
+                    stack.append((depth + 1, idx, EdgeObject.load(eoId), REL_TYPE_MATCH))
 
     return dict(nodes=nodes, links=links)
