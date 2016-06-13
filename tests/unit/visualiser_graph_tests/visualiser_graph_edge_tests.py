@@ -39,6 +39,8 @@ class VisualiserGraphNodeTests(unittest.TestCase):
         self.mock_edge3 = mock.create_autospec(EdgeObject, id_='green', summary={'title': ''}, ty='ind', edges=[])
         self.mock_edge4 = mock.create_autospec(EdgeObject, id_='blue', summary={'title': ''}, ty='ind',
                                                edges=['edge1', 'edge2'])
+        self.mock_edge5 = mock.create_autospec(EdgeObject, id_='orange', summary={'title': ''}, ty='ind',
+                                               edges=[])
 
         self.edge_node = {'id': 'red', 'backlinks_shown': False, 'depth': 0, 'edges_shown': True,
                           'has_backlinks': self.mock_backlinks_exist(), 'has_edges': False, 'matches_shown': False,
@@ -55,7 +57,12 @@ class VisualiserGraphNodeTests(unittest.TestCase):
                            'title': '',
                            'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
 
-        self.edge_node4 = {'id': 'blue', 'backlinks_shown': False, 'depth': 0, 'edges_shown': True,
+        self.edge_node4 = {'id': 'blue', 'backlinks_shown': False, 'depth': 0, 'edges_shown': False,
+                           'has_backlinks': self.mock_backlinks_exist(), 'has_edges': True, 'matches_shown': False,
+                           'title': '',
+                           'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
+
+        self.edge_node5 = {'id': 'orange', 'backlinks_shown': False, 'depth': 1, 'edges_shown': True,
                            'has_backlinks': self.mock_backlinks_exist(), 'has_edges': True, 'matches_shown': False,
                            'title': '',
                            'type': 'ind', 'node_type': 'normal', 'has_matches': self.mock_matches_exist()}
@@ -99,3 +106,12 @@ class VisualiserGraphNodeTests(unittest.TestCase):
         response = create_graph(stack, [], [], [], show_edge_ids)
         self.assertEquals(response['nodes'], [self.edge_node])
         self.assertEquals(response['links'], [])
+
+    def test_create_graph_existing_id(self):
+        stack = [(0, None, self.mock_edge2, 'edge')]
+        self.mock_edge_reference.fetch.return_value = self.mock_edge5
+        links = [{'source': 0, 'target': 0, 'rel_type': 'edge'}]
+        response = create_graph(stack, [], [], [], [])
+        self.assertEqual(len(response['nodes']), 1)
+        self.assertEqual(response['nodes'], [self.edge_node2])
+        self.assertEqual(response['links'], links)

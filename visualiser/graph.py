@@ -1,6 +1,7 @@
 from edge.generic import EdgeObject, EdgeError
 from mongoengine.connection import get_db
 
+
 def build_title(node):
     node_type = node.summary.get("type")
     try:
@@ -41,7 +42,8 @@ def matches_exist(id_):
 
 def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
     def show_edges(rel_type, node_id):
-        return ("backlink" not in rel_type and "match" not in rel_type) or (node_id in show_edge_ids)
+        return (("backlink" not in rel_type and "match" not in rel_type) or (node_id in show_edge_ids)) and \
+               (node_id not in hide_edge_ids)
 
     nodes = []
     links = []
@@ -89,17 +91,16 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
 
         if is_new_node:
             if show_edges(rel_type, node_id):
-                if node_id not in hide_edge_ids:
-                    for edge in node.edges:
-                        try:
-                            stack.append((depth + 1, idx, edge.fetch(), "edge"))
-                        except EdgeError as e:
-                            if e.message == edge.id_ + " not found":
-                                obj = create_external_reference(edge)
-                                stack.append((depth + 1, idx, obj, "external_ref"))
-                                continue
-                        except Exception as e:
-                            raise e
+                for edge in node.edges:
+                    try:
+                        stack.append((depth + 1, idx, edge.fetch(), "edge"))
+                    except EdgeError as e:
+                        if e.message == edge.id_ + " not found":
+                            obj = create_external_reference(edge)
+                            stack.append((depth + 1, idx, obj, "external_ref"))
+                            continue
+                    except Exception as e:
+                        raise e
             if node_id in bl_ids:
                 for eoId in [val for doc in get_backlinks(node_id) for val in doc['value'].keys()]:
                     stack.append((depth + 1, idx, EdgeObject.load(eoId), "backlink"))
