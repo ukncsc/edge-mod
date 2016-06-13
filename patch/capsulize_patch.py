@@ -9,7 +9,7 @@ from stix.extensions.marking.tlp import TLPMarkingStructure
 from edge import stixbase
 from edge.generic import PACKAGE_ADD_DISPATCH, EdgeObject
 from edge.handling import PackageXPath
-from stix_extension.handling_marking import HandlingMarkingStructure
+from adapters.certuk_mod.stix_extension.handling_marking import HandlingMarkingStructure
 
 
 def capsulize_patch(self, pkg_id, enable_bfs=False):
