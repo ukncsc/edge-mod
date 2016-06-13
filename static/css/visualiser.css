@@ -41,14 +41,6 @@
 }
 
 .icon-rotated.fa-signal:after {
-    content: "";
-    position: absolute;
-    width: 3px;
-    height: 141.421356%;
-    top: -20.710678%;
-    display: block;
-    background: red;
-    left: 50%;
     transform: translate(-50%, 0) rotate(-45deg);
 }
 
@@ -85,8 +77,6 @@ svg {
 
 g.ko-d3-graph-node {
     cursor: pointer;
-    stroke: red;
-    stroke-width: 20;
 }
 
 #selected {

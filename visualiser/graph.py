@@ -32,21 +32,11 @@ def get_matches(id_):
 
 
 def backlinks_exist(id_):
-    backlinks, exists = get_backlinks(id_), ''
-    if backlinks.count():
-        exists = True
-    else:
-        exists = False
-    return exists
+    return get_backlinks(id_).count()
 
 
 def matches_exist(id_):
-    matches, exists = get_matches(id_), ''
-    if len(matches):
-        exists = True
-    else:
-        exists = False
-    return exists
+    return len(get_matches(id_))
 
 
 def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
@@ -93,8 +83,10 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
                               backlinks_shown=node_id in bl_ids))
         else:
             idx = id_to_idx[node_id]
+
         if parent_idx is not None:
             links.append({"source": parent_idx, "target": idx, "rel_type": rel_type})
+
         if is_new_node:
             if show_edges(rel_type, node_id):
                 if node_id not in hide_edge_ids:

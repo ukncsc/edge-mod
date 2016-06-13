@@ -1,7 +1,7 @@
 import hashlib
+from users.models import Draft
 from edge.generic import EdgeObject
 from adapters.certuk_mod.visualiser.graph import create_graph
-from users.models import Draft
 
 DRAFT_ID_SEPARATOR = ":draft:"
 
@@ -36,9 +36,13 @@ def observable_to_name(observable, is_draft):
     return observable['id']
 
 
+def create_draft_obs_hash(obs):
+    return hashlib.md5(obs['title'].encode("utf-8")).hexdigest()
+
+
 def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
     def create_draft_observable_id(obs):
-        d = hashlib.md5(obs['title'].encode("utf-8")).hexdigest()
+        d = create_draft_obs_hash(obs)
         return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + d
 
     def create_draft_obs_node(obs_id, title):
@@ -92,6 +96,8 @@ def can_merge_observables(draft_obs_offsets, draft_ind, hash_types):
         return False, "Unable to merge these observables, at least 2 draft observables should be selected for a merge"
 
     draft_obs = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets]
+    if -1 in draft_obs_offsets:
+        return False, "Unable to merge these observables, unable to find at least one of the observables requested"
 
     types = {draft_ob['objectType'] for draft_ob in draft_obs}
     if len(types) == 0 or (len(types) == 1 and 'File' not in types) or len(types) != 1:
@@ -127,6 +133,6 @@ def get_draft_obs_offset(draft_ind, id_):
     hash_ = id_.split(':')[-1]
     for i in xrange(len(draft_ind['observables'])):
         obs = draft_ind['observables'][i]
-        if hashlib.md5(obs['title'].encode('utf-8')).hexdigest() == hash_:
+        if create_draft_obs_hash(obs) == hash_:
             return i
     return -1

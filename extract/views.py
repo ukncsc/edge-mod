@@ -32,6 +32,9 @@ def extract(request):
 @login_required_ajax
 def extract_upload(request):
     def process_draft_obs():
+        # draft_indicator['observables'] contains all obs for the ind. observable_ids just the inboxed
+        # (i.e. not de-duped)
+        # If it is no de-duped, dump the id as this confuses the builder; and gives us a quick way to differentiate.
         for obs in draft_indicator['observables']:
             if obs['id'] in observable_ids:  # Is it a draft?
                 del obs['id']
@@ -39,9 +42,10 @@ def extract_upload(request):
                     obs['title'] = summarise_draft_observable(obs)
 
     def remove_from_db(ids):
-        for page_index in range(0, len(ids), 10):
+        PAGE_SIZE = 100
+        for page_index in range(0, len(ids), PAGE_SIZE):
             try:
-                chunk_ids = ids[page_index: page_index + 10]
+                chunk_ids = ids[page_index: page_index + PAGE_SIZE]
                 STIXPurge.remove(chunk_ids)
             except Exception:
                 pass
@@ -72,6 +76,7 @@ def extract_upload(request):
             process_draft_obs()
             Draft.upsert('ind', draft_indicator, request.user)
     finally:
+        # The observables were fully inboxed, but we want them only to exist as drafts, so remove from db
         remove_from_db(indicator_ids + list(observable_ids))
 
     return redirect("extract_visualiser",
