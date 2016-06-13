@@ -46,44 +46,60 @@ define([
         },
 
         save: function () {
+            this.removeEmptyCaveats(this.handling_caveats());
             if (this.isValid(this.handling_caveats())) {
                 var configObject = this.createSimpleConfigObject(this.handling_caveats());
                 var successMessage = "The sharing group mappings were successfully saved";
                 var errorMessage = "An error occurred while attempting to save the sharing groups configuration";
                 this.saveData("set_sharing_groups/", configObject, successMessage, errorMessage);
+                //need to do as a callback as it needs to wait for saveData to evaluate
+                this.getConfig()
             } else {
-                this.createErrorModal("All Handling Caveat mappings must be non-null pairs of strings." +
+                this.createErrorModal("All Handling Caveat mappings must be pairs of non-empty strings." +
                     " There must be no duplicate Stix or Display Values")
             }
         },
 
+        removeEmptyCaveats: function (handlingCaveats) {
+            ko.utils.arrayForEach(handlingCaveats, function (handling_caveat) {
+                if (handling_caveat['stix_value'] == "" && handling_caveat['display_value'] == "") {
+                    // this removal then means it skips the next value
+                    ko.utils.arrayRemoveItem(handlingCaveats, handling_caveat);
+                }
+            })
+        },
+
         isValid: function (handlingCaveatArray) {
-            if(this.containsDuplicates(this.handling_caveats())){
+            if (this.containsDuplicates(this.handling_caveats())) {
                 return false
             }
             var arrayLength = handlingCaveatArray.length;
             for (var index = 0; index < arrayLength; index++) {
-                if (this.isValidString(handlingCaveatArray[index]['stix_value']) == false ||
-                    this.isValidString(handlingCaveatArray[index]['display_value']) == false)
+                if (this.isEmptyString(handlingCaveatArray[index]['stix_value']) == false ||
+                    this.isEmptyString(handlingCaveatArray[index]['display_value']) == false)
                     return false
             }
             return true
         },
 
         containsDuplicates: function (handlingCaveats) {
-            var stixValueArray = handlingCaveats.map(function(caveat){return caveat.stix_value});
-            var displayValueArray = handlingCaveats.map(function(caveat){return caveat.display_value});
+            var stixValueArray = handlingCaveats.map(function (caveat) {
+                return caveat.stix_value
+            });
+            var displayValueArray = handlingCaveats.map(function (caveat) {
+                return caveat.display_value
+            });
 
-            if(this.hasDuplicates(stixValueArray) || this.hasDuplicates(displayValueArray)){
+            if (this.hasDuplicates(stixValueArray) || this.hasDuplicates(displayValueArray)) {
                 return true
             }
         },
 
         hasDuplicates: function (array) {
-          return (new Set(array)).size !== array.length;
+            return (new Set(array)).size !== array.length;
         },
 
-        isValidString: function (/*String*/ string) {
+        isEmptyString: function (/*String*/ string) {
             return typeof string === "string" && string.trim().length > 0;
         },
 

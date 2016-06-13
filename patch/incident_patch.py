@@ -11,7 +11,7 @@ from django.conf import settings
 from stix.common import vocabs
 from stix.incident import IncidentCategories, IntendedEffects, DiscoveryMethods, ExternalID
 from stix.incident.time import Time as StixTime
-from stix_extension.handling_marking import HandlingMarkingStructure
+from adapters.certuk_mod.stix_extension.handling_marking import HandlingMarkingStructure
 
 from edge import IDManager, NamespaceNotConfigured, incident
 from edge.common import EdgeInformationSource
@@ -102,6 +102,7 @@ def incident_view(request, id, edit=False):
         'discovery_methods': json.dumps(static['discovery_methods']),
         'intended_effects': json.dumps(static['intended_effects']),
         'ajax_uri': reverse('incident_ajax'),
+        'object_type': "incident",
         'time_zone': datetime.datetime.now(settings.LOCAL_TZ).tzname()
     })
 

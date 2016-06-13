@@ -1,4 +1,4 @@
-import stix_extension.bindings.handling_marking as handling_marking_binding
+import adapters.certuk_mod.stix_extension.bindings.handling_marking as handling_marking_binding
 import stix.data_marking
 from stix.data_marking import MarkingStructure
 
