@@ -10,12 +10,12 @@ from adapters.certuk_mod.validation.common.structure import (
 )
 from adapters.certuk_mod.validation.indicator.indicator import IndicatorValidationInfo
 from adapters.certuk_mod.validation.observable.validator import ObservableValidator
+from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus, ObjectValidationInfo
 from edge.combine import STIXPackage
 from edge.tools import nested_get
 
 
 class PackageValidationInfo(object):
-
     def __init__(self, package_dict):
         self.package_dict = package_dict
         self.validation_dict = PackageValidationInfo.__generate_validation_dict(package_dict)
@@ -30,6 +30,9 @@ class PackageValidationInfo(object):
         validation.update(PackageValidationInfo.__validate_indicators(
             nested_get(package_dict, [r'indicators']), stix_header
         ))
+        validation.update(PackageValidationInfo.__validate_incidents(
+            nested_get(package_dict, [r'incidents']), stix_header
+        ))
         # and other types - namespace and TLP checks only ...
         validation.update(PackageValidationInfo.__validate_other(
             nested_get(package_dict, [r'courses_of_action']), r'coa', stix_header
@@ -37,9 +40,7 @@ class PackageValidationInfo(object):
         validation.update(PackageValidationInfo.__validate_other(
             nested_get(package_dict, [r'ttps', r'ttps']), r'ttp', stix_header
         ))
-        validation.update(PackageValidationInfo.__validate_other(
-            nested_get(package_dict, [r'incidents']), r'inc', stix_header
-        ))
+
         return validation
 
     @staticmethod
@@ -61,6 +62,29 @@ class PackageValidationInfo(object):
                     observable_validation.update({id_: namespace_validation.validation_dict})
 
         return observable_validation
+
+    @staticmethod
+    def __validate_incidents(incidents, stix_header):
+        incident_validation = {}
+
+        for incident in incidents:
+            id_ = incident['id']
+            namespace_validation = NamespaceValidationInfo.validate(r'inc', id_)
+            if namespace_validation.is_local():
+                other_properties = OtherStructureConverter.package_to_simple(incident, stix_header)
+                validation_results = CommonValidationInfo.validate(**other_properties)
+                if validation_results and validation_results.validation_dict:
+                    incident_validation.update({id_: validation_results.validation_dict})
+                if len(other_properties.get('external_ids', [])):
+                    field_validation = {'external_ids': FieldValidationInfo(
+                        ValidationStatus.WARN,
+                        r'External IDs will be included within the published object')
+                    }
+                    incident_validation.update({id_: ObjectValidationInfo(**field_validation).validation_dict})
+            else:
+                incident_validation.update({id_: namespace_validation.validation_dict})
+
+        return incident_validation
 
     @staticmethod
     def __validate_indicators(indicators, stix_header):
