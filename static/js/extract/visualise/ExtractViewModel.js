@@ -43,7 +43,6 @@ define([
                 base_url,
                 base_url + "item/",
                 "/adapter/certuk_mod/review/",
-                "visualiser-graph",
 
                 (new PanelActionsBuilder())
                     .addAction(create_merge_action(id))

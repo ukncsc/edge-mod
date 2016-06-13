@@ -13,7 +13,7 @@ define([
     var ViewModel = declare(null, {
         declaredClass: "ViewModel",
 
-        constructor: function (rootId, graphData, graph_url, item_url, publish_url, graph_svg_id, panel_actions) {
+        constructor: function (rootId, graphData, graph_url, item_url, publish_url, panel_actions) {
 
             this.rootId = ko.computed(function () {
                 return rootId;
@@ -142,7 +142,7 @@ define([
             PNGConverter.savetoPNG(event, this.rootId());
         }
     });
-    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*String*/ publish_url, /*String*/ graph_svg_id,
+    ViewModel.loadById = function (/*String*/ rootId, /*String*/ graph_url, /*String*/ item_url, /*String*/ publish_url,
                                    /*PanelActions*/panel_actions, /*function*/ onLoadedCallback,
                                    /*function*/ onErrorCallback) {
         d3.json(
@@ -151,7 +151,7 @@ define([
                 if (error) {
                     onErrorCallback(error);
                 } else {
-                    onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url, publish_url, graph_svg_id, panel_actions));
+                    onLoadedCallback(new ViewModel(rootId, response, graph_url, item_url, publish_url, panel_actions));
 
                 }
             }
