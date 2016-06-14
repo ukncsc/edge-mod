@@ -1,5 +1,6 @@
 import json
-from mongoengine.connection import get_db
+
+from mongoengine import DoesNotExist
 from defusedxml import EntitiesForbidden
 from lxml.etree import XMLSyntaxError
 
@@ -173,7 +174,11 @@ def extract_visualiser_merge_observables(request):
     if not is_valid_stix_id(merge_data['id']):
         return JsonResponse({'message': "Invalid stix id: " + merge_data['id']}, status=200)
 
-    draft_ind = Draft.load(merge_data['id'], request.user)
+    try:
+        draft_ind = Draft.load(merge_data['id'], request.user)
+    except DoesNotExist:
+        return JsonResponse({'Error': "Draft object:%s does not exist" % merge_data['id']}, status=400)
+
     draft_obs_offsets = [get_draft_obs_offset(draft_ind, id_) for id_ in merge_data['ids'] if DRAFT_ID_SEPARATOR in id_]
 
     hash_types = ['MD5', 'MD6', 'SHA1', 'SHA224', 'SHA256', 'SHA384', 'SHA512', 'SSDeep', 'Other']
@@ -190,7 +195,11 @@ def extract_visualiser_merge_observables(request):
 @login_required_ajax
 def extract_visualiser_delete_observables(request):
     delete_data = json.loads(request.body)
-    draft_ind = Draft.load(delete_data['id'], request.user)
+    try:
+        draft_ind = Draft.load(delete_data['id'], request.user)
+    except DoesNotExist:
+        return JsonResponse({'Error': "Draft object:%s does not exist" % delete_data['id']}, status=400)
+
     draft_obs_offsets = [get_draft_obs_offset(draft_ind, id_) for id_ in delete_data['ids'] if
                          DRAFT_ID_SEPARATOR in id_]
 
@@ -223,7 +232,7 @@ def extract_visualiser_get_extended(request):
         return JsonResponse(
             iterate_draft(Draft.load(root_id, request.user), bl_ids, id_matches, hide_edge_ids, show_edge_ids),
             status=200)
-    except Exception as e:
+    except Exception:
         pass
 
     try:
