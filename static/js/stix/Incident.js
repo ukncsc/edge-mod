@@ -45,10 +45,6 @@ define([
             this.relatedObservables = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_observables.observables", "observable.idref");
             }, this, this.DEFER_EVALUATION);
-            this.handling_caveat = ko.computed(function () {
-                var validation = stixPackage.validations().findByProperty(this.id(), "handlingCaveat");
-                return this.findByXsiType(this.markingStructures, "HandlingMarkingStructureType", "caveat", validation);
-            }, this);
         }
     });
 });

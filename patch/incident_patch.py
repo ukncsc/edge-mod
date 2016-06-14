@@ -11,7 +11,7 @@ from django.conf import settings
 from stix.common import vocabs
 from stix.incident import IncidentCategories, IntendedEffects, DiscoveryMethods, ExternalID
 from stix.incident.time import Time as StixTime
-from adapters.certuk_mod.stix_extension.handling_marking import HandlingMarkingStructure
+from stix.extensions.marking.simple_marking import SimpleMarkingStructure
 
 from edge import IDManager, NamespaceNotConfigured, incident
 from edge.common import EdgeInformationSource
@@ -21,6 +21,7 @@ from edge.tools import cleanstrings, rgetattr
 from incident import views
 from rbac import user_can_edit
 
+HANDLING_CAVEAT = 'HANDLING_CAVEAT'
 CATEGORIES = vocabs.IncidentCategory._ALLOWED_VALUES
 TIME_TYPES = (("first_malicious_action", "First Malicious Action", False),
               ("initial_compromise", "Initial Compromise", False),
@@ -132,8 +133,12 @@ def from_draft_wrapper(wrapped_func):
 
         # Edge sets handling by looking for magic strings, tlp and markings, (handing_from draft in handling.py).
         # This is the easiest/least hacky way of adding a new marking.
-        target.handling.markings[0].marking_structures.append(
-                HandlingMarkingStructure(draft.get('handling_caveat')))
+        handling_caveat = SimpleMarkingStructure(draft.get('handling_caveat'))
+        # the following is to mark this as different so on assembling we can recognise
+        # between the 2 simple marking structures
+        handling_caveat.marking_model_name = HANDLING_CAVEAT
+
+        target.handling.markings[0].marking_structures.append(handling_caveat)
 
         return target
 
@@ -170,9 +175,10 @@ class DBIncidentPatch(incident.DBIncident):
             for ex_id in inc.external_ids:
                 draft['external_ids'].append({'source': ex_id.source, 'id': ex_id.value})
 
-        draft['handling_caveat'] = handling_to_draft(inc, "caveat")
+        draft['handling_caveat'] = handling_to_draft(inc, "handling_caveat")
 
         return draft
+
 
     @staticmethod
     def append_config_timezone(time_dict):
