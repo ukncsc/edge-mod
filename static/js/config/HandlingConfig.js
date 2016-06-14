@@ -52,8 +52,6 @@ define([
                 var successMessage = "The sharing group mappings were successfully saved";
                 var errorMessage = "An error occurred while attempting to save the sharing groups configuration";
                 this.saveData("set_sharing_groups/", configObject, successMessage, errorMessage);
-                //need to do as a callback as it needs to wait for saveData to evaluate
-                this.getConfig()
             } else {
                 this.createErrorModal("All Handling Caveat mappings must be pairs of non-empty strings." +
                     " There must be no duplicate Stix or Display Values")
@@ -61,12 +59,24 @@ define([
         },
 
         removeEmptyCaveats: function (handlingCaveats) {
-            ko.utils.arrayForEach(handlingCaveats, function (handling_caveat) {
-                if (handling_caveat['stix_value'] == "" && handling_caveat['display_value'] == "") {
-                    // this removal then means it skips the next value
-                    ko.utils.arrayRemoveItem(handlingCaveats, handling_caveat);
+            var indexesToRemove = [];
+            var arrayLength = handlingCaveats.length;
+            for (var index = 0; index < arrayLength; index++) {
+                if (handlingCaveats[index]['stix_value'] == "" && handlingCaveats[index]['display_value'] == "") {
+                    //reverse order list of indices to remove
+                    indexesToRemove.unshift(index)
                 }
-            })
+            }
+            this.removeIndexes(indexesToRemove, handlingCaveats);
+            this.handling_caveats.valueHasMutated();
+        },
+
+        removeIndexes: function (toRemove, arrayToPurge) {
+            var numberToRemove = toRemove.length;
+            for (var index = 0; index < numberToRemove; index++) {
+                //works back through array so safely remove, no falling off
+                arrayToPurge.splice(toRemove[index], 1)
+            }
         },
 
         isValid: function (handlingCaveatArray) {
