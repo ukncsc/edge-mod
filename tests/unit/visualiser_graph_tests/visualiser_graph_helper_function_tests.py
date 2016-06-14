@@ -19,7 +19,7 @@ class VisualiserGraphMatchesBacklinksTests(unittest.TestCase):
         mock_get_matches.return_value = ['something', 'matched']
         matches = matches_exist('purple')
         mock_get_matches.assert_called_with('purple')
-        self.assertEquals(matches, True)
+        self.assertEquals(matches, 2)
 
     @mock.patch('adapters.certuk_mod.visualiser.graph.get_backlinks')
     def test_backlinks_do_not_exist(self, mock_get_backlinks):
