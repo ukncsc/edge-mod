@@ -82,7 +82,7 @@ define([
                  *************************/
 
                     //Used this custom format mainly to twiddle default us style %b %d to %d %b
-                customTimeFormat = d3.time.format.utc.multi([
+                customTimeFormat = d3.time.format.multi([
                     [".%L", function (d) {
                         return d.getMilliseconds();
                     }],
