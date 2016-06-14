@@ -2,7 +2,7 @@ import unittest
 import mock
 import hashlib
 from adapters.certuk_mod.extract.views import extract_visualiser_get ,DRAFT_ID_SEPARATOR
-
+from pymongo.cursor import Cursor
 
 class ExtractVisualiserTests(unittest.TestCase):
 
@@ -12,7 +12,7 @@ class ExtractVisualiserTests(unittest.TestCase):
         self.mock_draft_upsert_patcher = mock.patch('users.models.Draft.upsert')
         self.mock_draft_list_patcher = mock.patch('users.models.Draft.list')
         self.mock_draft_load_patcher = mock.patch('users.models.Draft.load')
-        self.mock_db_patcher = mock.patch('adapters.certuk_mod.extract.views.get_db')
+        self.mock_db_patcher = mock.patch('adapters.certuk_mod.visualiser.graph.get_db')
         self.mock_edge_load_patcher = mock.patch('edge.generic.EdgeObject.load')
 
         self.mock_valid_id = self.mock_valid_id_patcher.start()
@@ -70,7 +70,8 @@ class ExtractVisualiserTests(unittest.TestCase):
         self.assertEqual(len(response.content['nodes']), 3)
         self.assertEqual(len(response.content['links']), 2)
 
-    def test_extract_visualiser_item_with_backlinks(self):
+    @mock.patch('adapters.certuk_mod.visualiser.graph.backlinks_exist')
+    def test_extract_visualiser_item_with_backlinks(self, mock_backlinks_exist):
         mock_db_instance = mock.MagicMock()
         self.mock_get_db.return_value = mock_db_instance
         mock_db_instance.stix_backlinks.find = mock.MagicMock(return_value=[{'value': {'indicator:backlink': ''}}])
