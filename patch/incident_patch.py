@@ -16,7 +16,6 @@ from stix.extensions.marking.simple_marking import SimpleMarkingStructure
 from edge import IDManager, NamespaceNotConfigured, incident
 from edge.common import EdgeInformationSource
 from edge.generic import WHICH_DBOBJ, FROM_DICT_DISPATCH
-from edge.handling import handling_to_draft
 from edge.tools import cleanstrings, rgetattr
 from incident import views
 from rbac import user_can_edit
@@ -175,9 +174,33 @@ class DBIncidentPatch(incident.DBIncident):
             for ex_id in inc.external_ids:
                 draft['external_ids'].append({'source': ex_id.source, 'id': ex_id.value})
 
-        draft['handling_caveat'] = handling_to_draft(inc, "handling_caveat")
+
+        # Redoing to use correct patched function, can't guarantee correct function if monkey patched
+        draft["markings"] = DBIncidentPatch.handling_to_draft(inc, "statement")
+        draft["tlp"] = DBIncidentPatch.handling_to_draft(inc, "color")
+
+        draft['handling_caveat'] = DBIncidentPatch.handling_to_draft(inc, "handling_caveat")
 
         return draft
+
+
+    @staticmethod
+    def handling_to_draft(construct, structure):
+        draft = {}
+        draft[structure] = []
+        handling = rgetattr(construct, ['handling'], '')
+        if handling:
+            for marking in handling.markings:
+                for marking_structure in marking.marking_structures:
+                    # stops it adding handling_caveats to marking even though both are in simple marking structures
+                    if getattr(marking_structure, 'marking_model_name', None):
+                        # retrieve all simple marking statements for handling_caveats
+                        if structure == "handling_caveat":
+                            draft[structure].append(getattr(marking_structure, 'statement', None))
+                    else:
+                        if getattr(marking_structure, structure, None):
+                            draft[structure].append(getattr(marking_structure, structure, None))
+        return draft[structure]
 
 
     @staticmethod
