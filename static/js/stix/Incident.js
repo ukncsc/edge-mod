@@ -45,6 +45,9 @@ define([
             this.relatedObservables = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_observables.observables", "observable.idref");
             }, this, this.DEFER_EVALUATION);
+            this.externalIds = ko.computed(function () {
+                return stixPackage.safeListGet(this.id(), this.data(), "external_ids");
+            }, this);
         }
     });
 });
