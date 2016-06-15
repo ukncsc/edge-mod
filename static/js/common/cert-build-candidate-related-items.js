@@ -18,7 +18,7 @@ define([
             this.currentPage = ko.observable(1).extend({notify: 'always'});
             this.totalResults = ko.observable(0);
             this.totalPages = ko.computed(function () {
-                     return Math.ceil(this.totalResults() / this.resultsPerPage());
+                return Math.ceil(this.totalResults() / this.resultsPerPage());
             }, this);
 
             this.searchTerm = ko.observable('').extend({rateLimit: {timeout: 300, method: "notifyWhenChangesStop"}});
@@ -29,9 +29,9 @@ define([
                 this.results.refresh();
             }, this);
             this.localNamespaceOnly = ko.observable(true);
-            this.localNamespaceOnly.subscribe(function() {
+            this.localNamespaceOnly.subscribe(function () {
                 this.currentPage(1);
-            },this)
+            }, this)
         },
 
         retrieve: function () {
@@ -45,7 +45,7 @@ define([
             postJSON(this.getUrl, params, function (d) {
                 this.results(d.data);
                 this.totalResults(d.count);
-                }.bind(this));
+            }.bind(this));
         },
 
         reset: function () {
