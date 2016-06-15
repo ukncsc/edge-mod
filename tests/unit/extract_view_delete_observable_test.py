@@ -1,7 +1,8 @@
 import unittest
 import mock
 import json
-from adapters.certuk_mod.extract.views import extract_visualiser_delete_observables
+import hashlib
+from adapters.certuk_mod.extract.views import extract_visualiser_delete_observables, DRAFT_ID_SEPARATOR
 
 
 class ExtractDeleteTests(unittest.TestCase):
@@ -26,10 +27,14 @@ class ExtractDeleteTests(unittest.TestCase):
         self.mock_draft_delete_patcher.stop()
 
     def init_stix_objects(self):
-        self.draft_obs_id0 = 'observable:123:draft:0'
-        self.draft_obs_id1 = 'observable:123:draft:1'
-        self.draft_obs0 = {'id': self.draft_obs_id0, 'title': 'test0', 'objectType': 'File', 'file_name': "abc.txt", 'hashes':[]}
-        self.draft_obs1 = {'id': self.draft_obs_id1, 'title': 'test1', 'objectType': 'File', 'file_name':'',
+        obs0_title = 'test0'
+        obs1_title = 'test1'
+
+        self.draft_obs_id0 = 'observable:123' + DRAFT_ID_SEPARATOR + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
+        self.draft_obs_id1 = 'observable:123' + DRAFT_ID_SEPARATOR + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
+
+        self.draft_obs0 = {'id': self.draft_obs_id0, 'title': obs0_title, 'objectType': 'File', 'file_name': "abc.txt", 'hashes':[]}
+        self.draft_obs1 = {'id': self.draft_obs_id1, 'title': obs1_title, 'objectType': 'File', 'file_name':'',
                       'hashes': [{'hash_type': 'md5', 'hash_value': '123123123'}]}
 
         self.draft_ind_id = 'indicator:123'

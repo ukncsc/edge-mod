@@ -10,7 +10,7 @@ define([
         },
 
         savetoPNG: function (buttonElement, rootID) {
-            svg2png.saveSvgAsPng(this.getSiblingSVG(buttonElement), rootID + ".png");
+            svg2png.saveSvgAsPng(this.getSiblingSVG(buttonElement).cloneNode(true), rootID + ".png");
         }
     }
 });

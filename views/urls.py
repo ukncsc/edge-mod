@@ -31,6 +31,7 @@ publisher_urls = [
     (r'^ajax/extract_visualiser/item/(?P<node_id>.*)$', 'views.extract_visualiser_item_get', 'extract_visualiser_ajax_item'),
     (r'^ajax/extract_visualiser/merge_observables/.*$', 'views.extract_visualiser_merge_observables', 'extract_visualiser_ajax_merge_observables'),
     (r'^ajax/extract_visualiser/delete_observables/.*$', 'views.extract_visualiser_delete_observables', 'extract_visualiser_ajax_delete_observables'),
+    (r'^ajax/extract_visualiser/get_extended/$', 'views.extract_visualiser_get_extended', 'extract_visualiser_get_extended'),
 
     (r'^incident_timeline/$', 'views.timeline_discover', 'timeline_discover'),
     (r'^incident_timeline/(?P<id_>' + VALID_STIX_ID + ')$', 'views.incident_timeline', 'incident_timeline'),
@@ -77,8 +78,8 @@ publisher_urls = [
     (r'^visualiser/missing/$', 'views.visualiser_not_found', 'visualiser_not_found'),
     (r'^visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_view', 'visualiser_view'),
     (r'^ajax/visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_get', 'visualiser_ajax_view'),
-    (r'^ajax/visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_item_get', 'visualiser_ajax_item')
-
+    (r'^ajax/visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_item_get', 'visualiser_ajax_item'),
+    (r'^ajax/visualiser/get_extended/.*$', 'views.visualiser_get_extended', 'visualiser_ajax_get_extended')
 ]
 
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]

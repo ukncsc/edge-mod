@@ -28,7 +28,7 @@ import adapters.certuk_mod.builder.customizations as cert_builder
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
 from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser, extract_visualiser_get, \
-    extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables
+    extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables, extract_visualiser_get_extended
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.cron import setup as cron_setup
 
@@ -55,7 +55,8 @@ from adapters.certuk_mod.retention.purge import STIXPurge
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus
 from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser_not_found, visualiser_view, \
     visualiser_get, \
-    visualiser_item_get
+    visualiser_item_get, \
+    visualiser_get_extended
 from users.models import Repository_User
 
 from adapters.certuk_mod.timeline.views import ajax_incident_timeline, timeline_discover, incident_timeline, \
@@ -114,12 +115,14 @@ def clone(request):
             return error_with_message(request,
                                       "No clonable object found; please only choose " +
                                       "the clone option from an object's summary or external publish page")
+
     except Exception as e:
         ext_ref_error = "not found"
         if e.message.endswith(ext_ref_error):
             return error_with_message(request,
                                       "Unable to load object as some external references were not found: "
                                       + e.message[0:-len(ext_ref_error)])
+
         else:
             return error_with_message(request, e.message)
 

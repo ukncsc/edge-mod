@@ -10,13 +10,14 @@
 
 {% block body-content %}
     <div id="visualiser" class="flexbox hflex">
-        <!-- ko template: { name: 'Graph', data: $root} --><!-- /ko -->
+        <!-- ko template: { name: 'Graph', data: {model:$root, id:'0'}} --><!-- /ko -->
     </div>
 {% endblock %}
 
 {% block body-end %}
     {% include 'visualiser_graph.html' %}
     <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
+    <script src="{% static 'js/stickytape.js' %}"></script>
     <script>
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",

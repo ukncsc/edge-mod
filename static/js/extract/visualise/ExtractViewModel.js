@@ -16,7 +16,7 @@ define([
         constructor: function (rootIds, indicatorInformation) {
             this.viewModels = ko.observableArray([]);
             this.viewModelsById = {};
-            this.failedIds = ko.observableArray([])
+            this.failedIds = ko.observableArray([]);
             this.indicatorInformationTypeById = {};
 
             this.viewModels.subscribe(function () {
@@ -42,6 +42,8 @@ define([
                 id,
                 base_url,
                 base_url + "item/",
+                "/adapter/certuk_mod/review/",
+
                 (new PanelActionsBuilder())
                     .addAction(create_merge_action(id))
                     .addAction(create_delete_action(id))
@@ -90,18 +92,13 @@ define([
         );
     }
 
-    function no(type) {
-        return false;
-    }
-
-    function only_obs(type) {
-        return type === "obs";
+    function only_obs_drafts(type, rel_type) {
+        return type === "obs" && rel_type === "draft";
     }
 
     function create_delete_action(id) {
         return new PanelAction(
-            only_obs,
-            no,
+            only_obs_drafts,
             function (obs_ids_to_delete, graph) {
                 postAndReloadGraph("delete_observables/", id, obs_ids_to_delete, graph);
             },
@@ -111,8 +108,7 @@ define([
 
     function create_merge_action(id) {
         return new PanelAction(
-            only_obs,
-            no,
+            only_obs_drafts,
             function (obs_ids_to_merge, graph) {
                 postAndReloadGraph("merge_observables/", id, obs_ids_to_merge, graph);
             },
