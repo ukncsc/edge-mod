@@ -19,12 +19,31 @@ def ajax_get_cert_config(request):
 
 @login_required_ajax
 @superuser_or_staff_role
-def ajax_get_crm_url(request):
-    try:
-        url = get_config("crmURL")
+def ajax_set_crm_config(request):
+    config = json.loads(request.body)
+
+    url = config["crm_url"]
+
+    if validate(url):
+        try:
+            save_config("crm_config", config)
+            return JsonResponse({}, status=200)
+        except Exception as e:
+            return JsonResponse({
+                'message': e.message
+            }, status=500)
+    else:
         return JsonResponse({
-            'crmURL': url
-        }, status=200)
+            'message': "Invalid URL"
+        }, status=400)
+
+
+@login_required_ajax
+@superuser_or_staff_role
+def ajax_get_crm_config(request):
+    try:
+        config = get_config("crm_config")
+        return JsonResponse(config, status=200)
     except Exception as e:
         return JsonResponse({
             'message': e.message
@@ -54,25 +73,6 @@ def ajax_set_sharing_groups(request):
         return JsonResponse({
             'message': e.message
         }, status=500)
-
-
-@login_required_ajax
-@superuser_or_staff_role
-def ajax_set_crm_url(request):
-    url = json.loads(request.body)
-
-    if validate(url):
-        try:
-            save_config("crmURL", url)
-            return JsonResponse({}, status=200)
-        except Exception as e:
-            return JsonResponse({
-                'message': e.message
-            }, status=500)
-    else:
-        return JsonResponse({
-            'message': "Invalid URL"
-        }, status=400)
 
 
 def validate(value):
