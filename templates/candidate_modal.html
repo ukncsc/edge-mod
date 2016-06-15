@@ -5,11 +5,11 @@
             <h3>Click on your selection.</h3>
         </div>
         <div class="modal-body">
-            <input type="text" data-bind="value: searchTerm, valueUpdate: 'afterkeydown'"/>
+            <input type="text" data-bind="value: searchTerm, valueUpdate: 'afterkeydown'">
             <label class="checkbox-inline pull-right">Local namesapce only<input type="checkbox" data-bind="checked: localNamespaceOnly">
             </label>
             <div style="display: none;" class="pager" data-bind="visible: !results.loaded()">
-            <img class="center" src="/static/img/soltra_flame_anim.gif"/>
+            <img class="center" src="/static/img/soltra_flame_anim.gif">
             <p>Processing...</p>
             </div>
             <div data-bind="visible: results.loaded()">
