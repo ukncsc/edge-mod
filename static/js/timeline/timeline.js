@@ -82,7 +82,7 @@ define([
                  *************************/
 
                     //Used this custom format mainly to twiddle default us style %b %d to %d %b
-                customTimeFormat = d3.time.format.utc.multi([
+                customTimeFormat = d3.time.format.multi([
                     [".%L", function (d) {
                         return d.getMilliseconds();
                     }],
@@ -143,9 +143,9 @@ define([
                  *************************/
 
                 graph.nodes.forEach(function (node, index) {
-                    node.x = x(new Date(node.date)) + (2 * radius);
+                    node.x = x(new Date(node.date)) - radius;
                     if (node.type === "onAxis") {  //
-                        node.y = svg_height - margin.bottom - margin.top - radius - 1;
+                        node.y = svg_height - margin.bottom - margin.top;
                         node.fixed = true;
                     } else {
                         //Step labels down from near top to x-axis so as to avoid collisions
@@ -176,7 +176,7 @@ define([
                     .attr("text-anchor", "left")
                     .attr("dy", radius)
                     .text(function (d) {
-                        return d.name;
+                       return d.name;
                     });
 
                 /************************
