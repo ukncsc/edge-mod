@@ -61,16 +61,21 @@ define([
                     ko.utils.arrayForEach(this.links(), function (link) {
                         var isRelatedLink = false;
                         if (link.source.index === findIndex) {
-                            if (link.relType() === "edge") {
-                                linkedNodes.parentOf['values'].push(link.target);
-                            } else if (link.relType() === "match") {
-                                linkedNodes.matches['values'].push(link.target);
-                            } else if (link.relType() === "backlink") {
-                                linkedNodes.backlinks['values'].push(link.target);
-                            } else if (link.relType() === "draft") {
-                                linkedNodes.drafts['values'].push(link.target);
-                            } else if (link.relType() === "external_ref") {
-                                linkedNodes.externalRefs['values'].push(link.target);
+                            switch (link.relType()) {
+                                case "edge":
+                                    linkedNodes.parentOf['values'].push(link.target);
+                                    break;
+                                case "match":
+                                    linkedNodes.matches['values'].push(link.target);
+                                    break;
+                                case "backlink":
+                                    linkedNodes.backlinks['values'].push(link.target);
+                                    break;
+                                case "draft":
+                                    linkedNodes.drafts['values'].push(link.target);
+                                    break;
+                                case "external_ref":
+                                    linkedNodes.externalRefs['values'].push(link.target);
                             }
                             link.target.isRelated(true);
                             isRelatedLink = true;

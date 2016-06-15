@@ -88,7 +88,7 @@ define([
             var zoom = d3.behavior.zoom()
                 .scaleExtent([minZoom, maxZoom])
                 .on("zoom", function (d, i) {
-                    //Filter all but left mouse button
+                    //Filter all but mouse wheel, do not zoom if at max/min zoom and try to zoom in/out
                     if (d3.event.sourceEvent === null || d3.event.sourceEvent.type !== 'wheel'
                         || d3.event.scale == viewModel.currentScale) {
                         return;
