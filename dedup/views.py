@@ -112,7 +112,7 @@ def ajax_import(request, username):
         count = ip.saved_count if isinstance(ip, DedupInboxProcessor) else 0
         duration = int(elapsed.ms())
         messages = [e.message]
-        validation_result = ip.validation_result if isinstance(ip, DedupInboxProcessor) else None
+        validation_result = ip.validation_result if isinstance(ip, DedupInboxProcessor) else {}
         log_activity(username, 'DEDUP', 'WARN', build_activity_message(
             count, duration, messages, validation_result
         ))
