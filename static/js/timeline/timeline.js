@@ -143,7 +143,7 @@ define([
                  *************************/
 
                 graph.nodes.forEach(function (node, index) {
-                    node.x = x(new Date(node.date)) - (2 * radius);
+                    node.x = x(new Date(node.date)) - radius;
                     if (node.type === "onAxis") {  //
                         node.y = svg_height - margin.bottom - margin.top;
                         node.fixed = true;
@@ -176,7 +176,7 @@ define([
                     .attr("text-anchor", "left")
                     .attr("dy", radius)
                     .text(function (d) {
-                        return d.name;
+                       return d.name;
                     });
 
                 /************************
