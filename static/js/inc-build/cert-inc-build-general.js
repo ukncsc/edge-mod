@@ -134,10 +134,15 @@ define([
         },
 
         addReporter: function () {
-            var newIdentity = new CERTIdentity();
-            newIdentity.ModelUI().done(function () {
-                this.reporter(newIdentity);
-            }.bind(this));
+            if (this.reporter() == null) {
+                var newIdentity = new CERTIdentity();
+                newIdentity.ModelUI().done(function () {
+                    this.reporter(newIdentity);
+                }.bind(this));
+            } else {
+                this.reporter().ModelUI().done();
+            }
+
         },
 
         load: function (data) {
