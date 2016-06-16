@@ -6,8 +6,9 @@ define([
     "../stix/StixPackage",
     "./toPNG/PNGConverter",
     "./graph/forceGraphBinding",
-    "common/modal/show-error-modal"
-], function (declare, ko, d3, Graph, StixPackage, PNGConverter, forceGraph, showErrorModal) {
+    "common/modal/show-error-modal",
+    "common/modal/ConfirmModal"
+], function (declare, ko, d3, Graph, StixPackage, PNGConverter, forceGraph, showErrorModal, ConfirmModal) {
     "use strict";
 
     var ViewModel = declare(null, {
@@ -48,6 +49,11 @@ define([
             setTimeout(function () {
                 this.graph().selectNode(rootId);
             }.bind(this), 100);
+
+            this.backlinks = ko.observableArray([]);
+            this.matches = ko.observableArray([]);
+            this.no_edges = ko.observableArray([]);
+            this.edges = ko.observableArray([]);
         },
         onNodeClicked: function (data) {
             if (data.nodeType() === 'external_ref') {
@@ -59,56 +65,128 @@ define([
             window.open(this.publish_url() + encodeURIComponent(data));
         },
         onNewRootId: function (data, scope) {
-            this.graph().backlinks.removeAll();
-            this.graph().matches.removeAll();
-            this.graph().edges.removeAll();
-            this.graph().no_edges.removeAll();
-            this.rootId = ko.computed(function () {
-                return data;
-            });
-            this.getExtended();
+            this.getExtended(
+                data, [], [], [], [],
+                function (result) {
+                    this.rootId = ko.computed(function () {
+                        return data;
+                    });
+
+                    this.graph().loadData(result);
+                    this.backlinks.removeAll();
+                    this.matches.removeAll();
+                    this.edges.removeAll();
+                    this.no_edges.removeAll();
+                }.bind(this));
         },
         onPlusBacklinkClicked: function (data, scope) {
-            this.graph().backlinks.push(data);
-            this.graph().findNode(data).isBackLinkShown(true);
-            this.getExtended();
+            this.getExtended(
+                this.rootId(),
+                this.backlinks().concat([data]),
+                this.matches(),
+                this.no_edges(),
+                this.edges(),
+                function (result) {
+                    this.graph().loadData(result);
+                    this.backlinks.push(data);
+                    this.graph().findNode(data).isBackLinkShown(true);
+                }.bind(this));
         },
         onMinusBacklinkClicked: function (data, scope) {
-            this.graph().backlinks.remove(data);
-            this.graph().findNode(data).isBackLinkShown(false);
-            this.getExtended();
+            var dataIndex = this.backlinks().indexOf(data);
+            this.getExtended(
+                this.rootId(),
+                this.backlinks().slice().splice(dataIndex, dataIndex == -1 ? 0 : 1),
+                this.matches(),
+                this.no_edges(),
+                this.edges(),
+                function (result) {
+                    this.graph().loadData(result);
+                    this.backlinks.remove(data);
+                    this.graph().findNode(data).isBackLinkShown(false);
+                }.bind(this));
         },
         onShowEdges: function (data, scope) {
-            this.graph().no_edges.remove(data);
-            this.graph().edges.push(data);
-            this.graph().findNode(data).isEdgesShown(true);
-            this.getExtended();
+            var dataIndex = this.no_edges().indexOf(data);
+            this.getExtended(
+                this.rootId(),
+                this.backlinks(),
+                this.matches(),
+                this.no_edges().slice().splice(dataIndex, dataIndex == -1 ? 0 : 1),
+                this.edges().concat([data]),
+                function (result) {
+                    this.graph().loadData(result);
+                    this.no_edges.remove(data);
+                    this.edges.push(data);
+                    this.graph().findNode(data).isEdgesShown(true);
+                }.bind(this));
         },
         onHideEdges: function (data, scope) {
-            this.graph().no_edges.push(data);
-            this.graph().edges.remove(data);
-            this.graph().findNode(data).isEdgesShown(false);
-            this.getExtended();
+            var dataIndex = this.edges().indexOf(data);
+            this.getExtended(
+                this.rootId(),
+                this.backlinks(),
+                this.matches(),
+                this.no_edges().concat([data]),
+                this.edges().slice().splice(dataIndex, dataIndex == -1 ? 0 : 1),
+                function (result) {
+                    this.graph().loadData(result);
+                    this.no_edges.push(data);
+                    this.edges.remove(data);
+                    this.graph().findNode(data).isEdgesShown(false);
+                }.bind(this));
         },
         onPlusMatchesClicked: function (data, scope) {
-            this.graph().matches.push(data);
-            this.graph().findNode(data).isMatchesShown(true);
-            this.getExtended();
+            this.getExtended(
+                this.rootId(),
+                this.backlinks(),
+                this.matches().concat([data]),
+                this.no_edges(),
+                this.edges(), function (result) {
+                    this.graph().loadData(result);
+                    this.matches.push(data);
+                    this.graph().findNode(data).isMatchesShown(true);
+                }.bind(this));
         },
         onMinusMatchesClicked: function (data, scope) {
-            this.graph().matches.remove(data);
-            this.graph().findNode(data).isMatchesShown(false);
-            this.getExtended();
-        },
-        getExtended: function () {
-            postJSON(this.graph_url() + "get_extended/", {
-                    'id': this.rootId(),
-                    'id_bls': this.graph().backlinks(),
-                    'id_matches': this.graph().matches(),
-                    'hide_edge_ids': this.graph().no_edges(),
-                    'show_edge_ids': this.graph().edges()
-                }, function (result) {
+            var dataIndex = this.matches().indexOf(data);
+            this.getExtended(
+                this.rootId(),
+                this.backlinks(),
+                this.matches().slice().splice(dataIndex, dataIndex == -1 ? 0 : 1),
+                this.no_edges(),
+                this.edges(), function (result) {
                     this.graph().loadData(result);
+                    this.matches.remove(data);
+                    this.graph().findNode(data).isMatchesShown(false);
+                }.bind(this));
+        },
+        getExtended: function (rootId, bls, matches, no_edges, edges, successcb) {
+            postJSON(this.graph_url() + "get_extended/", {
+                    'id': rootId,
+                    'id_bls': bls,
+                    'id_matches': matches,
+                    'hide_edge_ids': no_edges,
+                    'show_edge_ids': edges
+                }, function (result) {
+                    var additionalNodes = result.nodes.length - this.graph().nodes().length
+                    if (additionalNodes > 500) {
+                        var options = {};
+                        options['title'] = "Do you definitely want to show this data?";
+                        options["isYesNo"] = true;
+                        options['contentData'] = "An additional " +
+                            additionalNodes +
+                            " nodes has been requested, showing a large number of nodes may cause performance problems in your browser.";
+
+                        var modal = new ConfirmModal(options);
+                        modal.getButtonByLabel("Yes").callback = function () {
+                            successcb(result)
+                        };
+                        modal.show();
+                    } else {
+                        successcb(result);
+                    }
+
                 }.bind(this)
             );
         },
@@ -119,7 +197,7 @@ define([
                     if (error) {
                         showErrorModal(JSON.parse(error.responseText)['error'], false);
                     }
-                    else if (this.graph().selectedNode().id() == newNode.id()){
+                    else if (this.graph().selectedNode().id() == newNode.id()) {
                         this.selectedObject.bind(this)(
                             new StixPackage(response["package"], response["root_id"], response["validation_info"])
                         );
