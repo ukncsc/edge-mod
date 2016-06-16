@@ -13,7 +13,7 @@ define([
             this.party_name = ko.observable('');
             this.languages = ko.observableArray([]);
             this.free_text_lines = ko.observableArray([]);
-            this.template = "identity-element-popup";
+            this.template = "edge-identity-element-popup";
 
             // from http://stix.mitre.org/language/version1.1.1/xsddocs/XMLSchema/extensions/identity/ciq_3.0/1.1.1/xPIL_xsd.html#ElectronicAddressIdentifiers_ElectronicAddressIdentifiers_ElectronicAddressIdentifier_Type
             // the XSD defines an enumeration that python-stix does not enforce.  For simplicity, we are enforcing this on the front-end directly.

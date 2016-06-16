@@ -30,7 +30,7 @@ define([
         declaredClass: "EdgeIdentity",
 
         constructor: function () {
-            this.template = "identity-element-popup";
+            this.template = "edge-identity-element-popup";
         },
 
         ModelUI: function () {
