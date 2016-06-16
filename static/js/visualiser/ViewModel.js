@@ -93,10 +93,9 @@ define([
                 }.bind(this));
         },
         onMinusBacklinkClicked: function (data, scope) {
-            var dataIndex = this.backlinks().indexOf(data);
             this.getExtended(
                 this.rootId(),
-                this.backlinks().slice().splice(dataIndex, dataIndex == -1 ? 0 : 1),
+                this.getCopyWithout(data, this.backlinks()),
                 this.matches(),
                 this.no_edges(),
                 this.edges(),
@@ -106,13 +105,18 @@ define([
                     this.graph().findNode(data).isBackLinkShown(false);
                 }.bind(this));
         },
+        getCopyWithout: function(data, originalArray) {
+            var dataIndex = originalArray.indexOf(data);
+            var copy = originalArray.slice();
+            copy.splice(dataIndex, dataIndex == -1 ? 0 : 1);
+            return copy;
+        },
         onShowEdges: function (data, scope) {
-            var dataIndex = this.no_edges().indexOf(data);
             this.getExtended(
                 this.rootId(),
                 this.backlinks(),
                 this.matches(),
-                this.no_edges().slice().splice(dataIndex, dataIndex == -1 ? 0 : 1),
+                this.getCopyWithout(data, this.no_edges()),
                 this.edges().concat([data]),
                 function (result) {
                     this.graph().loadData(result);
@@ -122,13 +126,12 @@ define([
                 }.bind(this));
         },
         onHideEdges: function (data, scope) {
-            var dataIndex = this.edges().indexOf(data);
             this.getExtended(
                 this.rootId(),
                 this.backlinks(),
                 this.matches(),
                 this.no_edges().concat([data]),
-                this.edges().slice().splice(dataIndex, dataIndex == -1 ? 0 : 1),
+                this.getCopyWithout(data, this.edges()),
                 function (result) {
                     this.graph().loadData(result);
                     this.no_edges.push(data);
@@ -149,11 +152,10 @@ define([
                 }.bind(this));
         },
         onMinusMatchesClicked: function (data, scope) {
-            var dataIndex = this.matches().indexOf(data);
             this.getExtended(
                 this.rootId(),
                 this.backlinks(),
-                this.matches().slice().splice(dataIndex, dataIndex == -1 ? 0 : 1),
+                this.getCopyWithout(data, this.matches()),
                 this.no_edges(),
                 this.edges(), function (result) {
                     this.graph().loadData(result);
