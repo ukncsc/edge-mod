@@ -7,8 +7,9 @@ define([
     "./TTP",
     "./ExploitTarget",
     "./ThreatActor",
-    "./Campaign"
-], function (declare, CourseOfAction, Incident, Indicator, Observable, TTP, ExploitTarget, ThreatActor, Campaign) {
+    "./Campaign",
+    "./StixRealPackage"
+], function (declare, CourseOfAction, Incident, Indicator, Observable, TTP, ExploitTarget, ThreatActor, Campaign, StixRealPackage) {
     "use strict";
 
     var TYPES = Object.freeze({
@@ -35,7 +36,10 @@ define([
         },
         "ttp": {
             "class": TTP, "collection": "ttps.ttps", "label": "TTP", "code": "ttp"
-        }
+        },
+        "stix": {
+            "class": StixRealPackage, "collection": "", "label": "Package", "code": "stix"
+        },
     });
 
     var TYPE_ALIASES = Object.freeze({
@@ -45,7 +49,8 @@ define([
         "threatactor": "act",
         "incident": "inc",
         "indicator": "ind",
-        "observable": "obs"
+        "observable": "obs",
+        "package": "stix"
     });
 
     var PATTERN = Object.freeze({
