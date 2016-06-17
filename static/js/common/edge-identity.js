@@ -26,7 +26,12 @@ define([
         load: function (data) {
             this.name(data["name"] || '');
             this.roles(data["roles"] || []);
-            this.electronic_address_identifiers(data["specification"]["electronic_address_identifiers"] || []);
+
+            if (this.checkNestedFieldExists(data, "specification", "electronic_address_identifiers")) {
+                this.electronic_address_identifiers(data["specification"]["electronic_address_identifiers"]);
+            } else {
+                this.electronic_address_identifiers([]);
+            }
 
             if (this.checkNestedFieldExists(data, "specification", "party_name", "name_lines")) {
                 this.party_name(data["specification"]["party_name"]["name_lines"][0]["value"]);
