@@ -1,90 +1,90 @@
 <template id='edge-identity-element-popup'>
-	<div id="identityModal" class="modal">
-	    <div class="modal-header">
-	        <h3>CIQIdentity 3.0 Details</h3>
-	    </div>
-	    <form id="form_draft_list" role="form" class="form-horizontal" data-bind="submit: okay">
-	    {% csrf_token %}
-	    <div class="modal-body">
-	        <div class='row'>
-	        	<div class='col-lg-3'>	<!-- left-hand menu again -->
-	        	</div> <!-- /menu -->
-	        	<div class='col-lg-9 form-group'>  <!-- form body -->
-	                <fieldset>
-	                    <div class="form-group">
-	                        <label for="identity_name" class="col-lg-2 control-label">Name</label><span style="color: red;">* (Required)</span>
-	                        <div class="col-lg-6">
-	                            <input data-bind="value: name" class="form-control" id="identity_name" name="identity_name">
-	                        </div>
-	                    </div>
-	                    <div class="form-group">
-	                    	<label for="party_name" class="col-lg-2 control-label">Party Name</label>
-	                    	<div class="col-lg-6">
-	                    		<input data-bind="value: party_name" class="form-control" id="party_name" name="party_name">
-	                    	</div>
-	                    </div>
-	                </fieldset>
+    <div id="identityModal" class="modal">
+        <div class="modal-header">
+            <h3>CIQIdentity 3.0 Details</h3>
+        </div>
+        <form id="form_draft_list" role="form" class="form-horizontal" data-bind="submit: okay">
+            {% csrf_token %}
+            </br>
 
-                    <div class="form-group">
-                    	<label for="roles" class="col-lg-2 control-label">Roles
-                            {% if mode == 'Build' or 'Edit' %}
-		                   	 	<button class="btn btn-default btn-xs btn-add"  data-bind="click: addRole"><span class="glyphicon glyphicon-plus-sign green"></span> Add</button>
-		                    {% endif %}
-		                </label>
-                    	<div>
-                    		<div class="col-lg-6" data-bind='foreach: roles'>
-                    			<input class="form-control input-sm" data-bind="value: $parent.roles()[$index()]" style="margin-bottom: 6px;">
-                    		</div>
-                    	</div>
-                    </div>
+            <div class="form-group row">
+                <label for="identity_name" class="col-lg-3 control-label">Name</label><span
+                    style="color: red;">* (Required)</span>
+                <div class="col-lg-6">
+                    <input data-bind="value: name" class="form-control" id="identity_name"
+                           name="identity_name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="party_name" class="col-lg-3 control-label">Party Name</label>
+                <div class="col-lg-6">
+                    <input data-bind="value: party_name" class="form-control" id="party_name"
+                           name="party_name">
+                </div>
+            </div>
 
-                    <div class="form-group">
-                    	<label for="languages" class="col-lg-2 control-label">Languages
-                            {% if mode == 'Build' or 'Edit' %}
-                    			<button class="btn btn-default btn-xs btn-add" data-bind="click: addLanguage"><span class="glyphicon glyphicon-plus-sign green"></span> Add</button>
-                    		{% endif %}
-                    	</label>
-                    	<div>
-                    		<div class="col-lg-6" data-bind="foreach: languages">
-                    			<input class="form-control input-sm" data-bind="value: $parent.languages()[$index()]" style="margin-bottom: 6px;">
-                    		</div>
-                    	</div>
-                    </div>
+            <div class="form-group row">
+                <label for="roles" class="col-lg-3 control-label">Roles </label>
+                {% if mode == 'Build' or 'Edit' %}
+                    <button class="btn btn-default btn-xs btn-add" data-bind="click: addRole"><span
+                            class="glyphicon glyphicon-plus-sign green"></span> Add
+                    </button>
+                {% endif %}
 
-                    <div class="form-group">
-                    	<label for="languages" class="col-lg-2 control-label">Electronic Addresses
-                    		{% if mode == 'Build' or 'Edit' %}
-                    			<button class="btn btn-default btn-xs btn-add" data-bind="click: addEAddress"><span class="glyphicon glyphicon-plus-sign green"></span> Add</button>
-                    		{% endif %}
-                    	</label>
-                    	<div>
-                    		<div class="col-lg-6" data-bind="foreach: electronic_address_identifiers">
-                    			<input class="form-control input-sm" data-bind="value: $parent.electronic_address_identifiers()[$index()].value"></input>
-                    			<select style="margin-bottom: 6px;" data-bind="options: $parent.electronic_address_types, value: $parent.electronic_address_identifiers()[$index()].type"></select>
-                                <br>
-                    		</div>
-                    	</div>
-                    </div>
+                <div class="col-lg-6" data-bind='foreach: roles'>
+                    <input class="form-control input-sm" data-bind="value: $parent.roles()[$index()]"
+                           style="margin-bottom: 6px;">
+                </div>
+            </div>
 
-                    <div class="form-group">
-                    	<label for="languages" class="col-lg-2 control-label">Notes
-                            {% if mode == 'Build' or 'Edit' %}
-                    			<button class="btn btn-default btn-xs btn-add" data-bind="click: addText"><span class="glyphicon glyphicon-plus-sign green"></span> Add</button>
-                    		{% endif %}
-                    	</label>
-                    	<div>
-                    		<div class="col-lg-6" data-bind="foreach: free_text_lines">
-                    			<input class="form-control input-sm" style="margin-bottom: 6px;" data-bind="value: $parent.free_text_lines()[$index()]"></input>
-                    		</div>
-                    	</div>
-                    </div>
-	        	</div> <!-- /modal form -->
-	        </div>
-	    </div>
-	    <div class="modal-footer">
+            <div class="form-group row ">
+                <label for="roles" class="col-lg-3 control-label">Languages </label>
+                {% if mode == 'Build' or 'Edit' %}
+                    <button class="btn btn-default btn-xs btn-add" data-bind="click: addLanguage"><span
+                            class="glyphicon glyphicon-plus-sign green"></span> Add
+                    </button>
+                {% endif %}
+
+                <div class="col-lg-6" data-bind='foreach: languages'>
+                    <input class="form-control input-sm" data-bind="value: $parent.languages()[$index()]"
+                           style="margin-bottom: 6px;">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="roles" class="col-lg-3 control-label">Electronic Addresses </label>
+                {% if mode == 'Build' or 'Edit' %}
+                    <button class="btn btn-default btn-xs btn-add" data-bind="click: addEAddress"><span
+                            class="glyphicon glyphicon-plus-sign green"></span> Add
+                    </button>
+                {% endif %}
+
+                <div class="col-lg-6" data-bind='foreach: electronic_address_identifiers'>
+                    <input class="form-control input-sm"
+                           data-bind="value: $parent.electronic_address_identifiers()[$index()].value" style="margin-bottom: 6px;">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="roles" class="col-lg-3 control-label">Notes </label>
+                {% if mode == 'Build' or 'Edit' %}
+                    <button class="btn btn-default btn-xs btn-add" data-bind="click: addText"><span
+                            class="glyphicon glyphicon-plus-sign green"></span> Add
+                    </button>
+                {% endif %}
+
+                <div class="col-lg-6" data-bind='foreach: free_text_lines'>
+                    <input class="form-control input-sm" data-bind="value: $parent.free_text_lines()[$index()]"
+                           style="margin-bottom: 6px;">
+                </div>
+            </div>
+
+
+        </form>
+        <div class="modal-footer">
             <button class="btn btn-default" data-bind="click: cancel">Cancel</button>
-	        <button class="btn btn-default" data-bind="click: okay">Close</button>
-	    </div>
-	</div>
+            <button class="btn btn-default" data-bind="click: okay">Save</button>
+        </div>
+    </div>
 </template>
 

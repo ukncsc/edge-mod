@@ -3,46 +3,47 @@ define([
     "knockout"
 ], function (declare, ko) {
     "use strict";
+    /*
+     * Refactored existing Edge Identity to use DCL to allow swapping from CRM Identity to CIQ 3.0 Identity.
+     * Kept behaviour & layout similar to existing Edge Identity, marginal increase in validation.
+     */
+
+    var is_string = /^[\w\s]+$/i
 
     return declare(null, {
         declaredClass: "EdgeIdentity",
-        constructor: function (params) {
-            this.name = ko.observable('Click to edit');
+        constructor: function () {
+            this.name = ko.observable('');
             this.roles = ko.observableArray([]);
             this.electronic_address_identifiers = ko.observableArray([]);
             this.party_name = ko.observable('');
             this.languages = ko.observableArray([]);
             this.free_text_lines = ko.observableArray([]);
             this.template = "edge-identity-element-popup";
-
-            // from http://stix.mitre.org/language/version1.1.1/xsddocs/XMLSchema/extensions/identity/ciq_3.0/1.1.1/xPIL_xsd.html#ElectronicAddressIdentifiers_ElectronicAddressIdentifiers_ElectronicAddressIdentifier_Type
-            // the XSD defines an enumeration that python-stix does not enforce.  For simplicity, we are enforcing this on the front-end directly.
-            this.electronic_address_types = ko.observableArray(['AIM', 'EMAIL', 'GOOGLE', 'GIZMO', 'ICQ', 'JABBER', 'MSN', 'SIP', 'SKYPE', 'URL', 'XRI', 'YAHOO']);
-
             this.previousState = null;
         },
 
-        load: function (params) {
-            this.name(params["name"] || 'Click to edit');
-            this.roles(params["roles"] || []);
-            this.electronic_address_identifiers(params["specification"]["electronic_address_identifiers"] || []);
+        load: function (data) {
+            this.name(data["name"] || '');
+            this.roles(data["roles"] || []);
+            this.electronic_address_identifiers(data["specification"]["electronic_address_identifiers"] || []);
 
-            if (params && params.specification && params.specification.party_name) {
-                this.party_name(params["specification"]["party_name"]["name_lines"][0]["value"]);
+            if (this.checkNestedFieldExists(data, "specification", "party_name", "name_lines")) {
+                this.party_name(data["specification"]["party_name"]["name_lines"][0]["value"]);
             } else {
                 this.party_name('');
             }
 
-            if (params && params.specification && params.specification.languages) {
-                this.languages(params.specification.languages.map(function (obj) {
+            if (this.checkNestedFieldExists(data, "specification", "languages")) {
+                this.languages(data.specification.languages.map(function (obj) {
                     return obj.value;
                 }));
             } else {
                 this.languages([]);
             }
 
-            if (params && params.specification && params.specification.free_text_lines) {
-                this.free_text_lines(params.specification.free_text_lines.map(function (obj) {
+            if (this.checkNestedFieldExists(data, "specification", "free_text_lines")) {
+                this.free_text_lines(data.specification.free_text_lines.map(function (obj) {
                     return obj.value;
                 }));
             } else {
@@ -51,20 +52,51 @@ define([
             return this;
         },
 
+        checkNestedFieldExists: function (obj /*, level1, level2, ... levelN*/) {
+            var args = Array.prototype.slice.call(arguments, 1);
+
+            for (var i = 0; i < args.length; i++) {
+                if (!obj || !obj.hasOwnProperty(args[i])) {
+                    return false;
+                }
+                obj = obj[args[i]];
+            }
+            return true;
+        },
+
+        isFull: function (array) {
+            return array.indexOf("") === -1;
+        },
+
+        emailIsFull: function () {
+            var valueArray = this.electronic_address_identifiers().map(function (e_address_identifier) {
+                return e_address_identifier.value
+            });
+            return this.isFull(valueArray);
+        },
+
         addRole: function () {
-            this.roles.unshift('');
+            if (this.isFull(this.roles())) {
+                this.roles.unshift('');
+            }
         },
 
         addLanguage: function () {
-            this.languages.unshift('');
+            if (this.isFull(this.languages())) {
+                this.languages.unshift('');
+            }
         },
 
         addText: function () {
-            this.free_text_lines.unshift('');
+            if (this.isFull(this.free_text_lines())) {
+                this.free_text_lines.unshift('');
+            }
         },
 
         addEAddress: function () {
-            this.electronic_address_identifiers.unshift({value: '', type: ''})
+            if (this.emailIsFull()) {
+                this.electronic_address_identifiers.unshift({value: ''})
+            }
         },
 
         createSnapshot: function () {
@@ -88,14 +120,15 @@ define([
         },
 
         cancel: function () {
-            this.restoreSnapshot();
-            this.modal.close(this.previousState);
+            if (this.hasName()) {  //restore if editing
+                this.restoreSnapshot();
+                this.modal.close(this.previousState);
+            } else {       //stops list ident from populating blank identities
+                this.modal.close();
+            }
         },
 
         newIdentity: function () {
-            /*
-             Note: All arrays are Spliced to 'deep' copy and prevent ko from mutating our reference
-             */
             return {
                 name: this.name(),
                 party_name: this.party_name(),
@@ -106,9 +139,12 @@ define([
             };
         },
 
+        hasName: function () {
+            return !!(this.name() && this.name().trim().length > 0);
+        },
+
         to_json: function () {
-            if (this.name() !== 'Click to edit')	// return empty if default name
-            {
+            if (this.hasName()) {
                 return {
                     "name": this.name(),
                     "roles": this.roles(),
