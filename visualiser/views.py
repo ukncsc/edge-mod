@@ -47,12 +47,16 @@ def visualiser_get(request, id_):
 def visualiser_item_get(request, id_):
     try:
         root_edge_object = PublisherEdgeObject.load(id_)
-        package = PackageGenerator.build_package(root_edge_object)
-        validation_info = PackageValidationInfo.validate(package)
+        if root_edge_object.ty == 'pkg':
+            package = root_edge_object.obj
+            validation_info = {}
+        else:
+            package = PackageGenerator.build_package(root_edge_object)
+            validation_info = PackageValidationInfo.validate(package).validation_dict
         return JsonResponse({
             "root_id": id_,
             "package": package.to_dict(),
-            "validation_info": validation_info.validation_dict
+            "validation_info": validation_info
         }, status=200)
     except EdgeError as e:
         if e.message == id_ + " not found":
