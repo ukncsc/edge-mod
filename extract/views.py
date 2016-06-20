@@ -9,6 +9,7 @@ from users.decorators import login_required_ajax
 from users.models import Draft
 from edge.inbox import InboxError
 from edge.generic import EdgeObject, EdgeError
+from edge.tools import StopWatch
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.retention.purge import STIXPurge
@@ -17,6 +18,7 @@ from adapters.certuk_mod.extract.ioc_wrapper import parse_file, IOCParseExceptio
 from adapters.certuk_mod.common.views import error_with_message
 from adapters.certuk_mod.common.objectid import is_valid_stix_id
 from adapters.certuk_mod.visualiser.views import visualiser_item_get
+from adapters.certuk_mod.common.activity import save as log_activity
 
 DRAFT_ID_SEPARATOR = ":draft:"
 
@@ -29,6 +31,13 @@ def extract(request):
 
 @login_required_ajax
 def extract_upload(request):
+
+
+    def log_extract_activity_message(message):
+        duration = int(elapsed.ms())
+        return "@ %dms : %s\n" % (duration, message)
+
+
     def process_draft_obs():
         for obs in draft_indicator['observables']:
             if obs['id'] in observable_ids:  # Is it a draft?
@@ -44,17 +53,26 @@ def extract_upload(request):
             except Exception:
                 pass
 
+    log_message = ""
+    elapsed = StopWatch()
+
+    log_message += log_extract_activity_message("Pass input stream to ioc_parser")
+
     file_import = request.FILES['import']
     try:
         stream = parse_file(file_import)
     except IOCParseException as e:
         return error_with_message(request,
                                   "Error parsing file: " + e.message + " content from parser was " + stream.buf)
+
+    log_message += log_extract_activity_message("DedupInboxProcessor parse & dedup")
     try:
         ip = DedupInboxProcessor(validate=False, user=request.user, streams=[(stream, None)])
     except InboxError as e:
         return error_with_message(request,
                                   "Error parsing stix xml: " + e.message + " content from parser was " + stream.buf)
+
+    log_message += log_extract_activity_message("DedupInboxProcessor run")
     ip.run()
 
     indicators = [inbox_item for _, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
@@ -64,14 +82,18 @@ def extract_upload(request):
     indicator_ids = [id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
     observable_ids = {id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'obs'}
 
+    log_message += log_extract_activity_message("Create drafts from inboxed objects")
     try:
         for indicator in indicators:
             draft_indicator = EdgeObject.load(indicator.id).to_draft()
             process_draft_obs()
             Draft.upsert('ind', draft_indicator, request.user)
     finally:
+        log_message += log_extract_activity_message("Delete inboxed objects")
         remove_from_db(indicator_ids + list(observable_ids))
 
+    log_message += log_extract_activity_message("Redirect user to visualiser")
+    log_activity(request.user.username, 'EXTRACT', 'INFO', log_message)
     return redirect("extract_visualiser",
                     ids=json.dumps(indicator_ids))
 
