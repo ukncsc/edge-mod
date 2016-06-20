@@ -52,8 +52,8 @@ define([
                 ]
             },
             "languages": [
-                {"value": language},
-                {"value": language2}
+                {"value": language, "type": string},
+                {"value": language2, "type": string}
             ],
             "free_text_lines": [
                 {"value": note, "type": string},
@@ -110,6 +110,28 @@ define([
                     assert.deepEqual(identity.free_text_lines(), [])
                 }
             },
+            "Returning json": {
+                "it will return undefined if the identity has no name": function () {
+                    var identity = new EdgeIdentity();
+
+                    //when
+                    identity.load(emptyData);
+
+                    //assert
+                    assert.equal(identity.to_json(), undefined);
+
+                },
+                "it will return correct json if the identity has a name": function () {
+                    var identity = new EdgeIdentity();
+
+                    //when
+                    identity.load(loadFullData);
+
+                    //assert
+                    assert.deepEqual(identity.to_json(), returnObject);
+
+                }
+            },
             "Field Validation": {
                 "it will add another email on addEAddress() if the array is full": function () {
                     var identity = new EdgeIdentity();
@@ -137,28 +159,6 @@ define([
                     identity.addEAddress();
 
                     assert.equal(identity.electronic_address_identifiers().length, 3);
-
-                }
-            },
-            "Returning json": {
-                "it will return undefined if the identity has no name": function () {
-                    var identity = new EdgeIdentity();
-
-                    //when
-                    identity.load(emptyData);
-
-                    //assert
-                    assert.equal(identity.to_json(), undefined);
-
-                },
-                "it will return correct json if the identity has a name": function () {
-                    var identity = new EdgeIdentity();
-
-                    //when
-                    identity.load(loadFullData);
-
-                    //assert
-                    assert.deepEqual(identity.to_json(), loadFullData);
 
                 }
             }
