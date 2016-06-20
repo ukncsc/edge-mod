@@ -2,8 +2,8 @@ define([
     "intern!object",
     "intern/chai!assert",
     "common/mock-stickytape",
-    "common/identity"
-], function (registerSuite, assert, mstickytape, Identity) {
+    "common/cert-identity"
+], function (registerSuite, assert, mstickytape, CERTIdentity) {
     "use strict";
 
     var testORG = "test-org";
@@ -32,14 +32,14 @@ define([
     return registerSuite(function () {
 
             return {
-                name: "common/identity",
+                name: "common/cert-identity",
 
                 "constructor": function () {
-                    assert.isDefined(Identity);
+                    assert.isDefined(CERTIdentity);
                 },
                 "load data": {
                     "it will populate non-crm identities names and UUID's with the CIQ Identity name": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         //given
                         getJSONReturnError = false;
@@ -53,7 +53,7 @@ define([
                         assert.equal(identity.name(), testORG2);
                     },
                     "it will load crm identities correctly, fetching the name using the UUID stored in the CIQ name": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         //given
                         getJSONReturnError = false;
@@ -67,7 +67,7 @@ define([
                         assert.equal(identity.name(), testORG);
                     },
                     "Identity name will default to UUID if can't retrieve from CRM ": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         //given
                         getJSONReturnError = true;
@@ -81,7 +81,7 @@ define([
                         assert.equal(identity.name(), uuid);
                     },
                     "will provide empty string for UUID and sector if not supplied in data": function() {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         getJSONReturnError = false;
                         var data = {
@@ -99,7 +99,7 @@ define([
                 },
                 "return json": {
                     "to_json will return the correct data": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         //given
                         getJSONReturnError = false;
@@ -120,7 +120,7 @@ define([
                         assert.deepEqual(expectedJson, json);
                     },
                     "to_json will return undefined if no UUID": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         var json = identity.to_json();
 
@@ -131,7 +131,7 @@ define([
                 },
                 "return the correct state": {
                     "getState will return the state of the object": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         //given
                         getJSONReturnError = false;
@@ -154,7 +154,7 @@ define([
                 },
                 "select an organisation": {
                     "populate the identity": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         var data = {
                             name: testORG,
@@ -174,14 +174,14 @@ define([
                 },
                 "validate CRM UUID": {
                     "validates correct uuid": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         var validUUID = "38b9555c-ca2f-44c7-8789-bb281c60ee9f";
 
                         assert.isTrue(identity.isCRMUUID(validUUID));
                     },
                     "wont validate incorrect uuid": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         var invalidUUID = "38b9555cgarbage";
 
@@ -190,7 +190,7 @@ define([
                 },
                 "gets name": {
                     "sets name to uuid if not a crm id": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         var invalidUUID = "38b9555cgarbage";
 
@@ -199,7 +199,7 @@ define([
                         assert.equal(identity.name(), invalidUUID);
                     },
                     "gets name from crm if uuid": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         //given
                         getJSONReturnError = false;
@@ -211,14 +211,14 @@ define([
                 },
                 "builds correct urls": {
                     "builds crm org url ": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         identity.CRMURL = crmURL;
 
                         assert.equal(identity.buildOrgCRMURL(), crmURL + "/organisations/");
                     },
                     "builds crm search url ": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         identity.CRMURL = crmURL;
 
@@ -227,7 +227,7 @@ define([
                 },
                 "closes the modal view": {
                     "selects id and closes modal view": function () {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
                         var data = {
                             name: testORG,
                             uuid: uuid
@@ -243,7 +243,7 @@ define([
                         assert.equal(identity.searchTerm(), "");
                     },
                     "cancels correctly from modal view": function() {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         identity.modal = {
                             close: function() {
@@ -257,7 +257,7 @@ define([
                 },
                 "searches crm": {
                     "search crm correctly": function() {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         getJSONReturnError = false;
                         identity.searchTerm(crmURL);
@@ -268,7 +268,7 @@ define([
                         assert.isFalse(identity.error());
                     },
                     "error in searching crm": function() {
-                        var identity = new Identity();
+                        var identity = new CERTIdentity();
 
                         getJSONReturnError = true;
                         identity.searchTerm(crmURL);
