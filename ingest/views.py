@@ -16,13 +16,14 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.patch.incident_patch import DBIncidentPatch
 
 REGEX_LINE_DELIMETER = re.compile("[\n]")
+REGEX_BREAK_DELIMETER = re.compile("<br />")
 
 TIME_KEY = ['Created', 'CustomField.{Containment Achieved}', 'CustomField.{First Data Exfiltration}',
             'CustomField.{First Malicious Action}', 'CustomField.{Incident Discovery}',
             'CustomField.{Incident Reported}',
             'CustomField.{Initial Compromise}', 'CustomField.{Restoration Achieved}', 'Resolved']
 
-TIME_KEY_MAP = {'Created': 'incident_discovery', 'CustomField.{Containment Achieved}': 'containment_achieved',
+TIME_KEY_MAP = {'Created': 'incident_opened', 'CustomField.{Containment Achieved}': 'containment_achieved',
                 'CustomField.{First Data Exfiltration}': 'first_data_exfiltration',
                 'CustomField.{First Malicious Action}': 'first_malicious_action',
                 'CustomField.{Incident Discovery}': 'incident_discovery',
@@ -50,19 +51,19 @@ def create_time(data):
     return time
 
 
+def create_reporter(data):
+    reporter = data['CustomField.{Reporter Type}']
+    reporter_values = REGEX_BREAK_DELIMETER.split(reporter)
+    new_reporter = ", ".join(reporter_values)
+    return new_reporter
+
+
 def status_checker(data):
     if data['Status'] == 'resolved':
         status = 'Closed'
     else:
         status = data['Status']
     return status
-
-
-# def create_reporter(data):
-#     reporter = data['CustomField.{Reporter Type}']
-#     REGEX = re.compile("<br\>")
-#     y = REGEX.split(reporter)
-#     pass
 
 
 def initialise_draft(data):
@@ -72,16 +73,15 @@ def initialise_draft(data):
         'description': '',
         'discovery_methods': [],
         'effects': [],
-        'external_ids': [{'source': '', 'id': data['CustomField.{Indicator Data Files}']}],
+        'external_ids': [{'source': data['CustomField.{Indicator Data Files}'], 'id': ''}],
         'id': IDManager().get_new_id('incident'),
         'id_ns': IDManager().get_namespace(),
         'intended_effects': [data['CustomField.{Intended Effect}']],
         'leveraged_ttps': [],
-        'markings': '',
         'related_incidents': [],
         'related_indicators': [],
         'related_observables': [],
-        'reporter': {'identity': {'name': data['CustomField.{Reporter Type}'],
+        'reporter': {'identity': {'name': create_reporter(data),
                                   'specification': {'electronic_address_identifiers': [], 'free_text_lines': [],
                                                     'languages': [], 'party_name': {'name_lines': []}}}},
         'responders': [],
@@ -115,8 +115,8 @@ def ajax_create_incidents(request, username):
     try:
         drafts, data = [], []
         ip = DedupInboxProcessor(validate=False, user=user)
-        y = REGEX_LINE_DELIMETER.split(request.read())
-        reader = csv.DictReader(y)
+        raw_data = REGEX_LINE_DELIMETER.split(request.read())
+        reader = csv.DictReader(raw_data)
         for row in reader:
             data.append(row)
         for incident in data:
@@ -124,7 +124,7 @@ def ajax_create_incidents(request, username):
         for draft in drafts:
             Draft.upsert('inc', draft, user)
             generic_object = ApiObject('inc', DBIncidentPatch.from_draft(draft))
-            etlp, esms = 'NULL', ""
+            etlp, esms = 'NULL', ''
             ip.add(InboxItem(api_object=generic_object,
                              etlp=etlp,
                              esms=esms))
@@ -133,12 +133,12 @@ def ajax_create_incidents(request, username):
         return JsonResponse({
             'count': len(drafts),
             'duration': int(elapsed.ms()),
-            'message': ip.filter_messages,
             'state': 'success',
+            'messages': ip.filter_messages,
         }, status=202)
     except Exception as e:
         return JsonResponse({
-            'messages': e.message,
+            'messages': [e.message],
             'duration': int(elapsed.ms()),
-            'state': 'failure',
+            'state': 'error',
         }, status=500)

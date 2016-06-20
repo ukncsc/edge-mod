@@ -43,11 +43,12 @@ def extract_handling_markings(self):
     api_data = self.apidata
     if 'handling' in api_data:
         handling = api_data["handling"][0]
-        marking_structures = handling["marking_structures"]
+        if 'marking_structures' in handling:
+            marking_structures = handling["marking_structures"]
 
-        for structure in marking_structures:
-            if structure['xsi:type'] == SimpleMarkingStructure._XSI_TYPE:
-                handling_markings.append(structure)
+            for structure in marking_structures:
+                if structure['xsi:type'] == SimpleMarkingStructure._XSI_TYPE:
+                    handling_markings.append(structure)
 
     return handling_markings
 
