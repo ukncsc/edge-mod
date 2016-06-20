@@ -58,6 +58,15 @@ def create_reporter(data):
     return new_reporter
 
 
+def create_intended_effects(data):
+    joined_intended_effects = []
+    intended_effects = data['CustomField.{Intended Effect}']
+    intended_effects_values = REGEX_BREAK_DELIMETER.split(intended_effects)
+    for effect in intended_effects_values:
+        joined_intended_effects.append(effect)
+    return joined_intended_effects
+
+
 def status_checker(data):
     if data['Status'] == 'resolved':
         status = 'Closed'
@@ -76,7 +85,7 @@ def initialise_draft(data):
         'external_ids': [{'source': data['CustomField.{Indicator Data Files}'], 'id': ''}],
         'id': IDManager().get_new_id('incident'),
         'id_ns': IDManager().get_namespace(),
-        'intended_effects': [data['CustomField.{Intended Effect}']],
+        'intended_effects': create_intended_effects(data),
         'leveraged_ttps': [],
         'related_incidents': [],
         'related_indicators': [],
