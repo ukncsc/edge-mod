@@ -62,6 +62,8 @@ from users.models import Repository_User
 from adapters.certuk_mod.timeline.views import ajax_incident_timeline, timeline_discover, incident_timeline, \
     incident_timeline_not_found
 
+from adapters.certuk_mod.ingest.views import ajax_create_incidents
+
 audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
