@@ -94,9 +94,17 @@
     <script type="text/html" id="header">
         <div class="col-sm-12">
             <h3 class="obj-title">
-                <button type="button" class="btn btn-danger pull-right"
-                        data-bind="click: onPublish">Publish<br>Externally
-                </button>
+                <div class="btn-group pull-right">
+                    <button type="button" class="btn btn-danger pull-right"
+                            data-bind="click: onPublish">Publish<br>Externally
+                    </button>
+                    <a type="button" class="btn btn-info pull-right"
+                       data-bind="attr: { href: viewURL}">View in<br>Builder
+                    </a>
+                    <a type="button" class="btn btn-success pull-right"
+                       data-bind="attr: { href: editURL}">Edit in<br>Builder
+                    </a>
+                </div>
                 <img alt="" src="" data-bind="attr: {
                     src: '{% static "img/hex" %}/hex_'+type().code+'.png'
                 }">

@@ -9,7 +9,7 @@ define([
     "use strict";
 
     return declare(null, {
-        constructor: function (rootId, stixPackage, validationInfo) {
+        constructor: function (rootId, stixPackage, validationInfo, viewURL, editURL) {
             this.stixPackage = ko.observable(new StixPackage(stixPackage, rootId, validationInfo));
 
             this.root = ko.computed(function () {
@@ -18,6 +18,8 @@ define([
             this.type = ko.computed(function () {
                 return this.stixPackage().type;
             }, this);
+            this.viewURL = ko.observable(viewURL);
+            this.editURL = ko.observable(editURL);
         },
 
         _onPublishModalOK: function (modal) {

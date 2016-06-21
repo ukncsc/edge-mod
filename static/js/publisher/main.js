@@ -6,7 +6,7 @@ require([
 ], function (ko, showErrorModal, SelectModel) {
     try {
         ko.applyBindings(
-            new SelectModel(window["rootId"], window["stixPackage"], window["validationInfo"]),
+            new SelectModel(window["rootId"], window["stixPackage"], window["validationInfo"], window["viewURL"], window["editURL"]),
             document.getElementById("content")
         );
     } catch (e) {
