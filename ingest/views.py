@@ -6,7 +6,7 @@ from mongoengine.connection import get_db
 from datetime import datetime
 from edge import IDManager
 from edge.tools import StopWatch
-from edge.inbox import InboxItem
+from edge.inbox import InboxItem, InboxError
 from edge.generic import ApiObject
 from users.models import Draft, Repository_User
 from django.views.decorators.csrf import csrf_exempt
@@ -106,8 +106,20 @@ def initialise_draft(data):
     return draft
 
 
+def create_drafts(request, elapsed):
+    drafts, data = [], []
+    raw_data = REGEX_LINE_DELIMETER.split(request.read())
+    reader = csv.DictReader(raw_data)
+    for row in reader:
+        data.append(row)
+    for incident in data:
+        drafts.append(initialise_draft(incident))
+    return drafts, data
+
+
 @csrf_exempt
 def ajax_create_incidents(request, username):
+
     if not request.method == 'POST':
         return JsonResponse({}, status=405)
     if not request.META.get('HTTP_ACCEPT') == 'application/json':
@@ -142,12 +154,21 @@ def ajax_create_incidents(request, username):
         return JsonResponse({
             'count': len(drafts),
             'duration': int(elapsed.ms()),
-            'state': 'success',
             'messages': ip.filter_messages,
+            'state': 'success'
         }, status=202)
+    except (KeyError, ValueError, InboxError) as e:
+        validation_result = ip.validation_result if isinstance(ip, DedupInboxProcessor) else {}
+        return JsonResponse({
+            'count': len(drafts),
+            'duration': int(elapsed.ms()),
+            'messages': type(e).__name__ + ": " + e.message,
+            'state': 'invalid',
+            'validation_result': validation_result
+        }, status=400)
     except Exception as e:
         return JsonResponse({
-            'messages': [e.message],
             'duration': int(elapsed.ms()),
+            'messages': [e.message],
             'state': 'error',
         }, status=500)
