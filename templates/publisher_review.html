@@ -110,7 +110,8 @@
         <div class="col-sm-12">
             {# inline styles because someone used !important in soltra.css #}
             <div class="panel panel-danger" style="border: 1px solid #EBCCD1 !important;">
-                <div class="panel-heading" style="background-color:#F2DEDE !important;border-bottom:1px solid #EBCCD1 !important;color:#A94442 !important;">
+                <div class="panel-heading"
+                     style="background-color:#F2DEDE !important;border-bottom:1px solid #EBCCD1 !important;color:#A94442 !important;">
                     Warning
                 </div>
                 <div class="panel-body" style="background-color: #ffffff !important;">
@@ -138,6 +139,9 @@
         var stixPackage = Object.freeze({{ package.to_json|safe }});
         var validationInfo = Object.freeze({{ validation_info.to_json|safe }});
         var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
+        var duplicates = Object.freeze({{ duplicates|safe }});
+        var viewURL = "{{ view_url }}";
+        var editURL = "{{ edit_url }}";
 
     </script>
 

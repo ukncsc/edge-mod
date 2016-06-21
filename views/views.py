@@ -1,5 +1,7 @@
 import os
 import urllib2
+import urllib
+
 import json
 import datetime
 from dateutil import tz
@@ -14,6 +16,7 @@ from users.decorators import superuser_or_staff_role, json_body
 from users.models import Draft
 from edge.generic import EdgeObject
 from edge import IDManager
+from clippy.models import CLIPPY_TYPES
 
 from adapters.certuk_mod.publisher.package_publisher import Publisher
 from adapters.certuk_mod.publisher.publisher_config import PublisherConfig
@@ -49,6 +52,8 @@ from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
 
 from adapters.certuk_mod.common.objectid import discover as objectid_discover, find_id as objectid_find
+from adapters.certuk_mod.catalog.backedge import BackEdgeGenerator
+from adapters.certuk_mod.catalog.duplicates import DuplicateFinder
 
 from adapters.certuk_mod.retention.purge import STIXPurge
 
@@ -135,9 +140,11 @@ def _get_request_username(request):
 
 @login_required
 def review(request, id_):
-    root_edge_object = PublisherEdgeObject.load(id_)
+    root_edge_object = PublisherEdgeObject.load(id_, filters=request.user.filters(), include_revision_index=True)
     package = PackageGenerator.build_package(root_edge_object)
     validation_info = PackageValidationInfo.validate(package)
+    back_edges = BackEdgeGenerator.retrieve_back_edges(root_edge_object, request.user.filters())
+    duplicates = DuplicateFinder.find_duplicates(root_edge_object)
 
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
@@ -152,7 +159,11 @@ def review(request, id_):
         "root_id": id_,
         "package": package,
         "validation_info": validation_info,
-        "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES}
+        "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
+        "back_edges": back_edges,
+        'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ','_').lower() + ('/view/%s/' % urllib.quote(id_)),
+        'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ','_').lower() + ('/edit/%s/' % urllib.quote(id_)),
+        "duplicates": duplicates
     })
 
 
