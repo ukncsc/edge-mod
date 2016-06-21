@@ -99,22 +99,11 @@ def initialise_draft(data):
         'title': 'RTIR ' + data['id'],
         'tlp': '',
         'trustgroups': [],
-        'victims': [],
+        'victims': [{'name': data['CustomField.{Incident Sector}']}],
         'stixtype': 'inc',
         'time': create_time(data)
     }
     return draft
-
-
-def create_drafts(request, elapsed):
-    drafts, data = [], []
-    raw_data = REGEX_LINE_DELIMETER.split(request.read())
-    reader = csv.DictReader(raw_data)
-    for row in reader:
-        data.append(row)
-    for incident in data:
-        drafts.append(initialise_draft(incident))
-    return drafts, data
 
 
 @csrf_exempt
@@ -158,6 +147,8 @@ def ajax_create_incidents(request, username):
             'state': 'success'
         }, status=202)
     except (KeyError, ValueError, InboxError) as e:
+        if drafts:
+            remove_drafts(drafts)
         validation_result = ip.validation_result if isinstance(ip, DedupInboxProcessor) else {}
         return JsonResponse({
             'count': len(drafts),
@@ -170,5 +161,5 @@ def ajax_create_incidents(request, username):
         return JsonResponse({
             'duration': int(elapsed.ms()),
             'messages': [e.message],
-            'state': 'error',
+            'state': 'error'
         }, status=500)
