@@ -90,16 +90,15 @@ def initialise_draft(data):
         'related_incidents': [],
         'related_indicators': [],
         'related_observables': [],
-        'reporter': {'identity': {'name': create_reporter(data),
-                                  'specification': {'electronic_address_identifiers': [], 'free_text_lines': [],
-                                                    'languages': [], 'party_name': {'name_lines': []}}}},
+        'reporter': {'identity': {'name': create_reporter(data)}},
         'responders': [],
         'short_description': '',
         'status': status_checker(data),
         'title': 'RTIR ' + data['id'],
         'tlp': '',
         'trustgroups': [],
-        'victims': [{'name': data['CustomField.{Incident Sector}']}],
+        'victims': [{'name': data['CustomField.{Incident Sector}'],
+                     'specification': {'organisation_info': {'industry_type': data['CustomField.{Incident Sector}']}}}],
         'stixtype': 'inc',
         'time': create_time(data)
     }
@@ -108,7 +107,6 @@ def initialise_draft(data):
 
 @csrf_exempt
 def ajax_create_incidents(request, username):
-
     if not request.method == 'POST':
         return JsonResponse({}, status=405)
     if not request.META.get('HTTP_ACCEPT') == 'application/json':
