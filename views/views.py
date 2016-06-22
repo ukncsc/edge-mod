@@ -163,7 +163,8 @@ def review(request, id_):
         "back_edges": back_edges,
         'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ','_').lower() + ('/view/%s/' % urllib.quote(id_)),
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ','_').lower() + ('/edit/%s/' % urllib.quote(id_)),
-        "duplicates": duplicates
+        "duplicates": duplicates,
+        "revisions": root_edge_object.revisions
     })
 
 

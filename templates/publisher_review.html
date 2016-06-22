@@ -87,6 +87,7 @@
         <div class="row" data-bind="template: 'warning'"></div>
         <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
         <div id="incidentTimelineSVG" class="chart" style="margin-left: auto;margin-right: auto"></div>
+        {% include 'publisher_activity_log.html' %}
     </div>
 {% endblock %}
 
@@ -111,6 +112,12 @@
                 <span data-bind="text: type().label"></span><br>
                 <small data-bind="text: root().id"></small>
             </h3>
+            <div class="col-sm-4">
+                <label for="revision_selector">Revisions:</label>
+                <select id="revision_selector" name="revision_selector"
+                        data-bind="options: revisions, optionsText: 'label',
+    					value: selected_revision, optionCaption: 'select a revision...'"></select>
+            </div>
         </div>
     </script>
 
