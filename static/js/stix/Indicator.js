@@ -46,11 +46,11 @@ define([
             this.observable = ko.computed(function () {
                 var id = stixPackage.safeGet(this.data(), "observable.idref");
                 return id ? stixPackage.findByStringId(id) : null;
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.composition = ko.computed(function () {
                 var observable = this.observable();
                 return observable ? stixPackage.safeValueGet(this.id(), observable.data(), "observable_composition.operator") : new ReviewValue(null);
-            }, this);
+            }, this, this.DEFER_EVALUATION);
             this.observables = ko.computed(function () {
                 var observable = this.observable();
                 var observableList = new ReviewValue(null);
