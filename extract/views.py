@@ -56,17 +56,17 @@ def extract_upload(request):
         stream = parse_file(file_import)
     except IOCParseException as e:
         return error_with_message(request,
-                                  "Error parsing file: " + e.message + " content from parser was " + stream.buf)
+                                  "Error parsing file: %s content from parser was %s" % (e.message, stream.buf))
     try:
         ip = DedupInboxProcessor(validate=False, user=request.user, streams=[(stream, None)])
     except (InboxError, EntitiesForbidden, XMLSyntaxError) as e:
         return error_with_message(request,
-                                  "Error parsing stix xml: " + e.message + " content from ioc_parser was " + stream.buf)
+                                  "Error parsing stix file: %s content from parser was %s" % (e.message, stream.buf))
     ip.run()
 
     indicators = [inbox_item for _, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
     if not len(indicators):
-        return error_with_message(request, "No indicators found when parsing file " + str(file_import))
+        return error_with_message(request, "No indicators found when parsing file %s" % str(file_import))
 
     indicator_ids = [id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
     observable_ids = {id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'obs'}

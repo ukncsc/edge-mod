@@ -17,7 +17,7 @@
         </div>
 
 
-        <form action="{% url 'extract_upload' %}" method="POST" id="extract_upload_form"
+        <form action="{% url 'extract_upload' %}" method="POST" data-bind="submit: submitted" id="extract_upload_form"
               enctype="multipart/form-data">{% csrf_token %}
             <div class="row">
                 <div class="col-lg-6">

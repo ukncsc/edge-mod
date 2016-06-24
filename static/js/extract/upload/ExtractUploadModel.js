@@ -14,6 +14,11 @@ define([
         onFileSelected: function (data, event) {
             this.fileName(event.target.files[0].name);
             this.exists(true);
+        },
+        submitted: function(data, event) {
+            this.exists(false);
+            this.fileName("");
+            return true;
         }
     });
 });
