@@ -51,7 +51,11 @@ def extract_upload(request):
             except Exception:
                 pass
 
+    if 'import' not in request.FILES:
+        return error_with_message(request,"Error in file upload")
+
     file_import = request.FILES['import']
+
     try:
         stream = parse_file(file_import)
     except IOCParseException as e:
