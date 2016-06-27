@@ -1,7 +1,7 @@
 require([
     "knockout",
     "common/modal/show-error-modal",
-    "publisher/SelectModel",
+    "catalog/cert-catalog-view-model",
     "domReady!"
 ], function (ko, showErrorModal, SelectModel) {
     try {

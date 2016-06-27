@@ -1,4 +1,4 @@
-define([
+ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",

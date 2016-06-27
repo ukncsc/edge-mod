@@ -39,7 +39,7 @@ publisher_urls = [
     (r'^ajax/incident_timeline/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_incident_timeline', 'ajax_incident_timeline'),
 
     (r'^clone/$', 'views.clone', 'clone_to_draft'),
-    (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'publisher_review'),
+    (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'catalog_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
     (r'^noclone/(?P<msg>)', 'views.error_with_message', 'error_with_message'),
     (r'^config/$', 'views.config', 'publisher_config'),

@@ -65,7 +65,7 @@ class ViewHandlerTests(unittest.TestCase):
 
         response = views.review(mock_request, id_=mock_id)
 
-        mock_render.assert_called_with(mock_request, 'publisher_review.html', {
+        mock_render.assert_called_with(mock_request, 'catalog_review.html', {
             'root_id': mock_id,
             'validation_info': mock_validate.return_value,
             'package': mock_package_builder.return_value,

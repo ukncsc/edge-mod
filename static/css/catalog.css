@@ -1,0 +1,72 @@
+        button.btn.btn-danger {
+            background-color: #D9534F;
+        }
+
+        button.btn.btn-danger:hover, .btn.btn-danger:focus, .btn.btn-danger:active {
+            background-color: #D2322D;
+        }
+
+        dl.dl-horizontal dd {
+            margin-left: 160px;
+            padding-left: 20px;
+            padding-right: 1px;
+            margin-right: 20px;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
+
+        dl.dl-horizontal dd table {
+            table-layout: fixed;
+        }
+
+        dl.dl-horizontal dd table th {
+            width: 15%;
+        }
+
+        dl.dl-horizontal dd table th:nth-child(1) {
+            width: 20%;
+        }
+
+        dl.dl-horizontal dd table th:nth-child(n+4) {
+            width: auto;
+        }
+
+        dl.dl-horizontal dd table.cols-3 th:nth-child(n+3) {
+            width: auto;
+        }
+
+        dl.dl-horizontal dd dl.dl-horizontal dt {
+            width: 110px;
+        }
+
+        dl.dl-horizontal dd dl.dl-horizontal dd {
+            margin-left: 110px;
+            padding-left: 10px;
+        }
+
+        dd.text-danger, dd.text-warning, td.text-danger, td.text-warning {
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        .table-striped > tbody > tr:nth-child(2n+1) > td.bg-danger {
+            background-color: #e2cece;
+        }
+
+        dd table tbody tr[title] {
+            cursor: pointer;
+        }
+
+        dd table tbody tr[title]:hover {
+            outline: 1px dotted #a94442;
+        }
+
+        dd table tbody tr[title] td {
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .value-missing:after {
+            content: "(missing)";
+            font-style: italic;
+        }

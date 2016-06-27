@@ -155,7 +155,7 @@ def review(request, id_):
                                                                          req_user)}}})
 
     request.breadcrumbs([("Publisher", "")])
-    return render(request, "publisher_review.html", {
+    return render(request, "catalog_review.html", {
         "root_id": id_,
         "package": package,
         "validation_info": validation_info,
