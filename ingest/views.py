@@ -1,6 +1,7 @@
 import csv
 import re
 
+from openpyxl import Workbook
 from mongoengine import DoesNotExist
 from mongoengine.connection import get_db
 from datetime import datetime
@@ -18,10 +19,6 @@ from adapters.certuk_mod.patch.incident_patch import DBIncidentPatch
 REGEX_LINE_DELIMETER = re.compile("[\n]")
 REGEX_BREAK_DELIMETER = re.compile("<br />")
 
-TIME_KEY = ['Created', 'CustomField.{Containment Achieved}', 'CustomField.{First Data Exfiltration}',
-            'CustomField.{First Malicious Action}', 'CustomField.{Incident Discovery}',
-            'CustomField.{Incident Reported}',
-            'CustomField.{Initial Compromise}', 'CustomField.{Restoration Achieved}', 'Resolved']
 
 TIME_KEY_MAP = {'Created': 'incident_opened', 'CustomField.{Containment Achieved}': 'containment_achieved',
                 'CustomField.{First Data Exfiltration}': 'first_data_exfiltration',
@@ -43,11 +40,10 @@ def remove_drafts(drafts):
 
 def create_time(data):
     time = {}
-    for key in TIME_KEY:
-        map_key = TIME_KEY_MAP[key]
+    for key, map in TIME_KEY_MAP.iteritems():
         if data[key] != '':
             time_format = datetime.strptime(data[key], '%a %b %d %X %Y').isoformat()
-            time[map_key] = {'precision': 'second', 'value': time_format}
+            time[map] = {'precision': 'second', 'value': time_format}
     return time
 
 
@@ -90,7 +86,7 @@ def initialise_draft(data):
         'related_incidents': [],
         'related_indicators': [],
         'related_observables': [],
-        'reporter': {'identity': {'name': create_reporter(data)}},
+        'reporter': {'name': create_reporter(data), 'specification': {'organisation_info': {'industry_type': ''}}},
         'responders': [],
         'short_description': '',
         'status': status_checker(data),
@@ -119,9 +115,10 @@ def ajax_create_incidents(request, username):
     except DoesNotExist:
         return JsonResponse({}, status=403)
 
+    ip = None
+    drafts, data = [], []
     elapsed = StopWatch()
     try:
-        drafts, data = [], []
         ip = DedupInboxProcessor(validate=False, user=user)
         raw_data = REGEX_LINE_DELIMETER.split(request.read())
         reader = csv.DictReader(raw_data)
