@@ -2,33 +2,33 @@ import mock
 import unittest
 
 from adapters.certuk_mod.ingest.views import create_time, create_reporter, \
-    create_intended_effects, status_checker
+    create_intended_effects, status_checker, initialise_draft
 
 
 class IncidentIngestTests(unittest.TestCase):
     def setUp(self):
         self.draft = {
             'attributed_actors': [],
-            'categories': [],
+            'categories': [''],
             'description': '',
             'discovery_methods': [],
             'effects': [],
-            'external_ids': [],
-            'id': 'pss:matt',
-            'id_ns': 'http://www.purplescure.com',
-            'intended_effects': [],
+            'external_ids': [{'source': '14007indicator536.csv', 'id': ''}],
+            'id': 'pss:inc-00000001-0001-0001-0001-00000001',
+            'id_ns': 'http://www.purplesecure.com',
+            'intended_effects': [''],
             'leveraged_ttps': [],
             'related_incidents': [],
             'related_indicators': [],
             'related_observables': [],
-            'reporter': {'name': '', 'specification': {'organisation_info': {'industry_type': ''}}},
+            'reporter': {'name': 'Purple', 'specification': {'organisation_info': {'industry_type': ''}}},
             'responders': [],
             'short_description': '',
-            'status': '',
-            'title': '',
+            'status': 'Closed',
+            'title': 'RTIR 1500',
             'tlp': '',
             'trustgroups': [],
-            'victims': [],
+            'victims': [{'name': '', 'specification': {'organisation_info': {'industry_type': 'Water'}}}],
             'stixtype': 'inc',
             'time': {}
         }
@@ -100,3 +100,41 @@ class IncidentIngestTests(unittest.TestCase):
         reporter = create_reporter(data)
         compare_reporter = 'Domestic Source, Government Agency'
         self.assertEquals(reporter, compare_reporter)
+
+    @mock.patch('adapters.certuk_mod.ingest.views.IDManager')
+    @mock.patch('adapters.certuk_mod.ingest.views.create_time')
+    @mock.patch('adapters.certuk_mod.ingest.views.create_reporter')
+    @mock.patch('adapters.certuk_mod.ingest.views.create_intended_effects')
+    @mock.patch('adapters.certuk_mod.ingest.views.status_checker')
+    def test_initialise_draft(self, mock_status, mock_intended_effects, mock_reporter, mock_time, mock_manager):
+        mock_status.return_value = 'Closed'
+        mock_intended_effects.return_value = ['']
+        mock_reporter.return_value = 'Purple'
+        mock_time.return_value = {}
+        mock_manager().get_namespace.return_value = 'http://www.purplesecure.com'
+        mock_manager().get_new_id.return_value = 'pss:inc-00000001-0001-0001-0001-00000001'
+        data = {
+            'id': '1500',
+            'CustomField.{Indicator Data Files}': '14007indicator536.csv',
+            'Created': '',
+            'CustomField.{Containment Achieved}': '',
+            'CustomField.{First Data Exfiltration}': '',
+            'CustomField.{First Malicious Action}': '',
+            'CustomField.{Incident Discovery}': '',
+            'CustomField.{Incident Reported}': '',
+            'CustomField.{Initial Compromise}': '',
+            'CustomField.{Restoration Achieved}': '',
+            'CustomField.{Description}': '',
+            'CustomField.{Category}': '',
+            'CustomField.{Reporter Type}': '',
+            'CustomField.{Incident Sector}': 'Water',
+            'Status': '',
+            'CustomField.{Intended Effect}': '',
+            'Resolved': ''
+        }
+        draft = initialise_draft(data)
+        mock_status.assert_called_with(data)
+        mock_intended_effects.assert_called_with(data)
+        mock_reporter.assert_called_with(data)
+        mock_time.assert_called_with(data)
+        self.assertDictEqual(draft, self.draft)
