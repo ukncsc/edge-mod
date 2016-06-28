@@ -105,8 +105,7 @@ def _find_matching_db_file_obs(db, new_file_obs):
     new_sha384s = extract_properties(new_file_obs, PROPERTY_SHA384)
     new_sha512s = extract_properties(new_file_obs, PROPERTY_SHA512)
     existing_file_obs = db.stix.find({
-        'type': 'obs',
-        'data.api.object.properties.xsi:type': 'FileObjectType',
+        'data.summary.type': 'FileObjectType',
         '$or': [
             {
                 'data.api.object.properties.file_name': {'$in': new_filenames}
