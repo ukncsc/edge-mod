@@ -166,10 +166,20 @@ def ajax_create_incidents(request, username):
             'validation_result': validation_result
         }, status=400)
     except Exception as e:
-        log_activity(username, 'INCIDENT INGEST', 'ERROR', e.message)
-        log_error(e, 'adapters/incident/import', 'Import failed')
-        return JsonResponse({
-            'duration': int(elapsed.ms()),
-            'messages': [e.message],
-            'state': 'error'
-        }, status=500)
+        if e.message == 'line contains NULL byte':
+            log_activity(username, 'INCIDENT INGEST', 'ERROR', 'Unable to parse file')
+            log_error(e, 'adapters/incident/import', 'Import failed')
+            return JsonResponse({
+                'duration': int(elapsed.ms()),
+                'messages': ['Unable to parse file'],
+                'state': 'error'
+            }, status=500)
+        else:
+            log_activity(username, 'INCIDENT INGEST', 'ERROR', e.message)
+            log_error(e, 'adapters/incident/import', 'Import failed')
+            return JsonResponse({
+                'duration': int(elapsed.ms()),
+                'messages': [e.message],
+                'state': 'error'
+            }, status=500)
+
