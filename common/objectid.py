@@ -9,10 +9,27 @@ _STIX_ID_REGEX = r"[a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]
 _OBJECT_ID_MATCHER = re.compile("%s$" % _STIX_ID_REGEX, re.IGNORECASE)
 _URL_OBJECT_ID_MATCHER = re.compile(r".*/(%s)/?$" % _STIX_ID_REGEX, re.IGNORECASE)
 
+_STIX_TYPE_ID_REGEX = r"[a-z][\w\d-]+:([a-z]+)-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}"
+_OBJECT__TYPE_ID_MATCHER = re.compile("%s$" % _STIX_TYPE_ID_REGEX, re.IGNORECASE)
+
 
 def is_valid_stix_id(candidate_stix_id):
     match = _OBJECT_ID_MATCHER.match(candidate_stix_id)
     return match is not None
+
+
+def get_type_string(stix_id):
+    if not is_valid_stix_id(stix_id):
+        return ''
+
+    match = _OBJECT__TYPE_ID_MATCHER.match(stix_id)
+
+    if not match:
+        return ''
+    try:
+        return match.group(1)
+    except:
+        return ''
 
 
 def find_id(request):
