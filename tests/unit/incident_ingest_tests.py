@@ -13,7 +13,7 @@ class IncidentIngestTests(unittest.TestCase):
             'description': '',
             'discovery_methods': [],
             'effects': [],
-            'external_ids': [{'source': '14007indicator536.csv', 'id': ''}],
+            'external_ids': [{'source': '', 'id': '14007indicator536.csv'}],
             'id': 'pss:inc-00000001-0001-0001-0001-00000001',
             'id_ns': 'http://www.purplesecure.com',
             'intended_effects': [''],

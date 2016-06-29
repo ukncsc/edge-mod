@@ -43,14 +43,14 @@ def remove_drafts(drafts):
 def create_time(data):
     time = {}
     for key, _map in TIME_KEY_MAP.iteritems():
-        if data[key] != '':
-            time_format = datetime.strptime(data[key], '%a %b %d %X %Y').isoformat()
+        if data.get(key) != '':
+            time_format = datetime.strptime(data.get(key, ''), '%a %b %d %X %Y').isoformat()
             time[_map] = {'precision': 'second', 'value': time_format}
     return time
 
 
 def create_reporter(data):
-    reporter = data['CustomField.{Reporter Type}']
+    reporter = data.get('CustomField.{Reporter Type}', '')
     reporter_values = REGEX_BREAK_DELIMETER.split(reporter)
     new_reporter = ", ".join(reporter_values)
     return new_reporter
@@ -58,7 +58,7 @@ def create_reporter(data):
 
 def create_intended_effects(data):
     joined_intended_effects = []
-    intended_effects = data['CustomField.{Intended Effect}']
+    intended_effects = data.get('CustomField.{Intended Effect}', '')
     intended_effects_values = REGEX_BREAK_DELIMETER.split(intended_effects)
     for effect in intended_effects_values:
         joined_intended_effects.append(effect)
@@ -66,21 +66,21 @@ def create_intended_effects(data):
 
 
 def status_checker(data):
-    if data['Status'] == 'resolved':
+    if data.get('Status', '') == 'resolved':
         status = 'Closed'
     else:
-        status = data['Status']
+        status = data.get('Status', '')
     return status
 
 
 def initialise_draft(data):
     draft = {
         'attributed_actors': [],
-        'categories': [data['CustomField.{Category}']],
+        'categories': [data.get('CustomField.{Category}', '')],
         'description': '',
         'discovery_methods': [],
         'effects': [],
-        'external_ids': [{'source': data['CustomField.{Indicator Data Files}'], 'id': ''}],
+        'external_ids': [{'source': data.get('CustomField.{External References}', ''), 'id': data.get('CustomField.{Indicator Data Files}', '')}],
         'id': IDManager().get_new_id('incident'),
         'id_ns': IDManager().get_namespace(),
         'intended_effects': create_intended_effects(data),
@@ -92,11 +92,11 @@ def initialise_draft(data):
         'responders': [],
         'short_description': '',
         'status': status_checker(data),
-        'title': 'RTIR ' + data['id'],
+        'title': 'RTIR ' + data.get('id', ''),
         'tlp': '',
         'trustgroups': [],
         'victims': [{'name': '',
-                     'specification': {'organisation_info': {'industry_type': data['CustomField.{Incident Sector}']}}}],
+                     'specification': {'organisation_info': {'industry_type': data.get('CustomField.{Incident Sector}', '')}}}],
         'stixtype': 'inc',
         'time': create_time(data)
     }
@@ -182,4 +182,3 @@ def ajax_create_incidents(request, username):
                 'messages': [e.message],
                 'state': 'error'
             }, status=500)
-
