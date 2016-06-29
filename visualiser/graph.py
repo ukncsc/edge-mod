@@ -1,5 +1,7 @@
 from edge.generic import EdgeObject, EdgeError
 from mongoengine.connection import get_db
+from adapters.certuk_mod.common.objectid import get_type_string
+
 
 REL_TYPE_EDGE = "edge"
 REL_TYPE_MATCH = "match"
@@ -58,6 +60,18 @@ def matches_exist(id_):
     return len(get_matches(id_))
 
 
+ID_TYPE_ALIAS = {
+        "campaign": "cam",
+        "courseofaction": "coa",
+        "et": "tgt",
+        "threatactor": "act",
+        "incident": "inc",
+        "indicator": "ind",
+        "observable": "obs",
+        "package": "pkg",
+        "stix": "pkg"
+}
+
 def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
     def show_edges(rel_type, node_id):
         return ((REL_TYPE_BACKLINK != rel_type and REL_TYPE_MATCH != rel_type) or (node_id in show_edge_ids)) and \
@@ -69,6 +83,15 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
     def create_external_reference(edge):
         summary = {'title': edge.id_, 'type': edge.ty, 'value': '', '_id': edge.id_, 'cv': '', 'tg': '',
                    'data': {'idns': '', 'etlp': '', 'summary': {'title': edge.id_},
+                            'hash': '', 'api': ''}, 'created_by_organization': ''}
+        return EdgeObject(summary)
+
+    def create_external_reference_from_id(id):
+        type_string = get_type_string(id)
+        type_string = ID_TYPE_ALIAS.get(type_string, type_string)
+
+        summary = {'title': id, 'type': type_string, 'value': '', '_id': id, 'cv': '', 'tg': '',
+                   'data': {'idns': '', 'etlp': '', 'summary': {'title': id},
                             'hash': '', 'api': ''}, 'created_by_organization': ''}
         return EdgeObject(summary)
 
@@ -116,9 +139,18 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
                         raise e
             if node_id in bl_ids:
                 for eoId in [val for doc in get_backlinks(node_id) for val in doc['value'].keys()]:
-                    stack.append((depth + 1, idx, EdgeObject.load(eoId), REL_TYPE_BACKLINK))
+                    try:
+                        stack.append((depth + 1, idx, EdgeObject.load(eoId), REL_TYPE_BACKLINK))
+                    except:
+                        obj = create_external_reference_from_id(eoId)
+                        stack.append((depth + 1, idx, obj, REL_TYPE_EXT))
+
             if node_id in id_matches:
                 for eoId in get_matches(node_id):
-                    stack.append((depth + 1, idx, EdgeObject.load(eoId), REL_TYPE_MATCH))
+                    try:
+                        stack.append((depth + 1, idx, EdgeObject.load(eoId), REL_TYPE_MATCH))
+                    except:
+                        obj = create_external_reference_from_id(eoId)
+                        stack.append((depth + 1, idx, obj, REL_TYPE_EXT))
 
     return dict(nodes=nodes, links=links)
