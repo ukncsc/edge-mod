@@ -88,7 +88,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
 
     def create_external_reference_from_id(id):
         type_string = get_type_string(id)
-        type_string = ID_TYPE_ALIAS.get(type_string, type_string)
+        type_string = ID_TYPE_ALIAS.get(type_string.lower(), type_string)
 
         summary = {'title': id, 'type': type_string, 'value': '', '_id': id, 'cv': '', 'tg': '',
                    'data': {'idns': '', 'etlp': '', 'summary': {'title': id},
