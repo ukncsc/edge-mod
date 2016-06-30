@@ -47,7 +47,7 @@ def extract_upload(request):
     if 'import' not in request.FILES:
         error_message = "Error in file upload"
 
-    file_import = request.FILES['import']
+    file_import = request.FILES.get('import', "not found");
 
     try:
         stream = parse_file(file_import)
@@ -131,7 +131,7 @@ def process_stix(stream, user, extract_id, error_message, file_name):
 
     indicators = [inbox_item for _, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
     if not len(indicators):
-        update_extract(extract_id, "FAILED", "No indicators found when parsing file %s" % file_name)
+        update_extract(extract_id, "FAILED", "No indicators found when parsing file %s" % file_name ,[])
         return
 
     indicator_ids = [id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
