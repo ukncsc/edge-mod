@@ -11,25 +11,22 @@ define([
             this.exists = ko.observable(false);
             this.fileName = ko.observable("");
 
-            this.alreadySubmitted = ko.observable(false);
-
             this.submitEnabled = ko.computed(function () {
-                return this.exists() && !this.alreadySubmitted();
+                return this.fileName() != '';
             }, this);
 
             this.results = ko.observableArray([]);
-            setInterval(this.retrieve.bind(this), 5000)
+            setInterval(this.retrieve.bind(this), 5000);
+            this.retrieve();
         },
         onFileSelected: function (data, event) {
             this.fileName(event.target.files[0].name);
-            this.exists(true);
         },
         submitted: function(data, event) {
-            this.alreadySubmitted(true);
+            this.fileName('');
             return true;
         },
         retrieve: function() {
-            this.alreadySubmitted(false);
             postJSON('/adapter/certuk_mod/ajax/extract_list/', this.results, function(data){
                 this.results(data['result'])
             }.bind(this))
