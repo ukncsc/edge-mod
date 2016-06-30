@@ -41,21 +41,25 @@ def extract(request):
 
 @login_required_ajax
 def extract_upload(request):
-    error_message = ""
-    if 'import' not in request.FILES:
-        error_message = "Error in file upload"
+    file_import = request.FILES.get('import', "");
+    extract_id = extract_store.create(request.user.username, str(file_import))
 
-    file_import = request.FILES.get('import', "not found");
+    if 'import' not in request.FILES:
+        extract_store.update(extract_id, "FAILED", "Error in file upload", [])
+        return HttpResponse(status=204)
 
     try:
         stream = parse_file(file_import)
     except IOCParseException as e:
-        error_message = "Error parsing file: %s content from parser was %s" % (e.message, stream.buf)
+        extract_store.update(extract_id,
+                             "FAILED",
+                             "Error parsing file: %s content from parser was %s" % (e.message, stream.buf),
+                             [])
 
-    extract_id = extract_store.create(request.user.username, str(file_import))
-    thr = threading.Thread(target=process_stix,
-                           args=(stream, request.user, extract_id, error_message, str(file_import)))
-    thr.start()
+        return HttpResponse(status=204)
+
+    threading.Thread(target=process_stix,
+                           args=(stream, request.user, extract_id, str(file_import))).start()
 
     return HttpResponse(status=204)
 
@@ -96,11 +100,7 @@ def extract_list(request):
     return JsonResponse({'result': extracts_json}, status=200)
 
 
-def process_stix(stream, user, extract_id, error_message, file_name):
-    if error_message:
-        extract_store.update(extract_id, "FAILED", error_message, [])
-        return
-
+def process_stix(stream, user, extract_id, file_name):
     elapsed = StopWatch()
 
     def log_extract_activity_message(message):

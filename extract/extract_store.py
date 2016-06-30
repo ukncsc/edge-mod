@@ -24,7 +24,7 @@ def create(user, filename):
 def update(id, state, message, draft_ids):
     _extract_store().update(
         {'_id': ObjectId(oid=id)},
-        { "$set": {'state': state if state in VALID_STATES else "COMPLETE",
+        { "$set": {'state': state if state in VALID_STATES else "FAILED",
          'message': message,
          'draft_ids': draft_ids} }
     )
