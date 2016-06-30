@@ -28,7 +28,9 @@ import adapters.certuk_mod.builder.customizations as cert_builder
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
 from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser, extract_visualiser_get, \
-    extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables, extract_visualiser_get_extended
+    extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables, extract_visualiser_get_extended, \
+    extract_list, delete_extract
+
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.cron import setup as cron_setup
 
