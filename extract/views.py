@@ -5,8 +5,9 @@ from defusedxml import EntitiesForbidden
 from lxml.etree import XMLSyntaxError
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.shortcuts import render
+from django.http import JsonResponse, HttpResponse
+from django.conf import settings
 
 from users.decorators import login_required_ajax
 from edge.inbox import InboxError
@@ -16,12 +17,20 @@ from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.retention.purge import STIXPurge
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.extract.ioc_wrapper import parse_file, IOCParseException
-from adapters.certuk_mod.common.views import error_with_message
+
 from adapters.certuk_mod.common.objectid import is_valid_stix_id
 from adapters.certuk_mod.visualiser.views import visualiser_item_get
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.extract.extract_actions import *
 from adapters.certuk_mod.common.activity import save as log_activity
+
+import datetime
+import threading
+import uuid
+
+from adapters.certuk_mod.extract.extract_store import create as create_extract
+from adapters.certuk_mod.extract.extract_store import update as update_extract
+from adapters.certuk_mod.extract.extract_store import find as find_extract
 
 DRAFT_ID_SEPARATOR = ":draft:"
 
@@ -34,6 +43,54 @@ def extract(request):
 
 @login_required_ajax
 def extract_upload(request):
+    error_message = ""
+    if 'import' not in request.FILES:
+        error_message = "Error in file upload"
+
+    file_import = request.FILES['import']
+
+    try:
+        stream = parse_file(file_import)
+    except IOCParseException as e:
+        error_message = "Error parsing file: %s content from parser was %s" % (e.message, stream.buf)
+
+    extract_id = uuid.uuid4()
+    create_extract(request.user.username, str(file_import), extract_id)
+    thr = threading.Thread(target=process_stix,
+                           args=(stream, request.user, extract_id, error_message, str(file_import)))
+    thr.start()
+
+    return HttpResponse(status=204)
+
+
+
+
+def create_extract_json(x):
+    dt_in = x['timestamp']
+    offset = datetime.datetime.now(settings.LOCAL_TZ).isoformat()[-6:]
+    time_string = dt_in.isoformat() + offset
+    visualiser_url = "extract_visualiser/" + json.dumps(x['draft_ids'])
+    return {'message': x['message'],
+            'filename': x['filename'],
+            'state': x['state'],
+            'timestamp': time_string,
+            'visualiser_url': visualiser_url}
+
+
+@login_required_ajax
+def extract_list(request):
+    extracts = find_extract(user=request.user.username)
+    extracts_json = [create_extract_json(x) for x in extracts]
+
+    return JsonResponse({extracts_json}, status=200)
+
+
+def process_stix(stream, user, extract_id, error_message, file_name):
+    if error_message:
+        update_extract(extract_id, "FAILED", error_message, [])
+        return
+
+    elapsed = StopWatch()
 
     def log_extract_activity_message(message):
         duration = int(elapsed.ms())
@@ -58,35 +115,24 @@ def extract_upload(request):
             except Exception:
                 pass
 
-    log_message = ""
-    elapsed = StopWatch()
+    log_message = log_extract_activity_message("DedupInboxProcessor parse")
 
-    log_message += log_extract_activity_message("Pass input stream to ioc_parser")
-
-    if 'import' not in request.FILES:
-        return error_with_message(request,"Error in file upload")
-
-    file_import = request.FILES['import']
+    update_extract(extract_id, "PROCESSING", "", [])
 
     try:
-        stream = parse_file(file_import)
-    except IOCParseException as e:
-        return error_with_message(request,
-                                  "Error parsing file: %s content from parser was %s" % (e.message, stream.buf))
-
-    log_message += log_extract_activity_message("DedupInboxProcessor parse")
-    try:
-        ip = DedupInboxProcessor(validate=False, user=request.user, streams=[(stream, None)])
+        ip = DedupInboxProcessor(validate=False, user=user, streams=[(stream, None)])
     except (InboxError, EntitiesForbidden, XMLSyntaxError) as e:
-        return error_with_message(request,
-                                  "Error parsing stix file: %s content from parser was %s" % (e.message, stream.buf))
+        update_extract(extract_id, "FAILED",
+                       "Error parsing stix file: %s content from parser was %s" % (e.message, stream.buf), [])
+        return
 
     log_message += log_extract_activity_message("DedupInboxProcessor run & dedup")
     ip.run()
 
     indicators = [inbox_item for _, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
     if not len(indicators):
-        return error_with_message(request, "No indicators found when parsing file %s" % str(file_import))
+        update_extract(extract_id, "FAILED", "No indicators found when parsing file %s" % file_name)
+        return
 
     indicator_ids = [id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
     observable_ids = {id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'obs'}
@@ -96,16 +142,16 @@ def extract_upload(request):
         for indicator in indicators:
             draft_indicator = EdgeObject.load(indicator.id).to_draft()
             process_draft_obs()
-            Draft.upsert('ind', draft_indicator, request.user)
+            Draft.upsert('ind', draft_indicator, user)
     finally:
         # The observables were fully inboxed, but we want them only to exist as drafts, so remove from db
         log_message += log_extract_activity_message("Delete inboxed objects")
         remove_from_db(indicator_ids + list(observable_ids))
 
+    update_extract(extract_id, "COMPLETE", "Found %d indicators" % (len(indicator_ids)), indicator_ids)
+
     log_message += log_extract_activity_message("Redirect user to visualiser")
-    log_activity(request.user.username, 'EXTRACT', 'INFO', log_message)
-    return redirect("extract_visualiser",
-                    ids=json.dumps(indicator_ids))
+    log_activity(user.username, 'EXTRACT', 'INFO', log_message)
 
 
 @login_required

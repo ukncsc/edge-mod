@@ -26,6 +26,7 @@ publisher_urls = [
 
     (r'^extract/$', 'views.extract', 'extract_stix'),
     (r'^extract_upload/$', 'views.extract_upload', 'extract_upload'),
+    (r'^ajax/extract_list/$', 'views.extract_list', 'extract_list'),
     (r'^extract_visualiser/(?P<ids>.*)$', 'views.extract_visualiser', 'extract_visualiser'),
     (r'^ajax/extract_visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.extract_visualiser_get', 'extract_visualiser_ajax_view'),
     (r'^ajax/extract_visualiser/item/(?P<node_id>.*)$', 'views.extract_visualiser_item_get', 'extract_visualiser_ajax_item'),
