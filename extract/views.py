@@ -64,18 +64,18 @@ def extract_upload(request):
     return HttpResponse(status=204)
 
 
-def create_extract_json(x):
-    dt_in = x['timestamp']
+def create_extract_json(extract):
+    dt_in = extract['timestamp']
     offset = datetime.datetime.now(settings.LOCAL_TZ).isoformat()[-6:]
     time_string = dt_in.isoformat() + offset
-    visualiser_url = "/adapter/certuk_mod/extract_visualiser/" + json.dumps(x['draft_ids']) if (
-    x['state'] == "COMPLETE") else ""
-    return {'message': x['message'],
-            'filename': x['filename'],
-            'state': x['state'],
+    visualiser_url = "/adapter/certuk_mod/extract_visualiser/" + json.dumps(extract['draft_ids']) \
+        if (extract['state'] == "COMPLETE") else ""
+    return {'message': extract['message'],
+            'filename': extract['filename'],
+            'state': extract['state'],
             'datetime': time_string,
             'visualiser_url': visualiser_url,
-            'id': str(x['_id'])}
+            'id': str(extract['_id'])}
 
 
 @login_required_ajax
@@ -95,7 +95,7 @@ def delete_extract(request):
 @login_required_ajax
 def extract_list(request):
     extracts = extract_store.find(user=request.user.username)
-    extracts_json = [create_extract_json(x) for x in extracts]
+    extracts_json = [create_extract_json(extract) for extract in extracts]
 
     return JsonResponse({'result': extracts_json}, status=200)
 
