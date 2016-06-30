@@ -1,6 +1,7 @@
 import pymongo
 from datetime import datetime
 from mongoengine.connection import get_db
+from bson.objectid import ObjectId
 
 VALID_STATES = ["NEW", "PROCESSING", "FAILED", "COMPLETE"]
 
@@ -9,9 +10,8 @@ def _extract_store():
     return get_db().certuk_extracts
 
 
-def create(user, filename, id):
-    _extract_store().save({
-        '_id': id,
+def create(user, filename):
+    return _extract_store().insert({
         'timestamp': datetime.utcnow(),
         'user': user,
         'filename': filename,
@@ -23,7 +23,7 @@ def create(user, filename, id):
 
 def update(id, state, message, draft_ids):
     _extract_store().update(
-        {'_id': id},
+        {'_id': ObjectId(id)},
         { "$set": {'state': state if state in VALID_STATES else "COMPLETE",
          'message': message,
          'draft_ids': draft_ids} }
@@ -43,3 +43,12 @@ def find(user=None, filename=None, state=None, limit=100):
                 .find(query, {'_id': 0})
                 .sort('timestamp', pymongo.DESCENDING)
                 .limit(int(limit))]
+
+
+def get(id):
+    return _extract_store().find_one({'_id': ObjectId(id)})
+
+
+def delete(id):
+    return _extract_store().delete_one({'_id': ObjectId(id)})
+

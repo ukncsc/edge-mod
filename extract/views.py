@@ -28,9 +28,7 @@ import datetime
 import threading
 import uuid
 
-from adapters.certuk_mod.extract.extract_store import create as create_extract
-from adapters.certuk_mod.extract.extract_store import update as update_extract
-from adapters.certuk_mod.extract.extract_store import find as find_extract
+import adapters.certuk_mod.extract.extract_store as extract_store
 
 DRAFT_ID_SEPARATOR = ":draft:"
 
@@ -54,8 +52,7 @@ def extract_upload(request):
     except IOCParseException as e:
         error_message = "Error parsing file: %s content from parser was %s" % (e.message, stream.buf)
 
-    extract_id = uuid.uuid4()
-    create_extract(request.user.username, str(file_import), extract_id)
+    extract_id = extract_store.create(request.user.username, str(file_import))
     thr = threading.Thread(target=process_stix,
                            args=(stream, request.user, extract_id, error_message, str(file_import)))
     thr.start()
@@ -78,8 +75,17 @@ def create_extract_json(x):
 
 
 @login_required_ajax
+def delete_extract(request, id_):
+    extract = extract_store.get(id_)
+    if extract:
+        for draft_indicator_id in extract['draft_ids']:
+            Draft.maybe_delete(draft_indicator_id, request.user)
+
+    return HttpResponse(status=204)
+
+@login_required_ajax
 def extract_list(request):
-    extracts = find_extract(user=request.user.username)
+    extracts = extract_store.find(user=request.user.username)
     extracts_json = [create_extract_json(x) for x in extracts]
 
     return JsonResponse({'result':extracts_json}, status=200)
@@ -87,7 +93,7 @@ def extract_list(request):
 
 def process_stix(stream, user, extract_id, error_message, file_name):
     if error_message:
-        update_extract(extract_id, "FAILED", error_message, [])
+        extract_store.update(extract_id, "FAILED", error_message, [])
         return
 
     elapsed = StopWatch()
@@ -117,12 +123,12 @@ def process_stix(stream, user, extract_id, error_message, file_name):
 
     log_message = log_extract_activity_message("DedupInboxProcessor parse")
 
-    update_extract(extract_id, "PROCESSING", "", [])
+    extract_store.update(extract_id, "PROCESSING", "", [])
 
     try:
         ip = DedupInboxProcessor(validate=False, user=user, streams=[(stream, None)])
     except (InboxError, EntitiesForbidden, XMLSyntaxError) as e:
-        update_extract(extract_id, "FAILED",
+        extract_store.update(extract_id, "FAILED",
                        "Error parsing stix file: %s content from parser was %s" % (e.message, stream.buf), [])
         return
 
@@ -131,7 +137,7 @@ def process_stix(stream, user, extract_id, error_message, file_name):
 
     indicators = [inbox_item for _, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
     if not len(indicators):
-        update_extract(extract_id, "FAILED", "No indicators found when parsing file %s" % file_name ,[])
+        extract_store.update(extract_id, "FAILED", "No indicators found when parsing file %s" % file_name ,[])
         return
 
     indicator_ids = [id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
@@ -148,7 +154,7 @@ def process_stix(stream, user, extract_id, error_message, file_name):
         log_message += log_extract_activity_message("Delete inboxed objects")
         remove_from_db(indicator_ids + list(observable_ids))
 
-    update_extract(extract_id, "COMPLETE", "Found %d indicators" % (len(indicator_ids)), indicator_ids)
+    extract_store.update(extract_id, "COMPLETE", "Found %d indicators" % (len(indicator_ids)), indicator_ids)
 
     log_message += log_extract_activity_message("Redirect user to visualiser")
     log_activity(user.username, 'EXTRACT', 'INFO', log_message)
