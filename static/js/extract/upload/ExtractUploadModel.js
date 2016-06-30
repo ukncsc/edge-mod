@@ -31,10 +31,10 @@ define([
                 this.results(data['result'])
             }.bind(this))
         },
-        deleteExtract: function(model){
+        deleteExtract: function(that, model){
             postJSON('/adapter/certuk_mod/ajax/delete_extract/', model['id'], function(data){
-                this.retrieve()
-            }.bind(this))
+                that.retrieve()
+            }.bind(that));
         }
     });
 });
