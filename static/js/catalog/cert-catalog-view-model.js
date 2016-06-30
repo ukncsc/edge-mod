@@ -4,9 +4,11 @@ define([
     "common/modal/Modal",
     "stix/StixPackage",
     "catalog/cert-catalog-build-section",
+    "common/topic",
+    "catalog/cert-catalog-topics",
     "kotemplate!publish-modal:./templates/publish-modal-content.html",
     "kotemplate!validation-results:./templates/validation-results.html"
-], function (declare, ko, Modal, StixPackage, Section, publishModalTemplate) {
+], function (declare, ko, Modal, StixPackage, Section, Topic, topics, publishModalTemplate) {
     "use strict";
 
     return declare(null, {
@@ -22,6 +24,10 @@ define([
             this.viewURL = ko.observable(viewURL);
             this.editURL = ko.observable(editURL);
             this.section = ko.observable(new Section());
+            this.timekey = ko.observable();
+            Topic.subscribe(topics.REVISION, function (data) {
+                this.timekey(data)
+            }.bind(this), this);
         },
 
         loadStatic: function (optionLists) {
@@ -41,20 +47,20 @@ define([
 
             this.publish({
                 'publicationMessage': modal.contentData.publicationMessage()
-            }, function(response) {
+            }, function (response) {
                 modal.contentData.phase("RESPONSE");
                 modal.contentData.waitingForResponse(false);
 
                 var success = !!(response["success"]);
                 var errorMessage = response["error_message"];
                 if (errorMessage) {
-                    errorMessage = errorMessage.replace(/^[A-Z]/, function(match) {
+                    errorMessage = errorMessage.replace(/^[A-Z]/, function (match) {
                         return match.toLowerCase();
                     }).replace(/[,.]+$/, "");
                 }
-                var message = success?
+                var message = success ?
                     "The package was successfully published." :
-                    "An error occurred during publish (" + errorMessage + ")";
+                "An error occurred during publish (" + errorMessage + ")";
                 var title = success ? "Success" : "Error";
                 var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
 
@@ -123,7 +129,7 @@ define([
             confirmModal.show();
         },
 
-        publish: function(onConfirmData, onPublishCallback) {
+        publish: function (onConfirmData, onPublishCallback) {
             postJSON("../ajax/publish/", ko.utils.extend(onConfirmData, {
                 root_id: this.root().id()
             }), onPublishCallback);

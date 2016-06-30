@@ -12,17 +12,13 @@ define([
             this.label = ko.observable("Revisions");
             this.revisions = ko.observableArray([]);
             this.revision = ko.observable();
+            this.revision.subscribe(function (data) {
+                Topic.publish(topics.REVISION, data.timekey);
+            }.bind(this));
         },
 
         loadStatic: function (optionsList) {
             this.revisions(optionsList.revisions);
-        },
-
-        load: function (data) {
-            this.revision(data["revision"]);
-            this.revision.subscribe(function (data) {
-                Topic.publish(topics.REVISION, data);
-            }.bind(this));
         }
     });
 });
