@@ -10,9 +10,9 @@ define([
             this.results = ko.observableArray([]);
             this.exists = ko.observable(false);
             this.fileName = ko.observable("");
-
+            this.submitResetTime = ko.observable(true);
             this.submitEnabled = ko.computed(function () {
-                return this.fileName() != '';
+                return this.fileName() != '' && this.submitResetTime();
             }, this);
 
             this.results = ko.observableArray([]);
@@ -24,6 +24,13 @@ define([
         },
         submitted: function(data, event) {
             this.fileName('');
+            this.submitResetTime(false)
+            //The following line prevents submitting frequently. Not great, would rather submit in JS and handle result.
+            var si = setInterval(
+                function() {
+                        this.submitResetTime(true);
+                        clearInterval(si)
+                    }.bind(this), 15000);
             return true;
         },
         retrieve: function() {
