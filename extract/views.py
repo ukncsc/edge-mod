@@ -73,7 +73,7 @@ def create_extract_json(x):
     return {'message': x['message'],
             'filename': x['filename'],
             'state': x['state'],
-            'timestamp': time_string,
+            'datetime': time_string,
             'visualiser_url': visualiser_url}
 
 
@@ -82,7 +82,7 @@ def extract_list(request):
     extracts = find_extract(user=request.user.username)
     extracts_json = [create_extract_json(x) for x in extracts]
 
-    return JsonResponse({extracts_json}, status=200)
+    return JsonResponse({'result':extracts_json}, status=200)
 
 
 def process_stix(stream, user, extract_id, error_message, file_name):
