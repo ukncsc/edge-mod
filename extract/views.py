@@ -75,12 +75,16 @@ def create_extract_json(x):
 
 
 @login_required_ajax
-def delete_extract(request, id_):
-    extract = extract_store.get(id_)
+def delete_extract(request):
+    id = request.body
+    if id.startswith('"') and id.endswith('"'):
+        id = id[1:-1]
+    extract = extract_store.get(id)
     if extract:
         for draft_indicator_id in extract['draft_ids']:
             Draft.maybe_delete(draft_indicator_id, request.user)
 
+        extract_store.delete(id)
     return HttpResponse(status=204)
 
 

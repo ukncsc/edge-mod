@@ -23,7 +23,7 @@ def create(user, filename):
 
 def update(id, state, message, draft_ids):
     _extract_store().update(
-        {'_id': ObjectId(id)},
+        {'_id': ObjectId(oid=id)},
         { "$set": {'state': state if state in VALID_STATES else "COMPLETE",
          'message': message,
          'draft_ids': draft_ids} }
@@ -46,9 +46,9 @@ def find(user=None, filename=None, state=None, limit=100):
 
 
 def get(id):
-    return _extract_store().find_one({'_id': ObjectId(id)})
+    return _extract_store().find_one({'_id': ObjectId(oid=id)})
 
 
 def delete(id):
-    return _extract_store().delete_one({'_id': ObjectId(id)})
+    return _extract_store().remove({'_id': ObjectId(oid=id)})
 

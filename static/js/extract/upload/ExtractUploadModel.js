@@ -30,6 +30,11 @@ define([
             postJSON('/adapter/certuk_mod/ajax/extract_list/', this.results, function(data){
                 this.results(data['result'])
             }.bind(this))
+        },
+        deleteExtract: function(model){
+            postJSON('/adapter/certuk_mod/ajax/delete_extract/', model['id'], function(data){
+                this.retrieve()
+            }.bind(this))
         }
     });
 });

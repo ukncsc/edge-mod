@@ -49,24 +49,33 @@
                 </thead>
                 <tbody>
                 <!-- ko foreach: results -->
-                    <tr>
-                        <td>
-                            <div>
-                                <span data-bind="text: datetime"></span>
-                            </div>
-                            <div>
-                                State:
-                                <span data-bind="text: state"></span>
-                            </div>
-                            <div>
-                                Filename:
-                                <span data-bind="text: filename"></span>
-                            </div>
-                            <div>
-                                <a data-bind="attr: {href: visualiser_url}">Edit draft Indicators</a>
-                            </div>
-                        <td data-bind="text: message" style="word-wrap: break-word"></td>
-                    </tr>
+                <tr>
+                    <td>
+                        <div>
+                            <span data-bind="text: datetime"></span>
+                        </div>
+                        <div>
+                            State:
+                            <span data-bind="text: state"></span>
+                        </div>
+                        <div>
+                            Filename:
+                            <span data-bind="text: filename"></span>
+                        </div>
+                        <div>
+                            <!-- ko if: visualiser_url -->
+                            <a data-bind="attr: {href: visualiser_url}">Extract Visualiser</a>
+                            <!-- /ko -->
+                        </div>
+                    <td style="word-wrap: break-word">
+                    <div>
+                        <span data-bind="text: message"></span>
+                    <button type="button" class="btn btn-default pull-right" data-bind="click: $parent.deleteExtract.bind($data)">
+                    <span class="glyphicon glyphicon-trash"></span></button>
+                    </div>
+                </td>
+
+                </tr>
                 <!-- /ko -->
                 </tbody>
             </table>
