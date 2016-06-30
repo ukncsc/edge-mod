@@ -40,7 +40,7 @@ def find(user=None, filename=None, state=None, limit=100):
         query['state'] = {'$eq': str(state).upper()}
     return [match for match in
             _extract_store()
-                .find(query, {'_id': 0})
+                .find(query)
                 .sort('timestamp', pymongo.DESCENDING)
                 .limit(int(limit))]
 

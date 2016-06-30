@@ -60,18 +60,18 @@ def extract_upload(request):
     return HttpResponse(status=204)
 
 
-
-
 def create_extract_json(x):
     dt_in = x['timestamp']
     offset = datetime.datetime.now(settings.LOCAL_TZ).isoformat()[-6:]
     time_string = dt_in.isoformat() + offset
-    visualiser_url = "/adapter/certuk_mod/extract_visualiser/" + json.dumps(x['draft_ids']) if (x['state'] == "COMPLETE") else ""
+    visualiser_url = "/adapter/certuk_mod/extract_visualiser/" + json.dumps(x['draft_ids']) if (
+    x['state'] == "COMPLETE") else ""
     return {'message': x['message'],
             'filename': x['filename'],
             'state': x['state'],
             'datetime': time_string,
-            'visualiser_url': visualiser_url}
+            'visualiser_url': visualiser_url,
+            'id': str(x['id'])}
 
 
 @login_required_ajax
@@ -83,12 +83,13 @@ def delete_extract(request, id_):
 
     return HttpResponse(status=204)
 
+
 @login_required_ajax
 def extract_list(request):
     extracts = extract_store.find(user=request.user.username)
     extracts_json = [create_extract_json(x) for x in extracts]
 
-    return JsonResponse({'result':extracts_json}, status=200)
+    return JsonResponse({'result': extracts_json}, status=200)
 
 
 def process_stix(stream, user, extract_id, error_message, file_name):
@@ -129,7 +130,7 @@ def process_stix(stream, user, extract_id, error_message, file_name):
         ip = DedupInboxProcessor(validate=False, user=user, streams=[(stream, None)])
     except (InboxError, EntitiesForbidden, XMLSyntaxError) as e:
         extract_store.update(extract_id, "FAILED",
-                       "Error parsing stix file: %s content from parser was %s" % (e.message, stream.buf), [])
+                             "Error parsing stix file: %s content from parser was %s" % (e.message, stream.buf), [])
         return
 
     log_message += log_extract_activity_message("DedupInboxProcessor run & dedup")
@@ -137,7 +138,7 @@ def process_stix(stream, user, extract_id, error_message, file_name):
 
     indicators = [inbox_item for _, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
     if not len(indicators):
-        extract_store.update(extract_id, "FAILED", "No indicators found when parsing file %s" % file_name ,[])
+        extract_store.update(extract_id, "FAILED", "No indicators found when parsing file %s" % file_name, [])
         return
 
     indicator_ids = [id_ for id_, inbox_item in ip.contents.iteritems() if inbox_item.api_object.ty == 'ind']
