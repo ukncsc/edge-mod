@@ -14,6 +14,8 @@
         <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
         <div id="incidentTimelineSVG" class="chart" style="margin-left: auto;margin-right: auto"></div>
         {% include 'catalog_activity_log.html' %}
+        {% include 'catalog_revisions.html' %}
+        <div data-bind="template: { name: 'Activity', data: section().findByLabel('Activity')}"></div>
     </div>
 {% endblock %}
 
@@ -38,12 +40,7 @@
                 <span data-bind="text: type().label"></span><br>
                 <small data-bind="text: root().id"></small>
             </h3>
-            <div class="col-sm-4">
-                <label for="revision_selector">Revisions:</label>
-                <select id="revision_selector" name="revision_selector"
-                        data-bind="options: revisions, optionsText: 'label',
-    					value: selected_revision, optionCaption: 'select a revision...'"></select>
-            </div>
+            <div data-bind="template: { name: 'Revisions', data: section().findByLabel('Revisions')}"></div>
         </div>
     </script>
 
@@ -65,9 +62,9 @@
         var stixPackage = Object.freeze({{ package.to_json|safe }});
         var validationInfo = Object.freeze({{ validation_info.to_json|safe }});
         var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
-        var duplicates = Object.freeze({{ duplicates|safe }});
         var viewURL = "{{ view_url }}";
         var editURL = "{{ edit_url }}";
+        var revisions = Object.freeze({{ revisions|safe }});
 
     </script>
 

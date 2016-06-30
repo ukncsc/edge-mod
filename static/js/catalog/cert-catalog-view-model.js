@@ -3,9 +3,10 @@ define([
     "knockout",
     "common/modal/Modal",
     "stix/StixPackage",
+    "catalog/cert-catalog-build-section",
     "kotemplate!publish-modal:./templates/publish-modal-content.html",
     "kotemplate!validation-results:./templates/validation-results.html"
-], function (declare, ko, Modal, StixPackage, publishModalTemplate) {
+], function (declare, ko, Modal, StixPackage, Section, publishModalTemplate) {
     "use strict";
 
     return declare(null, {
@@ -20,8 +21,11 @@ define([
             }, this);
             this.viewURL = ko.observable(viewURL);
             this.editURL = ko.observable(editURL);
-            this.revisions = ko.observableArray(revisions)
-            this.selected_revision = ko.observable();
+            this.section = ko.observable(new Section());
+        },
+
+        loadStatic: function (optionLists) {
+            this.section().loadStatic(optionLists);
         },
 
         _onPublishModalOK: function (modal) {
