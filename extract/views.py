@@ -69,7 +69,7 @@ def create_extract_json(x):
     dt_in = x['timestamp']
     offset = datetime.datetime.now(settings.LOCAL_TZ).isoformat()[-6:]
     time_string = dt_in.isoformat() + offset
-    visualiser_url = "/adapter/certuk_mod/extract_visualiser/" + json.dumps(x['draft_ids'])
+    visualiser_url = "/adapter/certuk_mod/extract_visualiser/" + json.dumps(x['draft_ids']) if (x['state'] == "COMPLETE") else ""
     return {'message': x['message'],
             'filename': x['filename'],
             'state': x['state'],
