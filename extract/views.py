@@ -71,7 +71,7 @@ def create_extract_json(x):
             'state': x['state'],
             'datetime': time_string,
             'visualiser_url': visualiser_url,
-            'id': str(x['id'])}
+            'id': str(x['_id'])}
 
 
 @login_required_ajax
