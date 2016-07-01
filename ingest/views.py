@@ -21,7 +21,6 @@ from adapters.certuk_mod.common.logger import log_error
 REGEX_LINE_DELIMETER = re.compile("[\n]")
 REGEX_BREAK_DELIMETER = re.compile("<br />")
 
-
 TIME_KEY_MAP = {'Created': 'incident_opened', 'CustomField.{Containment Achieved}': 'containment_achieved',
                 'CustomField.{First Data Exfiltration}': 'first_data_exfiltration',
                 'CustomField.{First Malicious Action}': 'first_malicious_action',
@@ -43,8 +42,8 @@ def remove_drafts(drafts):
 def create_time(data):
     time = {}
     for key, _map in TIME_KEY_MAP.iteritems():
-        if data.get(key) != '':
-            time_format = datetime.strptime(data.get(key, ''), '%a %b %d %X %Y').isoformat()
+        if data.get(key, '') != '':
+            time_format = datetime.strptime(data.get(key), '%a %b %d %X %Y').isoformat()
             time[_map] = {'precision': 'second', 'value': time_format}
     return time
 
@@ -66,10 +65,10 @@ def create_intended_effects(data):
 
 
 def status_checker(data):
-    if data.get('Status', '') == 'resolved':
+    if data.get('Status') == 'resolved':
         status = 'Closed'
     else:
-        status = data.get('Status', '')
+        status = data.get('Status')
     return status
 
 
@@ -80,7 +79,8 @@ def initialise_draft(data):
         'description': '',
         'discovery_methods': [],
         'effects': [],
-        'external_ids': [{'source': data.get('CustomField.{External References}', ''), 'id': data.get('CustomField.{Indicator Data Files}', '')}],
+        'external_ids': [{'source': data.get('CustomField.{External References}', ''),
+                          'id': data.get('CustomField.{Indicator Data Files}', '')}],
         'id': IDManager().get_new_id('incident'),
         'id_ns': IDManager().get_namespace(),
         'intended_effects': create_intended_effects(data),
@@ -96,7 +96,8 @@ def initialise_draft(data):
         'tlp': '',
         'trustgroups': [],
         'victims': [{'name': '',
-                     'specification': {'organisation_info': {'industry_type': data.get('CustomField.{Incident Sector}', '')}}}],
+                     'specification': {
+                         'organisation_info': {'industry_type': data.get('CustomField.{Incident Sector}', '')}}}],
         'stixtype': 'inc',
         'time': create_time(data)
     }
