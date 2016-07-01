@@ -426,10 +426,37 @@ def _existing_tgt_local_ns_cve_dedup(contents, hashes, user):
     return _existing_tgt_cve_dedup(contents, hashes, user, True)
 
 
+def _existing_incident_hash_dedup(contents, hashes, user):
+    db = get_db()
+
+    existing_items = db.stix.find({
+        'type': 'inc',
+        'data.hash': {
+            '$in': hashes.values()
+        }
+    }, {
+        '_id': 1,
+        'data.hash': 1
+    }).sort('created_on', pymongo.DESCENDING)
+
+    hash_to_existing_ids = {doc['data']['hash']: doc['_id'] for doc in existing_items}
+
+    map_table = {
+        id_: hash_to_existing_ids[hash_] for id_, hash_ in hashes.iteritems() if hash_ in hash_to_existing_ids
+        }
+
+    out = _coalesce_non_observable_duplicates(contents, map_table)
+
+    message = _generate_message("Remapped %d incidents to existing incidents bashed on hashes", contents, out)
+
+    return out, message
+
+
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
         _new_hash_dedup,  # removes new STIX objects matched by hash
-        _existing_hash_dedup,  # removes existing STIX objects matched by hash
+        _existing_hash_dedup, # removes existing STIX objects matched by hash
+        _existing_incident_hash_dedup, #removes existing incidents matched by hash
         _new_ttp_local_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in local NS
         _existing_ttp_local_ns_capec_dedup,  # dedup against existing TTPs matched by CAPEC-IDs and Title in local NS
         _new_tgt_local_ns_cve_dedup,  # removes new tgts matched by CVE-ID in incoming package in local NS

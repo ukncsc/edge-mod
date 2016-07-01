@@ -43,7 +43,7 @@ def remove_drafts(drafts):
 def create_time(data):
     time = {}
     for key, _map in TIME_KEY_MAP.iteritems():
-        if data.get(key) != '':
+        if data.get(key, '') != '':
             time_format = datetime.strptime(data.get(key, ''), '%a %b %d %X %Y').isoformat()
             time[_map] = {'precision': 'second', 'value': time_format}
     return time
@@ -69,7 +69,7 @@ def status_checker(data):
     if data.get('Status', '') == 'resolved':
         status = 'Closed'
     else:
-        status = data.get('Status', '')
+        status = data.get('Status')
     return status
 
 
