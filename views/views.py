@@ -8,6 +8,7 @@ from dateutil import tz
 import mimetypes
 
 from django.http import FileResponse, HttpResponseNotFound
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
@@ -164,7 +165,8 @@ def review(request, id_):
         "back_edges": back_edges,
         'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/view/%s/' % urllib.quote(id_)),
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/edit/%s/' % urllib.quote(id_)),
-        "revisions": json.dumps(root_edge_object.revisions)
+        "revisions": json.dumps(root_edge_object.revisions),
+        'ajax_uri': reverse('catalog_ajax')
     })
 
 

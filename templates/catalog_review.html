@@ -62,6 +62,7 @@
         var stixPackage = Object.freeze({{ package.to_json|safe }});
         var validationInfo = Object.freeze({{ validation_info.to_json|safe }});
         var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
+        var ajax_uri = '{{ ajax_uri }}';
         var viewURL = "{{ view_url }}";
         var editURL = "{{ edit_url }}";
         var revisions = Object.freeze({{ revisions|safe }});

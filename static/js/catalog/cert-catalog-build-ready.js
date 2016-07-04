@@ -8,7 +8,9 @@ require([
     var viewModel = new SelectModel(window["rootId"], window["stixPackage"], window["validationInfo"], window["viewURL"], window["editURL"], window["revisions"]);
 
     viewModel.loadStatic({
-        "revisions": window["revisions"]
+        "revisions": window["revisions"],
+        "rootId": window["rootId"],
+        "ajax_uri": window["ajax_uri"]
     });
 
     ko.applyBindings(viewModel);

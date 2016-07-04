@@ -1,10 +1,13 @@
 <template id="Activity">
     <div class="col-sm-12">
         <h3>Activity</h3>
-
-        <select></select>
-        <a class="btn btn-xs btn-primary" data-toggle="modal">Record action</a>
-
+        <div class="pull-right">
+            <select data-bind="options: action_choices,
+                       value: action_selected,
+                       optionsCaption: 'Select action...',
+                       optionsText: 'description'"></select>
+            <a class="btn btn-xs btn-primary" data-bind="click: recordActivity">Record action</a>
+        </div>
         <table class="table">
             <thead>
             <tr>
@@ -14,13 +17,13 @@
                 <th class="text-center">Note</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody data-bind="foreach: activity_log">
             <tr>
-                <td class="text-center"></td>
-                <td class="text-center"></td>
-                <td class="text-left"></td>
+                <td class="text-center" data-bind="text: entered_by_username"></td>
+                <td class="text-center" data-bind="text: moment(entered_on).calendar()"></td>
+                <td class="text-left" data-bind="text: action_description"></td>
                 <td class="text-left">
-                    <pre></pre>
+                    <pre data-bind="text: note"></pre>
                 </td>
             </tr>
             </tbody>
