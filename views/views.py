@@ -57,6 +57,7 @@ from adapters.certuk_mod.audit.message import format_audit_message
 from adapters.certuk_mod.common.objectid import discover as objectid_discover, find_id as objectid_find
 from adapters.certuk_mod.catalog.backedge import BackEdgeGenerator
 from adapters.certuk_mod.catalog.duplicates import DuplicateFinder
+from adapters.certuk_mod.catalog.edges import EdgeGenerator
 
 from adapters.certuk_mod.retention.purge import STIXPurge
 
@@ -74,6 +75,7 @@ audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
 mimetypes.init()
+EDGE_DEPTH_LIMIT = 2
 
 
 @login_required
@@ -146,7 +148,9 @@ def review(request, id_):
     root_edge_object = PublisherEdgeObject.load(id_, filters=request.user.filters(), include_revision_index=True)
     package = PackageGenerator.build_package(root_edge_object)
     validation_info = PackageValidationInfo.validate(package)
-    back_edges = BackEdgeGenerator.retrieve_back_edges(root_edge_object, request.user.filters())
+    user_loader = lambda idref: EdgeObject.load(idref, request.user.filters())
+    back_edges = BackEdgeGenerator.retrieve_back_edges(root_edge_object, user_loader)
+    edges = EdgeGenerator.gather_edges(root_edge_object.edges, depth_limit=EDGE_DEPTH_LIMIT, load_by_id=user_loader)
 
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
@@ -162,7 +166,8 @@ def review(request, id_):
         "package": package,
         "validation_info": validation_info,
         "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
-        "back_edges": back_edges,
+        "back_edges": json.dumps(back_edges),
+        "edges": json.dumps(edges),
         'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/view/%s/' % urllib.quote(id_)),
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/edit/%s/' % urllib.quote(id_)),
         "revisions": json.dumps(root_edge_object.revisions),

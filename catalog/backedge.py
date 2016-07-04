@@ -40,11 +40,9 @@ class BackEdgeGenerator(object):
 
 
     @staticmethod
-    def retrieve_back_edges(edge_object, user_filters):
+    def retrieve_back_edges(edge_object, user_loader):
 
         backtable = BackEdgeGenerator._generate_back_table(edge_object)
-
-        user_loader = lambda idref: EdgeObject.load(idref, user_filters)
 
         return BackEdgeGenerator.gather_back_edges(backtable, load_by_id=user_loader)
 

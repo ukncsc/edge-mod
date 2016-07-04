@@ -5,14 +5,14 @@ define([
     "use strict";
 
     return declare(null, {
-        declaredClass: "References",
+        declaredClass: "Edges",
         constructor: function () {
-            this.label = ko.observable("References");
-            this.backEdges = ko.observableArray([]);
+            this.label = ko.observable("Edges");
+            this.edges = ko.observableArray([]);
         },
 
         loadStatic: function (optionsList) {
-            this.backEdges(optionsList.backEdges);
+            this.edges(optionsList.edges);
         }
     });
 });

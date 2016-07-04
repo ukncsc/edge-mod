@@ -10,7 +10,9 @@ require([
     viewModel.loadStatic({
         "revisions": window["revisions"],
         "rootId": window["rootId"],
-        "ajax_uri": window["ajax_uri"]
+        "ajax_uri": window["ajax_uri"],
+        "backEdges": window["backEdges"],
+        "edges": window["edges"]
     });
 
     ko.applyBindings(viewModel);

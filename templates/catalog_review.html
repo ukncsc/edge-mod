@@ -12,13 +12,25 @@
         {% include 'catalog_activity_log.html' %}
         {% include 'catalog_revisions.html' %}
         {% include 'catalog-matching-content.html' %}
+        {% include 'catalog-referenced-by.html' %}
+        {% include 'catalog-edges.html' %}
         <div class="row" data-bind="template: 'header'"></div>
         <div class="row" data-bind="template: 'warning'"></div>
         <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
-        <div id="incidentTimelineSVG" class="chart" style="margin-left: auto;margin-right: auto"></div>
 
-        <div data-bind="template: { name: 'Activity', data: section().findByLabel('Activity')}"></div>
+        <div class="col-sm-12">
+            <h3>
+                <a data-toggle="collapse" data-target="#collapseTimeline">Timeline</a>
+            </h3>
+            <div id="collapseTimeline" class="panel-collapse collapse in">
+                <div id="incidentTimelineSVG" class="chart float-right"></div>
+            </div>
+        </div>
+        <div data-bind="template: { name: 'Edges', data: section().findByLabel('Edges')}"></div>
         <div data-bind="template: { name: 'Matching', data: section().findByLabel('Matching')}"></div>
+        <div data-bind="template: { name: 'References', data: section().findByLabel('References')}"></div>
+        <div data-bind="template: { name: 'Activity', data: section().findByLabel('Activity')}"></div>
+
     </div>
 {% endblock %}
 
@@ -69,6 +81,8 @@
         var viewURL = "{{ view_url }}";
         var editURL = "{{ edit_url }}";
         var revisions = Object.freeze({{ revisions|safe }});
+        var backEdges = Object.freeze({{ back_edges|safe }});
+        var edges = Object.freeze({{ edges|safe }});
 
     </script>
 

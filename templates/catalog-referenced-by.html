@@ -1,8 +1,9 @@
-<template id="referencedBy">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">Referenced By</h3>
-        </div>
+<template id="References">
+    <div class="col-sm-12">
+        <h3>
+            <a data-toggle="collapse" data-target="#collapseReferencedBy">Referenced By</a>
+        </h3>
+        <div id="collapseReferencedBy" class="panel-collapse collapse in">
         <table class="table table-bordered table-striped table-condensed">
             <thead>
             <tr>
@@ -11,17 +12,19 @@
                 <th>Id</th>
             </tr>
             </thead>
-            <tbody data-bind="foreach: backedges">
+            <tbody data-bind="foreach: backEdges">
             <tr>
                 <td data-bind="text: type"></td>
                 <td data-bind="text: title"></td>
                 <td style="font-family: monospace;">
                     <span data-bind="visible:!is_external"><a
-                            data-bind="attr:{href:'/object/'+id_}, text: id_"></a></span>
+                            data-bind="attr:{href:'/adapter/certuk_mod/review/'+id_}, text: id_"></a></span>
                     <span data-bind="visible:is_external, text: id_"></span>
                 </td>
             </tr>
             </tbody>
         </table>
+        </div>
     </div>
 </template>
+
