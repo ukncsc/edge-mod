@@ -25,6 +25,8 @@ publisher_urls = [
     (r'^review/$', 'views.discover', 'publisher_discover'),
 
     (r'^extract/$', 'views.extract', 'extract_stix'),
+    (r'^uploaded_stix_extracts/$', 'views.uploaded_stix_extracts', 'uploaded_stix_extracts'),
+    (r'^ajax/extract_status/$', 'views.extract_status', 'extract_status'),
     (r'^extract_upload/$', 'views.extract_upload', 'extract_upload'),
     (r'^ajax/extract_list/$', 'views.extract_list', 'extract_list'),
     (r'^ajax/delete_extract/$', 'views.delete_extract', 'delete_extract'),
@@ -91,6 +93,7 @@ urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 navitems = [
     ('External Publisher', 'publisher_discover'),
     ('Extract Stix', 'extract_stix'),
+    ('Uploaded Stix Extracts', 'uploaded_stix_extracts'),
     ('Clone to Draft', 'clone_to_draft'),
     ('Visualiser', 'visualiser_discover'),
     ('Incident Timeline', 'timeline_discover'),

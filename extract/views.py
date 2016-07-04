@@ -39,6 +39,12 @@ def extract(request):
     return render(request, "extract_upload_form.html")
 
 
+@login_required
+def uploaded_stix_extracts(request):
+    request.breadcrumbs([("Extract Stix", "")])
+    return render(request, "extract_status.html")
+
+
 @login_required_ajax
 def extract_upload(request):
     file_import = request.FILES.get('import', "");
@@ -46,7 +52,7 @@ def extract_upload(request):
 
     if 'import' not in request.FILES:
         extract_store.update(extract_id, "FAILED", "Error in file upload", [])
-        return HttpResponse(status=204)
+        return JsonResponse({'result': str(extract_id)}, status=200)
 
     try:
         stream = parse_file(file_import)
@@ -56,12 +62,12 @@ def extract_upload(request):
                              "Error parsing file: %s content from parser was %s" % (e.message, stream.buf),
                              [])
 
-        return HttpResponse(status=204)
+        return JsonResponse({'result': str(extract_id)}, status=200)
 
     threading.Thread(target=process_stix,
-                           args=(stream, request.user, extract_id, str(file_import))).start()
+                     args=(stream, request.user, extract_id, str(file_import))).start()
 
-    return HttpResponse(status=204)
+    return JsonResponse({'result': str(extract_id)}, status=200)
 
 
 def create_extract_json(extract):
@@ -76,6 +82,18 @@ def create_extract_json(extract):
             'datetime': time_string,
             'visualiser_url': visualiser_url,
             'id': str(extract['_id'])}
+
+
+@login_required_ajax
+def extract_status(request):
+    id = request.body
+    if id.startswith('"') and id.endswith('"'):
+        id = id[1:-1]
+    extract = extract_store.get(id)
+    if extract:
+        return JsonResponse({'result': create_extract_json(extract)}, status=200)
+
+    return JsonResponse({'result': "Unknown Error. Unable to find extract"}, status=500)
 
 
 @login_required_ajax

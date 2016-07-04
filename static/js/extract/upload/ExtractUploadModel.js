@@ -1,47 +1,69 @@
 define([
     "dcl/dcl",
-    "knockout"
-], function (declare,ko) {
+    "knockout",
+    "common/jquery-shim",
+    "common/modal/show-error-modal"
+], function (declare, ko, $, showErrorModal) {
     "use strict";
 
     return declare(null, {
         declaredClass: "ExtractUploadModel",
         constructor: function () {
-            this.results = ko.observableArray([]);
-            this.exists = ko.observable(false);
             this.fileName = ko.observable("");
-            this.submitResetTime = ko.observable(true);
+            this.loading = ko.observable(false);
+            this.uploadedId = ko.observable("");
+            this.waitIntervalId = ko.observable("");
+
             this.submitEnabled = ko.computed(function () {
-                return this.fileName() != '' && this.submitResetTime();
+                return this.fileName() != '' && !this.loading();
             }, this);
 
-            this.results = ko.observableArray([]);
-            setInterval(this.retrieve.bind(this), 5000);
-            this.retrieve();
+            this.loading.subscribe(function (isLoading) {
+                document.getElementById("_loading_").style.display = isLoading ? null : "none";
+            });
         },
         onFileSelected: function (data, event) {
             this.fileName(event.target.files[0].name);
         },
-        submitted: function(data, event) {
-            this.fileName('');
-            this.submitResetTime(false)
-            //The following line prevents submitting frequently. Not great, would rather submit in JS and handle result.
-            var si = setInterval(
-                function() {
-                        this.submitResetTime(true);
-                        clearInterval(si)
-                    }.bind(this), 15000);
-            return true;
+        submitted: function (data, event) {
+            this.loading(true);
+            var that = this;
+            $.ajax({
+                url: "/adapter/certuk_mod/extract_upload/",
+                type: 'POST',
+                data: new FormData($('#extract_upload_form').get(0)),
+                cache: false,
+                processData: false,
+                contentType: false,
+                enctype: "multipart/form-data",
+                success: function (data) {
+                    that.uploadedId(data['result']);
+                    that.waitIntervalId(setInterval(that.retrieve.bind(that), 5000));
+                },
+                error: function (data) {
+                    that.uploadedId(data['result']);
+                    that.waitIntervalId(setInterval(that.retrieve.bind(that), 5000));
+                }
+            })
+
+            return false;
         },
-        retrieve: function() {
-            postJSON('/adapter/certuk_mod/ajax/extract_list/', this.results, function(data){
-                this.results(data['result'])
-            }.bind(this))
-        },
-        deleteExtract: function(that, model){
-            postJSON('/adapter/certuk_mod/ajax/delete_extract/', model['id'], function(data){
-                that.retrieve()
-            }.bind(that));
+        retrieve: function () {
+            _ajaxJSON('POST', '/adapter/certuk_mod/ajax/extract_status/', this.uploadedId(),
+                function (data) {
+                    if (data['result']['state'] === 'COMPLETE') {
+                        window.location.href = data['result']['visualiser_url'];
+                    } else if (data['result']['state'] === 'FAILED') {
+                        clearInterval(this.waitIntervalId());
+                        this.loading(false);
+                        showErrorModal(data['result']['message'], false);
+                    }
+                }.bind(this),
+                function (data) {
+                    clearInterval(this.waitIntervalId());
+                    this.loading(false);
+                    showErrorModal(data.responseText, false);
+                }.bind(this))
         }
     });
 });
