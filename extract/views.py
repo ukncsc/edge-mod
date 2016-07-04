@@ -226,7 +226,11 @@ def extract_visualiser_item_get(request, node_id):
         return view_obs
 
     def is_draft_ind():
-        return node_id in {x['draft']['id'] for x in Draft.list(request.user, 'ind') if 'id' in x['draft']}
+        try:
+            Draft.load(node_id, request.user)
+            return True
+        except:
+            return False
 
     def build_obs_package_from_draft(obs):
         return {'observables': {'observables': [convert_draft_to_viewable_obs(obs)]}}
