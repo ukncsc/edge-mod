@@ -2,8 +2,9 @@ define([
     "dcl/dcl",
     "knockout",
     "catalog/cert-catalog-revisions",
-    "catalog/cert-catalog-activity"
-], function (declare, ko, Revisions, Activity) {
+    "catalog/cert-catalog-activity",
+    "catalog/cert-catalog-matching"
+], function (declare, ko, Revisions, Activity, Matching) {
     "use strict";
     function indexBy(items, pname) {
         var indexed = {};
@@ -18,7 +19,8 @@ define([
         constructor: function () {
             this.options = ko.observableArray([
                 ko.observable(new Revisions()),
-                ko.observable(new Activity())
+                ko.observable(new Activity()),
+                ko.observable(new Matching())
             ]);
             this._byLabel = indexBy(this.options, "label");
             this.value = ko.observable(

@@ -1,33 +1,37 @@
 <template id="Activity">
     <div class="col-sm-12">
-        <h3>Activity</h3>
-        <div class="pull-right">
-            <select data-bind="options: action_choices,
+        <h3>
+            <a data-toggle="collapse" data-target="#collapse1">Activity</a>
+        </h3>
+        <div id="collapse1" class="panel-collapse collapse in">
+                <div class="pull-right">
+                    <select data-bind="options: action_choices,
                        value: action_selected,
                        optionsCaption: 'Select action...',
                        optionsText: 'description'"></select>
-            <a class="btn btn-xs btn-primary" data-bind="click: recordActivity">Record action</a>
+                    <a class="btn btn-xs btn-primary" data-bind="click: recordActivity">Record action</a>
+                </div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="text-center">Entered by</th>
+                        <th class="text-center">On</th>
+                        <th class="text-center">Action</th>
+                        <th class="text-center">Note</th>
+                    </tr>
+                    </thead>
+                    <tbody data-bind="foreach: activity_log">
+                    <tr>
+                        <td class="text-center" data-bind="text: entered_by_username"></td>
+                        <td class="text-center" data-bind="text: moment(entered_on).calendar()"></td>
+                        <td class="text-left" data-bind="text: action_description"></td>
+                        <td class="text-left">
+                            <pre data-bind="text: note"></pre>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
         </div>
-        <table class="table">
-            <thead>
-            <tr>
-                <th class="text-center">Entered by</th>
-                <th class="text-center">On</th>
-                <th class="text-center">Action</th>
-                <th class="text-center">Note</th>
-            </tr>
-            </thead>
-            <tbody data-bind="foreach: activity_log">
-            <tr>
-                <td class="text-center" data-bind="text: entered_by_username"></td>
-                <td class="text-center" data-bind="text: moment(entered_on).calendar()"></td>
-                <td class="text-left" data-bind="text: action_description"></td>
-                <td class="text-left">
-                    <pre data-bind="text: note"></pre>
-                </td>
-            </tr>
-            </tbody>
-        </table>
     </div>
     </div><!-- row -->
 </template>

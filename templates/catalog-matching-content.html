@@ -1,0 +1,12 @@
+<template id="Matching">
+    <div class="col-sm-12">
+        <h3>
+            <a data-toggle="collapse" data-target="#collapseMatching">Matching Content</a>
+        </h3>
+        <div id="collapseMatching" class="panel-collapse collapse in">
+            <div data-bind="foreach: duplicates">
+                <p><a data-bind="attr:{href:'/object/'+$data}, text: $data"></a></p>
+            </div>
+        </div>
+    </div>
+</template>
