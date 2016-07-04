@@ -274,39 +274,6 @@ class DBIncidentPatch(incident.DBIncident):
         for ex_id in update_obj.external_ids:
             self.external_ids.append(ExternalID(ex_id.value, ex_id.source))
 
-            # @classmethod
-            # def api_from_dict(cls, data):
-            #     obj_dict = cls.from_dict(data)
-            #     obj_dict.organisation_info = OrganisationInfo.from_dict(data.get('organisation_info'))
-            #     return obj_dict
-            #
-            # def to_dict(self):
-            #     obj_dict = self._object.to_dict()
-            #     if self.organisation_info:
-            #         obj_dict['organisation_info'] = self.organisation_info.to_dict()
-            #     return obj_dict
-
-
-# class CIQIdentityPatch(STIXCIQIdentity3_0):
-#     def __init__(self, party_name=None, languages=None, addresses=None,
-#                  organisation_info=None, electronic_address_identifiers=None,
-#                  free_text_lines=None, contact_numbers=None):
-#         super(STIXCIQIdentity3_0, self).__init__(party_name, languages, addresses,
-#                                                  organisation_info, electronic_address_identifiers,
-#                                                  free_text_lines, contact_numbers)
-#
-#     @classmethod
-#     def from_dict(cls, dict_repr, return_obj=None):
-#         return_obj = super(STIXCIQIdentity3_0, cls).from_dict(dict_repr, return_obj)
-#         return_obj.organisation_info = OrganisationInfo.from_dict(dict_repr.get('organisation_info'))
-#         return return_obj
-#
-#     def to_dict(self):
-#         d = super(STIXCIQIdentity3_0, self).to_dict()
-#         if self.organisation_info:
-#             d['organisation_info'] = self.organisation_info.to_dict()
-#         return d
-
 
 def apply_patch():
     WHICH_DBOBJ['inc'] = DBIncidentPatch
