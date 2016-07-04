@@ -8,7 +8,6 @@ define([
         declaredClass: "ExtractStatusModel",
         constructor: function () {
             this.results = ko.observableArray([]);
-            setInterval(this.retrieve.bind(this), 5000);
             this.retrieve();
         },
         retrieve: function() {

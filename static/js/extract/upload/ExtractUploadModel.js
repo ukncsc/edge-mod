@@ -27,7 +27,6 @@ define([
         },
         submitted: function (data, event) {
             this.loading(true);
-            var that = this;
             $.ajax({
                 url: "/adapter/certuk_mod/extract_upload/",
                 type: 'POST',
@@ -37,14 +36,14 @@ define([
                 contentType: false,
                 enctype: "multipart/form-data",
                 success: function (data) {
-                    that.uploadedId(data['result']);
-                    that.waitIntervalId(setInterval(that.retrieve.bind(that), 5000));
-                },
+                    this.uploadedId(data['result']);
+                    this.waitIntervalId(setInterval(this.retrieve.bind(this), 5000));
+                }.bind(this),
                 error: function (data) {
-                    that.uploadedId(data['result']);
-                    that.waitIntervalId(setInterval(that.retrieve.bind(that), 5000));
-                }
-            })
+                    this.uploadedId(data['result']);
+                    this.waitIntervalId(setInterval(this.retrieve.bind(this), 5000));
+                }.bind(this)
+            });
 
             return false;
         },
