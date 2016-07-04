@@ -79,7 +79,7 @@ def initialise_draft(data):
         'description': '',
         'discovery_methods': [],
         'effects': [],
-        'external_ids': [{'source': data.get('CustomField.{External References}', ''),
+        'external_ids': [{'source': '',
                           'id': data.get('CustomField.{Indicator Data Files}', '')}],
         'id': IDManager().get_new_id('incident'),
         'id_ns': IDManager().get_namespace(),
