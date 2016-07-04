@@ -104,14 +104,32 @@ def initialise_draft(data):
     return draft
 
 
+def is_valid_request(request):
+    if not request.method == 'POST':
+        return (False, 405)
+    if not request.META.get('HTTP_ACCEPT') == 'application/json':
+        return (False, 406)
+    if not request.META.get('CONTENT_TYPE') == 'text/csv':
+        return (False, 415)
+    else:
+        return (True, 200)
+
+
+def generate_error_message(username, message, e, elapsed):
+    log_activity(username, 'INCIDENT INGEST', 'ERROR', message)
+    log_error(e, 'adapters/incident/import', 'Import Failed')
+    return JsonResponse({
+        'duration': int(elapsed.ms()),
+        'messages': [message],
+        'state': 'error'
+    }, status=500)
+
+
 @csrf_exempt
 def ajax_create_incidents(request, username):
-    if not request.method == 'POST':
-        return JsonResponse({}, status=405)
-    if not request.META.get('HTTP_ACCEPT') == 'application/json':
-        return JsonResponse({}, status=406)
-    if not request.META.get('CONTENT_TYPE') == 'text/csv':
-        return JsonResponse({}, status=415)
+    is_valid = is_valid_request(request)
+    if is_valid[0] is False:
+        return JsonResponse({}, status=is_valid[1])
 
     try:
         user = Repository_User.objects.get(username=username)
@@ -168,18 +186,6 @@ def ajax_create_incidents(request, username):
         }, status=400)
     except Exception as e:
         if e.message == 'line contains NULL byte':
-            log_activity(username, 'INCIDENT INGEST', 'ERROR', 'Unable to parse file')
-            log_error(e, 'adapters/incident/import', 'Import failed')
-            return JsonResponse({
-                'duration': int(elapsed.ms()),
-                'messages': ['Unable to parse file'],
-                'state': 'error'
-            }, status=500)
+            return generate_error_message(username, 'Unable to parse file', e, elapsed)
         else:
-            log_activity(username, 'INCIDENT INGEST', 'ERROR', e.message)
-            log_error(e, 'adapters/incident/import', 'Import failed')
-            return JsonResponse({
-                'duration': int(elapsed.ms()),
-                'messages': [e.message],
-                'state': 'error'
-            }, status=500)
+            return generate_error_message(username, e.message, e, elapsed)
