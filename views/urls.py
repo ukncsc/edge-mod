@@ -23,7 +23,7 @@ VALID_TYPES = '|'.join(CLIPPY_TYPES.iterkeys())
 publisher_urls = [
     (r'^static/(?P<path>[\S]+)$', 'views.static', 'static_content'),
     (r'^review/$', 'views.discover', 'publisher_discover'),
-    (r'^review/duplicates/$', 'views.discover', 'publisher_discover'),
+    (r'^review/duplicates/(?P<id_>' + VALID_STIX_ID + ')$', 'views.get_duplicates', 'get_duplicates'),
 
     (r'^extract/$', 'views.extract', 'extract_stix'),
     (r'^extract_upload/$', 'views.extract_upload', 'extract_upload'),

@@ -17,8 +17,7 @@
         <div class="row" data-bind="template: 'header'"></div>
         <div class="row" data-bind="template: 'warning'"></div>
         <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
-
-        <div class="col-sm-12">
+        <div class="col-sm-12" data-bind="if: type().code == 'inc'">
             <h3>
                 <a data-toggle="collapse" data-target="#collapseTimeline">Timeline</a>
             </h3>

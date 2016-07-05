@@ -9,16 +9,17 @@ define([
         declaredClass: "Matching",
         constructor: function () {
             this.label = ko.observable("Matching");
-            this.ajax_uri = ko.observable("");
+            this.id = ko.observable("");
             this.duplicates = ko.observableArray([]);
         },
 
         loadStatic: function (optionsList) {
-            this.ajax_uri(optionsList.ajax_uri)
+            this.id(optionsList.rootId)
+            this.load();
         },
 
         load: function () {
-            postJSON(this.ajax_uri() + 'get_activity/', params, function (response) {
+            postJSON("duplicates/"+ this.id(), this.id(), function (response) {
                 this.duplicates(response);
             }.bind(this), function (error) {
                 showErrorModal(error, false)
