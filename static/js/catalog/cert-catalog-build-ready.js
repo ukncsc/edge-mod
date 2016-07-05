@@ -5,7 +5,7 @@ require([
     "domReady!"
 ], function (ko, showErrorModal, SelectModel) {
 
-    var viewModel = new SelectModel(window["rootId"], window["stixPackage"], window["validationInfo"], window["viewURL"], window["editURL"], window["revisions"]);
+    var viewModel = new SelectModel(window["rootId"], window["stixPackage"], window["validationInfo"], window["viewURL"], window["editURL"]);
 
     viewModel.loadStatic({
         "revisions": window["revisions"],

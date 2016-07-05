@@ -1,5 +1,5 @@
 <template id="References">
-    <div class="col-sm-12">
+    <div class="col-sm-12" data-bind="if: backEdges().length != 0">
         <h3>
             <a data-toggle="collapse" data-target="#collapseReferencedBy">Referenced By</a>
         </h3>

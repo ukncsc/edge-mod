@@ -12,7 +12,7 @@ define([
     "use strict";
 
     return declare(null, {
-        constructor: function (rootId, stixPackage, validationInfo, viewURL, editURL, revisions) {
+        constructor: function (rootId, stixPackage, validationInfo, viewURL, editURL) {
             this.stixPackage = ko.observable(new StixPackage(stixPackage, rootId, validationInfo));
 
             this.root = ko.computed(function () {
