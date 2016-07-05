@@ -7,7 +7,7 @@ import datetime
 from dateutil import tz
 import mimetypes
 
-from django.http import FileResponse, HttpResponseNotFound
+from django.http import FileResponse, HttpResponseNotFound, JsonResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -180,9 +180,7 @@ def get_duplicates(request, id_):
     root_edge_object = PublisherEdgeObject.load(id_, filters=request.user.filters(), include_revision_index=True)
     duplicates = DuplicateFinder.find_duplicates(root_edge_object)
 
-    return {
-        "duplicates": duplicates
-    }
+    return JsonResponse({"duplicates": duplicates})
 
 
 @login_required
