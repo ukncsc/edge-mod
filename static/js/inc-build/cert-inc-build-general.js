@@ -3,11 +3,11 @@ define([
     "knockout",
     "common/cert-abstract-builder-form",
     "common/cert-messages",
-    "common/cert-identity",
+    "common/identity",
     "common/topic",
     "inc-build/cert-inc-build-topics",
     "text!config-service"
-], function (declare, ko, AbstractBuilderForm, Messages, CERTIdentity, Topic, topics, configService) {
+], function (declare, ko, AbstractBuilderForm, Messages, Identity, Topic, topics, configService) {
     "use strict";
 
     var config = Object.freeze(JSON.parse(configService));
@@ -134,10 +134,15 @@ define([
         },
 
         addReporter: function () {
-            var newIdentity = new CERTIdentity();
-            newIdentity.ModelUI().done(function () {
-                this.reporter(newIdentity);
-            }.bind(this));
+            if (this.reporter() == null) {
+                var newIdentity = new Identity();
+                newIdentity.ModelUI().done(function () {
+                    this.reporter(newIdentity);
+                }.bind(this));
+            } else {
+                this.reporter().ModelUI().done();
+            }
+
         },
 
         load: function (data) {
@@ -147,7 +152,7 @@ define([
             this.description(data["description"] || "");
             if ('reporter' in data) {
                 if ('identity' in data['reporter']) {
-                    this.reporter(new CERTIdentity().load(data["reporter"]["identity"]))
+                    this.reporter(new Identity().load(data["reporter"]["identity"]))
                 }
             }
 

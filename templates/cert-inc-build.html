@@ -6,6 +6,7 @@
 
 {% block body-content %}
     {% include 'cert-identity.html' %}
+    {% include 'edge-identity.html' %}
     {% include 'candidate_modal.html' %}
     {% include 'related_items.html' %}
     {% include 'list_selects.html' %}
@@ -19,8 +20,6 @@
          data-bind="templateWithContext: { name: 'builder-hdr', data: $root, context: { imgsrc: '{% static 'img/hex/hex_inc.png' %}', typeName: 'Incident' }  }"></div>
 
     <div class="container">
-        {% include 'partials/identity.html' %}
-
 
         <div class="row builder">
             <div class="col-sm-3">
