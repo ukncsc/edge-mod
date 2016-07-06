@@ -40,6 +40,9 @@
             name: "extract/visualise/main"
         },
         {
+            name: "extract/status/main"
+        },
+        {
             name: "timeline/incident_main"
         }
     ],
