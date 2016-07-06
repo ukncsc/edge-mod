@@ -3,8 +3,6 @@ import re
 
 from mongoengine import DoesNotExist
 from mongoengine.connection import get_db
-from datetime import datetime
-from edge import IDManager
 from edge.tools import StopWatch
 from edge.inbox import InboxItem, InboxError
 from edge.generic import ApiObject
@@ -17,17 +15,22 @@ from adapters.certuk_mod.dedup.views import build_activity_message
 from adapters.certuk_mod.patch.incident_patch import DBIncidentPatch
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
+from adapters.certuk_mod.ingest.draft_from_rtir import initialise_draft
 
 REGEX_LINE_DELIMETER = re.compile("[\n]")
-REGEX_BREAK_DELIMETER = re.compile("<br />")
 
-TIME_KEY_MAP = {'Created': 'incident_opened', 'CustomField.{Containment Achieved}': 'containment_achieved',
-                'CustomField.{First Data Exfiltration}': 'first_data_exfiltration',
-                'CustomField.{First Malicious Action}': 'first_malicious_action',
-                'CustomField.{Incident Discovery}': 'incident_discovery',
-                'CustomField.{Incident Reported}': 'incident_reported',
-                'CustomField.{Initial Compromise}': 'initial_compromise',
-                'CustomField.{Restoration Achieved}': 'restoration_achieved', 'Resolved': 'incident_closed'}
+FIELDNAMES = {'id': 'title', 'CustomField.{Indicator Data Files}': 'external_id', 'Created': 'created',
+              'CustomField.{Containment Achieved}': 'containment_achieved',
+              'CustomField.{First Data Exfiltration}': 'first_data_exfiltration',
+              'CustomField.{First Malicious Action}': 'first_malicious_action',
+              'CustomField.{Incident Discovery}': 'incident_discovery',
+              'CustomField.{Incident Reported}': 'incident_reported',
+              'CustomField.{Initial Compromise}': 'initial_compromise',
+              'CustomField.{Restoration Achieved}': 'restoration_achieved', 'CustomField.{Description}': 'description',
+              'CustomField.{Category}': 'categories',
+              'CustomField.{Reporter Type}': 'reporter_type', 'CustomField.{Incident Sector}': 'incident_sector',
+              'Status': 'status', 'CustomField.{Intended Effect}': 'intended_effects',
+              'Resolved': 'resolved'}
 
 
 def remove_drafts(drafts):
@@ -39,71 +42,6 @@ def remove_drafts(drafts):
     db.remove(query)
 
 
-def create_time(data):
-    time = {}
-    for key, _map in TIME_KEY_MAP.iteritems():
-        if data.get(key, '') != '':
-            time_format = datetime.strptime(data.get(key), '%a %b %d %X %Y').isoformat()
-            time[_map] = {'precision': 'second', 'value': time_format}
-    return time
-
-
-def create_reporter(data):
-    reporter = data.get('CustomField.{Reporter Type}', '')
-    reporter_values = REGEX_BREAK_DELIMETER.split(reporter)
-    new_reporter = ", ".join(reporter_values)
-    return new_reporter
-
-
-def create_intended_effects(data):
-    joined_intended_effects = []
-    intended_effects = data.get('CustomField.{Intended Effect}', '')
-    intended_effects_values = REGEX_BREAK_DELIMETER.split(intended_effects)
-    for effect in intended_effects_values:
-        joined_intended_effects.append(effect)
-    return joined_intended_effects
-
-
-def status_checker(data):
-    if data.get('Status') == 'resolved':
-        status = 'Closed'
-    else:
-        status = data.get('Status')
-    return status
-
-
-def initialise_draft(data):
-    draft = {
-        'attributed_actors': [],
-        'categories': [data.get('CustomField.{Category}', '')],
-        'description': '',
-        'discovery_methods': [],
-        'effects': [],
-        'external_ids': [{'source': '',
-                          'id': data.get('CustomField.{Indicator Data Files}', '')}],
-        'id': IDManager().get_new_id('incident'),
-        'id_ns': IDManager().get_namespace(),
-        'intended_effects': create_intended_effects(data),
-        'leveraged_ttps': [],
-        'related_incidents': [],
-        'related_indicators': [],
-        'related_observables': [],
-        'reporter': {'name': create_reporter(data), 'specification': {'organisation_info': {'industry_type': ''}}},
-        'responders': [],
-        'short_description': '',
-        'status': status_checker(data),
-        'title': 'RTIR ' + data.get('id', ''),
-        'tlp': '',
-        'trustgroups': [],
-        'victims': [{'name': '',
-                     'specification': {
-                         'organisation_info': {'industry_type': data.get('CustomField.{Incident Sector}', '')}}}],
-        'stixtype': 'inc',
-        'time': create_time(data)
-    }
-    return draft
-
-
 def is_valid_request(request):
     if not request.method == 'POST':
         return (False, 405)
@@ -113,6 +51,38 @@ def is_valid_request(request):
         return (False, 415)
     else:
         return (True, 200)
+
+
+def get_dict_reader(raw_data):
+    reader = csv.DictReader(raw_data)
+    reader.fieldnames = [key.strip() for key in reader.fieldnames]
+    return reader
+
+
+def validate_csv_field_names(reader, ip):
+    validation_result = {}
+    for row in FIELDNAMES:
+        if row not in reader.fieldnames:
+            validation_result.setdefault('missing_columns', {}).update(
+                {row: {'status': 'INFO', 'message': 'column not in csv file'}})
+    return ip.validation_result.update(validation_result)
+
+
+def build_validation_message(ip, drafts_validation):
+    if len(ip.filter_messages) == 0 and ip.message:
+        ip.filter_messages.append(ip.message)
+    ids = []
+    if ip.saved_count:
+        for _id, eo in ip.contents.iteritems():
+            validation_text = _id + ' - ' + eo.api_object.obj.title
+            ids.append(validation_text)
+            for x in range(0, len(drafts_validation)):
+                if _id in drafts_validation[x]:
+                    ip.validation_result.update(drafts_validation[x])
+                    del drafts_validation[x]
+                    break
+    ip.filter_messages.extend(ids)
+    return ip
 
 
 def generate_error_message(username, message, e, elapsed):
@@ -137,16 +107,17 @@ def ajax_create_incidents(request, username):
         return JsonResponse({}, status=403)
 
     ip = None
-    drafts, data = [], []
+    data, drafts, drafts_validation = [], [], []
     elapsed = StopWatch()
     try:
         ip = DedupInboxProcessor(validate=False, user=user)
         raw_data = REGEX_LINE_DELIMETER.split(request.read())
-        reader = csv.DictReader(raw_data)
-        for row in reader:
-            data.append(row)
+        reader = get_dict_reader(raw_data)
+        validate_csv_field_names(reader, ip)
+        data = [row for row in reader]
         for incident in data:
-            drafts.append(initialise_draft(incident))
+            draft, draft_validation = initialise_draft(incident)
+            drafts.append(draft), drafts_validation.append(draft_validation)
         for draft in drafts:
             Draft.upsert('inc', draft, user)
             generic_object = ApiObject('inc', DBIncidentPatch.from_draft(draft))
@@ -156,16 +127,16 @@ def ajax_create_incidents(request, username):
                              esms=esms))
         ip.run()
         duration = int(elapsed.ms())
-        remove_drafts(drafts)
-        if len(ip.filter_messages) == 0 and ip.message:
-            ip.filter_messages.append(ip.message)
+        remove_drafts(drafts), build_validation_message(ip, drafts_validation)
+
         log_activity(username, 'INCIDENT INGEST', 'INFO', build_activity_message(
             ip.saved_count, duration, ip.filter_messages, ip.validation_result))
         return JsonResponse({
             'count': ip.saved_count,
             'duration': duration,
             'messages': ip.filter_messages,
-            'state': 'success'
+            'state': 'success',
+            'validation_result': ip.validation_result
         }, status=202)
     except (KeyError, ValueError, InboxError) as e:
         if drafts:

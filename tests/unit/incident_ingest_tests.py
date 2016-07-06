@@ -1,8 +1,8 @@
 import mock
 import unittest
 
-from adapters.certuk_mod.ingest.views import create_time, create_reporter, \
-    create_intended_effects, status_checker, initialise_draft
+from adapters.certuk_mod.ingest.draft_from_rtir import create_time, create_generic_values, \
+    create_external_ids, status_checker, initialise_draft
 
 
 class IncidentIngestTests(unittest.TestCase):
@@ -11,23 +11,13 @@ class IncidentIngestTests(unittest.TestCase):
             'attributed_actors': [],
             'categories': [''],
             'description': '',
-            'discovery_methods': [],
-            'effects': [],
             'external_ids': [{'source': '', 'id': '14007indicator536.csv'}],
             'id': 'pss:inc-00000001-0001-0001-0001-00000001',
             'id_ns': 'http://www.purplesecure.com',
             'intended_effects': [''],
-            'leveraged_ttps': [],
-            'related_incidents': [],
-            'related_indicators': [],
-            'related_observables': [],
             'reporter': {'name': 'Purple', 'specification': {'organisation_info': {'industry_type': ''}}},
-            'responders': [],
-            'short_description': '',
             'status': 'Closed',
             'title': 'RTIR 1500',
-            'tlp': '',
-            'trustgroups': [],
             'victims': [{'name': '', 'specification': {'organisation_info': {'industry_type': 'Water'}}}],
             'stixtype': 'inc',
             'time': {}
@@ -67,13 +57,13 @@ class IncidentIngestTests(unittest.TestCase):
 
     def test_intended_effects(self):
         data = {'CustomField.{Intended Effect}': 'Fraud<br />Brand Damage<br />Advantage - Economic'}
-        intended_effects = create_intended_effects(data)
+        intended_effects = create_generic_values(data, 'CustomField.{Intended Effect}', False)
         compare_effects = ['Fraud', 'Brand Damage', 'Advantage - Economic']
         self.assertListEqual(intended_effects, compare_effects)
 
     def test_no_effects(self):
         data = {'CustomField.{Intended Effect}': ''}
-        intended_effects = create_intended_effects(data)
+        intended_effects = create_generic_values(data, 'CustomField.{Intended Effect}', False)
         compare_effects = ['']
         self.assertListEqual(intended_effects, compare_effects)
 
@@ -97,19 +87,19 @@ class IncidentIngestTests(unittest.TestCase):
 
     def test_reporter_type(self):
         data = {'CustomField.{Reporter Type}': 'Domestic Source<br />Government Agency'}
-        reporter = create_reporter(data)
+        reporter = create_generic_values(data, 'CustomField.{Reporter Type}', True)
         compare_reporter = 'Domestic Source, Government Agency'
         self.assertEquals(reporter, compare_reporter)
 
-    @mock.patch('adapters.certuk_mod.ingest.views.IDManager')
-    @mock.patch('adapters.certuk_mod.ingest.views.create_time')
-    @mock.patch('adapters.certuk_mod.ingest.views.create_reporter')
-    @mock.patch('adapters.certuk_mod.ingest.views.create_intended_effects')
-    @mock.patch('adapters.certuk_mod.ingest.views.status_checker')
-    def test_initialise_draft(self, mock_status, mock_intended_effects, mock_reporter, mock_time, mock_manager):
+    @mock.patch('adapters.certuk_mod.ingest.draft_from_rtir.IDManager')
+    @mock.patch('adapters.certuk_mod.ingest.draft_from_rtir.create_time')
+    @mock.patch('adapters.certuk_mod.ingest.draft_from_rtir.create_generic_values')
+    @mock.patch('adapters.certuk_mod.ingest.draft_from_rtir.create_external_ids')
+    @mock.patch('adapters.certuk_mod.ingest.draft_from_rtir.status_checker')
+    def test_initialise_draft(self, mock_status, mock_external_ids, mock_generic_valus, mock_time, mock_manager):
         mock_status.return_value = 'Closed'
-        mock_intended_effects.return_value = ['']
-        mock_reporter.return_value = 'Purple'
+        mock_external_ids.return_value = ['']
+        mock_generic_valus.return_value = 'Purple'
         mock_time.return_value = {}
         mock_manager().get_namespace.return_value = 'http://www.purplesecure.com'
         mock_manager().get_new_id.return_value = 'pss:inc-00000001-0001-0001-0001-00000001'
@@ -132,9 +122,8 @@ class IncidentIngestTests(unittest.TestCase):
             'CustomField.{Intended Effect}': '',
             'Resolved': ''
         }
-        draft = initialise_draft(data)
+        draft = initialise_draft(data)[0]
         mock_status.assert_called_with(data)
-        mock_intended_effects.assert_called_with(data)
-        mock_reporter.assert_called_with(data)
+        mock_external_ids.assert_called_with(data)
         mock_time.assert_called_with(data)
         self.assertDictEqual(draft, self.draft)
