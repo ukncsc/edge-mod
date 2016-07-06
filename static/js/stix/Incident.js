@@ -11,7 +11,9 @@ define([
 
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
-            (new TimeLine()).create_timeline("incidentTimelineSVG", stixPackage._rootId._id, "/adapter/certuk_mod/ajax/incident_timeline/");
+            if (stixPackage._rootId._id === this.id()) {
+                (new TimeLine()).create_timeline("incidentTimelineSVG", this.id(), "/adapter/certuk_mod/ajax/incident_timeline/");
+            }
             this.status = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "status.value");
             }, this);
@@ -45,6 +47,9 @@ define([
             this.relatedObservables = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_observables.observables", "observable.idref");
             }, this, this.DEFER_EVALUATION);
+            this.externalIds = ko.computed(function () {
+                return stixPackage.safeListGet(this.id(), this.data(), "external_ids");
+            }, this);
         }
     });
 });

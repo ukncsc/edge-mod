@@ -8,29 +8,28 @@
 {% endblock %}
 
 {% block body-content %}
+
     <ul class="nav nav-tabs">
-        {% for stix_id, typename, typenamesafe in indicator_information %}
-            {% if forloop.first %}
-                <li class="active"><a data-toggle="tab" id="{{ stix_id }}" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
-            {% else %}
-                <li><a data-toggle="tab" id="{{ stix_id }}" href="#{{ typenamesafe }}">{{ typename }}  </a></li>
-            {% endif %}
-        {% endfor %}
+        <!--ko foreach: viewModels -->
+        <li data-bind="attr: {class: ($index()==0) ? 'active' : ''}">
+            <a data-toggle="tab" data-bind="attr: { id: $data.rootId, href: '#' + $parent.findSafeTypeByLabel($data.rootId())}">
+            <span data-bind="text: $parent.findTypeByLabel($data.rootId())"></span>
+            </a>
+        </li>
+        <!-- /ko -->
     </ul>
 
     <div class="tab-content">
-    {% for stix_id, typename, typenamesafe in indicator_information %}
-        {% if forloop.first %}
-        <div id="{{ typenamesafe }}" class="tab-pane fade in active">
-        {% else %}
-        <div id="{{ typenamesafe }}" class="tab-pane fade">
-        {% endif %}
-            <a href="/indicator/build/{{ stix_id }}"> Edit Indicator Draft: {{ stix_id }} </a>
+        <!-- ko foreach: viewModels -->
+        <div data-bind="attr: {class: ($index()==0) ? 'tab-pane fade in active' : 'tab-pane fade', id: $parent.findSafeTypeByLabel($data.rootId())}">
+            <a data-bind="attr: {href: '/indicator/build/' + $data.rootId()}">Edit Indicator Draft:
+                <span data-bind="text: $data.rootId"></span></a>
             <div id="extract-visualiser" class="flexbox hflex">
-                <!-- ko template: { name: 'Graph' , data: findByLabel('{{ stix_id }}')} --><!-- /ko -->
+                <!-- ko template: { name: 'Graph' , data:  {model:$parent.findByLabel($data.rootId()), id:$index()}} -->
+                <!-- /ko -->
             </div>
         </div>
-    {% endfor %}
+        <!-- /ko -->
     </div>
 {% endblock %}
 
@@ -40,10 +39,11 @@
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/stickytape.js' %}"></script>
     <script>
+        window.onunload = function () {};
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
-                d3: "{% static "js/d3" %}",
+                d3: "{% static "js/d3.min" %}",
                 jquery: "{% static "js/jquery-1.11.0.min" %}",
                 knockout: "common/knockout-shim"
             },

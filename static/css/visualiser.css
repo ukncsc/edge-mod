@@ -1,3 +1,6 @@
+.panel-button {
+    background-color: transparent;
+}
 
 #visualiser {
     overflow: hidden;
@@ -25,6 +28,29 @@
     overflow-y: auto;
 }
 
+.fa-signal:after {
+    content: "";
+    position: absolute;
+    width: 3px;
+    height: 141.421356%;
+    top: -20.710678%;
+    display: block;
+    background: red;
+    left: 50%;
+    transform: translate(-50%, 0) rotate(45deg);
+}
+
+.icon-rotated.fa-signal:after {
+    transform: translate(-50%, 0) rotate(-45deg);
+}
+
+.icon-rotated {
+    transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+}
+
 #extract-visualiser {
     overflow: hidden;
     position: fixed;
@@ -42,7 +68,6 @@
     flex: 1 1 auto;
 }
 
-
 svg {
     border: 1px solid grey;
     height: 100%;
@@ -54,27 +79,56 @@ g.ko-d3-graph-node {
     cursor: pointer;
 }
 
-g.ko-d3-graph-node image.selected {
-    filter: drop-shadow(0 0 8px black) contrast(150%);
+#selected {
+    border: 2px solid green;
 }
 
-g.ko-d3-graph-node image.related {
-    filter: grayscale(33%);
+.clear_bg {
+    -webkit-appearance: none !important;
+    outline: none !important;
+    border: 0 !important;
 }
 
-g.ko-d3-graph-node image.unselected {
-    filter: grayscale(100%) brightness(150%);
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.edge {
+    stroke: #674a0f;
+    color: #674a0f;
+    fill: #674a0f;
+}
+
+.match {
+    stroke: #2d5b99;
+    color: #2d5b99;
+    fill: #2d5b99;
+}
+
+.backlink {
+    stroke: #229924;
+    color: #229924;
+    fill: #229924;
+}
+
+.draft {
+    stroke: #992a98;
+    color: #992a98;
+}
+
+.external_ref {
+    stroke: #BA3C46;
+    color: #BA3C46;
 }
 
 line.ko-d3-graph-link {
-    stroke: #999;
-    stroke-width: 0.5;
+    stroke-width: .7;
 }
 
 line.ko-d3-graph-link.related {
-    stroke: #A33;
-    stroke-width: 1.5;
+    stroke-width: 3;
 }
+
 
 dl.dl-horizontal dd {
     margin-left: 160px;

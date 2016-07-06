@@ -7,8 +7,9 @@ define([
     "./TTP",
     "./ExploitTarget",
     "./ThreatActor",
-    "./Campaign"
-], function (declare, CourseOfAction, Incident, Indicator, Observable, TTP, ExploitTarget, ThreatActor, Campaign) {
+    "./Campaign",
+    "./StixRealPackage"
+], function (declare, CourseOfAction, Incident, Indicator, Observable, TTP, ExploitTarget, ThreatActor, Campaign, StixRealPackage) {
     "use strict";
 
     var TYPES = Object.freeze({
@@ -35,7 +36,10 @@ define([
         },
         "ttp": {
             "class": TTP, "collection": "ttps.ttps", "label": "TTP", "code": "ttp"
-        }
+        },
+        "stix": {
+            "class": StixRealPackage, "collection": "", "label": "Package", "code": "stix"
+        },
     });
 
     var TYPE_ALIASES = Object.freeze({
@@ -45,14 +49,15 @@ define([
         "threatactor": "act",
         "incident": "inc",
         "indicator": "ind",
-        "observable": "obs"
+        "observable": "obs",
+        "package": "stix"
     });
 
     var PATTERN = Object.freeze({
         namespace: "[a-z][\\w\\d-]+",
         type: "[a-z]+",
         uuid: "[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}",
-        draft: ":draft:\\d{1,5}"
+        draft: ":draft:[a-f\\d]{32}"
     });
 
     function resolveAlias(type) {

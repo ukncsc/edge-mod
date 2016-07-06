@@ -25,12 +25,17 @@ publisher_urls = [
     (r'^review/$', 'views.discover', 'publisher_discover'),
 
     (r'^extract/$', 'views.extract', 'extract_stix'),
+    (r'^uploaded_stix_extracts/$', 'views.uploaded_stix_extracts', 'uploaded_stix_extracts'),
+    (r'^ajax/extract_status/$', 'views.extract_status', 'extract_status'),
     (r'^extract_upload/$', 'views.extract_upload', 'extract_upload'),
+    (r'^ajax/extract_list/$', 'views.extract_list', 'extract_list'),
+    (r'^ajax/delete_extract/$', 'views.delete_extract', 'delete_extract'),
     (r'^extract_visualiser/(?P<ids>.*)$', 'views.extract_visualiser', 'extract_visualiser'),
     (r'^ajax/extract_visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.extract_visualiser_get', 'extract_visualiser_ajax_view'),
     (r'^ajax/extract_visualiser/item/(?P<node_id>.*)$', 'views.extract_visualiser_item_get', 'extract_visualiser_ajax_item'),
     (r'^ajax/extract_visualiser/merge_observables/.*$', 'views.extract_visualiser_merge_observables', 'extract_visualiser_ajax_merge_observables'),
     (r'^ajax/extract_visualiser/delete_observables/.*$', 'views.extract_visualiser_delete_observables', 'extract_visualiser_ajax_delete_observables'),
+    (r'^ajax/extract_visualiser/get_extended/$', 'views.extract_visualiser_get_extended', 'extract_visualiser_get_extended'),
 
     (r'^incident_timeline/$', 'views.timeline_discover', 'timeline_discover'),
     (r'^incident_timeline/(?P<id_>' + VALID_STIX_ID + ')$', 'views.incident_timeline', 'incident_timeline'),
@@ -68,14 +73,17 @@ publisher_urls = [
 
     (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),
     (r'^config/get_cert_config/$', 'views.ajax_get_cert_config', None),
-    (r'^config/get_crm_url/$', 'views.ajax_get_crm_url', None),
-    (r'^config/set_crm_url/$', 'views.ajax_set_crm_url', None),
+    (r'^config/get_crm_config/$', 'views.ajax_get_crm_config', None),
+    (r'^config/set_crm_config/$', 'views.ajax_set_crm_config', None),
+    (r'^config/get_sharing_groups/$', 'views.ajax_get_sharing_groups', None),
+    (r'^config/set_sharing_groups/$', 'views.ajax_set_sharing_groups', None),
 
     (r'^visualiser/$', 'views.visualiser_discover', 'visualiser_discover'),
     (r'^visualiser/missing/$', 'views.visualiser_not_found', 'visualiser_not_found'),
     (r'^visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_view', 'visualiser_view'),
     (r'^ajax/visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_get', 'visualiser_ajax_view'),
     (r'^ajax/visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_item_get', 'visualiser_ajax_item'),
+    (r'^ajax/visualiser/get_extended/.*$', 'views.visualiser_get_extended', 'visualiser_ajax_get_extended')
 
     (r'^dashboard/$', 'views.purple_dashboard', 'purple_dashboard')
 ]
@@ -88,6 +96,7 @@ navitems = [
     ('New Dashboard', 'purple_dashboard'),
     ('External Publisher', 'publisher_discover'),
     ('Extract Stix', 'extract_stix'),
+    ('Uploaded Stix Extracts', 'uploaded_stix_extracts'),
     ('Clone to Draft', 'clone_to_draft'),
     ('Visualiser', 'visualiser_discover'),
     ('Incident Timeline', 'timeline_discover'),

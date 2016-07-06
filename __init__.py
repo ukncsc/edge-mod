@@ -1,5 +1,10 @@
-import sys, os
-from adapters.certuk_mod.patch import remap_patch
+import os
+import sys
+
+from adapters.certuk_mod.patch import hash_patch, inbox_patch, remap_patch
+
+hash_patch.apply_patch()
+inbox_patch.apply_patch()
 remap_patch.apply_patch()
 
 cur_dir = os.path.dirname(os.path.realpath(__file__))

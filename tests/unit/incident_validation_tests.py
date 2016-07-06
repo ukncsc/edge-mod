@@ -69,7 +69,8 @@ class IncidentValidationInfoTests(unittest.TestCase):
                 attributed_actors=['test'],
                 related_incidents=['test'],
                 coordinators=['test'],
-                time={'incident_opened':{"value":"test"}}
+                time={'incident_opened':{"value":"test"}},
+                external_ids=[{'source':'a', 'id':'b'}]
         )
         self.assertIsNone(validation_info.title)
         self.assertIsNone(validation_info.description)
@@ -92,3 +93,4 @@ class IncidentValidationInfoTests(unittest.TestCase):
         self.assertIsNone(validation_info.related_incidents)
         self.assertIsNone(validation_info.coordinators)
         self.assertIsNone(validation_info.time)
+        self.assertIsNone(validation_info.external_ids)

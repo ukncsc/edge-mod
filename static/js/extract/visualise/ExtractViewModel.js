@@ -13,12 +13,14 @@ define([
 
     var ExtractViewModel = declare(null, {
         declaredClass: "ExtractViewModel",
-        constructor: function (rootIds) {
+        constructor: function (rootIds, indicatorInformation) {
             this.viewModels = ko.observableArray([]);
             this.viewModelsById = {};
+            this.failedIds = ko.observableArray([]);
+            this.indicatorInformationTypeById = {};
 
             this.viewModels.subscribe(function () {
-                if (this.viewModels().length == rootIds.length) {
+                if (this.viewModels().length + this.failedIds().length == rootIds.length) {
                     ko.applyBindings(
                         this,
                         document.getElementById('content')
@@ -27,9 +29,10 @@ define([
                         topic.publish(topics.RESIZE, e.target.id);
                     });
                 }
-            }.bind(this))
+            }.bind(this));
 
             for (var i = 0; i < rootIds.length; i++) {
+                this.indicatorInformationTypeById[rootIds[i]] = indicatorInformation[i];
                 this.initViewModel(rootIds[i])
             }
         },
@@ -39,6 +42,8 @@ define([
                 id,
                 base_url,
                 base_url + "item/",
+                "/adapter/certuk_mod/review/",
+
                 (new PanelActionsBuilder())
                     .addAction(create_merge_action(id))
                     .addAction(create_delete_action(id))
@@ -50,12 +55,18 @@ define([
                 }.bind(this),
 
                 function (error) {
-                    showErrorModal(error.message, false)
-                });
+                    this.failedIds.push(id);
+                }.bind(this));
         },
 
         findByLabel: function (label) {
             return this.viewModelsById[label]
+        },
+        findTypeByLabel: function (label) {
+            return this.indicatorInformationTypeById[label].type_name;
+        },
+        findSafeTypeByLabel: function (label) {
+            return this.indicatorInformationTypeById[label].safe_type_name;
         }
     });
 
@@ -81,18 +92,13 @@ define([
         );
     }
 
-    function no(type) {
-        return false;
-    }
-
-    function only_obs(type) {
-        return type === "obs";
+    function only_obs_drafts(type, rel_type) {
+        return type === "obs" && rel_type === "draft";
     }
 
     function create_delete_action(id) {
         return new PanelAction(
-            only_obs,
-            no,
+            only_obs_drafts,
             function (obs_ids_to_delete, graph) {
                 postAndReloadGraph("delete_observables/", id, obs_ids_to_delete, graph);
             },
@@ -102,8 +108,7 @@ define([
 
     function create_merge_action(id) {
         return new PanelAction(
-            only_obs,
-            no,
+            only_obs_drafts,
             function (obs_ids_to_merge, graph) {
                 postAndReloadGraph("merge_observables/", id, obs_ids_to_merge, graph);
             },

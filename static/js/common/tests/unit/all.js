@@ -1,8 +1,10 @@
 define([
     "./change-tracker",
     "./identity",
+    "./edge-identity",
     "./cert-messages",
-    "./topic"
+    "./topic",
+    "./cert-abstract-builder-form"
 ], function () {
 
 });

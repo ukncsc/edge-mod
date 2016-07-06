@@ -1,35 +1,31 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/modal/Modal",
-    "common/modal/show-error-modal"
-], function (declare, ko, Modal, showErrorModal) {
+    "config/base-mongo-config"
+], function (declare, ko, baseMongoConfig) {
 
-    return declare(null, {
+    return declare(baseMongoConfig, {
         declaredClass: "CRMConfig",
-        constructor: function () {
-            this.CRMURL = ko.observable();
-        },
+        constructor: declare.superCall(function (sup) {
+            return function () {
+                sup.call(this);
+                this.CRMURL = ko.observable();
+                this.enabled = ko.observable();
+            }
+        }),
 
         getURL: function () {
-            getJSON("get_crm_url", {}, function (response) {
-                this._parseResponse(response);
-            }.bind(this), function (error) {
-                this.createErrorModal("An error occurred while attempting to retrieve the CRM configuration.");
-            }.bind(this));
+            this.getData("get_crm_config/", "An error occurred while attempting to retrieve the CRM configuration.")
         },
 
         _parseResponse: function (response) {
-            this.CRMURL(response["crmURL"]);
+            this.CRMURL(response["crm_url"]);
+            this.enabled(response["enabled"])
         },
 
-        createErrorModal: function (content) {
-            showErrorModal(content, false);
-        },
-
-        onSave: function () {
+        save: function () {
             if (this.isValid(this.CRMURL())) {
-                this.saveURL(this.CRMURL());
+                this.saveData("set_crm_config/", this.createCRMConfig(), "The CRM settings were saved successfully.", "An error occurred while attempting to save the CRM configuration");
             } else {
                 this.createErrorModal("The CRM url must be a valid url ending with /crmapi");
             }
@@ -40,21 +36,11 @@ define([
             return endsWithCRM.test(url)
         },
 
-        saveURL: function (url) {
-            postJSON("set_crm_url/", url, function (response) {
-                this._onSuccesfulSave(response);
-            }.bind(this), function (error) {
-                this.createErrorModal("An error occurred while attempting to save the CRM configuration (" + error + ").")
-            }.bind(this));
-        },
-
-        _onSuccesfulSave: function (modal, response) {
-            var modal = new Modal({
-                title: "Success",
-                titleIcon: "glyphicon-ok-sign",
-                contentData: "The CRM settings were saved successfully."
-            });
-            modal.show();
+        createCRMConfig: function () {
+            return {
+                "crm_url": this.CRMURL(),
+                "enabled": this.enabled()
+            }
         }
     });
 

@@ -16,7 +16,7 @@ define([
             return this;
         },
         build: function(){
-            var pa = new PanelActions()
+            var pa = new PanelActions();
             pa.actions(this.actions());
             return pa;
         }

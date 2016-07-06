@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 import unittest
 import mock
-from adapters.certuk_mod.extract.views import extract_visualiser_item_get
+import hashlib
+from adapters.certuk_mod.extract.views import extract_visualiser_item_get, DRAFT_ID_SEPARATOR
+from adapters.certuk_mod.extract.extract_actions import summarise_draft_observable
 
 class ExtractTests(unittest.TestCase):
-
     def setUp(self):
         self.mock_request_patcher = mock.patch('django.http.request.HttpRequest')
         self.mock_draft_list_patcher = mock.patch('users.models.Draft.list')
@@ -49,10 +51,15 @@ class ExtractTests(unittest.TestCase):
 
     def test_extract_visualiser_item_get_draft_observable(self):
         id_ = 'indicator:123'
-        id_obs0 = 'observable:123:draft:0'
-        id_obs1 = 'observable:123:draft:1'
-        draft_obs0 = {'id': id_obs0, 'title': 'test1', 'objectType': 'file'}
-        draft_obs1 = {'id': id_obs1, 'title': 'test1', 'objectType': 'file'}
+
+        obs0_title = 'test0'
+        obs1_title = 'test1'
+
+        id_obs0 = 'observable:123' + DRAFT_ID_SEPARATOR + hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
+        id_obs1 = 'observable:123' + DRAFT_ID_SEPARATOR + hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
+
+        draft_obs0 = {'id': id_obs0, 'title': obs0_title, 'objectType': 'file'}
+        draft_obs1 = {'id': id_obs1, 'title': obs1_title, 'objectType': 'file'}
         draft_ind = {'draft': {'id': id_}, 'observables': [draft_obs0, draft_obs1]}
 
         self.mock_draft_list.return_value = [draft_ind]
@@ -71,4 +78,61 @@ class ExtractTests(unittest.TestCase):
         self.mock_get_item.assert_not_called()
 
 
+    def test_extract_visualiser_item_get_draft_observable_unicode(self):
+        id_ = 'indicator:123'
+
+        obs0_title = u'ééé'
+        obs1_title = 'test1'
+
+        id_obs0 = 'observable:123' + DRAFT_ID_SEPARATOR +  hashlib.md5(obs0_title.encode('utf-8')).hexdigest()
+        id_obs1 = 'observable:123' + DRAFT_ID_SEPARATOR +  hashlib.md5(obs1_title.encode('utf-8')).hexdigest()
+
+        draft_obs0 = {'id': id_obs0, 'title':u'ééé' , 'objectType': 'file', 'value':'123'}
+        draft_obs1 = {'id': id_obs1, 'title': 'test1', 'objectType': 'file', 'value':'456'}
+        draft_ind = {'draft': {'id': id_}, 'observables': [draft_obs0, draft_obs1]}
+
+        self.mock_draft_list.return_value = [draft_ind]
+        self.mock_draft_load.return_value = draft_ind
+
+        class mockJsonResponse:
+            def __init__(self, *args, **kwargs):
+                self.content = args[0]
+
+        with mock.patch('adapters.certuk_mod.extract.views.JsonResponse', mockJsonResponse):
+            response = extract_visualiser_item_get(self.mock_request, id_obs0)
+
+        assert (response.content['package']['observables']['observables'][0]['object']['properties']['value'] == u'file:ééé')
+        self.mock_get_item.assert_not_called()
+
+        summary = summarise_draft_observable(draft_obs0);
+        assert (summary == u'123ééé')
+
+    def test_extract_visualiser_item_get_draft_observable_utf8encoded(self):
+        id_ = 'indicator:123'
+
+        obs0_title = u'ééé'.encode('utf-8')
+        obs1_title = 'test1'
+
+        id_obs0 = 'observable:123' + DRAFT_ID_SEPARATOR +  hashlib.md5(obs0_title).hexdigest()
+        id_obs1 = 'observable:123' + DRAFT_ID_SEPARATOR +  hashlib.md5(obs1_title).hexdigest()
+
+        draft_obs0 = {'id': id_obs0, 'title':u'ééé' , 'objectType': 'file', 'value':'123'}
+        draft_obs1 = {'id': id_obs1, 'title': 'test1', 'objectType': 'file', 'value':'456'}
+        draft_ind = {'draft': {'id': id_}, 'observables': [draft_obs0, draft_obs1]}
+
+        self.mock_draft_list.return_value = [draft_ind]
+        self.mock_draft_load.return_value = draft_ind
+
+        class mockJsonResponse:
+            def __init__(self, *args, **kwargs):
+                self.content = args[0]
+
+        with mock.patch('adapters.certuk_mod.extract.views.JsonResponse', mockJsonResponse):
+            response = extract_visualiser_item_get(self.mock_request, id_obs0)
+
+        assert (response.content['package']['observables']['observables'][0]['object']['properties']['value'] == u'file:ééé')
+        self.mock_get_item.assert_not_called()
+
+        summary = summarise_draft_observable(draft_obs0);
+        assert (summary == u'123ééé')
 

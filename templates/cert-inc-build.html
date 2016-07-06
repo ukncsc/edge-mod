@@ -1,11 +1,12 @@
 {% extends "base.html" %} {% load site_tags %} {% load staticfiles %}
 
 {% block head-content %}
-<link rel="stylesheet" href="/adapter/certuk_mod{% static 'css/inc-build.css' %}">
+    <link rel="stylesheet" href="/adapter/certuk_mod{% static 'css/inc-build.css' %}">
 {% endblock %}
 
 {% block body-content %}
     {% include 'cert-identity.html' %}
+    {% include 'edge-identity.html' %}
     {% include 'candidate_modal.html' %}
     {% include 'related_items.html' %}
     {% include 'list_selects.html' %}
@@ -13,13 +14,12 @@
     {% include 'cert-inc-build-general.html' %}
     {% include 'draft_list.html' %}
     {% include 'cert-inc-build-time.html' %}
+    {% include 'cert-inc-build-external-ids.html' %}
 
     <div class="obj-title"
          data-bind="templateWithContext: { name: 'builder-hdr', data: $root, context: { imgsrc: '{% static 'img/hex/hex_inc.png' %}', typeName: 'Incident' }  }"></div>
 
     <div class="container">
-        {% include 'partials/identity.html' %}
-
 
         <div class="row builder">
             <div class="col-sm-3">
@@ -67,6 +67,7 @@
                 <div data-bind="template: { name: 'ListSelectsPanel', data: section().findByLabel('Discovery Methods') }"></div>
                 <div data-bind="template: { name: 'ListSelectsPanel', data: section().findByLabel('Categories') }"></div>
                 <div data-bind="template: { name: 'ListSelectsPanel', data: section().findByLabel('Intended Effects') }"></div>
+                <div data-bind="template: { name: 'ExternalIdsPanel', data: section().findByLabel('External IDs') }"></div>
             </div>
         </div>
     </div>

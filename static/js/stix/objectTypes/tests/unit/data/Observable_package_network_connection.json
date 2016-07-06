@@ -1,0 +1,60 @@
+{
+  "timestamp": "2016-05-31T14:27:47.455890+00:00",
+  "version": "1.1.1",
+  "id": "pss:Package-7e4d1461-aa0e-45aa-9798-e5b5b825b82c",
+  "observables": {
+    "observables": [
+      {
+        "description": "",
+        "object": {
+          "id": "pss:network_connection-0e5b06be-944e-4131-aabe-2bbb92081634",
+          "properties": {
+            "xsi:type": "NetworkConnectionObjectType",
+            "source_socket_address": {
+            "xsi:type": "SocketAddressObjectType",
+            "ip_address": {
+              "xsi:type": "AddressObjectType",
+              "address_value": "192.168.57.101"
+            },
+            "port": {
+              "xsi:type": "PortObjectType",
+              "port_value": 8443,
+              "layer4_protocol": "https"
+            }
+          },
+            "destination_socket_address": {
+              "xsi:type": "SocketAddressObjectType",
+              "hostname": {
+                "xsi:type": "HostnameObjectType",
+                "hostname_value": "localhost"
+              },
+              "port": {
+                "xsi:type": "PortObjectType",
+                "port_value": 87,
+                "layer4_protocol": "http"
+              }
+            }
+          }
+        },
+        "id": "pss:observable-a3ea4129-19e4-492a-ba47-0ddf4064f784",
+        "title": "Network Connection : localhost:80 (tcp) : localhost:87 (http)"
+      }
+    ],
+    "major_version": 2,
+    "update_version": 0,
+    "minor_version": 1
+  },
+  "stix_header": {
+    "handling": [
+      {
+        "controlled_structure": "../../../../descendant-or-self::node() | ../../../../descendant-or-self::node()/@*",
+        "marking_structures": [
+          {
+            "color": "AMBER",
+            "xsi:type": "tlpMarking:TLPMarkingStructureType"
+          }
+        ]
+      }
+    ]
+  }
+}

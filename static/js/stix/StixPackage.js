@@ -31,16 +31,21 @@ define([
                 stixObject = this._cache[id];
             } else {
                 var type = stixId.type();
-                var listToSearch = this.safeGet(this._data, type.collection);
-                if (!listToSearch) {
-                    throw new Error("Object not found with id: " + id);
+                if (id === this._data.id) { //Show this package.
+                    data = this._data;
+                } else {
+                    var listToSearch = this.safeGet(this._data, type.collection);
+                    if (!listToSearch) {
+                        throw new Error("Object not found with id: " + id);
+                    }
+                    var data = ko.utils.arrayFirst(listToSearch, function (item) {
+                        return item.id === id;
+                    }, this);
+                    if (!data) {
+                        throw new Error("Object not found with id: " + id);
+                    }
                 }
-                var data = ko.utils.arrayFirst(listToSearch, function (item) {
-                    return item.id === id;
-                }, this);
-                if (!data) {
-                    throw new Error("Object not found with id: " + id);
-                }
+
                 stixObject = new type.class(data, this);
                 this._cache[id] = stixObject;
             }
@@ -74,7 +79,7 @@ define([
             return current;
         },
 
-        safeValueGet: function(/*String*/ id, /*Object*/ object, /*String*/ propertyPath, /*String?*/ validationPath) {
+        safeValueGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath, /*String?*/ validationPath) {
             var simpleValue = this.safeGet(object, propertyPath);
             var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
             return new ReviewValue(simpleValue, validation.state, validation.message);

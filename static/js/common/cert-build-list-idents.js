@@ -2,9 +2,9 @@ define([
     "../dcl/dcl",
     "knockout",
     "common/cert-abstract-builder-form",
-    "common/cert-identity",
+    "common/identity",
     "common/jquery-shim"
-], function (declare, ko, AbstractBuilderForm, CERTIdentity, $) {
+], function (declare, ko, AbstractBuilderForm, Identity, $) {
     "use strict";
 
     return declare(AbstractBuilderForm, {
@@ -31,7 +31,7 @@ define([
         },
 
         add: function () {
-            var newIdentity = new CERTIdentity();
+            var newIdentity = new Identity();
             newIdentity.ModelUI().done(function () {
                 this.items.unshift(newIdentity);
             }.bind(this));
@@ -48,10 +48,10 @@ define([
             if (this.saveKey in data) {
                 $.each(data[this.saveKey], function (i, v) {
                     if (saveGroup) {
-                        self.items.push(new CERTIdentity().load(v[saveGroup]));
+                        self.items.push(new Identity().load(v[saveGroup]));
                     }
                     else {
-                        self.items.push(new CERTIdentity().load(v));
+                        self.items.push(new Identity().load(v));
                     }
                 });
             }
