@@ -69,8 +69,6 @@ def validate_csv_field_names(reader, ip):
 
 
 def build_validation_message(ip, drafts_validation):
-    if len(ip.filter_messages) == 0 and ip.message:
-        ip.filter_messages.append(ip.message)
     ids = []
     if ip.saved_count:
         for _id, eo in ip.contents.iteritems():
@@ -119,6 +117,9 @@ def ajax_create_incidents(request, username):
             draft, draft_validation = initialise_draft(incident)
             drafts.append(draft), drafts_validation.append(draft_validation)
         for draft in drafts:
+            if draft == {}:
+                drafts.remove(draft)
+                continue
             Draft.upsert('inc', draft, user)
             generic_object = ApiObject('inc', DBIncidentPatch.from_draft(draft))
             etlp, esms = 'NULL', ''

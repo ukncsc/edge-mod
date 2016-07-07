@@ -1,7 +1,7 @@
 import re
 
+from dateutil.parser import parse
 from edge import IDManager
-from datetime import datetime
 
 REGEX_BREAK_DELIMETER = re.compile("<br />")
 
@@ -26,8 +26,13 @@ FIELDNAMES = {'id': 'title', 'CustomField.{Indicator Data Files}': 'external_id'
               'Status': 'status', 'CustomField.{Intended Effect}': 'intended_effects',
               'Resolved': 'resolved'}
 
+ESSENTIAL_FIELDS = ['id', 'created', 'status']
+
 
 def initialise_draft(data):
+    if data.get('id', '') == '' or data.get('Created', '') == '' or data.get('Status', '') == '':
+        return {}, {}
+
     draft = {
         'categories': create_generic_values(data, 'CustomField.{Category}', False),
         'description': data.get('CustomField.{Description}', ''),
@@ -67,11 +72,10 @@ def create_time(data):
     for key, _map in TIME_KEY_MAP.iteritems():
         if data.get(key, '') != '':
             try:
-                time_format = datetime.strptime(data.get(key), '%a %b %d %X %Y').isoformat()
+                time_format = parse(data.get(key,'')).isoformat()
                 time[_map] = {'precision': 'second', 'value': time_format}
             except Exception as e:
                 print e.message
-                ValueError("time date " + data.get(key) + " does not match format: 'Thu Jan 01 00:00:00 2015'")
     return time
 
 
