@@ -2,6 +2,8 @@ import re
 
 from dateutil.parser import parse
 from edge import IDManager
+from django.conf import settings
+import pytz
 
 REGEX_BREAK_DELIMETER = re.compile("<br />")
 
@@ -72,8 +74,11 @@ def create_time(data):
     for key, _map in TIME_KEY_MAP.iteritems():
         if data.get(key, '') != '':
             try:
-                time_format = parse(data.get(key,'')).isoformat()
-                time[_map] = {'precision': 'second', 'value': time_format}
+                time_format = parse(data.get(key,''))
+                if time_format.tzinfo is None:
+                    time_format = pytz.utc.localize(time_format)
+                dt_in = time_format.astimezone(settings.LOCAL_TZ).isoformat()[:-6]
+                time[_map] = {'precision': 'second', 'value': dt_in}
             except Exception as e:
                 print e.message
     return time
