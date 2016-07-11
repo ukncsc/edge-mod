@@ -59,6 +59,26 @@ def get_dict_reader(raw_data):
     return reader
 
 
+def draft_wrapper(data, drafts, drafts_validation):
+    for incident in data:
+        draft, draft_validation = initialise_draft(incident)
+        if draft != {}:
+            drafts.append(draft)
+            drafts_validation.append(draft_validation)
+    return drafts, drafts_validation
+
+
+def upsert_drafts(ip, drafts, user):
+    for draft in drafts:
+            Draft.upsert('inc', draft, user)
+            generic_object = ApiObject('inc', DBIncidentPatch.from_draft(draft))
+            etlp, esms = 'NULL', ''
+            ip.add(InboxItem(api_object=generic_object,
+                             etlp=etlp,
+                             esms=esms))
+    return ip
+
+
 def validate_csv_field_names(reader, ip):
     validation_result = {}
     for row in FIELDNAMES:
@@ -108,27 +128,16 @@ def ajax_create_incidents(request, username):
     data, drafts, drafts_validation = [], [], []
     elapsed = StopWatch()
     try:
-        ip = DedupInboxProcessor(validate=False, user=user)
         raw_data = REGEX_LINE_DELIMETER.split(request.read())
         reader = get_dict_reader(raw_data)
-        validate_csv_field_names(reader, ip)
         data = [row for row in reader]
-        for incident in data:
-            draft, draft_validation = initialise_draft(incident)
-            drafts.append(draft), drafts_validation.append(draft_validation)
-        for draft in drafts:
-            if draft == {}:
-                drafts.remove(draft)
-                continue
-            Draft.upsert('inc', draft, user)
-            generic_object = ApiObject('inc', DBIncidentPatch.from_draft(draft))
-            etlp, esms = 'NULL', ''
-            ip.add(InboxItem(api_object=generic_object,
-                             etlp=etlp,
-                             esms=esms))
+        drafts, drafts_validation = draft_wrapper(data, drafts, drafts_validation)
+
+        ip = DedupInboxProcessor(validate=False, user=user)
+        upsert_drafts(ip, drafts, user)
         ip.run()
         duration = int(elapsed.ms())
-        remove_drafts(drafts), build_validation_message(ip, drafts_validation)
+        remove_drafts(drafts), validate_csv_field_names(reader, ip), build_validation_message(ip, drafts_validation)
 
         log_activity(username, 'INCIDENT INGEST', 'INFO', build_activity_message(
             ip.saved_count, duration, ip.filter_messages, ip.validation_result))
@@ -140,7 +149,7 @@ def ajax_create_incidents(request, username):
             'validation_result': ip.validation_result
         }, status=202)
     except (KeyError, ValueError, InboxError) as e:
-        if drafts:
+        if drafts: # Only have drafts if draft_wrapper has successfully executed
             remove_drafts(drafts)
         count = ip.saved_count if isinstance(ip, DedupInboxProcessor) else 0
         duration = int(elapsed.ms())

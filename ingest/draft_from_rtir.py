@@ -28,11 +28,10 @@ FIELDNAMES = {'id': 'title', 'CustomField.{Indicator Data Files}': 'external_id'
               'Status': 'status', 'CustomField.{Intended Effect}': 'intended_effects',
               'Resolved': 'resolved'}
 
-ESSENTIAL_FIELDS = ['id', 'created', 'status']
-
 
 def initialise_draft(data):
-    if data.get('id', '') == '' or data.get('Created', '') == '' or data.get('Status', '') == '':
+    if data.get('id', '') == '' or data.get('Created', '') == '' or data.get('Status', '') == '' or data.get('Resolved',
+                                                                                                             '') == '':
         return {}, {}
 
     draft = {
@@ -51,15 +50,11 @@ def initialise_draft(data):
         'stixtype': 'inc',
         'time': create_time(data)
     }
-    validation_for_draft = {}
-    for field, name in FIELDNAMES.iteritems():
-        if data.get(field, '') == '':
-            validation_for_draft.setdefault(draft['id'], {}).update(
-                {name: {'status': 'INFO', 'message': 'no value provided for ' + name}})
+    validation_for_draft = validate_draft(data, draft)
     return draft, validation_for_draft
 
 
-def create_generic_values(data, field, join):
+def create_generic_values(data, field, join):  # Intended Effects, Reporter, Categories
     value = data.get(field, '')
     split_values = REGEX_BREAK_DELIMETER.split(value)
     split_values_clean = [sv.strip() for sv in split_values]
@@ -74,19 +69,19 @@ def create_time(data):
     for key, _map in TIME_KEY_MAP.iteritems():
         if data.get(key, '') != '':
             try:
-                time_format = parse(data.get(key,''))
+                time_format = parse(data.get(key, ''))
                 if time_format.tzinfo is None:
                     time_format = pytz.utc.localize(time_format)
                 dt_in = time_format.astimezone(settings.LOCAL_TZ).isoformat()[:-6]
                 time[_map] = {'precision': 'second', 'value': dt_in}
             except Exception as e:
-                print e.message
+                raise e
     return time
 
 
 def create_external_ids(data):
     external_id = []
-    if data.get('CustomField.{Indicator Data Files}') != '':
+    if data.get('CustomField.{Indicator Data Files}', '') != '':
         external_id.append({
             'source': '',
             'id': data.get('CustomField.{Indicator Data Files}', '')
@@ -100,3 +95,12 @@ def status_checker(data):
     else:
         status = data.get('Status')
     return status
+
+
+def validate_draft(data, draft):
+    validation_for_draft = {}
+    for field, name in FIELDNAMES.iteritems():
+        if data.get(field, '') == '':
+            validation_for_draft.setdefault(draft['id'], {}).update(
+                {name: {'status': 'INFO', 'message': 'no value provided for ' + name}})
+    return validation_for_draft
