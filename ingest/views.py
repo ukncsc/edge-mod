@@ -44,13 +44,13 @@ def remove_drafts(drafts):
 
 def is_valid_request(request):
     if not request.method == 'POST':
-        return (False, 405)
+        return False, 405
     if not request.META.get('HTTP_ACCEPT') == 'application/json':
-        return (False, 406)
+        return False, 406
     if not request.META.get('CONTENT_TYPE') == 'text/csv':
-        return (False, 415)
+        return False, 415
     else:
-        return (True, 200)
+        return True, 200
 
 
 def get_dict_reader(raw_data):
@@ -70,12 +70,12 @@ def draft_wrapper(data, drafts, drafts_validation):
 
 def upsert_drafts(ip, drafts, user):
     for draft in drafts:
-            Draft.upsert('inc', draft, user)
-            generic_object = ApiObject('inc', DBIncidentPatch.from_draft(draft))
-            etlp, esms = 'NULL', ''
-            ip.add(InboxItem(api_object=generic_object,
-                             etlp=etlp,
-                             esms=esms))
+        Draft.upsert('inc', draft, user)
+        generic_object = ApiObject('inc', DBIncidentPatch.from_draft(draft))
+        etlp, esms = 'NULL', ''
+        ip.add(InboxItem(api_object=generic_object,
+                         etlp=etlp,
+                         esms=esms))
     return ip
 
 
@@ -149,7 +149,7 @@ def ajax_create_incidents(request, username):
             'validation_result': ip.validation_result
         }, status=202)
     except (KeyError, ValueError, InboxError) as e:
-        if drafts: # Only have drafts if draft_wrapper has successfully executed
+        if drafts:  # Only have drafts if draft_wrapper has successfully executed
             remove_drafts(drafts)
         count = ip.saved_count if isinstance(ip, DedupInboxProcessor) else 0
         duration = int(elapsed.ms())

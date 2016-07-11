@@ -74,6 +74,11 @@ def create_time(data):
                     time_format = pytz.utc.localize(time_format)
                 dt_in = time_format.astimezone(settings.LOCAL_TZ).isoformat()[:-6]
                 time[_map] = {'precision': 'second', 'value': dt_in}
+            except ValueError as e:
+                if e.message == "unknown string format":
+                    raise ValueError('unable to parse date format')
+                else:
+                    raise e
             except Exception as e:
                 raise e
     return time
