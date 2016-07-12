@@ -88,8 +88,13 @@ def validate_csv_field_names(reader, ip):
     return ip.validation_result.update(validation_result)
 
 
-def build_validation_message(ip, drafts_validation):
+def build_validation_message(ip, drafts_validation, drafts, data):
     ids = []
+    dropped_data = len(data) - len(drafts)
+    if dropped_data:
+        message = str(
+            dropped_data) + ' incidents dropped as one of: (id, status, created timestamp, resolved timestamp) missing'
+        ip.filter_messages.append(message)
     if ip.saved_count:
         for _id, eo in ip.contents.iteritems():
             validation_text = _id + ' - ' + eo.api_object.obj.title
@@ -137,7 +142,8 @@ def ajax_create_incidents(request, username):
         upsert_drafts(ip, drafts, user)
         ip.run()
         duration = int(elapsed.ms())
-        remove_drafts(drafts), validate_csv_field_names(reader, ip), build_validation_message(ip, drafts_validation)
+        remove_drafts(drafts), validate_csv_field_names(reader, ip), build_validation_message(ip, drafts_validation,
+                                                                                              drafts, data)
 
         log_activity(username, 'INCIDENT INGEST', 'INFO', build_activity_message(
             ip.saved_count, duration, ip.filter_messages, ip.validation_result))
