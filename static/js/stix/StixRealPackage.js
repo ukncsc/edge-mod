@@ -3,6 +3,7 @@ define([
     "knockout",
     "./StixObject",
     "kotemplate!flat-stix:./templates/flat-Package.html",
+    "kotemplate!root-stix:./templates/root-Package.html"
 ], function (declare, ko, StixObject) {
     "use strict";
 

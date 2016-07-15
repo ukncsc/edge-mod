@@ -38,7 +38,7 @@ define([
             "class": TTP, "collection": "ttps.ttps", "label": "TTP", "code": "ttp"
         },
         "stix": {
-            "class": StixRealPackage, "collection": "", "label": "Package", "code": "stix"
+            "class": StixRealPackage, "collection": "related_packages.related_packages", "label": "Package", "code": "stix"
         },
     });
 
