@@ -2,24 +2,25 @@ define([
     "dcl/dcl",
     "knockout",
     "stix/StixPackage",
+    "common/modal/Modal",
     "kotemplate!duplicates-type-selector:./templates/duplicates_type_selector.html",
     "kotemplate!duplicates-original-selector:./templates/duplicates_original_selector.html",
     "kotemplate!duplicates-duplicate-selector:./templates/duplicates_duplicate_selector.html",
     "kotemplate!duplicates-preview:./templates/duplicates_preview.html",
     "kotemplate!duplicates-analyse:./templates/duplicates_analyse.html"
-], function (declare, ko, StixPackage) {
+], function (declare, ko, StixPackage, Modal) {
     "use strict";
 
     var type_labels = Object.freeze({
-        "ind": "Indicator",
+        //"ind": "Indicator",
         "obs": "Observable",
         "ttp": "TTP",
-        "coa": "Course Of Action",
-        "act": "Threat Actor",
-        "cam": "Campaign",
-        "inc": "Incident",
-        "tgt": "Exploit Target",
-        "pkg": "Package"
+        //"coa": "Course Of Action",
+        //"act": "Threat Actor",
+        //"cam": "Campaign",
+        //"inc": "Incident",
+        "tgt": "Exploit Target"
+        //"pkg": "Package"
     });
     var rate_limited = Object.freeze({rateLimit: {timeout: 50, method: "notifyWhenChangesStop"}});
 
@@ -44,6 +45,7 @@ define([
             this.selectedDuplicate = ko.observable(null);
             this.analysisStatus = ko.observable(0);
             this.analysis = ko.observable(null);
+            this.searching = ko.observable(true);
 
             this.typesWithDuplicates = ko.computed(function () {
                 var typesWithDuplicates = [];
@@ -102,7 +104,19 @@ define([
         },
 
         _onDuplicatesLoaded: function (duplicates) {
+            this.searching(false);
             this.duplicates(duplicates);
+
+            if (this.typesWithDuplicates().length == 0) {
+                var modal = new Modal({
+                    title: "Info",
+                    titleIcon: "glyphicon-info-sign",
+                    contentData: 'No Duplicates found',
+                    width: "70%"
+                });
+                modal.show();
+                modal.getButtonByLabel("OK").callback = history.back.bind(history);
+            }
         },
 
         _onOriginalChanged: function (newId) {

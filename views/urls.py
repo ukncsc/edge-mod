@@ -94,7 +94,7 @@ navitems = [
     ('Clone to Draft', 'clone_to_draft'),
     ('Visualiser', 'visualiser_discover'),
     ('Incident Timeline', 'timeline_discover'),
-    # ('Duplicates Finder', 'duplicates_finder'),
+    ('Duplicates Finder', 'duplicates_finder'),
     ('Activity Log', 'activity_log'),
     ('CERT-UK Configuration', 'publisher_config')
 ]

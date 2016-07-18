@@ -18,9 +18,9 @@ def find_duplicates(type_):
     return transform(get_db().stix.aggregate([
         {
             '$match': {
-                '_id': {
-                    '$regex': LOCAL_ALIAS_REGEX
-                },
+                # '_id': {
+                #     '$regex': LOCAL_ALIAS_REGEX
+                # },
                 'type': type_
             }
         },
