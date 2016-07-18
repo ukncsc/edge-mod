@@ -1,3 +1,5 @@
+import json
+
 from defusedxml import EntitiesForbidden
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -5,6 +7,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from lxml.etree import XMLSyntaxError
 from mongoengine import DoesNotExist
+from mongoengine.connection import get_db
 
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
@@ -12,23 +15,27 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from edge.inbox import InboxError
+from edge.generic import EdgeObject
 from edge.models import StixBacklink
 from edge.tools import StopWatch
 from users.decorators import login_required_ajax
 from users.models import Repository_User
 from .duplicates_finder import find_duplicates
-
+from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 
 @login_required
 def duplicates_finder(request):
     request.breadcrumbs([("Duplicates Finder", "")])
-    return render(request, "duplicates_finder.html", {})
+    return render(request, "duplicates_finder.html", {
+        "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES
+    }})
 
 
 @login_required_ajax
 def ajax_load_duplicates(request, typ):
     try:
-        duplicates = find_duplicates(typ)
+        local = request.body
+        duplicates = find_duplicates(typ, local)
         return JsonResponse({
             typ: duplicates
         }, status=200)
@@ -53,10 +60,34 @@ def ajax_load_parent_ids(request, id_):
     try:
         parents = StixBacklink.objects.get(id=id_).edges
         return JsonResponse(parents, status=200)
+    except DoesNotExist as e:
+        return JsonResponse({
+            'Not found': id_ + ' has no backlinks'
+        }, status=200)
     except Exception as e:
         return JsonResponse({
             'message': e.message
         }, status=500)
+
+
+@login_required_ajax
+def ajax_merge_objects(request):
+    db = get_db()
+    raw_body = json.loads(request.body)
+    map_table = {raw_body['original']: raw_body['duplicate']}
+    existing_object = EdgeObject.load((raw_body['duplicate'])).to_ApiObject()
+    existing_object.remap(map_table)
+    db.stix.remove({'_id': raw_body['duplicate']})
+
+    try:
+        parents = StixBacklink.objects.get(id=raw_body['duplicate']).edges
+        db.stix_backlinks.update({'_id': raw_body['original'], '$set': {'values': parents}})
+        db.stix_backlinks.remove({'_id': raw_body['duplicate']})
+    except DoesNotExist as e:
+        pass
+    return JsonResponse({
+        'data': 'Merged'
+    }, status=200)
 
 
 @csrf_exempt

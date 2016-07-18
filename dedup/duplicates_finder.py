@@ -11,18 +11,19 @@ from mongoengine.connection import get_db
 LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
 
 
-def find_duplicates(type_):
+def find_duplicates(type_, local):
+    if local:
+        namespace_query = {'_id': {'$regex': LOCAL_ALIAS_REGEX}, 'type': type_}
+    else:
+        namespace_query = {'type': type_}
+
+
     def transform(cursor):
         return {row.get('uniqueIds')[0]: row.get('uniqueIds')[1:] for row in cursor}
 
     return transform(get_db().stix.aggregate([
         {
-            '$match': {
-                # '_id': {
-                #     '$regex': LOCAL_ALIAS_REGEX
-                # },
-                'type': type_
-            }
+            '$match': namespace_query
         },
         {
             '$sort': {

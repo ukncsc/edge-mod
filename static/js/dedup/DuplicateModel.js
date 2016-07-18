@@ -12,15 +12,15 @@ define([
     "use strict";
 
     var type_labels = Object.freeze({
-        //"ind": "Indicator",
+        "ind": "Indicator",
         "obs": "Observable",
         "ttp": "TTP",
-        //"coa": "Course Of Action",
-        //"act": "Threat Actor",
-        //"cam": "Campaign",
-        //"inc": "Incident",
-        "tgt": "Exploit Target"
-        //"pkg": "Package"
+        "coa": "Course Of Action",
+        "act": "Threat Actor",
+        "cam": "Campaign",
+        "inc": "Incident",
+        "tgt": "Exploit Target",
+        "pkg": "Package"
     });
     var rate_limited = Object.freeze({rateLimit: {timeout: 50, method: "notifyWhenChangesStop"}});
 
@@ -46,6 +46,7 @@ define([
             this.analysisStatus = ko.observable(0);
             this.analysis = ko.observable(null);
             this.searching = ko.observable(true);
+            this.localNamespace = ko.observable(true);
 
             this.typesWithDuplicates = ko.computed(function () {
                 var typesWithDuplicates = [];
@@ -80,6 +81,9 @@ define([
 
             this.selectedOriginalId.subscribe(this._onOriginalChanged, this);
             this.selectedDuplicateId.subscribe(this._onDuplicateChanged, this);
+            this.localNamespace.subscribe(function(){
+                this.loadDuplicates();
+            }, this);
         },
 
         loadDuplicates: function () {
@@ -87,7 +91,7 @@ define([
             var allDuplicates = {};
             var numLoading = types.length;
             ko.utils.arrayForEach(types, function (type) {
-                getJSON("/adapter/certuk_mod/duplicates/" + type, null, function (data) {
+                _postJSON("/adapter/certuk_mod/duplicates/" + type, this.localNamespace(), function (data) {
                     this._onDuplicateLoaded(allDuplicates, data, --numLoading);
                 }.bind(this), function (error) {
                     console.error(error);
@@ -147,6 +151,22 @@ define([
                 this.analysis(data);
                 this.analysisStatus(3);
             }.bind(this), function (error) {
+                this.analysis(error);
+                this.analysisStatus(3);
+            }.bind(this));
+        },
+
+        merge: function() {
+            var data = {
+                duplicate: this.selectedDuplicateId(),
+                original: this.selectedOriginalId()
+            };
+            this.analysisStatus(2);
+            _postJSON("/adapter/certuk_mod/duplicates/merge/", data, function(data) {
+                this.loadDuplicates();
+                this.analysis(data);
+                this.analysisStatus(3);
+            }.bind(this), function(error) {
                 this.analysis(error);
                 this.analysisStatus(3);
             }.bind(this));

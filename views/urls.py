@@ -51,6 +51,7 @@ publisher_urls = [
     (r'^duplicates/(?P<typ>' + VALID_TYPES + ')$', 'views.ajax_load_duplicates', 'duplicates_duplicates_loader'),
     (r'^duplicates/object/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_load_object', 'duplicates_object_loader'),
     (r'^duplicates/parents/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_load_parent_ids', 'duplicates_parents_loader'),
+    (r'^duplicates/merge/$', 'views.ajax_merge_objects', 'duplicates_merge'),
     (r'^ajax/get_sites/$', 'views.ajax_get_sites', None),
     (r'^ajax/set_publish_site/$', 'views.ajax_set_publish_site', None),
     (r'^ajax/publish/$', 'views.ajax_publish', None),
