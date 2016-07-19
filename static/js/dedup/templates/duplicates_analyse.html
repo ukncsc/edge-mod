@@ -1,7 +1,6 @@
 <hr>
-<div class="row button-group" data-bind="if: analysisStatus() === 1">
-    <button data-bind="click: analyse.bind($root)" class="btn btn-default pull-right">Analyse</button>
-    <button data-bind="click: merge.bind($root)" class="btn btn-default pull-right">Merge</button>
+<div class="row" data-bind="if: analysisStatus() === 3">
+    <pre data-bind="text: ko.toJSON(analysis, null, 2)"></pre>
 </div>
 <div class="row" data-bind="if: analysisStatus() === 2">
     <div class="jumbotron">
@@ -12,6 +11,7 @@
         </div>
     </div>
 </div>
-<div class="row" data-bind="if: analysisStatus() === 3">
-    <pre data-bind="text: ko.toJSON(analysis, null, 2)"></pre>
+<div class="row button-group" data-bind="if: analysisStatus() === 1 || 3">
+    <button data-bind="click: analyse.bind($root)" class="btn btn-default pull-right">Analyse</button>
+    <button data-bind="click: merge.bind($root)" class="btn btn-default pull-right">Merge</button>
 </div>

@@ -14,7 +14,7 @@ from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
-from edge.inbox import InboxError
+from edge.inbox import InboxError, InboxProcessorForBuilders, InboxItem
 from edge.generic import EdgeObject
 from edge.models import StixBacklink
 from edge.tools import StopWatch
@@ -23,12 +23,13 @@ from users.models import Repository_User
 from .duplicates_finder import find_duplicates
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 
+
 @login_required
 def duplicates_finder(request):
     request.breadcrumbs([("Duplicates Finder", "")])
     return render(request, "duplicates_finder.html", {
         "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES
-    }})
+                              }})
 
 
 @login_required_ajax
@@ -72,21 +73,37 @@ def ajax_load_parent_ids(request, id_):
 
 @login_required_ajax
 def ajax_merge_objects(request):
-    db = get_db()
     raw_body = json.loads(request.body)
-    map_table = {raw_body['original']: raw_body['duplicate']}
-    existing_object = EdgeObject.load((raw_body['duplicate'])).to_ApiObject()
-    existing_object.remap(map_table)
-    db.stix.remove({'_id': raw_body['duplicate']})
+    original, duplicate, type = raw_body['original'], raw_body['duplicate'], raw_body['type']
+    parents_of_duplicate, parents_of_original = {}, {}
 
     try:
-        parents = StixBacklink.objects.get(id=raw_body['duplicate']).edges
-        db.stix_backlinks.update({'_id': raw_body['original'], '$set': {'values': parents}})
-        db.stix_backlinks.remove({'_id': raw_body['duplicate']})
+        parents_of_duplicate = StixBacklink.objects.get(id=duplicate).edges
     except DoesNotExist as e:
         pass
+    try:
+        parents_of_original = StixBacklink.objects.get(id=original).edges
+    except DoesNotExist as e:
+        pass
+    new_parents = parents_of_duplicate.copy()
+    new_parents.update(parents_of_original)
+    if new_parents:
+        get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
+    if parents_of_duplicate:
+        get_db().stix_backlinks.remove({'_id': duplicate})
+    get_db().stix.remove({'_id': duplicate})
+
+    map_table = {duplicate: original}
+
+    for _id, type in parents_of_duplicate.iteritems():
+        stix_remp = EdgeObject.load(_id).to_ApiObject()
+        stix_remp.remap(map_table)
+        ip = InboxProcessorForBuilders(user=request.user, trustgroups=None)
+        ip.add(InboxItem(api_object=stix_remp, etlp='GREEN', esms=''))
+        ip.run()
+
     return JsonResponse({
-        'data': 'Merged'
+        'validation_message': 'Merged'
     }, status=200)
 
 

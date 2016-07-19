@@ -11,6 +11,11 @@
 
 {% block body-content %}
     <div class="container">
+
+        <div class="row">
+            <div data-bind="template:'duplicates-type-selector'"></div>
+        </div>
+
         <!-- ko if: searching -->
         <div class="jumbotron">
             <img src="/static/img/soltra_flame_anim.gif" class="pull-left" style="margin:2em">
@@ -22,9 +27,6 @@
         <!-- /ko -->
 
         <!-- ko if: selectedType -->
-        <div class="row">
-            <div data-bind="template:'duplicates-type-selector'"></div>
-        </div>
         <div class="row">
             <div data-bind="template:'duplicates-original-selector'"></div>
             <div data-bind="template:'duplicates-duplicate-selector'"></div>
@@ -51,5 +53,5 @@
         };
         var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
     </script>
-    <script src="/adapter/certuk_mod{% static 'js/require.js'%}" data-main="dedup/main"></script>
+    <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="dedup/main"></script>
 {% endblock %}

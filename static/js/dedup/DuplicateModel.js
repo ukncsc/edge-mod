@@ -12,7 +12,7 @@ define([
     "use strict";
 
     var type_labels = Object.freeze({
-        "ind": "Indicator",
+        //"ind": "Indicator",
         "obs": "Observable",
         "ttp": "TTP",
         "coa": "Course Of Action",
@@ -61,6 +61,10 @@ define([
                 if (typesWithDuplicates.length > 0) {
                     this.selectedType(typesWithDuplicates[0].type);
                 }
+                else {
+                    typesWithDuplicates.push({type: '', label: buildLabel('No Duplicates Found', "", 0)});
+                    this.selectedType(typesWithDuplicates[0].type);
+                }
                 return typesWithDuplicates;
             }, this);
             this.originalsForType = ko.computed(function () {
@@ -87,6 +91,7 @@ define([
         },
 
         loadDuplicates: function () {
+            this.searching(true);
             var types = Object.keys(type_labels);
             var allDuplicates = {};
             var numLoading = types.length;
@@ -110,17 +115,6 @@ define([
         _onDuplicatesLoaded: function (duplicates) {
             this.searching(false);
             this.duplicates(duplicates);
-
-            if (this.typesWithDuplicates().length == 0) {
-                var modal = new Modal({
-                    title: "Info",
-                    titleIcon: "glyphicon-info-sign",
-                    contentData: 'No Duplicates found',
-                    width: "70%"
-                });
-                modal.show();
-                modal.getButtonByLabel("OK").callback = history.back.bind(history);
-            }
         },
 
         _onOriginalChanged: function (newId) {
@@ -159,7 +153,8 @@ define([
         merge: function() {
             var data = {
                 duplicate: this.selectedDuplicateId(),
-                original: this.selectedOriginalId()
+                original: this.selectedOriginalId(),
+                type: this.selectedType()
             };
             this.analysisStatus(2);
             _postJSON("/adapter/certuk_mod/duplicates/merge/", data, function(data) {
