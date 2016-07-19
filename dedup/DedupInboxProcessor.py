@@ -105,8 +105,7 @@ def _find_matching_db_file_obs(db, new_file_obs):
     new_sha384s = extract_properties(new_file_obs, PROPERTY_SHA384)
     new_sha512s = extract_properties(new_file_obs, PROPERTY_SHA512)
     existing_file_obs = db.stix.find({
-        'type': 'obs',
-        'data.api.object.properties.xsi:type': 'FileObjectType',
+        'data.summary.type': 'FileObjectType',
         '$or': [
             {
                 'data.api.object.properties.file_name': {'$in': new_filenames}
@@ -174,13 +173,13 @@ def _add_matching_file_observables(db, map_table, contents):
         return
 
     existing_file_obs = _find_matching_db_file_obs(db, new_file_obs)
-    if not existing_file_obs:
-        # if we have no matching existing file observables, we can bail out
-        return
 
     for existing_file in existing_file_obs:
+        existing_file_obj = EdgeObject(existing_file).to_ApiObject()
         for (new_id, new_file) in new_file_obs.iteritems():
-            if _is_matching_file(EdgeObject(existing_file).to_ApiObject(), new_file.api_object):
+            if new_id in map_table:
+                break
+            if _is_matching_file(existing_file_obj, new_file.api_object):
                 map_table[new_id] = existing_file['_id']
 
 

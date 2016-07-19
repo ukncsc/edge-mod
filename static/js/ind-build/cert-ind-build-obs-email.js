@@ -13,13 +13,6 @@ define([
                     "failedValidationMessage": "The 'from' field must be populated."
                 }
             }).valueHasMutated();
-
-            this.subject.extend({
-                validate: {
-                    "isValidCallback": validation.isNotEmpty,
-                    "failedValidationMessage": "The subject is required."
-                }
-            }).valueHasMutated();
         },
 
         doValidation: declare.superCall(function (sup) {
@@ -27,9 +20,6 @@ define([
                 var msgs = sup.call(this);
                 if (this.from.hasError()) {
                     msgs.addError(this.from.errorMessage());
-                }
-                if (this.subject.hasError()) {
-                    msgs.addError(this.subject.errorMessage());
                 }
                 return msgs;
             };
