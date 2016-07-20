@@ -16,9 +16,10 @@
             }
         ">
             <div class="panel-heading" data-bind="text:label"></div>
-            <div class="panel-body">
-                <img src="" style="width:100%;height:auto;"
-                     data-bind="attr: { src: '/adapter/certuk_mod/static/js/dashboard/proto/' + content() }">
+            <div class="panel-body" style="height:90%; width:100%" >
+                <iframe style="height:100%; width:100%" src="" data-bind="attr: { src: content() }"></iframe>
+                <!--<img src="" style="width:100%;height:auto;"
+                     data-bind="attr: { src: '/adapter/certuk_mod/static/js/dashboard/proto/' + content() }"> -->
             </div>
         </li>
     <!-- /ko -->

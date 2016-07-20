@@ -31,8 +31,8 @@
         <tbody>
             <!-- ko foreach: { data:rowdata, as:'row' } -->
             <tr>
-                <!-- ko foreach: row -->
-                <td data-bind="text:$data"></td>
+                <!-- ko foreach: $parent.columns -->
+                <td data-bind="text:$parents[1].get_index($data, row)"></td>
                 <!-- /ko -->
             </tr>
             <!-- /ko -->
