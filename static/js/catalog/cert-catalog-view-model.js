@@ -6,9 +6,10 @@ define([
     "catalog/cert-catalog-build-section",
     "common/topic",
     "catalog/cert-catalog-topics",
+    "catalog/cert-catalog-handling",
     "kotemplate!publish-modal:./templates/publish-modal-content.html",
     "kotemplate!validation-results:./templates/validation-results.html"
-], function (declare, ko, Modal, StixPackage, Section, Topic, topics, publishModalTemplate) {
+], function (declare, ko, Modal, StixPackage, Section, Topic, topics, Handling, publishModalTemplate) {
     "use strict";
 
     return declare(null, {
@@ -24,6 +25,7 @@ define([
             this.viewURL = ko.observable(viewURL);
             this.editURL = ko.observable(editURL);
             this.section = ko.observable(new Section());
+            this.handling = ko.observable(new Handling());
             this.timekey = ko.observable();
             Topic.subscribe(topics.REVISION, function (data) {
                 this.timekey(data)
@@ -72,6 +74,10 @@ define([
                 noButton.hide(true);
                 closeButton.hide(false);
             }.bind(this));
+        },
+
+        onPublish2: function() {
+            this.handling().onPublish2();
         },
 
         onPublish: function () {
