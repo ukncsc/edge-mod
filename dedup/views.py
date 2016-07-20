@@ -14,7 +14,7 @@ from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
-from edge.inbox import InboxError, InboxProcessorForBuilders, InboxItem
+from edge.inbox import InboxError, InboxProcessor, InboxItem
 from edge.generic import EdgeObject
 from edge.models import StixBacklink
 from edge.tools import StopWatch
@@ -57,14 +57,25 @@ def ajax_load_object(request, id_):
 
 
 @login_required_ajax
-def ajax_load_parent_ids(request, id_):
+def ajax_load_parent_ids(request):
+    result = []
+    parents_of_original, parents_of_duplciate = {}, {}
     try:
-        parents = StixBacklink.objects.get(id=id_).edges
-        return JsonResponse(parents, status=200)
-    except DoesNotExist as e:
-        return JsonResponse({
-            'Not found': id_ + ' has no backlinks'
-        }, status=200)
+        raw_body = json.loads(request.body)
+        original, duplicate = raw_body['original'], raw_body['duplicate']
+        try:
+            parents_of_original = StixBacklink.objects.get(id=original).edges
+        except DoesNotExist as e:
+            pass
+        try:
+            parents_of_duplciate = StixBacklink.objects.get(id=duplicate).edges
+        except DoesNotExist as e:
+            pass
+        for id in parents_of_original.keys():
+            result.append({'id': id, 'type': 'original'})
+        for id in parents_of_duplciate.keys():
+            result.append({'id': id, 'type': 'duplicate'})
+        return JsonResponse(result, status=200, safe=False)
     except Exception as e:
         return JsonResponse({
             'message': e.message
@@ -73,38 +84,43 @@ def ajax_load_parent_ids(request, id_):
 
 @login_required_ajax
 def ajax_merge_objects(request):
-    raw_body = json.loads(request.body)
-    original, duplicate, type = raw_body['original'], raw_body['duplicate'], raw_body['type']
-    parents_of_duplicate, parents_of_original = {}, {}
-
     try:
-        parents_of_duplicate = StixBacklink.objects.get(id=duplicate).edges
-    except DoesNotExist as e:
-        pass
-    try:
-        parents_of_original = StixBacklink.objects.get(id=original).edges
-    except DoesNotExist as e:
-        pass
-    new_parents = parents_of_duplicate.copy()
-    new_parents.update(parents_of_original)
-    if new_parents:
-        get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
-    if parents_of_duplicate:
-        get_db().stix_backlinks.remove({'_id': duplicate})
-    get_db().stix.remove({'_id': duplicate})
+        raw_body = json.loads(request.body)
+        original, duplicate, _type = raw_body['original'], raw_body['duplicate'], raw_body['type']
+        parents_of_duplicate, parents_of_original = {}, {}
 
-    map_table = {duplicate: original}
+        try:
+            parents_of_duplicate = StixBacklink.objects.get(id=duplicate).edges
+        except DoesNotExist as e:
+            pass
+        try:
+            parents_of_original = StixBacklink.objects.get(id=original).edges
+        except DoesNotExist as e:
+            pass
+        new_parents = parents_of_duplicate.copy()
+        new_parents.update(parents_of_original)
+        if new_parents:
+            get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
+        if parents_of_duplicate:
+            get_db().stix_backlinks.remove({'_id': duplicate})
+        get_db().stix.remove({'_id': duplicate})
 
-    for _id, type in parents_of_duplicate.iteritems():
-        stix_remp = EdgeObject.load(_id).to_ApiObject()
-        stix_remp.remap(map_table)
-        ip = InboxProcessorForBuilders(user=request.user, trustgroups=None)
-        ip.add(InboxItem(api_object=stix_remp, etlp='GREEN', esms=''))
-        ip.run()
+        map_table = {duplicate: original}
 
-    return JsonResponse({
-        'validation_message': 'Merged'
-    }, status=200)
+        for _id, type in parents_of_duplicate.iteritems():
+            stix_remp = EdgeObject.load(_id).to_ApiObject()
+            stix_remp.remap(map_table)
+            ip = InboxProcessor(user=request.user, trustgroups=None)
+            ip.add(InboxItem(api_object=stix_remp, etlp='GREEN', esms=''))
+            ip.run()
+        #log_activity(request.user, 'DEDUP', 'INFO', )
+        return JsonResponse({
+            'validation_message': 'Merged'
+        }, status=200)
+    except Exception as e:
+        return JsonResponse({
+            'message': e.message
+        }, status=500)
 
 
 @csrf_exempt

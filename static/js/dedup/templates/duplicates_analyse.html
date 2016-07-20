@@ -1,12 +1,8 @@
-<hr>
-<div class="row" data-bind="if: analysisStatus() === 3">
-    <pre data-bind="text: ko.toJSON(analysis, null, 2)"></pre>
-</div>
 <div class="row" data-bind="if: analysisStatus() === 2">
     <div class="jumbotron">
         <img src="/static/img/soltra_flame_anim.gif" class="pull-left" style="margin:2em">
         <div>
-            <h1>Analysing&hellip;</h1>
+            <h1 data-bind="text: analysisText">&hellip;</h1>
             <p>This may take a few minutes. Please be patient.</p>
         </div>
     </div>

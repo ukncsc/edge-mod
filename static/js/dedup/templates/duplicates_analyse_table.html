@@ -1,0 +1,21 @@
+<!-- ko if: $data.length > 0 -->
+<table class="table table-responsive">
+    <h3>STIX Backlinks</h3>
+    <thead>
+    <tr>
+        <td>IDs</td>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- ko foreach: $data -->
+    <tr>
+        <td><a data-bind="attr:{ href: '/adapter/certuk_mod/visualiser/' + id, target: '_blank'}"><span data-bind="text: id"></span></a></td>
+    </tr>
+    <!-- /ko -->
+    </tbody>
+</table>
+<!-- /ko -->
+
+<!-- ko ifnot: $data.length > 0 -->
+    <h3>No Backlinks found</h3>
+<!-- /ko -->

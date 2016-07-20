@@ -5,9 +5,9 @@
         <div class="col-sm-12">
             <div class="form-group">
                 <select class="form-control" data-bind="
-                value: selectedOriginalId,
-                disable: originalsForType().length < 2,
-                options: originalsForType
+                    value: selectedOriginalId,
+                    disable: originalsForType().length < 2,
+                    options: originalsForType
             "></select>
             </div>
         </div>
@@ -17,4 +17,9 @@
         name: 'duplicates-preview',
         data: selectedOriginal
     }"></div>
+    <hr>
+    <div data-bind="template: {
+         if: analysisStatus() === 3,
+         name: 'duplicates-analyse-table',
+         data: analysisOriginal}"></div>
 </fieldset>
