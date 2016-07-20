@@ -33,7 +33,7 @@ from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
 from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser, extract_visualiser_get, \
     extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables, \
-    extract_visualiser_get_extended
+    extract_visualiser_get_extended, delete_extract, extract_list, extract_status, uploaded_stix_extracts
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.cron import setup as cron_setup
 
@@ -47,7 +47,7 @@ from adapters.certuk_mod.fts.views import ajax_get_fts_config, ajax_reset_fts_co
 
 from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, \
     ajax_load_parent_ids, ajax_import
-from adapters.certuk_mod.config.views import ajax_get_crm_url, ajax_set_crm_url, ajax_get_cert_config, \
+from adapters.certuk_mod.config.views import ajax_get_crm_config, ajax_set_crm_config, ajax_get_cert_config, \
     ajax_get_sharing_groups, ajax_set_sharing_groups
 from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
