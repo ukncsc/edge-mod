@@ -55,7 +55,7 @@ from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
 
 from adapters.certuk_mod.common.objectid import discover as objectid_discover, find_id as objectid_find
-from adapters.certuk_mod.catalog.backedge import BackEdgeGenerator
+from adapters.certuk_mod.catalog.backlink import BackLinkGenerator
 from adapters.certuk_mod.catalog.duplicates import DuplicateFinder
 from adapters.certuk_mod.catalog.edges import EdgeGenerator
 
@@ -144,17 +144,17 @@ def _get_request_username(request):
 
 
 @login_required
-def review(request, id_):
-    root_edge_object = PublisherEdgeObject.load(id_, filters=request.user.filters(), include_revision_index=True)
+def review(request, id):
+    root_edge_object = PublisherEdgeObject.load(id, filters=request.user.filters(), include_revision_index=True)
     package = PackageGenerator.build_package(root_edge_object)
     validation_info = PackageValidationInfo.validate(package)
     user_loader = lambda idref: EdgeObject.load(idref, request.user.filters())
-    back_edges = BackEdgeGenerator.retrieve_back_edges(root_edge_object, user_loader)
+    back_edges = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
     edges = EdgeGenerator.gather_edges(root_edge_object.edges, depth_limit=EDGE_DEPTH_LIMIT, load_by_id=user_loader)
 
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
-        validation_info.validation_dict.update({id_: {"created_by":
+        validation_info.validation_dict.update({id: {"created_by":
                                                           {"status": ValidationStatus.WARN,
                                                            "message": "This object was created by %s not %s"
                                                                       % (root_edge_object.created_by_username,
@@ -162,14 +162,14 @@ def review(request, id_):
 
     request.breadcrumbs([("Publisher", "")])
     return render(request, "catalog_review.html", {
-        "root_id": id_,
+        "root_id": id,
         "package": package,
         "validation_info": validation_info,
         "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
         "back_edges": json.dumps(back_edges),
         "edges": json.dumps(edges),
-        'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/view/%s/' % urllib.quote(id_)),
-        'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/edit/%s/' % urllib.quote(id_)),
+        'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/view/%s/' % urllib.quote(id)),
+        'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/edit/%s/' % urllib.quote(id)),
         "revisions": json.dumps(root_edge_object.revisions),
         'ajax_uri': reverse('catalog_ajax')
     })

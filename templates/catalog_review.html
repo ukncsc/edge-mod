@@ -17,14 +17,9 @@
         <div class="row" data-bind="template: 'header'"></div>
         <div class="row" data-bind="template: 'warning'"></div>
         <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
-        <div class="col-sm-12" data-bind="if: type().code == 'inc'">
-            <h3>
-                <a data-toggle="collapse" data-target="#collapseTimeline">Timeline</a>
-            </h3>
-            <div id="collapseTimeline" class="panel-collapse collapse in">
-                <div id="incidentTimelineSVG" class="chart float-right"></div>
-            </div>
-        </div>
+        <!-- ko if: type().code == "inc" -->
+        <div id="incidentTimelineSVG" class="col-sm-12 chart"></div>
+        <!-- /ko -->
         <div data-bind="template: { name: 'Edges', data: section().findByLabel('Edges')}"></div>
         <div data-bind="template: { name: 'Matching', data: section().findByLabel('Matching')}"></div>
         <div data-bind="template: { name: 'References', data: section().findByLabel('References')}"></div>
