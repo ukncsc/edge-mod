@@ -6,12 +6,10 @@
         <td>IDs</td>
     </tr>
     </thead>
-    <tbody>
-    <!-- ko foreach: $data -->
+    <tbody data-bind="foreach: $data">
     <tr>
-        <td><a data-bind="attr:{ href: '/adapter/certuk_mod/visualiser/' + id, target: '_blank'}"><span data-bind="text: id"></span></a></td>
+        <td><a data-bind="text: $data, attr:{ href: '/adapter/certuk_mod/visualiser/' + $data, target: '_blank'}"></a></td>
     </tr>
-    <!-- /ko -->
     </tbody>
 </table>
 <!-- /ko -->

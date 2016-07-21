@@ -24,6 +24,56 @@ from .duplicates_finder import find_duplicates
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 
 
+def remap_parent_objects(parents, duplicate, map_table, user):
+    ip = InboxProcessor(user=user, trustgroups=None)
+    validation_message = {}
+    for _id in parents.keys():
+        try:
+            api_obj = EdgeObject.load(_id).to_ApiObject()
+            api_obj.remap(map_table)
+            ip.add(InboxItem(api_object=api_obj, etlp='NULL', esms=''))
+        except InboxError as e:
+            return JsonResponse({
+                'message': e.message
+            }, status=500)
+    try:
+        ip.run()
+    except InboxError as e:
+        return JsonResponse({
+            'message': e.message
+        }, status=500)
+    get_db().stix.remove({'_id': {
+        '$in': duplicate}})
+    return validation_message
+
+
+def remap_backlinks(original, duplicate, type):
+    parents_of_original, parents_of_duplicate = calculate_backlinks(original, duplicate)
+
+    # new_parents = parents_of_duplicate.copy()
+    # new_parents.update(parents_of_original)
+    # if new_parents:
+    #     get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
+    if parents_of_duplicate:
+        get_db().stix_backlinks.remove({'_id': {'$in': duplicate}})
+
+    return parents_of_original, parents_of_duplicate
+
+
+def calculate_backlinks(original, duplicate):
+    parents_of_original, parents_of_duplicate = {}, {}
+    try:
+        parents_of_original = StixBacklink.objects.get(id=original).edges
+    except DoesNotExist as e:
+        pass
+    for dup in duplicate:
+        try:
+            parents_of_duplicate.update(StixBacklink.objects.get(id=dup).edges)
+        except DoesNotExist as e:
+            pass
+    return parents_of_original, parents_of_duplicate
+
+
 @login_required
 def duplicates_finder(request):
     request.breadcrumbs([("Duplicates Finder", "")])
@@ -58,24 +108,16 @@ def ajax_load_object(request, id_):
 
 @login_required_ajax
 def ajax_load_parent_ids(request):
-    result = []
-    parents_of_original, parents_of_duplciate = {}, {}
+    result = {}
     try:
         raw_body = json.loads(request.body)
-        original, duplicate = raw_body['original'], raw_body['duplicate']
-        try:
-            parents_of_original = StixBacklink.objects.get(id=original).edges
-        except DoesNotExist as e:
-            pass
-        try:
-            parents_of_duplciate = StixBacklink.objects.get(id=duplicate).edges
-        except DoesNotExist as e:
-            pass
-        for id in parents_of_original.keys():
-            result.append({'id': id, 'type': 'original'})
-        for id in parents_of_duplciate.keys():
-            result.append({'id': id, 'type': 'duplicate'})
-        return JsonResponse(result, status=200, safe=False)
+        original, duplicate = raw_body.get('original'), raw_body.get('duplicate')
+        parents_of_original, parents_of_duplicate = calculate_backlinks(original, duplicate)
+        for _id in parents_of_original.keys():
+            result.setdefault('original', []).append(_id)
+        for _id in parents_of_duplicate.keys():
+            result.setdefault('duplicate', []).append(_id)
+        return JsonResponse(result, status=200)
     except Exception as e:
         return JsonResponse({
             'message': e.message
@@ -85,35 +127,15 @@ def ajax_load_parent_ids(request):
 @login_required_ajax
 def ajax_merge_objects(request):
     try:
+        user = request.user
         raw_body = json.loads(request.body)
-        original, duplicate, _type = raw_body['original'], raw_body['duplicate'], raw_body['type']
-        parents_of_duplicate, parents_of_original = {}, {}
+        original, duplicate, _type = raw_body.get('original'), raw_body.get('duplicate'), raw_body['type']
+        parents_of_original, parents_of_duplicate = remap_backlinks(original, duplicate, type)
 
-        try:
-            parents_of_duplicate = StixBacklink.objects.get(id=duplicate).edges
-        except DoesNotExist as e:
-            pass
-        try:
-            parents_of_original = StixBacklink.objects.get(id=original).edges
-        except DoesNotExist as e:
-            pass
-        new_parents = parents_of_duplicate.copy()
-        new_parents.update(parents_of_original)
-        if new_parents:
-            get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
-        if parents_of_duplicate:
-            get_db().stix_backlinks.remove({'_id': duplicate})
-        get_db().stix.remove({'_id': duplicate})
+        map_table = {dup: original for dup in duplicate}
+        validation_message = remap_parent_objects(parents_of_duplicate, duplicate, map_table, user)
 
-        map_table = {duplicate: original}
-
-        for _id, type in parents_of_duplicate.iteritems():
-            stix_remp = EdgeObject.load(_id).to_ApiObject()
-            stix_remp.remap(map_table)
-            ip = InboxProcessor(user=request.user, trustgroups=None)
-            ip.add(InboxItem(api_object=stix_remp, etlp='GREEN', esms=''))
-            ip.run()
-        #log_activity(request.user, 'DEDUP', 'INFO', )
+        # log_activity(user, 'DEDUP', 'INFO', validation_message)
         return JsonResponse({
             'validation_message': 'Merged'
         }, status=200)
