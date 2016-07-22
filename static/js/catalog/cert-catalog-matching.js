@@ -14,12 +14,12 @@ define([
         },
 
         loadStatic: function (optionsList) {
-            this.id(optionsList.rootId)
-            this.load();
+            this.id(optionsList.rootId);
+            //this.load();
         },
 
         load: function () {
-            postJSON("duplicates/"+ this.id(), this.id(), function (response) {
+            postJSON("/review/duplicates/"+ this.id(), this.id(), function (response) {
                 this.duplicates(response);
             }.bind(this), function (error) {
                 showErrorModal(error, false)

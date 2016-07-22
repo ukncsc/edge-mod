@@ -78,7 +78,6 @@ define([
             var validations = this.stixPackage().validations();
             var contentData = {
                 phase: ko.observable("INPUT"),
-                message: ko.observable("Are you absolutely sure you want to publish this package?"),
                 messageWarning: "This package has warnings. If you wish to proceed, please describe below why you believe the warnings are not relevant in this case",
                 messageError: "This package has errors and cannot be published",
                 validations: validations,

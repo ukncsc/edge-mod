@@ -15,8 +15,8 @@
         {% include 'catalog-referenced-by.html' %}
         {% include 'catalog-edges.html' %}
         <div class="row" data-bind="template: 'header'"></div>
-        <div class="row" data-bind="template: 'warning'"></div>
         <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
+        </br>
         <!-- ko if: type().code == "inc" -->
         <div id="incidentTimelineSVG" class="col-sm-12 chart"></div>
         <!-- /ko -->
@@ -39,9 +39,11 @@
                     <a type="button" class="btn btn-info pull-right"
                        data-bind="attr: { href: viewURL}">View in<br>Builder
                     </a>
+                    <!-- ko if: type().code != "obs" -->
                     <a type="button" class="btn btn-success pull-right"
                        data-bind="attr: { href: editURL}">Edit in<br>Builder
                     </a>
+                    <!-- /ko -->
                 </div>
                 <img alt="" src="" data-bind="attr: {
                     src: '{% static "img/hex" %}/hex_'+type().code+'.png'
