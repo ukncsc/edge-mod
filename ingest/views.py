@@ -64,7 +64,7 @@ def draft_wrapper(data, drafts, drafts_validation):
         draft, draft_validation = initialise_draft(incident)
         if draft != {}:
             drafts.append(draft)
-            drafts_validation.append(draft_validation)
+            drafts_validation.update(draft_validation)
     return drafts, drafts_validation
 
 
@@ -96,14 +96,11 @@ def build_validation_message(ip, drafts_validation, drafts, data):
             dropped_data) + ' incidents dropped as one of: (id, status, created timestamp, resolved timestamp) missing'
         ip.filter_messages.append(message)
     if ip.saved_count:
-        for _id, eo in ip.contents.iteritems():
-            validation_text = _id + ' - ' + eo.api_object.obj.title
+        for id_, eo in ip.contents.iteritems():
+            validation_text = id_ + ' - ' + eo.api_object.obj.title
             ids.append(validation_text)
-            for x in range(0, len(drafts_validation)):
-                if _id in drafts_validation[x]:
-                    ip.validation_result.update(drafts_validation[x])
-                    del drafts_validation[x]
-                    break
+            if drafts_validation.get(id_):
+                ip.validation_result.update({id_: drafts_validation[id_]})
     ip.filter_messages.extend(ids)
     return ip
 
@@ -130,7 +127,7 @@ def ajax_create_incidents(request, username):
         return JsonResponse({}, status=403)
 
     ip = None
-    data, drafts, drafts_validation = [], [], []
+    data, drafts, drafts_validation = [], [], {}
     elapsed = StopWatch()
     try:
         raw_data = REGEX_LINE_DELIMETER.split(request.read())
