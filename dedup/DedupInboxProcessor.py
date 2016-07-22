@@ -427,12 +427,12 @@ def _existing_tgt_local_ns_cve_dedup(contents, hashes, user):
 
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
-        # _new_hash_dedup,  # removes new STIX objects matched by hash
-        # _existing_hash_dedup,  # removes existing STIX objects matched by hash
-        # _new_ttp_local_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in local NS
-        # _existing_ttp_local_ns_capec_dedup,  # dedup against existing TTPs matched by CAPEC-IDs and Title in local NS
-        # _new_tgt_local_ns_cve_dedup,  # removes new tgts matched by CVE-ID in incoming package in local NS
-        # _existing_tgt_local_ns_cve_dedup,  # dedup against existing tgts matched by CVE-ID in local NS
+        _new_hash_dedup,  # removes new STIX objects matched by hash
+        _existing_hash_dedup,  # removes existing STIX objects matched by hash
+        _new_ttp_local_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in local NS
+        _existing_ttp_local_ns_capec_dedup,  # dedup against existing TTPs matched by CAPEC-IDs and Title in local NS
+        _new_tgt_local_ns_cve_dedup,  # removes new tgts matched by CVE-ID in incoming package in local NS
+        _existing_tgt_local_ns_cve_dedup,  # dedup against existing tgts matched by CVE-ID in local NS
         anti_ping_pong,  # removes existing STIX objects matched by id
     ]
 

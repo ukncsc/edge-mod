@@ -43,7 +43,7 @@ from adapters.certuk_mod.fts.views import ajax_get_fts_config, ajax_reset_fts_co
     ajax_set_fts_config
 
 from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, \
-    ajax_load_parent_ids, ajax_import,ajax_merge_objects
+    ajax_load_parent_ids, ajax_import, ajax_merge_object, ajax_merge_all
 from adapters.certuk_mod.config.views import ajax_get_crm_url, ajax_set_crm_url, ajax_get_cert_config, ajax_get_sharing_groups, ajax_set_sharing_groups
 from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event

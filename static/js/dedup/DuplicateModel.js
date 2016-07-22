@@ -10,14 +10,13 @@ define([
     "kotemplate!duplicates-analyse-table:./templates/duplicates_analyse_table.html"
 ], function (declare, ko, StixPackage) {
     "use strict";
-/*
-analysisStatus':
-    1 - Analyse and Merge options
-    2 - Analysis/Merging
-    3 - Show Backlinks Table
-    4 - Show Merge Result
-    5 - Show Error Result
- */
+    /*
+     analysisStatus':
+     1 - Analyse and Merge options
+     2 - Analysis/Merging
+     3 - Show Backlinks Table
+     4 - Show Merge/Error Result
+     */
     var type_labels = Object.freeze({
         //"ind": "Indicator",
         "obs": "Observable",
@@ -56,7 +55,7 @@ analysisStatus':
             this.analysisMerge = ko.observable(null);
             this.analysisText = ko.observable("");
             this.searching = ko.observable(true);
-            this.localNamespace = ko.observable(false);
+            this.localNamespace = ko.observable(true);
 
             this.typesWithDuplicates = ko.computed(function () {
                 var typesWithDuplicates = [];
@@ -75,6 +74,7 @@ analysisStatus':
                     typesWithDuplicates.push({type: '', label: buildLabel('No Duplicates Found', "", 0)});
                     this.selectedType(typesWithDuplicates[0].type);
                 }
+                this.searching(false);
                 return typesWithDuplicates;
             }, this);
             this.originalsForType = ko.computed(function () {
@@ -92,22 +92,25 @@ analysisStatus':
                 this.selectedDuplicateId(fromArray(duplicates, 0));
                 return duplicates;
             }, this);
-
-            this.allOriginalsAllDuplicatesForType = ko.computed(function() {
+            this.allOriginalsAllDuplicatesForType = ko.computed(function () {
                 var selectedType = this.selectedType();
                 var duplicates = this.duplicates();
                 return selectedType && duplicates ? duplicates[selectedType] : {};
             }, this);
+            this.enableMerge = ko.computed(function () {
+                return (!(this.analysisStatus() === 4) && !(this.analysisStatus() === 2) && !(this.analysisMerge() !== null));
+            }, this);
 
             this.selectedOriginalId.subscribe(this._onOriginalChanged, this);
             this.selectedDuplicateId.subscribe(this._onDuplicateChanged, this);
-            this.localNamespace.subscribe(function(){
+            this.localNamespace.subscribe(function () {
                 this.loadDuplicates();
             }, this);
         },
 
         loadDuplicates: function () {
-            this.searching(false);
+            this.searching(true);
+            this.analysisMerge(null);
             var types = Object.keys(type_labels);
             var allDuplicates = {};
             var numLoading = types.length;
@@ -129,7 +132,6 @@ analysisStatus':
         },
 
         _onDuplicatesLoaded: function (duplicates) {
-            this.searching(false);
             this.duplicates(duplicates);
         },
 
@@ -166,12 +168,12 @@ analysisStatus':
                 this._onAnalyse(data);
                 this.analysisStatus(3);
             }.bind(this), function (error) {
-                this.analysis(error);
-                this.analysisStatus(5);
+                this.analysisMerge(error);
+                this.analysisStatus(4);
             }.bind(this));
         },
 
-        _onAnalyse: function(data) {
+        _onAnalyse: function (data) {
             this.analysisOriginal([]);
             this.analysisDuplicate([]);
             ko.utils.objectForEach(data, function (type, ids) {
@@ -188,7 +190,7 @@ analysisStatus':
             }.bind(this));
         },
 
-        merge: function() {
+        merge: function () {
             var data = {
                 duplicate: this.duplicatesForOriginal(),
                 original: this.selectedOriginalId(),
@@ -196,16 +198,16 @@ analysisStatus':
             };
             this.analysisText('Merging');
             this.analysisStatus(2);
-            _postJSON("/adapter/certuk_mod/duplicates/merge/", data, function(data) {
+            _postJSON("/adapter/certuk_mod/duplicates/merge/", data, function (data) {
                 this.analysisMerge(data);
                 this.analysisStatus(4);
-            }.bind(this), function(error) {
-                this.analysis(error);
-                this.analysisStatus(5);
+            }.bind(this), function (error) {
+                this.analysisMerge(error);
+                this.analysisStatus(4);
             }.bind(this));
         },
 
-        mergeAll: function() {
+        mergeAll: function () {
             this.analysisText('Merging all Duplicates to Originals');
             this.analysisStatus(2);
             var data = {
@@ -217,7 +219,7 @@ analysisStatus':
                 this.analysisStatus(4);
             }.bind(this), function (error) {
                 this.analysisMerge(error);
-                this.analysisStatus(5);
+                this.analysisStatus(4);
             }.bind(this))
         }
     });

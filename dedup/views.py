@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from lxml.etree import XMLSyntaxError
 from mongoengine import DoesNotExist
 from mongoengine.connection import get_db
+from pymongo.errors import PyMongoError
 
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
@@ -24,40 +25,60 @@ from .duplicates_finder import find_duplicates
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 
 
-def remap_parent_objects(parents, duplicate, map_table, user):
-    ip = InboxProcessor(user=user, trustgroups=None)
-    validation_message = {}
-    for _id in parents.keys():
+def load_eo(id_):
+    eo = EdgeObject.load(id_)
+    tlp = eo.__getattribute__('etlp')
+    esms = eo.__getattribute__('esms')
+    api_obj = eo.to_ApiObject()
+    return api_obj, tlp, esms
+
+
+def remap_observables(duplicates, user):
+    ip = DedupInboxProcessor(user=user, validate=True)
+    for dup in duplicates:
         try:
-            api_obj = EdgeObject.load(_id).to_ApiObject()
-            api_obj.remap(map_table)
-            ip.add(InboxItem(api_object=api_obj, etlp='NULL', esms=''))
+            api_obj, tlp, esms = load_eo(dup)
+            ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms))
         except InboxError as e:
-            return JsonResponse({
-                'message': e.message
-            }, status=500)
-    try:
-        ip.run()
-    except InboxError as e:
-        return JsonResponse({
-            'message': e.message
-        }, status=500)
+            raise e
     get_db().stix.remove({'_id': {
-        '$in': duplicate}})
-    return validation_message
+        '$in': duplicates}})
+    ip.run()
 
 
-def remap_backlinks(original, duplicate, type):
+def remap_parent_objects(parents, map_table, user):
+    if parents:
+        ip = InboxProcessor(user=user, trustgroups=None)
+        for id_, type_ in parents.iteritems():
+            try:
+                api_obj, tlp, esms = load_eo(id_)
+                api_obj = api_obj.remap(map_table)
+                ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms))
+            except InboxError as e:
+                raise e
+        try:
+            ip.run()
+        except InboxError as e:
+            raise e
+
+
+def remap_backlinks(original, duplicate):
     parents_of_original, parents_of_duplicate = calculate_backlinks(original, duplicate)
 
-    # new_parents = parents_of_duplicate.copy()
-    # new_parents.update(parents_of_original)
-    # if new_parents:
-    #     get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
+    new_parents = parents_of_duplicate.copy()
+    new_parents.update(parents_of_original)
+    if new_parents:
+        try:
+            get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
+        except PyMongoError as pme:
+            raise pme
     if parents_of_duplicate:
-        get_db().stix_backlinks.remove({'_id': {'$in': duplicate}})
+        try:
+            get_db().stix_backlinks.remove({'_id': {'$in': duplicate}})
+        except PyMongoError as pme:
+            raise pme
 
-    return parents_of_original, parents_of_duplicate
+    return parents_of_duplicate
 
 
 def calculate_backlinks(original, duplicate):
@@ -72,6 +93,20 @@ def calculate_backlinks(original, duplicate):
         except DoesNotExist as e:
             pass
     return parents_of_original, parents_of_duplicate
+
+
+def merge_object(original, duplicates, type_, user):
+    parents_of_duplicates = remap_backlinks(original, duplicates)
+
+    map_table = {dup: original for dup in duplicates}
+    remap_parent_objects(parents_of_duplicates, map_table, user)
+
+    if type_ == 'obs':  # Use DeDupIP for obs as they will be removed by our filters. If not we'd inbox again them again
+        remap_observables(duplicates, user)
+
+    if type_ != 'obs':
+        get_db().stix.remove({'_id': {
+            '$in': duplicates}})
 
 
 @login_required
@@ -125,19 +160,35 @@ def ajax_load_parent_ids(request):
 
 
 @login_required_ajax
-def ajax_merge_objects(request):
+def ajax_merge_object(request):
     try:
         user = request.user
         raw_body = json.loads(request.body)
-        original, duplicate, _type = raw_body.get('original'), raw_body.get('duplicate'), raw_body['type']
-        parents_of_original, parents_of_duplicate = remap_backlinks(original, duplicate, type)
+        original, duplicates, type_ = raw_body.get('original'), raw_body.get('duplicate'), raw_body.get('type')
+        merge_object(original, duplicates, type_, user)
 
-        map_table = {dup: original for dup in duplicate}
-        validation_message = remap_parent_objects(parents_of_duplicate, duplicate, map_table, user)
-
-        # log_activity(user, 'DEDUP', 'INFO', validation_message)
         return JsonResponse({
-            'validation_message': 'Merged'
+            'validation_message': 'DeDuped 1 successfully'
+        }, status=200)
+    except Exception as e:
+        return JsonResponse({
+            'message': e.message
+        }, status=500)
+
+
+@login_required_ajax
+def ajax_merge_all(request):
+    try:
+        user = request.user
+        raw_body = json.loads(request.body)
+        objects, type_ = raw_body.get('objects'), raw_body.get('type')
+
+        for original, duplicates in objects.iteritems():
+            merge_object(original, duplicates, type_, user)
+
+        message = 'DeDuped ' + str(len(objects)) + ' successfully'
+        return JsonResponse({
+            'validation_message': message
         }, status=200)
     except Exception as e:
         return JsonResponse({
