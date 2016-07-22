@@ -12,11 +12,13 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
 from users.decorators import superuser_or_staff_role, json_body
 from users.models import Draft
-from edge.generic import EdgeObject
+from edge.generic import EdgeObject, load_edge_object_or_404
 from edge import IDManager
+import rbac
 from clippy.models import CLIPPY_TYPES
 
 from adapters.certuk_mod.publisher.package_publisher import Publisher
@@ -172,6 +174,16 @@ def review(request, id):
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/edit/%s/' % urllib.quote(id)),
         "revisions": json.dumps(root_edge_object.revisions),
         'ajax_uri': reverse('catalog_ajax')
+    })
+
+@login_required
+def object_details(request, id_):
+    edge_obj = load_edge_object_or_404(id_)
+    if not rbac.user_has_tlp_access(request.user, edge_obj):
+        raise PermissionDenied
+
+    return JsonResponse({
+        'allow_edit': rbac.user_can_edit(request.user, edge_obj),
     })
 
 

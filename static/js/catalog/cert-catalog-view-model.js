@@ -6,9 +6,10 @@ define([
     "catalog/cert-catalog-build-section",
     "common/topic",
     "catalog/cert-catalog-topics",
+    "common/modal/show-error-modal",
     "kotemplate!publish-modal:./templates/publish-modal-content.html",
     "kotemplate!validation-results:./templates/validation-results.html"
-], function (declare, ko, Modal, StixPackage, Section, Topic, topics, publishModalTemplate) {
+], function (declare, ko, Modal, StixPackage, Section, Topic, topics, showErrorModal, publishModalTemplate) {
     "use strict";
 
     return declare(null, {
@@ -23,11 +24,21 @@ define([
             }, this);
             this.viewURL = ko.observable(viewURL);
             this.editURL = ko.observable(editURL);
+            this.editable = ko.observable(this.isEditable(rootId))
             this.section = ko.observable(new Section());
             this.timekey = ko.observable();
             Topic.subscribe(topics.REVISION, function (data) {
                 this.timekey(data)
             }.bind(this), this);
+        },
+
+        isEditable: function (id) {
+            postJSON("/adapter/certuk_mod/review/editable/" + id, "", function (response) {
+                this.editable(response["allow_edit"]);
+            }.bind(this), function (error) {
+                showErrorModal(error, false);
+                this.editable(false);
+            }.bind(this));
         },
 
         loadStatic: function (optionLists) {

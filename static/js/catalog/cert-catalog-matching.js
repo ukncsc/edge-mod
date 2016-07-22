@@ -15,12 +15,12 @@ define([
 
         loadStatic: function (optionsList) {
             this.id(optionsList.rootId);
-            //this.load();
+            this.load();
         },
 
         load: function () {
-            postJSON("/review/duplicates/"+ this.id(), this.id(), function (response) {
-                this.duplicates(response);
+            postJSON("/adapter/certuk_mod/review/duplicates/" + this.id(),"", function (response) {
+                this.duplicates(response["duplicates"]);
             }.bind(this), function (error) {
                 showErrorModal(error, false)
             }.bind(this));

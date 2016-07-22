@@ -36,10 +36,13 @@
                     <button type="button" class="btn btn-danger pull-right"
                             data-bind="click: onPublish">Publish<br>Externally
                     </button>
+                    <!-- ko if: type().code != "obs" || type().code != "pkg"-->
+
                     <a type="button" class="btn btn-info pull-right"
                        data-bind="attr: { href: viewURL}">View in<br>Builder
                     </a>
-                    <!-- ko if: type().code != "obs" -->
+                    <!-- /ko -->
+                    <!-- ko if : editable -->
                     <a type="button" class="btn btn-success pull-right"
                        data-bind="attr: { href: editURL}">Edit in<br>Builder
                     </a>
