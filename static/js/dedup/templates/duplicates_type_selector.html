@@ -12,7 +12,7 @@
                 "></select>
             </div>
             <label class="checkbox-inline pull-right">Local namespace only<input type="checkbox"
-                                                                                 data-bind="checked: localNamespace">
+                                                                                 data-bind="checked: localNamespace, enable: analysisStatus() !== 2">
             </label>
         </div>
     </div>

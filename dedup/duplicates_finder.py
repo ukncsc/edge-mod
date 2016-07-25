@@ -10,13 +10,16 @@ from mongoengine.connection import get_db
 
 LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
 
+TLP_MAP = {'RED': 4, 'AMBER': 3, 'GREEN': 2, 'WHITE': 1, 'NULL': 0}
 
-def find_duplicates(type_, local):
+
+def find_duplicates(type_, local, user_filters):
     if local:
         namespace_query = {'_id': {'$regex': LOCAL_ALIAS_REGEX}, 'type': type_}
     else:
         namespace_query = {'type': type_}
 
+    namespace_query.update(user_filters)
 
     def transform(cursor):
         return {row.get('uniqueIds')[0]: row.get('uniqueIds')[1:] for row in cursor}
@@ -27,6 +30,7 @@ def find_duplicates(type_, local):
         },
         {
             '$sort': {
+                'data.etlp': 1,
                 'created_on': -1
             }
         },

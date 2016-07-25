@@ -27,8 +27,8 @@ from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 
 def load_eo(id_):
     eo = EdgeObject.load(id_)
-    tlp = eo.__getattribute__('etlp')
-    esms = eo.__getattribute__('esms')
+    tlp = eo.etlp if hasattr(eo, 'etlp') else 'NULL'
+    esms = eo.esms if hasattr(eo, 'esms') else ''
     api_obj = eo.to_ApiObject()
     return api_obj, tlp, esms
 
@@ -78,16 +78,14 @@ def remap_backlinks(original, duplicate):
         except PyMongoError as pme:
             raise pme
 
-    return parents_of_duplicate
 
-
-def calculate_backlinks(original, duplicate):
+def calculate_backlinks(original, duplicates):
     parents_of_original, parents_of_duplicate = {}, {}
     try:
         parents_of_original = StixBacklink.objects.get(id=original).edges
     except DoesNotExist as e:
         pass
-    for dup in duplicate:
+    for dup in duplicates:
         try:
             parents_of_duplicate.update(StixBacklink.objects.get(id=dup).edges)
         except DoesNotExist as e:
@@ -96,12 +94,13 @@ def calculate_backlinks(original, duplicate):
 
 
 def merge_object(original, duplicates, type_, user):
-    parents_of_duplicates = remap_backlinks(original, duplicates)
+    parents_of_duplicates = calculate_backlinks(original, duplicates)[1]
+    remap_backlinks(original, duplicates)
 
     map_table = {dup: original for dup in duplicates}
     remap_parent_objects(parents_of_duplicates, map_table, user)
 
-    if type_ == 'obs':  # Use DeDupIP for obs as they will be removed by our filters. If not we'd inbox again them again
+    if type_ == 'obs':  # Use DeDupIP for obs as they will be removed by our filters. If not we'd inbox them again
         remap_observables(duplicates, user)
 
     if type_ != 'obs':
@@ -121,7 +120,8 @@ def duplicates_finder(request):
 def ajax_load_duplicates(request, typ):
     try:
         local = request.body
-        duplicates = find_duplicates(typ, local)
+        user_filters = request.user.filters()
+        duplicates = find_duplicates(typ, local, user_filters)
         return JsonResponse({
             typ: duplicates
         }, status=200)
@@ -161,14 +161,14 @@ def ajax_load_parent_ids(request):
 
 @login_required_ajax
 def ajax_merge_object(request):
+    message = {}
     try:
         user = request.user
         raw_body = json.loads(request.body)
         original, duplicates, type_ = raw_body.get('original'), raw_body.get('duplicate'), raw_body.get('type')
         merge_object(original, duplicates, type_, user)
-
         return JsonResponse({
-            'validation_message': 'DeDuped 1 successfully'
+            'validation_message': message
         }, status=200)
     except Exception as e:
         return JsonResponse({
@@ -178,6 +178,7 @@ def ajax_merge_object(request):
 
 @login_required_ajax
 def ajax_merge_all(request):
+    messages = {}
     try:
         user = request.user
         raw_body = json.loads(request.body)
@@ -188,7 +189,7 @@ def ajax_merge_all(request):
 
         message = 'DeDuped ' + str(len(objects)) + ' successfully'
         return JsonResponse({
-            'validation_message': message
+            'validation_message': messages
         }, status=200)
     except Exception as e:
         return JsonResponse({
