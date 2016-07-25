@@ -8,7 +8,9 @@ Permission is hereby granted, free of charge, to use, copy, modify, merge, distr
 
 
 # Edge Mod
-Edge Mod is a Soltra Edge adapter that contains modifications and enhancements to Soltra Edge. It provides the following features:
+Edge Mod is a Soltra Edge adapter that contains modifications and enhancements to Soltra Edge. After using Soltra Edge as our core Cyber Threat Intelligence (CTI) Platform we found that the system could do with some tweaks in order to match our current workflow. We worked together with our partners to develop this adapter for the last year around of current requirements.
+
+## Features
 
 - Publishing of STIX objects
   - With data quality checks and redaction of handling caveat information
@@ -25,10 +27,10 @@ Edge Mod is a Soltra Edge adapter that contains modifications and enhancements t
   - Clone existing object to draft
   - Extensions to object builders
     - Indicator - Batch observable creation, network connection and HTTP session objects, improved validation, kill chain phase
-    - Incident - Times, improved valdation, external IDs, improved UI
+    - Incident - Times, improved validation, external IDs, improved UI
 
-## Motivation
-After using Soltra Edge as our core Cyber Threat Intelligence (CTI) Platform we found that the system could do with some tweaks in order to match our current workflow. We worked together with our partners to develop this adapter for the last year around of current requirements.
+## Status
+The adapter is still under active development and as such shouldn't be considered a finished product.
 
 ## Installation
 The adapter is currently aimed at version 2.8.1 of Soltra Edge. Other versions may work but your mileage may vary. The following is carried out as a superuser on the GUI whilst on the 'Admin > Adapters' page.
