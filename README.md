@@ -33,7 +33,7 @@ Edge Mod is a Soltra Edge adapter that contains modifications and enhancements t
 The adapter is still under active development and as such shouldn't be considered a finished product.
 
 ## Installation
-The adapter is currently aimed at version 2.8.1 of Soltra Edge. Other versions may work but your mileage may vary. The following is carried out as a superuser on the GUI whilst on the 'Admin > Adapters' page.
+The adapter is currently aimed at version 2.8.1 of Soltra Edge. Other versions may work but your mileage may vary. The following is carried out as a Super User on the GUI whilst on the 'Admin > Adapters' page.
 
 1. Upload and install the new adapter
 2. Click on 'Restart Services' in the 'Restart Required' box
@@ -46,3 +46,6 @@ Upgrading the adapter requires a few extra steps before following the installati
 3. Refresh the page
 4. Click on 'Restart Services' in the 'Restart Required' box
 5. Following the installation instructions
+
+## Thanks
+Thanks to the guys at Soltra for building a great platform for us to build these modification on.
