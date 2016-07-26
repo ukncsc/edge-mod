@@ -12,7 +12,7 @@ define([
             return new ReviewValue(values, validation.state, validation.message);
         } else {
             if ((values[0] instanceof StixId) && validation.messages == null) {
-                return new ReviewValue(new values[0]._type.class({}, new StixPackage({}, values[0].id(), {})), 2, "Missing");
+                return new ReviewValue(new values[0]._type.class({}, new StixPackage({}, values[0].id(), {})), 2, "Missing Reference");
             } else {
                 return new ReviewValue(values, validation.state, validation.message);
             }
@@ -48,7 +48,6 @@ define([
                 } else {
                     var listToSearch = this.safeGet(this._data, type.collection);
                     if (!listToSearch) {
-                        //throw new Error("Object not found with id: " + id);
                         // Missing References
                         return stixId
                     }
