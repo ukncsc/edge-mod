@@ -266,6 +266,20 @@ class STIXPurge(object):
             }
         })
 
+
+    @staticmethod
+    def wait_for_background_jobs_completion(as_at_date, minutes_to_wait=5, poll_interval=5):
+            tries_remaining = int((60 * minutes_to_wait) / poll_interval)
+            while tries_remaining:
+                cache_sightings = PeriodicTaskWithTTL.objects.get(name='cache_sightings')
+                cache_backlinks = PeriodicTaskWithTTL.objects.get(name='cache_backlinks')
+                if cache_backlinks.last_run_at > as_at_date and cache_sightings.last_run_at > as_at_date:
+                    return
+                else:
+                    sleep(poll_interval)
+                    tries_remaining -= 1
+            raise TimeoutError('Timeout waiting for sightings and backlinks jobs to complete.  Will retry in 24 hours.')
+
     def run(self):
         def build_activity_message(min_date, objects, compositions, packages, time_ms):
             def summarise(into, summary_template, items):
@@ -280,22 +294,10 @@ class STIXPurge(object):
             messages.append('In %dms' % time_ms)
             return "\n".join(messages)
 
-        def wait_for_background_jobs_completion(as_at_date, minutes_to_wait=5, poll_interval=5):
-            tries_remaining = int((60 * minutes_to_wait) / poll_interval)
-            while tries_remaining:
-                cache_sightings = PeriodicTaskWithTTL.objects.get(name='cache_sightings')
-                cache_backlinks = PeriodicTaskWithTTL.objects.get(name='cache_backlinks')
-                if cache_backlinks.last_run_at > as_at_date and cache_sightings.last_run_at > as_at_date:
-                    return
-                else:
-                    sleep(poll_interval)
-                    tries_remaining -= 1
-            raise TimeoutError('Timeout waiting for sightings and backlinks jobs to complete.  Will retry in 24 hours.')
-
         timer = StopWatch()
         try:
             current_date = datetime.utcnow()
-            wait_for_background_jobs_completion(current_date)
+            STIXPurge.wait_for_background_jobs_completion(current_date)
             minimum_date = current_date - relativedelta(months=self.retention_config.max_age_in_months)
 
             # Get old items that don't have enough back links and sightings (excluding observable compositions):

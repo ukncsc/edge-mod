@@ -121,7 +121,7 @@ def ajax_load_duplicates(request, typ):
     try:
         local = request.body
         user_filters = request.user.filters()
-        duplicates = find_duplicates(typ, local, user_filters)
+        duplicates = find_duplicates(typ, local)
         return JsonResponse({
             typ: duplicates
         }, status=200)

@@ -10,8 +10,6 @@ from mongoengine.connection import get_db
 
 LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
 
-TLP_MAP = {'RED': 4, 'AMBER': 3, 'GREEN': 2, 'WHITE': 1, 'NULL': 0}
-
 
 def find_duplicates(type_, local, user_filters):
     if local:
@@ -30,7 +28,6 @@ def find_duplicates(type_, local, user_filters):
         },
         {
             '$sort': {
-                'data.etlp': 1,
                 'created_on': -1
             }
         },
