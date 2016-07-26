@@ -7,7 +7,19 @@ define([
 ], function (declare, ko, StixId, ReviewValue, ValidationInfo) {
     "use strict";
 
-    return declare(null, {
+    function checkMissingReferences(values, validation) {
+        if (!values) {
+            return new ReviewValue(values, validation.state, validation.message);
+        } else {
+            if ((values[0] instanceof StixId) && validation.messages == null) {
+                return new ReviewValue(new values[0]._type.class({}, new StixPackage({}, values[0].id(), {})), 2, "Missing");
+            } else {
+                return new ReviewValue(values, validation.state, validation.message);
+            }
+        }
+    }
+
+    var StixPackage = declare(null, {
         declaredClass: "StixPackage",
         constructor: function (stixPackage, rootId, validationInfo) {
             if (!(stixPackage instanceof Object)) {
@@ -36,7 +48,9 @@ define([
                 } else {
                     var listToSearch = this.safeGet(this._data, type.collection);
                     if (!listToSearch) {
-                        throw new Error("Object not found with id: " + id);
+                        //throw new Error("Object not found with id: " + id);
+                        // Missing References
+                        return stixId
                     }
                     // Need to refactor, should be able to pass in actual collection but each package is wrapped as an object
                     // with the key package. if can't change input then refactor into parameterised helper method
@@ -126,8 +140,9 @@ define([
                 return this.findById(new StixId(this.safeGet(item, idrefKey)));
             }, this);
             var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
-            return new ReviewValue(values, validation.state, validation.message);
+            return checkMissingReferences(values, validation);
         }
-
     });
+
+    return StixPackage;
 });
