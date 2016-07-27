@@ -30,13 +30,9 @@ define([
         },
 
         save: function () {
-            if (this.isValid(this.marking_priorities())) {
-                var successMessage = "The Marking Priorities were successfully saved";
-                var errorMessage = "An error occurred while attempting to save the Marking Priorities configuration";
-                this.saveData("set_markings/", this.parseMarkings(), successMessage, errorMessage);
-            } else {
-                this.createErrorModal("All Markings must be non-empty unique strings.")
-            }
+            var successMessage = "The Marking Priorities were successfully saved";
+            var errorMessage = "An error occurred while attempting to save the Marking Priorities configuration";
+            this.saveData("set_markings/", this.parseMarkings(), successMessage, errorMessage);
         },
 
         parseMarkings: function () {
@@ -47,10 +43,6 @@ define([
             return markingArray
         },
 
-        isValid: function (markings) {
-            return true;
-        },
-
         addMarking: function () {
             if (this.markingIsFull()) {
                 this.marking_priorities.push(new Marking(""));
@@ -58,11 +50,11 @@ define([
         },
 
         markingIsFull: function () {
-           /* ko.utils.arrayForEach(this.marking_priorities(), function (marking){
-                if(this.isEmptyString("")){
+            var arrayLength = this.marking_priorities().length;
+            for (var index = 0; index < arrayLength; index++) {
+                if (this.isEmptyString(this.marking_priorities()[index].marking()) == false)
                     return false
-                }
-            });              */
+            }
             return true
         }
     });
