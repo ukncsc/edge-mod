@@ -7,19 +7,7 @@ define([
 ], function (declare, ko, StixId, ReviewValue, ValidationInfo) {
     "use strict";
 
-    function checkMissingReferences(values, validation) {
-        if (!values) {
-            return new ReviewValue(values, validation.state, validation.message);
-        } else {
-            if ((values[0] instanceof StixId) && validation.messages == null) {
-                return new ReviewValue(new values[0]._type.class({}, new StixPackage({}, values[0].id(), {})), 2, "Missing Reference");
-            } else {
-                return new ReviewValue(values, validation.state, validation.message);
-            }
-        }
-    }
-
-    var StixPackage = declare(null, {
+    return declare(null, {
         declaredClass: "StixPackage",
         constructor: function (stixPackage, rootId, validationInfo) {
             if (!(stixPackage instanceof Object)) {
@@ -49,7 +37,7 @@ define([
                     var listToSearch = this.safeGet(this._data, type.collection);
                     if (!listToSearch) {
                         // Missing References
-                        return stixId
+                        return {}
                     }
                     // Need to refactor, should be able to pass in actual collection but each package is wrapped as an object
                     // with the key package. if can't change input then refactor into parameterised helper method
@@ -58,14 +46,14 @@ define([
                             return item.package.id === id;
                         }, this);
                         if (!data) {
-                            throw new Error("Object not found with id: " + id);
+                            return null
                         }
                     } else {
                         var data = ko.utils.arrayFirst(listToSearch, function (item) {
                             return item.id === id;
                         }, this);
                         if (!data) {
-                            throw new Error("Object not found with id: " + id);
+                            return null
                         }
                     }
                 }
@@ -139,9 +127,20 @@ define([
                 return this.findById(new StixId(this.safeGet(item, idrefKey)));
             }, this);
             var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
-            return checkMissingReferences(values, validation);
+            var purgedValues = this.replaceNulls(values);
+            return new ReviewValue(purgedValues, validation.state, validation.message);
+        },
+
+        replaceNulls: function (/*Array*/ ids) {
+            if (ids != null) {
+                var length = ids.length
+                for (var index = 0; index < length; index++) {
+                    if (ids[index] == null) {
+                        ids[index] = {}
+                    }
+                }
+            }
+            return ids
         }
     });
-
-    return StixPackage;
 });
