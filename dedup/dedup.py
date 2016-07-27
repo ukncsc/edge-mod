@@ -157,7 +157,10 @@ class STIXDedup(object):
                             if STIXDedup.HASH_MAP.get(tlp):
                                 map_tlps[tlp] = STIXDedup.HASH_MAP.get(tlp)
                         tlp_level = sorted(map_tlps.items(), key=operator.itemgetter(1))[0][0]
-                        cls.obs_finder(row.get('_id'), row.get('tlpLevels'))
+                        id_ = STIXDedup.match_tlp_hash(row.get('_id'), tlp_level).get('_id')
+                        ids = row.get('uniqueIds')
+                        ids.pop(ids.index(id_))
+                        obs[id_] = ids
                     else:
                         obs[row.get('uniqueIds')[0]] = row.get('uniqueIds')[1:]
                     return obs
@@ -200,10 +203,10 @@ class STIXDedup(object):
             }
         ], cursor={}))
 
-    @classmethod
-    def obs_finder(cls, hash_, tlp_level):
+    @staticmethod
+    def match_tlp_hash(hash_, tlp_level):
         def transform(cursor):
-            return cursor
+            return {'_id': row.get('_id') for row in cursor}
 
         return transform(get_db().stix.findOne({
             'data.hash': hash_,
