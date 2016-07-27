@@ -105,13 +105,7 @@ define([
             }
         },
 
-        hasDuplicates: function (array) {
-            return (new Set(array)).size !== array.length;
-        },
 
-        isEmptyString: function (/*String*/ string) {
-            return typeof string === "string" && string.trim().length > 0;
-        },
 
         createSimpleConfigObject: function (handlingArray) {
             var configObject = {};

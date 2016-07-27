@@ -39,6 +39,14 @@ define([
             //stub - does nothing here
         },
 
+        hasDuplicates: function (array) {
+            return (new Set(array)).size !== array.length;
+        },
+
+        isEmptyString: function (/*String*/ string) {
+            return typeof string === "string" && string.trim().length > 0;
+        },
+
         saveData: function (/*String*/ url, data, /*String*/ successMessage, /*String*/ errorMessage) {
             postJSON(url, data, function (response) {
                 this._onSuccesfulSave(response, successMessage);

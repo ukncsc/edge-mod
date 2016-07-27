@@ -77,6 +77,8 @@ publisher_urls = [
     (r'^config/set_crm_config/$', 'views.ajax_set_crm_config', None),
     (r'^config/get_sharing_groups/$', 'views.ajax_get_sharing_groups', None),
     (r'^config/set_sharing_groups/$', 'views.ajax_set_sharing_groups', None),
+    (r'^config/get_markings/$', 'views.ajax_get_markings', None),
+    (r'^config/set_markings/$', 'views.ajax_set_markings', None),
 
     (r'^visualiser/$', 'views.visualiser_discover', 'visualiser_discover'),
     (r'^visualiser/missing/$', 'views.visualiser_not_found', 'visualiser_not_found'),
