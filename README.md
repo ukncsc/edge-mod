@@ -48,4 +48,4 @@ Upgrading the adapter requires a few extra steps before following the installati
 5. Following the installation instructions
 
 ## Thanks
-Thanks to the guys at Soltra for building a great platform for us to build these modification on.
+Thanks to the folks at Soltra for building a great platform for us to build these modification on.
