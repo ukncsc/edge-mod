@@ -30,9 +30,24 @@ define([
         },
 
         save: function () {
+            this.removeEmptyData();
             var successMessage = "The Marking Priorities were successfully saved";
             var errorMessage = "An error occurred while attempting to save the Marking Priorities configuration";
             this.saveData("set_markings/", this.parseMarkings(), successMessage, errorMessage);
+        },
+
+        removeEmptyData: function () {
+            var indexesToRemove = [];
+            var checkEmpty = this.isEmptyString
+            var arrayLength = this.marking_priorities().length;
+            for (var index = 0; index < arrayLength; index++) {
+                if (!checkEmpty(this.marking_priorities()[index].marking())) {
+                    //reverse order list of indices to remove
+                    indexesToRemove.unshift(index)
+                }
+            }
+            this.removeIndexes(indexesToRemove, this.marking_priorities());
+            this.marking_priorities.valueHasMutated();
         },
 
         parseMarkings: function () {
