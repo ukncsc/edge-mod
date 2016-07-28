@@ -155,7 +155,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='ttp'))}
 
-        coalesce = _coalesce_non_observable_duplicates(contents, {})
+        coalesce, additional_edges = _coalesce_non_observable_duplicates(contents, {})
 
         self.assertItemsEqual(['pss:ttp-00000000-0000-0000-0000-000000000001',
                                'pss:ttp-00000000-0000-0000-0000-000000000002'], coalesce.keys())
@@ -168,7 +168,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='ttp'))}
 
-        coalesce = _coalesce_non_observable_duplicates(contents, {'pss:ttp-00000000-0000-0000-0000-000000000002': 'DeDuptoMe'})
+        coalesce, additional_edges = _coalesce_non_observable_duplicates(contents, {'pss:ttp-00000000-0000-0000-0000-000000000002': 'DeDuptoMe'})
 
         self.assertItemsEqual(['pss:ttp-00000000-0000-0000-0000-000000000001'], coalesce.keys())
 
