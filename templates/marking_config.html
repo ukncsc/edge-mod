@@ -1,0 +1,28 @@
+<div class="panel panel-default" data-bind="with: markings">
+    <div class="panel-heading">
+        <h3 class="panel-title">Markings</h3>
+    </div>
+    <div class="panel-body">
+        <div data-bind="foreach: marking_priorities">
+            <div class="row">
+                <div class="col-sm-3">
+                    <h5>Marking: </h5>
+                </div>
+
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" data-bind="value: $data.marking, valueUpdate: 'afterkeydown'">
+                </div>
+            </div>
+        </div>
+        <div class="row col-sm-3 pull-right">
+            <button class="btn btn-default"
+                    data-bind="click: addMarking">Add Marking
+            </button>
+            <button class="btn btn-default"
+                    data-bind="click: save">Save
+            </button>
+        </div>
+    </div>
+
+</div>
+

@@ -12,6 +12,7 @@ define([
 
     var config = Object.freeze(JSON.parse(configService));
     var sharing_groups = config.sharing_groups;
+    var markings = config.markings;
 
     return declare(AbstractBuilderForm, {
         declaredClass: "General",
@@ -99,7 +100,7 @@ define([
             this.tlps(optionLists.tlps_list);
             this.statuses(optionLists.statuses_list);
             this.categories(optionLists.categories_list);
-            this.marking_priorities(optionLists.marking_priorities);
+            this.marking_priorities(markings);
             this.handling_caveats(this.generateCaveatLabelArray(sharing_groups));
         },
 
