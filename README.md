@@ -10,6 +10,8 @@ Permission is hereby granted, free of charge, to use, copy, modify, merge, distr
 # Edge Mod
 Edge Mod is a Soltra Edge adapter that contains modifications and enhancements to Soltra Edge. After using Soltra Edge as our core Cyber Threat Intelligence (CTI) Platform we found that the system could do with some tweaks in order to match our current workflow. We worked together with our partners to develop this adapter for the last year around of current requirements.
 
+Further documentation and guidance on features provided by the adapter are detailed in the Wiki.
+
 ## Features
 
 - Publishing of STIX objects
@@ -21,7 +23,7 @@ Edge Mod is a Soltra Edge adapter that contains modifications and enhancements t
   - Incident timeline graph
   - Dynamic nodal graphs of STIX objects and relationships
 - Data Ingest
-  - De=duplicating ingest endpoint
+  - De-duplicating ingest endpoint
   - Extract IOC from PDF or TXT file
 - Data Creation
   - Clone existing object to draft
@@ -42,10 +44,13 @@ The adapter is currently aimed at version 2.8.1 of Soltra Edge. Other versions m
 Upgrading the adapter requires a few extra steps before following the installation instructions.
 
 1. Click the red X to the right of the 'running' status on the certuk_mod line
-2. Status will change to 'removing' but due to a core Edge bug will get stuck
-3. Refresh the page
+2. Status will change to 'removing' but may get stuck, if so refresh the page
 4. Click on 'Restart Services' in the 'Restart Required' box
 5. Following the installation instructions
+
+
+## Feedback
+We would welcome feedback on this adapter and the functionality it provides. Please raise an issue on GitHub or email us at taxii[at]cert[dot]gov[dot]uk
 
 ## Thanks
 Thanks to the folks at Soltra for building a great platform for us to build these modification on.
