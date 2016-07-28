@@ -71,6 +71,12 @@ publisher_urls = [
     (r'^ajax/get_fts_task_status/$', 'views.ajax_get_fts_task_status', None),
     (r'^ajax/run_fts_task/$', 'views.ajax_run_fts', None),
 
+    (r'^ajax/get_dedup_config/$', 'views.ajax_get_dedup_config', None),
+    (r'^ajax/set_dedup_config/$', 'views.ajax_set_dedup_config', None),
+    (r'^ajax/reset_dedup_config/$', 'views.ajax_reset_dedup_config', None),
+    (r'^ajax/get_dedup_task_status/$', 'views.ajax_get_dedup_task_status', None),
+    (r'^ajax/run_dedup_task/$', 'views.ajax_run_dedup', None),
+
     (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),
     (r'^config/get_cert_config/$', 'views.ajax_get_cert_config', None),
     (r'^config/get_crm_url/$', 'views.ajax_get_crm_url', None),

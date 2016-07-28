@@ -2,6 +2,8 @@ import json
 
 from defusedxml import EntitiesForbidden
 from django.contrib.auth.decorators import login_required
+from users.decorators import json_body, superuser_or_staff_role
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -13,6 +15,7 @@ from pymongo.errors import PyMongoError
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
+from adapters.certuk_mod.dedup.config import DedupConfiguration
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from edge.inbox import InboxError, InboxProcessor, InboxItem
@@ -269,3 +272,76 @@ def ajax_import(request, username):
             'messages': [e.message],
             'state': 'error'
         }, status=500)
+
+
+@login_required
+@superuser_or_staff_role
+@json_body
+def ajax_get_dedup_config(request, data):
+    success = True
+    error_message = ""
+    config_values = {}
+
+    try:
+        dedup_config = DedupConfiguration.get()
+        config_values = dedup_config.to_dict()
+    except Exception, e:
+        success = False
+        error_message = e.message
+        log_error(e, 'DEDUP config')
+
+    response = {
+        'success': success,
+        'error_message': error_message
+    }
+    response.update(config_values)
+
+    return response
+
+
+@login_required
+@superuser_or_staff_role
+@json_body
+def ajax_set_dedup_config(request, data):
+    success = True
+    error_message = ""
+
+    try:
+        DedupConfiguration.set_from_dict(data)
+    except Exception, e:
+        success = False
+        if isinstance(e, KeyError):
+            error_message = 'value missing: %s' % e.message
+        else:
+            error_message = e.message
+        log_error(e, 'DEDUP config')
+
+    return {
+        'success': success,
+        'error_message': error_message
+    }
+
+
+@login_required
+@superuser_or_staff_role
+@json_body
+def ajax_reset_dedup_config(request, data):
+    success = True
+    error_message = ""
+    config_values = {}
+
+    try:
+        DedupConfiguration.reset()
+        dedup_config = DedupConfiguration.get()
+        config_values = dedup_config.to_dict()
+    except Exception, e:
+        success = False
+        log_error(e, 'Fts config')
+
+    response = {
+        'success': success,
+        'error_message': error_message
+    }
+    response.update(config_values)
+
+    return response

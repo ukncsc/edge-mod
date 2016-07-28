@@ -28,7 +28,8 @@ import adapters.certuk_mod.builder.customizations as cert_builder
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
 from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser, extract_visualiser_get, \
-    extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables, extract_visualiser_get_extended, \
+    extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables, \
+    extract_visualiser_get_extended, \
     extract_list, delete_extract
 
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
@@ -42,9 +43,13 @@ from adapters.certuk_mod.cron.views import ajax_get_fts_task_status, ajax_run_ft
 from adapters.certuk_mod.fts.views import ajax_get_fts_config, ajax_reset_fts_config, \
     ajax_set_fts_config
 
+from adapters.certuk_mod.cron.views import ajax_get_dedup_task_status, ajax_run_dedup
 from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, \
-    ajax_load_parent_ids, ajax_import, ajax_merge_object, ajax_merge_all
-from adapters.certuk_mod.config.views import ajax_get_crm_url, ajax_set_crm_url, ajax_get_cert_config, ajax_get_sharing_groups, ajax_set_sharing_groups
+    ajax_load_parent_ids, ajax_import, ajax_merge_object, ajax_merge_all, ajax_get_dedup_config, ajax_set_dedup_config, \
+    ajax_reset_dedup_config
+
+from adapters.certuk_mod.config.views import ajax_get_crm_url, ajax_set_crm_url, ajax_get_cert_config, \
+    ajax_get_sharing_groups, ajax_set_sharing_groups
 from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
@@ -76,8 +81,8 @@ def static(request, path):
     if "../" not in clean_path:
         content_type, _ = mimetypes.guess_type(clean_path)
         return FileResponse(
-                open(os.path.dirname(__file__) + "/../static/" + clean_path, mode="rb"),
-                content_type=content_type
+            open(os.path.dirname(__file__) + "/../static/" + clean_path, mode="rb"),
+            content_type=content_type
         )
     else:
         return HttpResponseNotFound()
@@ -199,7 +204,7 @@ def ajax_get_sites(request, data):
 def ajax_get_datetime(request, data):
     configuration = settings.ACTIVE_CONFIG
     current_date_time = datetime.datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime(
-            '%Y-%m-%dT%H:%M:%S')
+        '%Y-%m-%dT%H:%M:%S')
     return {'result': current_date_time}
 
 

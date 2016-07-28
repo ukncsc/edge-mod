@@ -11,8 +11,9 @@ class DedupConfigurationError(Exception):
 class DedupConfiguration(object):
 
     TASK_NAME = 'adapters.certuk_mod.cron.dedup_job.update'
-    DEFAULT_OBJECT_TYPES = ['obs', 'tgt', 'ttp']
-    VALID_OBJECT_TYPES = ['obs', 'tgt', 'ttp', 'inc', 'ind', 'act', 'cam', 'coa']
+    #DEFAULT_OBJECT_TYPES = ['obs', 'tgt', 'ttp']
+    #VALID_OBJECT_TYPES = ['obs', 'tgt', 'ttp', 'inc', 'ind', 'act', 'cam', 'coa']
+    DEFAULT_LOCAL_NS = True
     DEFAULT_HOUR = '00'
     DEFAULT_MINUTE = '00'
     DEFAULT_TIME = DEFAULT_HOUR + ':' + DEFAULT_MINUTE
@@ -20,7 +21,8 @@ class DedupConfiguration(object):
 
     __time_key = 'time'
     __enabled_key = 'enabled'
-    __object_type_key = 'object_types'
+    #__object_type_key = 'object_types'
+    __local_ns_key = 'localNamespaceOnly'
 
     def __init__(self, task):
         if not isinstance(task, PeriodicTaskWithTTL):
@@ -28,21 +30,27 @@ class DedupConfiguration(object):
 
         self.task = task
 
-        errors = DedupConfiguration.__validate(task.args, task.crontab.hour, task.crontab.minute)
+        only_local_ns = task.kwargs.get(self.__local_ns_key, self.DEFAULT_LOCAL_NS)
+
+        errors = DedupConfiguration.__validate(only_local_ns, task.crontab.hour, task.crontab.minute)
         if errors:
             raise DedupConfigurationError(errors)
 
+        self.only_local_ns = only_local_ns
         self.hour = task.crontab.hour
         self.minute = task.crontab.minute
         self.enabled = task.enabled
-        self.object_types = task.args
+        #self.object_types = task.args
 
     @staticmethod
-    def __validate(object_types_to_dedup, hour_str, minute_str, ):
+    def __validate(only_local_ns, hour_str, minute_str):
         errors = []
-        for object_type in object_types_to_dedup:
-            if object_type not in DedupConfiguration.VALID_OBJECT_TYPES:
-                errors.append(object_type + ' not a valid STIX type')
+        # for object_type in object_types_to_dedup:
+        #     if object_type not in DedupConfiguration.VALID_OBJECT_TYPES:
+        #         errors.append(object_type + ' not a valid STIX type')
+
+        if not isinstance(only_local_ns, bool):
+            errors.append('Boolean required for only_local_ns')
 
         try:
             hour = int(hour_str)
@@ -57,7 +65,7 @@ class DedupConfiguration(object):
 
     def to_dict(self):
         return {
-            self.__object_type_key: self.object_types,
+            self.__local_ns_key: self.only_local_ns,
             self.__time_key: '%02d:%02d' % (int(self.hour), int(self.minute)),
             self.__enabled_key: self.enabled
         }
@@ -72,7 +80,7 @@ class DedupConfiguration(object):
             raise
 
     @classmethod
-    def set(cls, object_types_to_dedup, time, enabled):
+    def set(cls, only_local_ns, time, enabled):
         try:
             config = cls.get()
             task = config.task
@@ -85,7 +93,11 @@ class DedupConfiguration(object):
                                                         hour=cls.DEFAULT_HOUR, minute=cls.DEFAULT_MINUTE),
                     enabled=enabled
             )
-        task.args = object_types_to_dedup
+
+        task.kwargs = {
+            cls.__local_ns_key: only_local_ns
+        }
+        #task.args = object_types_to_dedup
         task.enabled = bool(enabled)
 
         errors = []
@@ -95,7 +107,7 @@ class DedupConfiguration(object):
         except IndexError:
             errors.append("Invalid time")
 
-        errors += DedupConfiguration.__validate(task.crontab.hour, task.crontab.minute, object_types_to_dedup)
+        errors += DedupConfiguration.__validate(only_local_ns, task.crontab.hour, task.crontab.minute)
 
         if errors:
             raise DedupConfigurationError(errors)
@@ -105,7 +117,7 @@ class DedupConfiguration(object):
 
     @classmethod
     def set_from_dict(cls, config_dict):
-        return cls.set(config_dict[cls.__object_type_key],
+        return cls.set(config_dict[cls.__local_ns_key],
                        config_dict[cls.__time_key],
                        config_dict[cls.__enabled_key])
 
@@ -118,6 +130,6 @@ class DedupConfiguration(object):
 
     @classmethod
     def reset(cls):
-        return cls.set(DedupConfiguration.DEFAULT_OBJECT_TYPES,
+        return cls.set(DedupConfiguration.DEFAULT_LOCAL_NS,
                        DedupConfiguration.DEFAULT_TIME,
                        DedupConfiguration.DEFAULT_ENABLED)

@@ -25,6 +25,7 @@ if not hasattr(settings, 'BASE_DIR'):
 class STIXDedup(object):
     HASH_MAP = {'RED': 4, 'AMBER': 3, 'GREEN': 2, 'WHITE': 1, 'NULL': 0}
     LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
+    OBJECT_TYPES = ['ttp', 'tgt', 'obs']
 
     def __init(self, dedup_config):
         self.config = dedup_config
@@ -43,8 +44,8 @@ class STIXDedup(object):
             current_date = datetime.utcnow()
             STIXPurge.wait_for_background_jobs_completion(current_date)
 
-            for object_type in self.config.object_types:
-                cursor = STIXDedup.find_duplicates(object_type)
+            for object_type in STIXDedup.OBJECT_TYPES:
+                cursor = STIXDedup.find_duplicates(object_type, self.config.only_local_ns)
                 for original, duplicates in cursor.iteritems():
                     try:
                         self.merge_object(original, duplicates, object_type)
@@ -138,11 +139,11 @@ class STIXDedup(object):
                 '$in': duplicates}})
 
     @classmethod
-    def find_duplicates(cls, type_):
-        # if local:
-        #     namespace_query = {'_id': {'$regex': cls.LOCAL_ALIAS_REGEX}, 'type': type_}
-        # else:
-        #     namespace_query = {'type': type_}
+    def find_duplicates(cls, type_, local):
+        if local:
+            namespace_query = {'_id': {'$regex': cls.LOCAL_ALIAS_REGEX}, 'type': type_}
+        else:
+            namespace_query = {'type': type_}
 
         def transform(cursor):
             if type_ != 'obs':
@@ -167,12 +168,7 @@ class STIXDedup(object):
 
         return transform(get_db().stix.aggregate([
             {
-                '$match': {
-                    '_id': {
-                        '$regex': cls.LOCAL_ALIAS_REGEX
-                    },
-                    'type': type_
-                }
+                '$match': namespace_query
             },
             {
                 '$sort': {
@@ -185,7 +181,7 @@ class STIXDedup(object):
                     'uniqueIds': {
                         '$addToSet': '$_id'
                     },
-                    'tlpLevel': {
+                    'tlpLevels': {
                         '$addToSet': '$data.etlp'
                     },
                     'count': {'$sum': 1}
@@ -208,7 +204,7 @@ class STIXDedup(object):
         def transform(cursor):
             return {'_id': row.get('_id') for row in cursor}
 
-        return transform(get_db().stix.findOne({
+        return transform(get_db().stix.find({
             'data.hash': hash_,
             'data.etlp': tlp_level
         }))
