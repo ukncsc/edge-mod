@@ -12,7 +12,8 @@ from edge.generic import EdgeObject
 from edge.inbox import InboxError, InboxProcessor, InboxItem
 from edge.models import StixBacklink
 from users.models import Repository_User
-from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
+from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor, _existing_title_and_capecs, \
+    _existing_tgts_with_cves
 from adapters.certuk_mod.retention.purge import STIXPurge
 from adapters.certuk_mod.common.activity import save as log_activity
 
@@ -27,16 +28,16 @@ class STIXDedup(object):
     LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
     OBJECT_TYPES = ['ttp', 'tgt', 'obs']
 
-    def __init(self, dedup_config):
+    def __init__(self, dedup_config):
         self.config = dedup_config
         self.user = Repository_User.objects.get(username='system')
 
     def run(self):
-        def build_activity_message(type, num_of_duplicates, time):
+        def build_activity_message(type_, num_of_duplicates, time):
             if num_of_duplicates:
-                return 'Deduped %d %s based on hashes in %dms' % (num_of_duplicates, type, time)
+                return 'Deduped %d %s based on hashes in %dms' % (num_of_duplicates, type_, time)
             else:
-                return "No %s duplicates found" % (type)
+                return "No %s duplicates found" % (type_)
 
         messages = []
         elapsed = StopWatch()
@@ -48,15 +49,13 @@ class STIXDedup(object):
                 cursor = STIXDedup.find_duplicates(object_type, self.config.only_local_ns)
                 for original, duplicates in cursor.iteritems():
                     try:
-                        self.merge_object(original, duplicates, object_type)
+                        self.merge_object(original, duplicates)
                         messages.append(build_activity_message(object_type, len(original), int(elapsed.ms())))
                     except Exception as e:
                         log_activity('system', 'DEDUP', 'ERROR', e.message)
             log_activity('system', 'DEDUP', 'INFO', "\n".join(messages))
         except Exception as e:
             log_activity('system', 'DEDUP', 'ERROR', e.message)
-
-
 
     @staticmethod
     def load_eo(id_):
@@ -66,7 +65,7 @@ class STIXDedup(object):
         api_obj = eo.to_ApiObject()
         return api_obj, tlp, esms
 
-    def remap_observables(self, duplicates):
+    def remap_objects(self, duplicates):
         ip = DedupInboxProcessor(user=self.user, validate=True)
         for dup in duplicates:
             try:
@@ -124,19 +123,14 @@ class STIXDedup(object):
                 pass
         return parents_of_original, parents_of_duplicate
 
-    def merge_object(self, original, duplicates, type_):
+    def merge_object(self, original, duplicates):
         parents_of_duplicates = STIXDedup.calculate_backlinks(original, duplicates)[1]
         STIXDedup.remap_backlinks(original, duplicates)
 
         map_table = {dup: original for dup in duplicates}
         self.remap_parent_objects(parents_of_duplicates, map_table)
 
-        if type_ == 'obs':  # Use DeDupIP for obs as they will be removed by our filters. If not we'd inbox them again
-            self.remap_observables(duplicates)
-
-        if type_ != 'obs':
-            get_db().stix.remove({'_id': {
-                '$in': duplicates}})
+        self.remap_objects(duplicates)
 
     @classmethod
     def find_duplicates(cls, type_, local):
@@ -145,28 +139,42 @@ class STIXDedup(object):
         else:
             namespace_query = {'type': type_}
 
-        def transform(cursor):
-            if type_ != 'obs':
-                return {row.get('uniqueIds')[0]: row.get('uniqueIds')[1:] for row in cursor}
-            else:
-                obs = {}
-                for row in cursor:
-                    if len(row.get('tlpLevels')) > 1:
-                        tlps = row.get('tlpLevels')
-                        map_tlps = {}
-                        for tlp in tlps:
-                            if STIXDedup.HASH_MAP.get(tlp):
-                                map_tlps[tlp] = STIXDedup.HASH_MAP.get(tlp)
-                        tlp_level = sorted(map_tlps.items(), key=operator.itemgetter(1))[0][0]
-                        id_ = STIXDedup.match_tlp_hash(row.get('_id'), tlp_level).get('_id')
-                        ids = row.get('uniqueIds')
-                        ids.pop(ids.index(id_))
-                        obs[id_] = ids
-                    else:
-                        obs[row.get('uniqueIds')[0]] = row.get('uniqueIds')[1:]
-                    return obs
+        def obs_transform(cursor):
+            obs = {}
+            for row in cursor:
+                if len(row.get('tlpLevels')) > 1:
+                    tlps = row.get('tlpLevels')
+                    map_tlps = {}
+                    for tlp in tlps:
+                        if STIXDedup.HASH_MAP.get(tlp):
+                            map_tlps[tlp] = STIXDedup.HASH_MAP.get(tlp)
+                    tlp_level = sorted(map_tlps.items(), key=operator.itemgetter(1))[0][0]
+                    id_ = STIXDedup.match_tlp_hash(row.get('_id'), tlp_level).get('_id')
+                    ids = row.get('uniqueIds')
+                    ids.pop(ids.index(id_))
+                    obs[id_] = ids
+                else:
+                    obs[row.get('uniqueIds')[0]] = row.get('uniqueIds')[1:]
+                return obs
 
-        return transform(get_db().stix.aggregate([
+        def ttp_tgt_transform(cursor):
+            original_to_duplicates = {}
+            for row in cursor.items():
+                if len(row) > 1:
+                    master = row[0]
+                    original_to_duplicates[master] = row[1:]
+            return original_to_duplicates
+
+        if type_ == 'obs':
+            return obs_transform(STIXDedup.obs_hash_match(namespace_query))
+        elif type_ == 'ttp':
+            return ttp_tgt_transform(_existing_title_and_capecs(local))
+        elif type_ == 'tgt':
+            return ttp_tgt_transform(_existing_tgts_with_cves(local))
+
+    @staticmethod
+    def obs_hash_match(namespace_query):
+        return get_db().stix.aggregate([
             {
                 '$match': namespace_query
             },
@@ -197,7 +205,7 @@ class STIXDedup(object):
                     'count': 1
                 }
             }
-        ], cursor={}))
+        ], cursor={})
 
     @staticmethod
     def match_tlp_hash(hash_, tlp_level):

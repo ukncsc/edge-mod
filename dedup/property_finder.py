@@ -1,6 +1,7 @@
 from edge import LOCAL_NAMESPACE
 from mongoengine.connection import get_db
 
+
 def capec_finder(local):
     if local:
         namespace = LOCAL_NAMESPACE
@@ -14,6 +15,11 @@ def capec_finder(local):
                 'data.api.behavior.attack_patterns': {
                     '$exists': 'true'
                 }
+            }
+        },
+        {
+            '$sort': {
+                'created_on': -1
             }
         },
         {
@@ -42,6 +48,7 @@ def capec_finder(local):
             '$sort': {'created_on': 1}
         }], cursor={})
 
+
 def cve_finder(local):
     if local:
         namespace = LOCAL_NAMESPACE
@@ -55,6 +62,11 @@ def cve_finder(local):
                 'data.api.vulnerabilities': {
                     '$exists': 'true'
                 }
+            }
+        },
+        {
+            '$sort': {
+                'created_on': -1
             }
         },
         {

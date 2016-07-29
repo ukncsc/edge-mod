@@ -11,10 +11,8 @@ from .property_finder import capec_finder, cve_finder
 from edge.tools import rgetattr
 from .edges import dedup_collections
 from edge import LOCAL_NAMESPACE
-
-from stix.exploit_target import ExploitTarget
 from stix.ttp import TTP, RelatedTTPs, ExploitTargets
-from stix.exploit_target import PotentialCOAs, RelatedExploitTargets
+from stix.exploit_target import ExploitTarget, PotentialCOAs, RelatedExploitTargets
 from stix.coa import CourseOfAction
 
 PROPERTY_TYPE = ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE']
@@ -50,9 +48,9 @@ def _merge_ttps(api_object, references):
     for ref in references:
         related_objects.setdefault(ref.ty, []).append(ref.idref)
     if getattr(api_object, 'exploit_targets', None) is None:
-        api_object.exploit_targets = ExploitTargets()
+        setattr(api_object, 'exploit_targets',ExploitTargets())
     if getattr(api_object, 'related_ttps', None) is None:
-        api_object.related_ttps = RelatedTTPs()
+        setattr(api_object, 'related_ttps', RelatedTTPs())
 
     for tgt in related_objects.get('tgt', []):
         api_object.exploit_targets.append(ExploitTarget(idref=tgt))
@@ -65,9 +63,9 @@ def _merge_tgts(api_object, references):
     for ref in references:
         related_objects.setdefault(ref.ty, []).append(ref.idref)
     if getattr(api_object, 'related_exploit_targets', None) is None:
-        api_object.related_exploit_targets = RelatedExploitTargets()
+        setattr(api_object, 'related_exploit_targets', RelatedExploitTargets())
     if getattr(api_object, 'potential_coas', None) is None:
-        api_object.potential_coas = PotentialCOAs()
+        setattr(api_object, 'potential_coas', PotentialCOAs())
 
     for tgt in related_objects.get('tgt', []):
         api_object.related_exploit_targets.append(ExploitTarget(idref=tgt))
@@ -381,7 +379,7 @@ def _existing_title_and_capecs(local):
     for found_ttp in existing_ttps:
         capec_ids = [found_capec['capec'] for found_capec in found_ttp['capecs']]
         key = create_capec_title_key(found_ttp['title'], capec_ids)
-        existing_title_capec_string_to_id[key] = found_ttp['_id']
+        existing_title_capec_string_to_id.setdefault(key, []).append(found_ttp['_id'])
 
     return existing_title_capec_string_to_id
 
@@ -392,7 +390,7 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
     ttp_title_capec_string_to_ids = _package_title_capec_string_to_ids(contents, local)
 
     map_table = {
-        id_[0]: existing_title_capec_string_to_id[key] for key, id_ in ttp_title_capec_string_to_ids.iteritems() if
+        id_[0]: existing_title_capec_string_to_id[key][0] for key, id_ in ttp_title_capec_string_to_ids.iteritems() if
         key in existing_title_capec_string_to_id
         }
 
@@ -451,7 +449,7 @@ def _existing_tgts_with_cves(local):
     for found_tgt in existing_cves:
         cve_ids = [found_cve['cve'] for found_cve in found_tgt['cves']]
         key = ",".join(sorted(cve_ids))
-        existing_cves_to_ids[key] = found_tgt['_id']
+        existing_cves_to_ids.setdefault(key, []).append(found_tgt['_id'])
 
     return existing_cves_to_ids
 
@@ -479,7 +477,7 @@ def _existing_tgt_cve_dedup(contents, hashes, user, local):
     cve_to_tgt_ids = _package_cve_id_to_ids(contents, local)
 
     map_table = {
-        id_[0]: existing_cve_ids_to_id[key] for key, id_ in cve_to_tgt_ids.iteritems() if key in existing_cve_ids_to_id
+        id_[0]: existing_cve_ids_to_id[key][0] for key, id_ in cve_to_tgt_ids.iteritems() if key in existing_cve_ids_to_id
         }
 
     out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
