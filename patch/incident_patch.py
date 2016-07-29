@@ -130,15 +130,6 @@ def from_draft_wrapper(wrapped_func):
         target.coordinators = [EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in
                                draft.get('coordinators', [])]
 
-        # Edge sets handling by looking for magic strings, tlp and markings, (handing_from draft in handling.py).
-        # This is the easiest/least hacky way of adding a new marking.
-        handling_caveat = SimpleMarkingStructure(draft.get('handling_caveat'))
-        # the following is to mark this as different so on assembling we can recognise
-        # between the 2 simple marking structures
-        handling_caveat.marking_model_name = HANDLING_CAVEAT
-
-        target.handling.markings[0].marking_structures.append(handling_caveat)
-
         return target
 
     return classmethod(_w)
