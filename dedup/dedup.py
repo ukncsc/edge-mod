@@ -39,7 +39,7 @@ class STIXDedup(object):
             if num_of_duplicates:
                 return 'Deduped %d %s ' % (num_of_duplicates, type_)
             else:
-                return "No %s duplicates found" % (type_)
+                return "No %s duplicates found" % type_
 
         messages = []
         elapsed = StopWatch()
@@ -109,12 +109,12 @@ class STIXDedup(object):
             try:
                 get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
             except PyMongoError as pme:
-                log_error(e, 'adapters/dedup/dedup', 'Updating backlinks failed')
+                log_error(pme, 'adapters/dedup/dedup', 'Updating backlinks failed')
         if parents_of_duplicate:
             try:
                 get_db().stix_backlinks.remove({'_id': {'$in': duplicate}})
             except PyMongoError as pme:
-                log_error(e, 'adapters/dedup/dedup', 'Removing parent backlinks failed')
+                log_error(pme, 'adapters/dedup/dedup', 'Removing parent backlinks failed')
 
     @staticmethod
     def calculate_backlinks(original, duplicates):
