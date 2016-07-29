@@ -26,6 +26,7 @@ from users.decorators import login_required_ajax
 from users.models import Repository_User
 from .duplicates_finder import find_duplicates
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
+from adapters.certuk_mod.dedup.dedup import STIXDedup
 
 
 def load_eo(id_):
@@ -124,7 +125,7 @@ def ajax_load_duplicates(request, typ):
     try:
         local = request.body
         user_filters = request.user.filters()
-        duplicates = find_duplicates(typ, local)
+        duplicates = STIXDedup.find_duplicates(typ, local)
         return JsonResponse({
             typ: duplicates
         }, status=200)

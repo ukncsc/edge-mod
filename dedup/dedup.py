@@ -16,6 +16,8 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor, _
     _existing_tgts_with_cves
 from adapters.certuk_mod.retention.purge import STIXPurge
 from adapters.certuk_mod.common.activity import save as log_activity
+from adapters.certuk_mod.common.logger import log_error
+from adapters.certuk_mod.dedup.rehash import main
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 
@@ -33,15 +35,16 @@ class STIXDedup(object):
         self.user = Repository_User.objects.get(username='system')
 
     def run(self):
-        def build_activity_message(type_, num_of_duplicates, time):
+        def build_activity_message(type_, num_of_duplicates):
             if num_of_duplicates:
-                return 'Deduped %d %s based on hashes in %dms' % (num_of_duplicates, type_, time)
+                return 'Deduped %d %s ' % (num_of_duplicates, type_)
             else:
                 return "No %s duplicates found" % (type_)
 
         messages = []
         elapsed = StopWatch()
         try:
+            main()
             current_date = datetime.utcnow()
             STIXPurge.wait_for_background_jobs_completion(current_date)
 
@@ -50,10 +53,11 @@ class STIXDedup(object):
                 for original, duplicates in cursor.iteritems():
                     try:
                         self.merge_object(original, duplicates)
-                        messages.append(build_activity_message(object_type, len(original), int(elapsed.ms())))
                     except Exception as e:
                         log_activity('system', 'DEDUP', 'ERROR', e.message)
-            log_activity('system', 'DEDUP', 'INFO', "\n".join(messages))
+                messages.append(build_activity_message(object_type, len(cursor)))
+            messages.insert(0, 'Online Dedup (in %dms): ' % int(elapsed.ms()))
+            log_activity('system', 'DEDUP', 'INFO', "\n \t".join(messages))
         except Exception as e:
             log_activity('system', 'DEDUP', 'ERROR', e.message)
 
@@ -72,10 +76,13 @@ class STIXDedup(object):
                 api_obj, tlp, esms = STIXDedup.load_eo(dup)
                 ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms))
             except InboxError as e:
-                raise e
+                log_error(e, 'adapters/dedup/dedup', 'Adding objects to IP failed')
         get_db().stix.remove({'_id': {
             '$in': duplicates}})
-        ip.run()
+        try:
+            ip.run()
+        except Exception as e:
+            log_error(e, 'adapters/dedup/dedup', 'Inboxing objects failed')
 
     def remap_parent_objects(self, parents, map_table):
         if parents:
@@ -86,11 +93,11 @@ class STIXDedup(object):
                     api_obj = api_obj.remap(map_table)
                     ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms))
                 except InboxError as e:
-                    raise e
+                    log_error(e, 'adapters/dedup/dedup', 'Adding parents to IP failed')
             try:
                 ip.run()
             except InboxError as e:
-                raise e
+                log_error(e, 'adapters/dedup/dedup', 'Remapping parent objects failed')
 
     @staticmethod
     def remap_backlinks(original, duplicate):
@@ -102,12 +109,12 @@ class STIXDedup(object):
             try:
                 get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
             except PyMongoError as pme:
-                raise pme
+                log_error(e, 'adapters/dedup/dedup', 'Updating backlinks failed')
         if parents_of_duplicate:
             try:
                 get_db().stix_backlinks.remove({'_id': {'$in': duplicate}})
             except PyMongoError as pme:
-                raise pme
+                log_error(e, 'adapters/dedup/dedup', 'Removing parent backlinks failed')
 
     @staticmethod
     def calculate_backlinks(original, duplicates):
@@ -155,11 +162,11 @@ class STIXDedup(object):
                     obs[id_] = ids
                 else:
                     obs[row.get('uniqueIds')[0]] = row.get('uniqueIds')[1:]
-                return obs
+            return obs
 
         def ttp_tgt_transform(cursor):
             original_to_duplicates = {}
-            for row in cursor.items():
+            for row in cursor.values():
                 if len(row) > 1:
                     master = row[0]
                     original_to_duplicates[master] = row[1:]
