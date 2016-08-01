@@ -124,7 +124,6 @@ def duplicates_finder(request):
 def ajax_load_duplicates(request, typ):
     try:
         local = request.body
-        user_filters = request.user.filters()
         duplicates = STIXDedup.find_duplicates(typ, local)
         return JsonResponse({
             typ: duplicates

@@ -45,8 +45,7 @@ class STIXDedup(object):
         elapsed = StopWatch()
         try:
             main()
-            current_date = datetime.utcnow()
-            STIXPurge.wait_for_background_jobs_completion(current_date)
+            STIXPurge.wait_for_background_jobs_completion(datetime.utcnow())
 
             for object_type in STIXDedup.OBJECT_TYPES:
                 cursor = STIXDedup.find_duplicates(object_type, self.config.only_local_ns)
@@ -65,18 +64,19 @@ class STIXDedup(object):
     def load_eo(id_):
         eo = EdgeObject.load(id_)
         tlp = eo.etlp if hasattr(eo, 'etlp') else 'NULL'
-        esms = eo.esms if hasattr(eo, 'esms') else ''
+        esms = eo.esms if hasattr(eo, 'esms') else []
+        etou = eo.etou if hasattr(eo, 'etou') else []
         api_obj = eo.to_ApiObject()
-        return api_obj, tlp, esms
+        return api_obj, tlp, esms, etou
 
     def remap_objects(self, duplicates):
         ip = DedupInboxProcessor(user=self.user, validate=True)
         for dup in duplicates:
             try:
-                api_obj, tlp, esms = STIXDedup.load_eo(dup)
-                ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms))
+                api_obj, tlp, esms, etou = STIXDedup.load_eo(dup)
+                ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms, etou=etou))
             except InboxError as e:
-                log_error(e, 'adapters/dedup/dedup', 'Adding objects to IP failed')
+                log_error(e, 'adapters/dedup/dedup', 'Adding object %s to IP failed' % dup)
         get_db().stix.remove({'_id': {
             '$in': duplicates}})
         try:
@@ -89,19 +89,38 @@ class STIXDedup(object):
             ip = InboxProcessor(user=self.user, trustgroups=None)
             for id_, type_ in parents.iteritems():
                 try:
-                    api_obj, tlp, esms = STIXDedup.load_eo(id_)
+                    api_obj, tlp, esms, etou = STIXDedup.load_eo(id_)
                     api_obj = api_obj.remap(map_table)
-                    ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms))
+                    ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms, etou=etou))
                 except InboxError as e:
-                    log_error(e, 'adapters/dedup/dedup', 'Adding parents to IP failed')
+                    log_error(e, 'adapters/dedup/dedup', 'Adding parent %s to IP failed' % id_)
+                    pass
             try:
                 ip.run()
             except InboxError as e:
                 log_error(e, 'adapters/dedup/dedup', 'Remapping parent objects failed')
 
     @staticmethod
-    def remap_backlinks(original, duplicate):
-        parents_of_original, parents_of_duplicate = STIXDedup.calculate_backlinks(original, duplicate)
+    def remap_edges(original, duplicates):
+        backlinks_to_update = {}
+        for dup in duplicates:
+            edges_of_duplicate = EdgeObject.load(dup).to_ApiObject().edges()
+            for edge in edges_of_duplicate:
+                try:
+                    edge_id = edge.idref
+                    backlinks_to_update[edge_id] = StixBacklink.objects.get(id=edge_id).edges
+                    backlinks_to_update[edge_id][original] = backlinks_to_update[edge_id].pop(dup)
+                except DoesNotExist as e:
+                    pass
+                except Exception as e:
+                    log_error(e, 'adapters/dedup/dedup', 'Finding parents for %s failed' % edge.idref)
+                    pass
+        for id_, backlinks in backlinks_to_update.iteritems():
+            get_db().stix_backlinks.update({'_id': id_}, {'$set': {'value': backlinks}}, upsert=True)
+
+    @staticmethod
+    def remap_backlinks(original, duplicates):
+        parents_of_original, parents_of_duplicate = STIXDedup.calculate_backlinks(original, duplicates)
 
         new_parents = parents_of_duplicate.copy()
         new_parents.update(parents_of_original)
@@ -112,7 +131,7 @@ class STIXDedup(object):
                 log_error(pme, 'adapters/dedup/dedup', 'Updating backlinks failed')
         if parents_of_duplicate:
             try:
-                get_db().stix_backlinks.remove({'_id': {'$in': duplicate}})
+                get_db().stix_backlinks.remove({'_id': {'$in': duplicates}})
             except PyMongoError as pme:
                 log_error(pme, 'adapters/dedup/dedup', 'Removing parent backlinks failed')
 
@@ -132,11 +151,12 @@ class STIXDedup(object):
 
     def merge_object(self, original, duplicates):
         parents_of_duplicates = STIXDedup.calculate_backlinks(original, duplicates)[1]
+
         STIXDedup.remap_backlinks(original, duplicates)
+        STIXDedup.remap_edges(original, duplicates)
 
         map_table = {dup: original for dup in duplicates}
         self.remap_parent_objects(parents_of_duplicates, map_table)
-
         self.remap_objects(duplicates)
 
     @classmethod
