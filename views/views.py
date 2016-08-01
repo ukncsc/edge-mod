@@ -13,9 +13,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
+from stix.extensions.marking.simple_marking import SimpleMarkingStructure
+
 from users.decorators import superuser_or_staff_role, json_body
 from users.models import Draft
 from edge.generic import EdgeObject
+from edge.inbox import InboxProcessorForBuilders, InboxItem, InboxError
 from edge import IDManager
 from clippy.models import CLIPPY_TYPES
 
@@ -76,6 +79,7 @@ cert_builder.apply_customizations()
 cron_setup.create_jobs()
 mimetypes.init()
 EDGE_DEPTH_LIMIT = 2
+HANDLING_CAVEAT = 'HANDLING_CAVEAT'
 
 
 @login_required
@@ -168,11 +172,48 @@ def review(request, id_):
         "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
         "back_edges": json.dumps(back_edges),
         "edges": json.dumps(edges),
-        'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/view/%s/' % urllib.quote(id_)),
-        'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/edit/%s/' % urllib.quote(id_)),
+        'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
+        '/view/%s/' % urllib.quote(id_)),
+        'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
+        '/edit/%s/' % urllib.quote(id_)),
         "revisions": json.dumps(root_edge_object.revisions),
         'ajax_uri': reverse('catalog_ajax')
     })
+
+
+@login_required
+@json_body
+def review_set_handling(request, data):
+    try:
+        edge_object = EdgeObject.load(data["rootId"])
+
+        generic_object = edge_object.to_ApiObject()
+        append_handling(generic_object, data["handling"])
+        ip = InboxProcessorForBuilders(
+                user=request.user,
+        )
+
+        ip.add(InboxItem(api_object=generic_object, etlp=edge_object.etlp))
+        ip.run()
+        return {
+            'messages': '',
+            'success': True
+        }
+    except InboxError as e:
+        log_activity(request.user, 'HANDLING', 'ERROR', e.message)
+        log_error(e, 'adapters/dedup/import', 'Failed to set Handling')
+        return JsonResponse({
+            'messages': [e.message],
+            'state': 'error'
+        }, status=500)
+
+
+def append_handling(edge_object, handling_markings):
+        for handling in handling_markings:
+            handling_caveat = SimpleMarkingStructure(handling)
+            handling_caveat.marking_model_name = HANDLING_CAVEAT
+            edge_object.obj.handling.markings[0].marking_structures.append(handling_caveat)
+
 
 
 @login_required

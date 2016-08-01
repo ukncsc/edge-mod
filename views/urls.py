@@ -24,6 +24,7 @@ publisher_urls = [
     (r'^static/(?P<path>[\S]+)$', 'views.static', 'static_content'),
     (r'^review/$', 'views.discover', 'publisher_discover'),
     (r'^review/duplicates/(?P<id_>' + VALID_STIX_ID + ')$', 'views.get_duplicates', 'get_duplicates'),
+    (r'^review/handling/', 'views.review_set_handling', 'review_set_handling'),
 
     (r'^extract/$', 'views.extract', 'extract_stix'),
     (r'^uploaded_stix_extracts/$', 'views.uploaded_stix_extracts', 'uploaded_stix_extracts'),

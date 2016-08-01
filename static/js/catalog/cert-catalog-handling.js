@@ -1,10 +1,10 @@
 define([
     "dcl/dcl",
     "knockout",
-    "common/modal/Modal",
+    "./cert-catalog-handling-modal",
     "kotemplate!list-select:./templates/publish_handling.html",
     "text!config-service"
-], function (declare, ko, Modal, ListSelectsTemplate, configService) {
+], function (declare, ko, HandlingModal, ListSelectsTemplate, configService) {
     "use strict";
 
     var config = Object.freeze(JSON.parse(configService));
@@ -14,8 +14,6 @@ define([
         declaredClass: "cert-catalog-handling",
         constructor: function () {
             this.choices = ko.observableArray(this.parseSharingGroups(sharing_groups))
-            this.items = ko.observableArray([]);
-
         },
 
         parseSharingGroups: function (sharingGroups) {
@@ -28,24 +26,16 @@ define([
             return LabelList
         },
 
-        toggle: function (item) {
-            if (this.isSelected(item)) {
-                this.items.remove(item);
-            } else {
-                this.items.push(item)
-            }
-        },
-
-        isSelected: function (item) {
-            return this.items.indexOf(item) > -1;
-        },
-
         onPublish2: function () {
             var contentData = {
-                choices: this.choices()
+                choices: this.choices(),
+                phase: ko.observable("INPUT"),
+                message: ko.observable(""),
+                publicationMessage: ko.observable(""),
+                waitingForResponse: ko.observable(false)
             };
 
-            var confirmModal = new Modal({
+            var confirmModal = new HandlingModal({
                 title: "Handling Caveats",
                 titleIcon: "glyphicon-info-sign",
                 contentData: contentData,
@@ -54,7 +44,7 @@ define([
                     {
                         label: "Yes",
                         noClose: true,
-                        //callback: this._onPublishModalOK.bind(this),
+                        callback: this._onPublishModalOK.bind(this),
                         disabled: ko.observable(false),
                         icon: "glyphicon-ok",
                         hide: ko.observable(false)
@@ -73,5 +63,65 @@ define([
             });
             confirmModal.show();
         },
+
+
+        _onPublishModalOK: function (modal) {
+            var yesButton = modal.getButtonByLabel("Yes");
+            var noButton = modal.getButtonByLabel("No");
+            var closeButton = modal.getButtonByLabel("Close");
+
+            yesButton.disabled(true);
+            noButton.disabled(true);
+
+            modal.contentData.waitingForResponse(true);
+            modal.contentData.message("Setting Handling Caveats ...");
+
+            this.publish({
+                'handling': this.parseSharingtoStix(modal.items())
+            }, function (response) {
+                modal.contentData.phase("RESPONSE");
+                modal.contentData.waitingForResponse(false);
+
+                var success = !!(response["success"]);
+                var errorMessage = response["error_message"];
+                if (errorMessage) {
+                    errorMessage = errorMessage.replace(/^[A-Z]/, function (match) {
+                        return match.toLowerCase();
+                    }).replace(/[,.]+$/, "");
+                }
+                var message = success ?
+                    "The Handling Caveats were succesfully set" :
+                "An error occurred during editing the STIX object (" + errorMessage + ")";
+                var title = success ? "Success" : "Error";
+                var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
+
+                modal.title(title);
+                modal.titleIcon(titleIcon);
+                modal.contentData.message(message);
+
+                yesButton.hide(true);
+                noButton.hide(true);
+                closeButton.hide(false);
+            }.bind(this));
+        },
+
+        publish: function (onConfirmData, onPublishCallback) {
+            postJSON("../review/handling/", ko.utils.extend(onConfirmData, {
+                rootId: window["rootId"]
+            }), onPublishCallback);
+        },
+
+        parseSharingtoStix: function (selectedSharingGroups) {
+            var stixValues = [];
+            ko.utils.arrayForEach(selectedSharingGroups, function(selectedGroup){
+                for(var key in sharing_groups) {
+                    if(sharing_groups[key] == selectedGroup){
+                       stixValues.push(key);
+                        break;
+                    }
+                }
+            });
+            return stixValues
+        }
     });
 });
