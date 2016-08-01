@@ -76,11 +76,11 @@ define([
             }.bind(this));
         },
 
-        onPublish2: function() {
-            this.handling().onPublish2();
+        onPublish: function() {
+           this.handling().onPublish(this.onPublishWithHandling);
         },
 
-        onPublish: function () {
+        onPublishWithHandling: function () {
             var validations = this.stixPackage().validations();
             var contentData = {
                 phase: ko.observable("INPUT"),
@@ -115,7 +115,7 @@ define([
                     },
                     {
                         label: "Close",
-                        hide: ko.observable(true)
+                        hide: ko.observable(true),
                     }
                 ]
             });

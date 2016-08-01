@@ -26,7 +26,7 @@ define([
             return LabelList
         },
 
-        onPublish2: function () {
+        onPublish: function (callback) {
             var contentData = {
                 choices: this.choices(),
                 phase: ko.observable("INPUT"),
@@ -44,7 +44,7 @@ define([
                     {
                         label: "Yes",
                         noClose: true,
-                        callback: this._onPublishModalOK.bind(this),
+                        callback: this._onHandlingModalOK.bind(this, callback),
                         disabled: ko.observable(false),
                         icon: "glyphicon-ok",
                         hide: ko.observable(false)
@@ -56,8 +56,9 @@ define([
                         hide: ko.observable(false)
                     },
                     {
-                        label: "Close",
-                        hide: ko.observable(true)
+                        label: "Publish",
+                        hide: ko.observable(true),
+                        callback: ko.observable()
                     }
                 ]
             });
@@ -65,10 +66,10 @@ define([
         },
 
 
-        _onPublishModalOK: function (modal) {
+        _onHandlingModalOK: function (callback, modal) {
             var yesButton = modal.getButtonByLabel("Yes");
             var noButton = modal.getButtonByLabel("No");
-            var closeButton = modal.getButtonByLabel("Close");
+            var publishButton = modal.getButtonByLabel("Publish");
 
             yesButton.disabled(true);
             noButton.disabled(true);
@@ -101,7 +102,8 @@ define([
 
                 yesButton.hide(true);
                 noButton.hide(true);
-                closeButton.hide(false);
+                publishButton.hide(false);
+                publishButton.callback = callback.bind(modal);
             }.bind(this));
         },
 
@@ -113,10 +115,10 @@ define([
 
         parseSharingtoStix: function (selectedSharingGroups) {
             var stixValues = [];
-            ko.utils.arrayForEach(selectedSharingGroups, function(selectedGroup){
-                for(var key in sharing_groups) {
-                    if(sharing_groups[key] == selectedGroup){
-                       stixValues.push(key);
+            ko.utils.arrayForEach(selectedSharingGroups, function (selectedGroup) {
+                for (var key in sharing_groups) {
+                    if (sharing_groups[key] == selectedGroup) {
+                        stixValues.push(key);
                         break;
                     }
                 }
