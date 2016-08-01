@@ -2,6 +2,7 @@ define([], function () {
     "use strict";
 
     return Object.freeze({
-        "REVISION": "latest"
+        "REVISION": "latest",
+        "HANDLING": false
     });
 });

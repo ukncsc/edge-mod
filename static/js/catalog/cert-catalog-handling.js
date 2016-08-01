@@ -2,9 +2,11 @@ define([
     "dcl/dcl",
     "knockout",
     "./cert-catalog-handling-modal",
+    "common/topic",
+    "catalog/cert-catalog-topics",
     "kotemplate!list-select:./templates/publish_handling.html",
     "text!config-service"
-], function (declare, ko, HandlingModal, ListSelectsTemplate, configService) {
+], function (declare, ko, HandlingModal, Topic, topics, ListSelectsTemplate, configService) {
     "use strict";
 
     var config = Object.freeze(JSON.parse(configService));
@@ -44,7 +46,7 @@ define([
                     {
                         label: "Yes",
                         noClose: true,
-                        callback: this._onHandlingModalOK.bind(this, callback),
+                        callback: this._onHandlingModalOK.bind(this),
                         disabled: ko.observable(false),
                         icon: "glyphicon-ok",
                         hide: ko.observable(false)
@@ -66,7 +68,7 @@ define([
         },
 
 
-        _onHandlingModalOK: function (callback, modal) {
+        _onHandlingModalOK: function (modal) {
             var yesButton = modal.getButtonByLabel("Yes");
             var noButton = modal.getButtonByLabel("No");
             var publishButton = modal.getButtonByLabel("Publish");
@@ -103,7 +105,9 @@ define([
                 yesButton.hide(true);
                 noButton.hide(true);
                 publishButton.hide(false);
-                publishButton.callback = callback.bind(modal);
+                publishButton.callback = function() {
+                    Topic.publish(topics.HANDLING, true);
+                }
             }.bind(this));
         },
 

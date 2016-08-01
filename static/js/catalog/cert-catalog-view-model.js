@@ -26,6 +26,9 @@ define([
             this.editURL = ko.observable(editURL);
             this.section = ko.observable(new Section());
             this.handling = ko.observable(new Handling());
+            Topic.subscribe(topics.HANDLING, function() {
+                this.onPublishWithHandling()
+            }.bind(this), this);
             this.timekey = ko.observable();
             Topic.subscribe(topics.REVISION, function (data) {
                 this.timekey(data)
