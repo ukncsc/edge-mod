@@ -69,7 +69,7 @@ class STIXDedup(object):
         api_obj = eo.to_ApiObject()
         return api_obj, tlp, esms, etou
 
-    def remap_objects(self, duplicates):
+    def remap_objects(self, duplicates):  # Inbox duplicates. Will be remapped to original by the DDIP.
         ip = DedupInboxProcessor(user=self.user, validate=True)
         for dup in duplicates:
             try:
@@ -84,7 +84,8 @@ class STIXDedup(object):
         except Exception as e:
             log_error(e, 'adapters/dedup/dedup', 'Inboxing objects failed')
 
-    def remap_parent_objects(self, parents, map_table):
+    def remap_parent_objects(self, parents,
+                             map_table):  # Inbox parents of duplicates remapping duplicate reference to original
         if parents:
             ip = InboxProcessor(user=self.user, trustgroups=None)
             for id_, type_ in parents.iteritems():
@@ -100,35 +101,42 @@ class STIXDedup(object):
             except InboxError as e:
                 log_error(e, 'adapters/dedup/dedup', 'Remapping parent objects failed')
 
-    @staticmethod
-    def remap_edges(original, duplicates):
+    @staticmethod  # Update backlinks for duplicates edges.
+    def remap_backlinks_for_edges(original, duplicates):
         backlinks_to_update = {}
         for dup in duplicates:
             edges_of_duplicate = EdgeObject.load(dup).to_ApiObject().edges()
             for edge in edges_of_duplicate:
-                try:
-                    edge_id = edge.idref
-                    backlinks_to_update[edge_id] = StixBacklink.objects.get(id=edge_id).edges
-                    backlinks_to_update[edge_id][original] = backlinks_to_update[edge_id].pop(dup)
-                except DoesNotExist as e:
-                    pass
-                except Exception as e:
-                    log_error(e, 'adapters/dedup/dedup', 'Finding parents for %s failed' % edge.idref)
-                    pass
+                edge_id = edge.idref
+                if edge_id != original and edge_id not in duplicates:  # If opposite is true, duplicate references original
+                    # and remapping would result in original referencing itself
+                    try:
+                        if backlinks_to_update.get(edge_id):
+                            backlinks_to_update[edge_id][original] = backlinks_to_update[edge_id].pop(dup)
+                        else:
+                            backlinks_to_update[edge_id] = StixBacklink.objects.get(id=edge_id).edges
+                            backlinks_to_update[edge_id][original] = backlinks_to_update[edge_id].pop(dup)
+                    except DoesNotExist as e:
+                        pass
+                    except Exception as e:
+                        log_error(e, 'adapters/dedup/dedup', 'Finding parents for %s failed' % edge_id)
+                        pass
         for id_, backlinks in backlinks_to_update.iteritems():
             get_db().stix_backlinks.update({'_id': id_}, {'$set': {'value': backlinks}}, upsert=True)
 
-    @staticmethod
-    def remap_backlinks(original, duplicates):
+    @staticmethod  # If duplicates have any backlinks update original backlinks with these
+    def remap_backlinks_for_original(original, duplicates):
         parents_of_original, parents_of_duplicate = STIXDedup.calculate_backlinks(original, duplicates)
 
         new_parents = parents_of_duplicate.copy()
         new_parents.update(parents_of_original)
-        if new_parents:
-            try:
-                get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
-            except PyMongoError as pme:
-                log_error(pme, 'adapters/dedup/dedup', 'Updating backlinks failed')
+        for dup in duplicates:  # Strip out references to duplicates in updated backlinks
+            if dup in new_parents:
+                del new_parents[dup]
+        try:
+            get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}})
+        except PyMongoError as pme:
+            log_error(pme, 'adapters/dedup/dedup', 'Updating backlinks failed')
         if parents_of_duplicate:
             try:
                 get_db().stix_backlinks.remove({'_id': {'$in': duplicates}})
@@ -152,8 +160,8 @@ class STIXDedup(object):
     def merge_object(self, original, duplicates):
         parents_of_duplicates = STIXDedup.calculate_backlinks(original, duplicates)[1]
 
-        STIXDedup.remap_backlinks(original, duplicates)
-        STIXDedup.remap_edges(original, duplicates)
+        STIXDedup.remap_backlinks_for_original(original, duplicates)
+        STIXDedup.remap_backlinks_for_edges(original, duplicates)
 
         map_table = {dup: original for dup in duplicates}
         self.remap_parent_objects(parents_of_duplicates, map_table)
@@ -166,7 +174,7 @@ class STIXDedup(object):
         else:
             namespace_query = {'type': type_}
 
-        def obs_transform(cursor):
+        def obs_transform(cursor):  # If duplicates have more than one tlpLevel take the most permissive
             obs = {}
             for row in cursor:
                 if len(row.get('tlpLevels')) > 1:
