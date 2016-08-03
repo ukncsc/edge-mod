@@ -146,7 +146,7 @@ define([
         },
 
         onRowClicked: function (item) {
-            if (item.id()) {
+            if (item.id() && item.title().value() != "(External)") {
                 var path = window.location.href.split("/");
                 path[path.length - 2] = item.id();
                 window.location.assign(path.join("/"));

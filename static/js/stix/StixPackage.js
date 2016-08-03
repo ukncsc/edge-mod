@@ -47,6 +47,12 @@ define([
                                 return item.id === id;
                             }, this);
                         }
+                        if (data === null) {
+                            data = {
+                                id: id,
+                                title: "(External)"
+                            };
+                        }
                     }
                 }
                 //same problem as above.
