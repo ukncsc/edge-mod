@@ -37,7 +37,7 @@ define([
                     var listToSearch = this.safeGet(this._data, type.collection);
                     if (!listToSearch) {
                         // Missing References
-                        return {}
+                        return null
                     }
                     // Need to refactor, should be able to pass in actual collection but each package is wrapped as an object
                     // with the key package. if can't change input then refactor into parameterised helper method
@@ -127,20 +127,29 @@ define([
                 return this.findById(new StixId(this.safeGet(item, idrefKey)));
             }, this);
             var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
-            var purgedValues = this.replaceNulls(values);
-            return new ReviewValue(purgedValues, validation.state, validation.message);
+            return new ReviewValue(this.removeMissingReferences(values), validation.state, validation.message);
         },
 
-        replaceNulls: function (/*Array*/ ids) {
+        removeMissingReferences: function (/*Array*/ ids) {
+            var idsToRemove =[];
             if (ids != null) {
-                var length = ids.length
+                var length = ids.length;
                 for (var index = 0; index < length; index++) {
                     if (ids[index] == null) {
-                        ids[index] = {}
+                        idsToRemove.unshift(index)
                     }
                 }
             }
-            return ids
+            return this.removeNulls(idsToRemove, ids)
+        },
+
+        removeNulls: function (toRemove, arrayToPurge) {
+            var numberToRemove = toRemove.length;
+            for (var index = 0; index < numberToRemove; index++) {
+                //works back through array so safely remove, no falling off
+                arrayToPurge.splice(toRemove[index], 1)
+            }
+            return arrayToPurge
         }
     });
 });
