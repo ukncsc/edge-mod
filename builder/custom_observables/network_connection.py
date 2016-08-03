@@ -34,7 +34,7 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
         socket = {
             "ip_address": str(address),
             "hostname": str(hostname),
-            "port": int(port),
+            "port": str(port),
             "protocol": str(protocol)
         }
         return socket

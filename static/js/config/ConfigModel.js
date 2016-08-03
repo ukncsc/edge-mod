@@ -5,8 +5,9 @@ define([
     "config/RetentionConfig",
     "config/FTSConfig",
     "config/CRMConfig",
-    "config/HandlingConfig"
-], function (declare, Modal, PublisherConfig, RetentionConfig, FTSConfig, CRMConfig, HandlingConfig) {
+    "config/HandlingConfig",
+    "config/MarkingConfig"
+], function (declare, Modal, PublisherConfig, RetentionConfig, FTSConfig, CRMConfig, HandlingConfig, MarkingConfig) {
     "use strict";
 
     return declare(null, {
@@ -17,12 +18,14 @@ define([
             this.fts = new FTSConfig();
             this.crm = new CRMConfig();
             this.handling = new HandlingConfig();
+            this.markings = new MarkingConfig();
 
             this.publisher.getSites();
             this.retention.getConfig();
             this.fts.getConfig();
             this.crm.getURL();
             this.handling.getConfig();
+            this.markings.getConfig();
         }
     });
 });

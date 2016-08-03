@@ -39,6 +39,22 @@ define([
             //stub - does nothing here
         },
 
+        hasDuplicates: function (array) {
+            return (new Set(array)).size !== array.length;
+        },
+
+        removeIndexes: function (toRemove, arrayToPurge) {
+            var numberToRemove = toRemove.length;
+            for (var index = 0; index < numberToRemove; index++) {
+                //works back through array so safely remove, no falling off
+                arrayToPurge.splice(toRemove[index], 1)
+            }
+        },
+
+        isEmptyString: function (/*String*/ string) {
+            return typeof string === "string" && string.trim().length > 0;
+        },
+
         saveData: function (/*String*/ url, data, /*String*/ successMessage, /*String*/ errorMessage) {
             postJSON(url, data, function (response) {
                 this._onSuccesfulSave(response, successMessage);
