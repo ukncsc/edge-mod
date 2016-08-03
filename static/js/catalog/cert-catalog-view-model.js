@@ -146,9 +146,11 @@ define([
         },
 
         onRowClicked: function (item) {
-            var path = window.location.href.split("/");
-            path[path.length - 1] = item.id();
-            window.location.assign(path.join("/"));
+            if (item.id()) {
+                var path = window.location.href.split("/");
+                path[path.length - 2] = item.id();
+                window.location.assign(path.join("/"));
+            }
         }
     });
 });

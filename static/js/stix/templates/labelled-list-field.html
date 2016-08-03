@@ -16,7 +16,7 @@
         </tr>
         </thead>
         <tbody data-bind="foreach: { data: value().value, as: '$row'} ">
-        <tr data-bind="click: $root.onRowClicked.bind($root), foreach: $parent.columns">
+        <tr data-bind="attr: { title: $data[$parent.row.tooltip] }, click: $root.onRowClicked.bind($root), foreach: $parent.columns">
             <!-- ko template: { name: templateName, data: { value: $row[propertyName] } } --><!-- /ko -->
         </tr>
         </tbody>
