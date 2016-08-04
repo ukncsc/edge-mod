@@ -21,6 +21,7 @@ from users.models import Draft
 from edge.generic import EdgeObject, load_edge_object_or_404
 from edge.inbox import InboxProcessorForBuilders, InboxItem, InboxError
 from edge import IDManager
+from edge.handling import make_handling
 import rbac
 from clippy.models import CLIPPY_TYPES
 
@@ -219,11 +220,12 @@ def review_set_handling(request, data):
 
 
 def append_handling(edge_object, handling_markings):
-        for handling in handling_markings:
-            handling_caveat = SimpleMarkingStructure(handling)
-            handling_caveat.marking_model_name = HANDLING_CAVEAT
-            edge_object.obj.handling.markings[0].marking_structures.append(handling_caveat)
-
+    if not edge_object.obj.handling:
+        edge_object.obj.handling = make_handling(edge_object.ty)
+    for handling in handling_markings:
+        handling_caveat = SimpleMarkingStructure(handling)
+        handling_caveat.marking_model_name = HANDLING_CAVEAT
+        edge_object.obj.handling.markings[0].marking_structures.append(handling_caveat)
 
 
 @login_required
