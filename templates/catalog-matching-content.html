@@ -1,7 +1,8 @@
 <template id="Matching">
     <div class="col-sm-12" data-bind="if: duplicates.length != 0">
         <h3>
-            <a data-toggle="collapse" data-target="#collapseMatching">Matching Content</a>
+            <a data-toggle="collapse" data-target="#collapseMatching"><span
+                    class="glyphicon glyphicon-chevron-right transform-medium icon-sm"></span> Matching Content</a>
         </h3>
         <div id="collapseMatching" class="panel-collapse collapse in">
             <div data-bind="foreach: duplicates">

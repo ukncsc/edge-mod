@@ -112,7 +112,7 @@ define([
         },
 
         publish: function (onConfirmData, onPublishCallback) {
-            postJSON("../review/handling/", ko.utils.extend(onConfirmData, {
+            postJSON("/adapter/certuk_mod/review/handling/", ko.utils.extend(onConfirmData, {
                 rootId: window["rootId"]
             }), onPublishCallback);
         },

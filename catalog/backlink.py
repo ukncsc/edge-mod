@@ -4,10 +4,10 @@ from clippy.models import CLIPPY_TYPES
 from edge.generic import EdgeObject, EdgeError
 
 
-class BackEdgeGenerator(object):
+class BackLinkGenerator(object):
 
     @staticmethod
-    def gather_back_edges(edgetable, load_by_id):
+    def gather_back_links(edgetable, load_by_id):
         ax = []
         for idref, type_ in edgetable.iteritems():
             try:
@@ -40,9 +40,9 @@ class BackEdgeGenerator(object):
 
 
     @staticmethod
-    def retrieve_back_edges(edge_object, user_loader):
+    def retrieve_back_links(edge_object, user_loader):
 
-        backtable = BackEdgeGenerator._generate_back_table(edge_object)
+        backtable = BackLinkGenerator._generate_back_table(edge_object)
 
-        return BackEdgeGenerator.gather_back_edges(backtable, load_by_id=user_loader)
+        return BackLinkGenerator.gather_back_links(backtable, load_by_id=user_loader)
 

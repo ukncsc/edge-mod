@@ -71,14 +71,6 @@ define([
             this.handling_caveats.valueHasMutated();
         },
 
-        removeIndexes: function (toRemove, arrayToPurge) {
-            var numberToRemove = toRemove.length;
-            for (var index = 0; index < numberToRemove; index++) {
-                //works back through array so safely remove, no falling off
-                arrayToPurge.splice(toRemove[index], 1)
-            }
-        },
-
         isValid: function (handlingCaveatArray) {
             if (this.containsDuplicates(this.handling_caveats())) {
                 return false
@@ -105,13 +97,7 @@ define([
             }
         },
 
-        hasDuplicates: function (array) {
-            return (new Set(array)).size !== array.length;
-        },
 
-        isEmptyString: function (/*String*/ string) {
-            return typeof string === "string" && string.trim().length > 0;
-        },
 
         createSimpleConfigObject: function (handlingArray) {
             var configObject = {};

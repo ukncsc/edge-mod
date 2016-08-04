@@ -32,7 +32,6 @@ TIME_TYPES = (("first_malicious_action", "First Malicious Action", False),
               ("incident_reported", "Incident Reported", False),
               ("incident_closed", "Incident Closed", False))
 
-MARKING_PRIORITIES = ("UK HMG Priority: [C1]", "UK HMG Priority: [C2]", "UK HMG Priority: [C3]")
 
 configuration = settings.ACTIVE_CONFIG
 
@@ -49,7 +48,6 @@ def get_build_template(static, id_, id_ns):
         'statuses': json.dumps(static['statuses']),
         'categories': json.dumps(CATEGORIES),
         'time_types_list': json.dumps(TIME_TYPES),
-        'marking_priorities': json.dumps(MARKING_PRIORITIES),
         'confidences': json.dumps(static['confidences']),
         'tlps': json.dumps(static['tlps']),
         'trustgroups': json.dumps(static['trustgroups']),

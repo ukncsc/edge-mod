@@ -15,16 +15,11 @@
         {% include 'catalog-referenced-by.html' %}
         {% include 'catalog-edges.html' %}
         <div class="row" data-bind="template: 'header'"></div>
-        <div class="row" data-bind="template: 'warning'"></div>
         <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
-        <div class="col-sm-12" data-bind="if: type().code == 'inc'">
-            <h3>
-                <a data-toggle="collapse" data-target="#collapseTimeline">Timeline</a>
-            </h3>
-            <div id="collapseTimeline" class="panel-collapse collapse in">
-                <div id="incidentTimelineSVG" class="chart float-right"></div>
-            </div>
-        </div>
+        </br>
+        <!-- ko if: type().code == "inc" -->
+        <div id="incidentTimelineSVG" class="col-sm-12 chart"></div>
+        <!-- /ko -->
         <div data-bind="template: { name: 'Edges', data: section().findByLabel('Edges')}"></div>
         <div data-bind="template: { name: 'Matching', data: section().findByLabel('Matching')}"></div>
         <div data-bind="template: { name: 'References', data: section().findByLabel('References')}"></div>
@@ -41,12 +36,17 @@
                     <button type="button" class="btn btn-danger pull-right"
                             data-bind="click: onPublish">Publish<br>Externally
                     </button>
+                    <!-- ko if: type().code != "obs" || type().code != "pkg"-->
+
                     <a type="button" class="btn btn-info pull-right"
                        data-bind="attr: { href: viewURL}">View in<br>Builder
                     </a>
+                    <!-- /ko -->
+                    <!-- ko if : editable -->
                     <a type="button" class="btn btn-success pull-right"
                        data-bind="attr: { href: editURL}">Edit in<br>Builder
                     </a>
+                    <!-- /ko -->
                 </div>
                 <img alt="" src="" data-bind="attr: {
                     src: '{% static "img/hex" %}/hex_'+type().code+'.png'

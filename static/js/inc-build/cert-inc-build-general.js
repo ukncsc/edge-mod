@@ -5,9 +5,13 @@ define([
     "common/cert-messages",
     "common/identity",
     "common/topic",
-    "inc-build/cert-inc-build-topics"
-], function (declare, ko, AbstractBuilderForm, Messages, Identity, Topic, topics) {
+    "inc-build/cert-inc-build-topics",
+    "text!config-service"
+], function (declare, ko, AbstractBuilderForm, Messages, Identity, Topic, topics, configService) {
     "use strict";
+
+    var config = Object.freeze(JSON.parse(configService));
+    var markings = config.markings;
 
     return declare(AbstractBuilderForm, {
         declaredClass: "General",
@@ -86,7 +90,7 @@ define([
             this.tlps(optionLists.tlps_list);
             this.statuses(optionLists.statuses_list);
             this.categories(optionLists.categories_list);
-            this.marking_priorities(optionLists.marking_priorities);
+            this.marking_priorities(markings);
         },
 
         addReporter: function () {

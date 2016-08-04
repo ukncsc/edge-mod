@@ -74,6 +74,30 @@ def ajax_set_sharing_groups(request):
             'message': e.message
         }, status=500)
 
+@login_required_ajax
+@superuser_or_staff_role
+def ajax_get_markings(request):
+    try:
+        markings = get_config("markings")
+        return JsonResponse(markings, safe=False, status=200)
+    except Exception as e:
+        return JsonResponse({
+            'message': e.message
+        }, status=500)
+
+
+@login_required_ajax
+@superuser_or_staff_role
+def ajax_set_markings(request):
+    markings = json.loads(request.body)
+    try:
+        save_config("markings", markings)
+        return JsonResponse({}, status=200)
+    except Exception as e:
+        return JsonResponse({
+            'message': e.message
+        }, status=500)
+
 
 def validate(value):
     return value.endswith("crmapi")

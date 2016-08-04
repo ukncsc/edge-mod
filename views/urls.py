@@ -24,6 +24,7 @@ publisher_urls = [
     (r'^static/(?P<path>[\S]+)$', 'views.static', 'static_content'),
     (r'^review/$', 'views.discover', 'publisher_discover'),
     (r'^review/duplicates/(?P<id_>' + VALID_STIX_ID + ')$', 'views.get_duplicates', 'get_duplicates'),
+    (r'^review/editable/(?P<id_>' + VALID_STIX_ID + ')$', 'views.object_details', 'object_details'),
     (r'^review/handling/', 'views.review_set_handling', 'review_set_handling'),
 
     (r'^extract/$', 'views.extract', 'extract_stix'),
@@ -79,6 +80,8 @@ publisher_urls = [
     (r'^config/set_crm_config/$', 'views.ajax_set_crm_config', None),
     (r'^config/get_sharing_groups/$', 'views.ajax_get_sharing_groups', None),
     (r'^config/set_sharing_groups/$', 'views.ajax_set_sharing_groups', None),
+    (r'^config/get_markings/$', 'views.ajax_get_markings', None),
+    (r'^config/set_markings/$', 'views.ajax_set_markings', None),
 
     (r'^visualiser/$', 'views.visualiser_discover', 'visualiser_discover'),
     (r'^visualiser/missing/$', 'views.visualiser_not_found', 'visualiser_not_found'),
@@ -93,7 +96,7 @@ publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publis
 urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
 navitems = [
-    ('External Publisher', 'publisher_discover'),
+    # ('External Publisher', 'publisher_discover'),
     ('Extract Stix', 'extract_stix'),
     ('Uploaded Stix Extracts', 'uploaded_stix_extracts'),
     ('Clone to Draft', 'clone_to_draft'),

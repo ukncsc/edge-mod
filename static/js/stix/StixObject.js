@@ -12,6 +12,14 @@ define([
 ], function (declare, ko, ReviewValue) {
     "use strict";
 
+    function getNamespaceIfExists(id) {
+        if(id != null ) {
+            return id.split(":", 2)[0]
+        } else {
+            return id
+        }
+    }
+
     return declare(null, {
         DEFER_EVALUATION: {
             deferEvaluation: true
@@ -23,7 +31,7 @@ define([
             }, this);
             this.namespace = ko.computed(function () {
                 var validation = stixPackage.validations().findByProperty(this.id(), "namespace");
-                return new ReviewValue(this.id().split(":", 2)[0], validation.state, validation.message);
+                return new ReviewValue(getNamespaceIfExists(this.id()), validation.state, validation.message);
             }, this);
             this.title = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "title");

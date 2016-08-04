@@ -12,14 +12,16 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 
 from stix.extensions.marking.simple_marking import SimpleMarkingStructure
 
 from users.decorators import superuser_or_staff_role, json_body
 from users.models import Draft
-from edge.generic import EdgeObject
+from edge.generic import EdgeObject, load_edge_object_or_404
 from edge.inbox import InboxProcessorForBuilders, InboxItem, InboxError
 from edge import IDManager
+import rbac
 from clippy.models import CLIPPY_TYPES
 
 from adapters.certuk_mod.publisher.package_publisher import Publisher
@@ -51,14 +53,14 @@ from adapters.certuk_mod.fts.views import ajax_get_fts_config, ajax_reset_fts_co
 from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, \
     ajax_load_parent_ids, ajax_import
 from adapters.certuk_mod.config.views import ajax_get_crm_config, ajax_set_crm_config, ajax_get_cert_config, \
-    ajax_get_sharing_groups, ajax_set_sharing_groups
+    ajax_get_sharing_groups, ajax_set_sharing_groups, ajax_get_markings, ajax_set_markings
 from adapters.certuk_mod.audit import setup as audit_setup, status
 from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
 
 from adapters.certuk_mod.common.objectid import discover as objectid_discover, find_id as objectid_find
-from adapters.certuk_mod.catalog.backedge import BackEdgeGenerator
+from adapters.certuk_mod.catalog.backlink import BackLinkGenerator
 from adapters.certuk_mod.catalog.duplicates import DuplicateFinder
 from adapters.certuk_mod.catalog.edges import EdgeGenerator
 
@@ -148,17 +150,17 @@ def _get_request_username(request):
 
 
 @login_required
-def review(request, id_):
-    root_edge_object = PublisherEdgeObject.load(id_, filters=request.user.filters(), include_revision_index=True)
+def review(request, id):
+    root_edge_object = PublisherEdgeObject.load(id, filters=request.user.filters(), include_revision_index=True)
     package = PackageGenerator.build_package(root_edge_object)
     validation_info = PackageValidationInfo.validate(package)
     user_loader = lambda idref: EdgeObject.load(idref, request.user.filters())
-    back_edges = BackEdgeGenerator.retrieve_back_edges(root_edge_object, user_loader)
+    back_edges = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
     edges = EdgeGenerator.gather_edges(root_edge_object.edges, depth_limit=EDGE_DEPTH_LIMIT, load_by_id=user_loader)
 
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
-        validation_info.validation_dict.update({id_: {"created_by":
+        validation_info.validation_dict.update({id: {"created_by":
                                                           {"status": ValidationStatus.WARN,
                                                            "message": "This object was created by %s not %s"
                                                                       % (root_edge_object.created_by_username,
@@ -166,18 +168,26 @@ def review(request, id_):
 
     request.breadcrumbs([("Publisher", "")])
     return render(request, "catalog_review.html", {
-        "root_id": id_,
+        "root_id": id,
         "package": package,
         "validation_info": validation_info,
         "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
         "back_edges": json.dumps(back_edges),
         "edges": json.dumps(edges),
-        'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
-        '/view/%s/' % urllib.quote(id_)),
-        'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
-        '/edit/%s/' % urllib.quote(id_)),
+        'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/view/%s/' % urllib.quote(id)),
+        'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/edit/%s/' % urllib.quote(id)),
         "revisions": json.dumps(root_edge_object.revisions),
         'ajax_uri': reverse('catalog_ajax')
+    })
+
+@login_required
+def object_details(request, id_):
+    edge_obj = load_edge_object_or_404(id_)
+    if not rbac.user_has_tlp_access(request.user, edge_obj):
+        raise PermissionDenied
+
+    return JsonResponse({
+        'allow_edit': rbac.user_can_edit(request.user, edge_obj),
     })
 
 

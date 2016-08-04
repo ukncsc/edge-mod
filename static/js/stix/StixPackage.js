@@ -35,24 +35,23 @@ define([
                     data = this._data;
                 } else {
                     var listToSearch = this.safeGet(this._data, type.collection);
-                    if (!listToSearch) {
-                        throw new Error("Object not found with id: " + id);
-                    }
-                    // Need to refactor, should be able to pass in actual collection but each package is wrapped as an object
-                    // with the key package. if can't change input then refactor into parameterised helper method
-                    if (type.label == "Package") {
-                        var data = ko.utils.arrayFirst(listToSearch, function (item) {
-                            return item.package.id === id;
-                        }, this);
-                        if (!data) {
-                            throw new Error("Object not found with id: " + id);
+                    if (listToSearch) {
+                        // Need to refactor, should be able to pass in actual collection but each package is wrapped as an object
+                        // with the key package. if can't change input then refactor into parameterised helper method
+                        if (type.label == "Package") {
+                            var data = ko.utils.arrayFirst(listToSearch, function (item) {
+                                return item.package.id === id;
+                            }, this);
+                        } else {
+                            var data = ko.utils.arrayFirst(listToSearch, function (item) {
+                                return item.id === id;
+                            }, this);
                         }
-                    } else {
-                        var data = ko.utils.arrayFirst(listToSearch, function (item) {
-                            return item.id === id;
-                        }, this);
-                        if (!data) {
-                            throw new Error("Object not found with id: " + id);
+                        if (data === null) {
+                            data = {
+                                id: id,
+                                title: "(External)"
+                            };
                         }
                     }
                 }
@@ -128,6 +127,5 @@ define([
             var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
             return new ReviewValue(values, validation.state, validation.message);
         }
-
     });
 });
