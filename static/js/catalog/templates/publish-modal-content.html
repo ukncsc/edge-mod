@@ -26,7 +26,6 @@
                           style="resize:none"></textarea>
         <br>
         <!-- /ko -->
-        <!-- /ko -->
         <div class="col-sm-12">
             <div class="panel panel-danger" style="border: 1px solid #EBCCD1 !important;">
                 <div class="panel-heading"
@@ -40,5 +39,9 @@
                 </div>
             </div>
         </div>
+        <!-- /ko -->
+        <!-- ko if: phase() == 'RESPONSE' -->
+        <div class="text-center" data-bind="text: message"></div>
+        <!-- /ko -->
     </div>
 </div>

@@ -150,7 +150,7 @@ define([
         },
 
         publish: function (onConfirmData, onPublishCallback) {
-            postJSON("../ajax/publish/", ko.utils.extend(onConfirmData, {
+            postJSON("/adapter/certuk_mod/ajax/publish/", ko.utils.extend(onConfirmData, {
                 root_id: this.root().id()
             }), onPublishCallback);
         },
