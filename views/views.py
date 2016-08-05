@@ -220,7 +220,7 @@ def review_set_handling(request, data):
 
 
 def append_handling(edge_object, handling_markings):
-    if not edge_object.obj.handling:
+    if not hasattr(edge_object.obj, 'handling'):
         edge_object.obj.handling = make_handling(edge_object.ty)
     for handling in handling_markings:
         handling_caveat = SimpleMarkingStructure(handling)
