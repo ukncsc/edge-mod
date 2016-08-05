@@ -12,7 +12,7 @@ define([
         },
 
         loadStatic: function (optionsList) {
-            this.backEdges(optionsList.backEdges);
+            this.backLinks(optionsList.backLinks);
         }
     });
 });

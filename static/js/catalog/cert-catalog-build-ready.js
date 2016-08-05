@@ -11,7 +11,7 @@ require([
         "revisions": window["revisions"],
         "rootId": window["rootId"],
         "ajax_uri": window["ajax_uri"],
-        "backEdges": window["backEdges"],
+        "backLinks": window["backLinks"],
         "edges": window["edges"]
     });
 

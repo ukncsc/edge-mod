@@ -156,7 +156,7 @@ def review(request, id):
     package = PackageGenerator.build_package(root_edge_object)
     validation_info = PackageValidationInfo.validate(package)
     user_loader = lambda idref: EdgeObject.load(idref, request.user.filters())
-    back_edges = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
+    back_links = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
     edges = EdgeGenerator.gather_edges(root_edge_object.edges, depth_limit=EDGE_DEPTH_LIMIT, load_by_id=user_loader)
 
     req_user = _get_request_username(request)
@@ -173,7 +173,7 @@ def review(request, id):
         "package": package,
         "validation_info": validation_info,
         "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
-        "back_edges": json.dumps(back_edges),
+        "back_links": json.dumps(back_links),
         "edges": json.dumps(edges),
         'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/view/%s/' % urllib.quote(id)),
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/edit/%s/' % urllib.quote(id)),

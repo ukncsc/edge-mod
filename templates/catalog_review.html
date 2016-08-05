@@ -36,11 +36,12 @@
                     <button type="button" class="btn btn-danger pull-right"
                             data-bind="click: onPublish">Publish<br>Externally
                     </button>
-                    <!-- ko if: type().code != "obs" || type().code != "pkg"-->
-
+                    <!-- ko if: type().code != 'obs' -->
+                    <!-- ko if: type().code != 'stix' -->
                     <a type="button" class="btn btn-info pull-right"
                        data-bind="attr: { href: viewURL}">View in<br>Builder
                     </a>
+                    <!-- /ko -->
                     <!-- /ko -->
                     <!-- ko if : editable -->
                     <a type="button" class="btn btn-success pull-right"
@@ -81,7 +82,7 @@
         var viewURL = "{{ view_url }}";
         var editURL = "{{ edit_url }}";
         var revisions = Object.freeze({{ revisions|safe }});
-        var backEdges = Object.freeze({{ back_edges|safe }});
+        var backLinks = Object.freeze({{ back_links|safe }});
         var edges = Object.freeze({{ edges|safe }});
 
     </script>

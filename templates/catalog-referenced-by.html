@@ -1,5 +1,5 @@
 <template id="References">
-    <div class="col-sm-12" data-bind="if: backEdges.length != 0">
+    <div class="col-sm-12" data-bind="if: backLinks.length != 0">
         <h3>
             <a data-toggle="collapse" data-target="#collapseReferencedBy"><span
                     class="glyphicon glyphicon-chevron-right transform-medium icon-sm"></span> Referenced By</a>
@@ -13,7 +13,7 @@
                 <th>Id</th>
             </tr>
             </thead>
-            <tbody data-bind="foreach: backEdges">
+            <tbody data-bind="foreach: backLinks">
             <tr>
                 <td data-bind="text: type"></td>
                 <td data-bind="text: title"></td>
