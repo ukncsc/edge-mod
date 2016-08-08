@@ -1,20 +1,25 @@
 from edge import LOCAL_NAMESPACE
 from mongoengine.connection import get_db
 
-def capec_finder(local):
+
+def capec_finder(local, timestamp):
+    match_query = {
+        'type': 'ttp',
+        'data.api.behavior.attack_patterns': {
+            '$exists': 'true'
+        }
+    }
     if local:
-        namespace = LOCAL_NAMESPACE
+        match_query.update({'data.idns': LOCAL_NAMESPACE})
     else:
-        namespace = {'$ne': LOCAL_NAMESPACE}
+        match_query.update({'data.idns': {'$ne': LOCAL_NAMESPACE}})
+
+    if timestamp:
+        match_query.update({'created_on': {'$lt': timestamp}})
+
     return get_db().stix.aggregate([
         {
-            '$match': {
-                'type': 'ttp',
-                'data.idns': namespace,
-                'data.api.behavior.attack_patterns': {
-                    '$exists': 'true'
-                }
-            }
+            '$match': match_query
         },
         {
             '$unwind': '$data.api.behavior.attack_patterns'
@@ -42,20 +47,25 @@ def capec_finder(local):
             '$sort': {'created_on': 1}
         }], cursor={})
 
-def cve_finder(local):
+
+def cve_finder(local, timestamp):
+    match_query = {
+        'type': 'tgt',
+        'data.api.vulnerabilities': {
+            '$exists': 'true'
+        }
+    }
     if local:
-        namespace = LOCAL_NAMESPACE
+        match_query.update({'data.idns': LOCAL_NAMESPACE})
     else:
-        namespace = {'$ne': LOCAL_NAMESPACE}
+        match_query.update({'data.idns': {'$ne': LOCAL_NAMESPACE}})
+
+    if timestamp:
+        match_query.update({'created_on': {'$lt': timestamp}})
+
     return get_db().stix.aggregate([
         {
-            '$match': {
-                'type': 'tgt',
-                'data.idns': namespace,
-                'data.api.vulnerabilities': {
-                    '$exists': 'true'
-                }
-            }
+            '$match': match_query
         },
         {
             '$unwind': '$data.api.vulnerabilities'

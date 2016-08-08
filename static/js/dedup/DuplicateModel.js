@@ -17,6 +17,7 @@ define([
      3 - Show Backlinks Table
      4 - Show Merge/Error Result
      */
+
     var type_labels = Object.freeze({
         //"ind": "Indicator",
         "obs": "Observable",

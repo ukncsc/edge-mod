@@ -13,14 +13,11 @@ LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
 HASH_MAP = {'RED': 4, 'AMBER': 3, 'GREEN': 2, 'WHITE': 1, 'NULL': 0}
 
 
-
 def find_duplicates(type_, local):
     if local:
         namespace_query = {'_id': {'$regex': LOCAL_ALIAS_REGEX}, 'type': type_}
     else:
         namespace_query = {'type': type_}
-
-    # namespace_query.update(user_filters)
 
     def transform(cursor):
         if type_ != 'obs':
@@ -77,10 +74,10 @@ def find_duplicates(type_, local):
     ], cursor={}))
 
 def match_tlp_hash(hash_, tlp_level):
-        def transform(cursor):
-            return {'_id': row.get('_id') for row in cursor}
+        def transform(doc):
+            return {'_id': doc['_id']}
 
-        return transform(get_db().stix.find({
+        return transform(get_db().stix.find_one({
             'data.hash': hash_,
             'data.etlp': tlp_level
         }))

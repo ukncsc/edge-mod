@@ -1,7 +1,7 @@
 import json
+import datetime
 
 from defusedxml import EntitiesForbidden
-from django.contrib.auth.decorators import login_required
 from users.decorators import json_body, superuser_or_staff_role
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -9,107 +9,19 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from lxml.etree import XMLSyntaxError
 from mongoengine import DoesNotExist
-from mongoengine.connection import get_db
-from pymongo.errors import PyMongoError
 
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
+from adapters.certuk_mod.dedup.dedup import STIXDedup
 from adapters.certuk_mod.dedup.config import DedupConfiguration
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
-from edge.inbox import InboxError, InboxProcessor, InboxItem
-from edge.generic import EdgeObject
-from edge.models import StixBacklink
+from edge.inbox import InboxError
 from edge.tools import StopWatch
 from users.decorators import login_required_ajax
 from users.models import Repository_User
-from .duplicates_finder import find_duplicates
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
-from adapters.certuk_mod.dedup.dedup import STIXDedup
-
-
-def load_eo(id_):
-    eo = EdgeObject.load(id_)
-    tlp = eo.etlp if hasattr(eo, 'etlp') else 'NULL'
-    esms = eo.esms if hasattr(eo, 'esms') else ''
-    api_obj = eo.to_ApiObject()
-    return api_obj, tlp, esms
-
-
-def remap_observables(duplicates, user):
-    ip = DedupInboxProcessor(user=user, validate=True)
-    for dup in duplicates:
-        try:
-            api_obj, tlp, esms = load_eo(dup)
-            ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms))
-        except InboxError as e:
-            raise e
-    get_db().stix.remove({'_id': {
-        '$in': duplicates}})
-    ip.run()
-
-
-def remap_parent_objects(parents, map_table, user):
-    if parents:
-        ip = InboxProcessor(user=user, trustgroups=None)
-        for id_, type_ in parents.iteritems():
-            try:
-                api_obj, tlp, esms = load_eo(id_)
-                api_obj = api_obj.remap(map_table)
-                ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms))
-            except InboxError as e:
-                raise e
-        try:
-            ip.run()
-        except InboxError as e:
-            raise e
-
-
-def remap_backlinks(original, duplicate):
-    parents_of_original, parents_of_duplicate = calculate_backlinks(original, duplicate)
-
-    new_parents = parents_of_duplicate.copy()
-    new_parents.update(parents_of_original)
-    if new_parents:
-        try:
-            get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
-        except PyMongoError as pme:
-            raise pme
-    if parents_of_duplicate:
-        try:
-            get_db().stix_backlinks.remove({'_id': {'$in': duplicate}})
-        except PyMongoError as pme:
-            raise pme
-
-
-def calculate_backlinks(original, duplicates):
-    parents_of_original, parents_of_duplicate = {}, {}
-    try:
-        parents_of_original = StixBacklink.objects.get(id=original).edges
-    except DoesNotExist as e:
-        pass
-    for dup in duplicates:
-        try:
-            parents_of_duplicate.update(StixBacklink.objects.get(id=dup).edges)
-        except DoesNotExist as e:
-            pass
-    return parents_of_original, parents_of_duplicate
-
-
-def merge_object(original, duplicates, type_, user):
-    parents_of_duplicates = calculate_backlinks(original, duplicates)[1]
-    remap_backlinks(original, duplicates)
-
-    map_table = {dup: original for dup in duplicates}
-    remap_parent_objects(parents_of_duplicates, map_table, user)
-
-    if type_ == 'obs':  # Use DeDupIP for obs as they will be removed by our filters. If not we'd inbox them again
-        remap_observables(duplicates, user)
-
-    if type_ != 'obs':
-        get_db().stix.remove({'_id': {
-            '$in': duplicates}})
 
 
 @login_required
@@ -124,7 +36,7 @@ def duplicates_finder(request):
 def ajax_load_duplicates(request, typ):
     try:
         local = request.body
-        duplicates = STIXDedup.find_duplicates(typ, local)
+        duplicates = STIXDedup.find_duplicates(typ, local, datetime.datetime.utcnow())
         return JsonResponse({
             typ: duplicates
         }, status=200)
@@ -150,7 +62,7 @@ def ajax_load_parent_ids(request):
     try:
         raw_body = json.loads(request.body)
         original, duplicate = raw_body.get('original'), raw_body.get('duplicate')
-        parents_of_original, parents_of_duplicate = calculate_backlinks(original, duplicate)
+        parents_of_original, parents_of_duplicate = STIXDedup.calculate_backlinks(original, duplicate)
         for _id in parents_of_original.keys():
             result.setdefault('original', []).append(_id)
         for _id in parents_of_duplicate.keys():
@@ -164,14 +76,13 @@ def ajax_load_parent_ids(request):
 
 @login_required_ajax
 def ajax_merge_object(request):
-    message = {}
+    stix_dedup = STIXDedup(DedupConfiguration.get())
     try:
-        user = request.user
         raw_body = json.loads(request.body)
-        original, duplicates, type_ = raw_body.get('original'), raw_body.get('duplicate'), raw_body.get('type')
-        merge_object(original, duplicates, type_, user)
+        original, duplicates = raw_body.get('original'), raw_body.get('duplicate')
+        stix_dedup.merge_object(original, duplicates)
         return JsonResponse({
-            'validation_message': message
+            'validation_message': {}
         }, status=200)
     except Exception as e:
         return JsonResponse({
@@ -181,18 +92,17 @@ def ajax_merge_object(request):
 
 @login_required_ajax
 def ajax_merge_all(request):
-    messages = {}
+    stix_dedup = STIXDedup(DedupConfiguration.get())
     try:
-        user = request.user
         raw_body = json.loads(request.body)
-        objects, type_ = raw_body.get('objects'), raw_body.get('type')
+        objects = raw_body.get('objects')
 
         for original, duplicates in objects.iteritems():
-            merge_object(original, duplicates, type_, user)
+            stix_dedup.merge_object(original, duplicates)
 
         message = 'DeDuped ' + str(len(objects)) + ' successfully'
         return JsonResponse({
-            'validation_message': messages
+            'validation_message': message
         }, status=200)
     except Exception as e:
         return JsonResponse({

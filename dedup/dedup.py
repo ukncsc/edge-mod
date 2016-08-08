@@ -14,10 +14,10 @@ from edge.models import StixBacklink
 from users.models import Repository_User
 from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor, _existing_title_and_capecs, \
     _existing_tgts_with_cves
-from adapters.certuk_mod.retention.purge import STIXPurge
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
-from adapters.certuk_mod.dedup.rehash import main
+import adapters.certuk_mod.dedup.rehash as rehash
+import adapters.certuk_mod.builder.customizations as cert_builder
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 
@@ -44,11 +44,12 @@ class STIXDedup(object):
         messages = []
         elapsed = StopWatch()
         try:
-            main()
-            STIXPurge.wait_for_background_jobs_completion(datetime.utcnow())
+            cert_builder.apply_customizations()
+            rehash.main()
+            last_run = StixBacklink.objects.get(id='max_created_on').edges
 
             for object_type in STIXDedup.OBJECT_TYPES:
-                cursor = STIXDedup.find_duplicates(object_type, self.config.only_local_ns)
+                cursor = STIXDedup.find_duplicates(object_type, self.config.only_local_ns, last_run)
                 for original, duplicates in cursor.iteritems():
                     try:
                         self.merge_object(original, duplicates)
@@ -108,8 +109,8 @@ class STIXDedup(object):
             edges_of_duplicate = EdgeObject.load(dup).to_ApiObject().edges()
             for edge in edges_of_duplicate:
                 edge_id = edge.idref
-                if edge_id != original and edge_id not in duplicates:  # If opposite is true, duplicate references original
-                    # and remapping would result in original referencing itself
+                if edge_id != original and edge_id not in duplicates:  # If opposite is true, dup references original
+                    # or dup references another dup. Remapping results in originals backlinks updated incorrectly
                     try:
                         if backlinks_to_update.get(edge_id):
                             backlinks_to_update[edge_id][original] = backlinks_to_update[edge_id].pop(dup)
@@ -168,11 +169,13 @@ class STIXDedup(object):
         self.remap_objects(duplicates)
 
     @classmethod
-    def find_duplicates(cls, type_, local):
+    def find_duplicates(cls, type_, local, last_run):
         if local:
-            namespace_query = {'_id': {'$regex': cls.LOCAL_ALIAS_REGEX}, 'type': type_}
+            namespace_query = {'_id': {'$regex': cls.LOCAL_ALIAS_REGEX}, 'type': type_, 'created_on': {
+                '$lt': last_run
+            }}
         else:
-            namespace_query = {'type': type_}
+            namespace_query = {'type': type_, 'created_on': {'$lt': last_run}}
 
         def obs_transform(cursor):  # If duplicates have more than one tlpLevel take the most permissive
             obs = {}
@@ -203,9 +206,9 @@ class STIXDedup(object):
         if type_ == 'obs':
             return obs_transform(STIXDedup.obs_hash_match(namespace_query))
         elif type_ == 'ttp':
-            return ttp_tgt_transform(_existing_title_and_capecs(local))
+            return ttp_tgt_transform(_existing_title_and_capecs(local, last_run))
         elif type_ == 'tgt':
-            return ttp_tgt_transform(_existing_tgts_with_cves(local))
+            return ttp_tgt_transform(_existing_tgts_with_cves(local, last_run))
 
     @staticmethod
     def obs_hash_match(namespace_query):
@@ -244,10 +247,10 @@ class STIXDedup(object):
 
     @staticmethod
     def match_tlp_hash(hash_, tlp_level):
-        def transform(cursor):
-            return {'_id': row.get('_id') for row in cursor}
+        def transform(doc):
+            return {'_id': doc('_id')}
 
-        return transform(get_db().stix.find({
+        return transform(get_db().stix.find_one({
             'data.hash': hash_,
             'data.etlp': tlp_level
         }))
