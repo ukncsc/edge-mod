@@ -32,7 +32,7 @@ FIELDNAMES = {'id': 'title', 'CustomField.{Indicator Data Files}': 'external_id'
 def initialise_draft(data):
     if data.get('id', '') == '' or data.get('Created', '') == '' or data.get('Status', '') == '' or data.get('Resolved',
                                                                                                              '') == '':
-        return {}, {}
+        return {}
 
     draft = {
         'categories': create_generic_values(data, 'CustomField.{Category}', False),
@@ -50,8 +50,8 @@ def initialise_draft(data):
         'stixtype': 'inc',
         'time': create_time(data)
     }
-    validation_for_draft = validate_draft(data, draft)
-    return draft, validation_for_draft
+
+    return draft
 
 
 def create_generic_values(data, field, join):  # Intended Effects, Reporter, Categories
@@ -104,8 +104,9 @@ def status_checker(data):
 
 def validate_draft(data, draft):
     validation_for_draft = {}
-    for field, name in FIELDNAMES.iteritems():
-        if data.get(field, '') == '':
-            validation_for_draft.setdefault(draft['id'], {}).update(
-                {name: {'status': 'INFO', 'message': 'no value provided for ' + name}})
+    if draft:
+        for field, name in FIELDNAMES.iteritems():
+            if data.get(field, '') == '':
+                validation_for_draft.setdefault(draft['id'], {}).update(
+                    {name: {'status': 'INFO', 'message': 'no value provided for ' + name}})
     return validation_for_draft

@@ -162,7 +162,8 @@ class IncidentIngestTests(unittest.TestCase):
 
     def test_validation_on_required_fields(self):
         data = {'id': '', 'Created': 'Sun Oct 05 00:00:00 2014', 'Status': 'resolved'}
-        draft, draft_validation = initialise_draft(data)
+        draft = initialise_draft(data)
+        draft_validation = validate_draft(data, draft)
         self.assertDictEqual(draft, {})
         self.assertDictEqual(draft_validation, {})
 
@@ -197,7 +198,7 @@ class IncidentIngestTests(unittest.TestCase):
             'CustomField.{Intended Effect}': '',
             'Resolved': 'Sun Oct 05 00:00:00 2014'
         }
-        draft = initialise_draft(data)[0]
+        draft = initialise_draft(data)
         mock_status.assert_called_with(data)
         mock_external_ids.assert_called_with(data)
         mock_time.assert_called_with(data)

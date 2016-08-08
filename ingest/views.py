@@ -15,7 +15,7 @@ from adapters.certuk_mod.dedup.views import build_activity_message
 from adapters.certuk_mod.patch.incident_patch import DBIncidentPatch
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
-from adapters.certuk_mod.ingest.draft_from_rtir import initialise_draft
+from adapters.certuk_mod.ingest.draft_from_rtir import initialise_draft, validate_draft
 
 REGEX_LINE_DELIMETER = re.compile("[\n]")
 
@@ -59,9 +59,11 @@ def get_dict_reader(raw_data):
     return reader
 
 
-def draft_wrapper(data, drafts, drafts_validation):
+def draft_wrapper(data):
+    drafts, drafts_validation = [], {}
     for incident in data:
-        draft, draft_validation = initialise_draft(incident)
+        draft = initialise_draft(incident)
+        draft_validation = validate_draft(incident, draft)
         if draft != {}:
             drafts.append(draft)
             drafts_validation.update(draft_validation)
@@ -76,7 +78,6 @@ def upsert_drafts(ip, drafts, user):
         ip.add(InboxItem(api_object=generic_object,
                          etlp=etlp,
                          esms=esms))
-    return ip
 
 
 def validate_csv_field_names(reader, ip):
@@ -124,16 +125,16 @@ def ajax_create_incidents(request, username):
     try:
         user = Repository_User.objects.get(username=username)
     except DoesNotExist:
-        return JsonResponse({}, status=403)
+        return JsonResponse({'messages': 'User does not exist'}, status=403)
 
     ip = None
-    data, drafts, drafts_validation = [], [], {}
+    drafts = []
     elapsed = StopWatch()
     try:
         raw_data = REGEX_LINE_DELIMETER.split(request.read())
         reader = get_dict_reader(raw_data)
         data = [row for row in reader]
-        drafts, drafts_validation = draft_wrapper(data, drafts, drafts_validation)
+        drafts, drafts_validation = draft_wrapper(data)
 
         ip = DedupInboxProcessor(validate=False, user=user)
         upsert_drafts(ip, drafts, user)
@@ -152,8 +153,7 @@ def ajax_create_incidents(request, username):
             'validation_result': ip.validation_result
         }, status=202)
     except (KeyError, ValueError, InboxError) as e:
-        if drafts:  # Only have drafts if draft_wrapper has successfully executed
-            remove_drafts(drafts)
+        remove_drafts(drafts)
         count = ip.saved_count if isinstance(ip, DedupInboxProcessor) else 0
         duration = int(elapsed.ms())
         messages = [e.message]
