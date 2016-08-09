@@ -2,8 +2,8 @@ define([
     "dcl/dcl",
     "knockout",
     "./StixObject",
-    "kotemplate!flat-stix:./templates/flat-Package.html",
-    "kotemplate!root-stix:./templates/root-Package.html"
+    "kotemplate!flat-pkg:./templates/flat-Package.html",
+    "kotemplate!root-pkg:./templates/root-Package.html"
 ], function (declare, ko, StixObject) {
     "use strict";
 

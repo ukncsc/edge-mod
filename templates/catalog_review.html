@@ -55,16 +55,9 @@
                        data-bind="attr: { href: visualiserURL}">View in<br>Visualiser
                     </a>
                 </div>
-                <!-- ko if: type().code == "stix" -->
-                <img alt="" src="" data-bind="attr: {
-                    src: '{% static "img/hex" %}/hex_pkg.png'
-                }">
-                <!-- /ko -->
-                <!-- ko ifnot: type().code == "stix" -->
                 <img alt="" src="" data-bind="attr: {
                     src: '{% static "img/hex" %}/hex_'+type().code+'.png'
                 }">
-                <!-- /ko -->
                 <span data-bind="text: type().label"></span><br>
                 <small data-bind="text: root().id"></small>
             </h3>
@@ -88,6 +81,7 @@
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
         var rootId = "{{ root_id }}";
+        var trustGroups = Object.freeze({{ trust_groups|safe }});
         var stixPackage = Object.freeze({{ package.to_json|safe }});
         var validationInfo = Object.freeze({{ validation_info.to_json|safe }});
         var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});

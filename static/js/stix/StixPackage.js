@@ -9,12 +9,13 @@ define([
 
     return declare(null, {
         declaredClass: "StixPackage",
-        constructor: function (stixPackage, rootId, validationInfo) {
+        constructor: function (stixPackage, rootId, trustGroups, validationInfo) {
             if (!(stixPackage instanceof Object)) {
                 throw new Error("STIX package cannot be null or undefined");
             }
             this._data = stixPackage;
             this._rootId = new StixId(rootId);
+            this._trustGroups = trustGroups;
             this._validationInfo = new ValidationInfo(validationInfo || {});
             this._cache = {};
             this.root = this.findById(this._rootId);
@@ -77,6 +78,10 @@ define([
 
         validations: function () {
             return this._validationInfo;
+        },
+
+        trustGroups: function () {
+          return this._trustGroups;
         },
 
         safeGet: function (/*Object*/ stixObject, /*String*/ propertyPath) {

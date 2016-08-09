@@ -42,6 +42,9 @@ define([
             this.description = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "description");
             }, this);
+            this.trustGroups = ko.computed(function () {
+                return new ReviewValue(stixPackage.trustGroups(), null, null);
+            }, this);
         }
     });
 });

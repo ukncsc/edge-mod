@@ -171,6 +171,7 @@ def review(request, id):
     return render(request, "catalog_review.html", {
         "root_id": id,
         "package": package,
+        "trust_groups": json.dumps(root_edge_object.tg),
         "validation_info": validation_info,
         "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
         "back_links": json.dumps(back_links),

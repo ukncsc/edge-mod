@@ -50,6 +50,9 @@ define([
             this.relatedIncidents = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_incidents.incidents", "incident.idref");
             }, this, this.DEFER_EVALUATION);
+            this.attributedActors = ko.computed(function () {
+                return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "attributed_threat_actors.threat_actors", "threat_actor.idref");
+            }, this, this.DEFER_EVALUATION)
             this.relatedIndicators = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_indicators.indicators", "indicator.idref");
             }, this, this.DEFER_EVALUATION);
