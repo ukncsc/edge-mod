@@ -1,5 +1,6 @@
 
 from adapters.certuk_mod.retention.config import RetentionConfiguration
+from adapters.certuk_mod.backlinks.backlinks import STIXBacklinks
 from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.fts.config import FtsConfiguration
 from adapters.certuk_mod.dedup.config import DedupConfiguration
@@ -19,11 +20,19 @@ tasks = (
         'installer': RetentionConfiguration.install
     },
     {
+
         'name': 'dedup',
         'task': DedupConfiguration.TASK_NAME,
         'hour': '0',
         'installer': DedupConfiguration.install
+    },
+    {
+        'name': 'mod_bl',
+        'task': STIXBacklinks.TASK_NAME,
+        'hour': '0',
+        'installer': RetentionConfiguration.install
     }
+
 )
 
 

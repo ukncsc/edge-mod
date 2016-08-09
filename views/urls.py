@@ -77,6 +77,10 @@ publisher_urls = [
     (r'^ajax/get_dedup_task_status/$', 'views.ajax_get_dedup_task_status', None),
     (r'^ajax/run_dedup_task/$', 'views.ajax_run_dedup', None),
 
+    (r'^ajax/get_mod_bl_task_status/$', 'views.ajax_get_mod_bl_task_status', None),
+    (r'^ajax/run_mod_bl_task/$', 'views.ajax_run_bl', None),
+
+
     (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),
     (r'^config/get_cert_config/$', 'views.ajax_get_cert_config', None),
     (r'^config/get_crm_url/$', 'views.ajax_get_crm_url', None),
