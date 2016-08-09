@@ -167,7 +167,7 @@ def review(request, id):
                                                                       % (root_edge_object.created_by_username,
                                                                          req_user)}}})
 
-    request.breadcrumbs([("Publisher", "")])
+    request.breadcrumbs([("Catalog", "")])
     return render(request, "catalog_review.html", {
         "root_id": id,
         "package": package,
@@ -177,6 +177,8 @@ def review(request, id):
         "edges": json.dumps(edges),
         'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/view/%s/' % urllib.quote(id)),
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/edit/%s/' % urllib.quote(id)),
+        'visualiser_url': '/adapter/certuk_mod/visualiser/%s' % urllib.quote(id),
+        'clone_url': "/adapter/certuk_mod/clone",
         "revisions": json.dumps(root_edge_object.revisions),
         'ajax_uri': reverse('catalog_ajax')
     })
