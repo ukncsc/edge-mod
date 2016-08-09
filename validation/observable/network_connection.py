@@ -39,21 +39,9 @@ class NetworkConnectionValidationInfo(ObservableValidationInfo):
     def validate(cls, **observable_data):
         source_socket = observable_data.get('source_socket_address')
         destination_socket = observable_data.get('destination_socket_address')
-        source_validation = {}
-        destination_validation = {}
-        if source_socket.get('xsi:type') == 'SocketAddressObjectType':
-            source_validation = NetworkConnectionValidationInfo.validate_socket(source_socket)
-        else:
-            source_validation["socket"] = FieldValidationInfo(ValidationStatus.ERROR, 'Source Socket Address Missing')
-
-        if destination_socket.get('xsi:type') == 'SocketAddressObjectType':
-            destination_validation = NetworkConnectionValidationInfo.validate_socket(destination_socket)
-        else:
-            destination_validation['socket'] = FieldValidationInfo(ValidationStatus.ERROR, 'Destination Socket Address Missing')
-
-        return cls(observable_data, source_socket= source_validation.get('socket'),
-                   destination_socket=destination_validation.get('socket'),
-                   source_socket_address_port=source_validation.get('port'),
+        source_validation = NetworkConnectionValidationInfo.validate_socket(source_socket)
+        destination_validation = NetworkConnectionValidationInfo.validate_socket(destination_socket)
+        return cls(observable_data, source_socket_address_port=source_validation.get('port'),
                    source_socket_address_protocol=source_validation.get('protocol'),
                    source_socket_address_ip_address=source_validation.get('ip_address'),
                    source_socket_address_hostname=source_validation.get('hostname'),
