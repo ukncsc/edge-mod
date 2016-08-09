@@ -12,7 +12,9 @@ require([
         "rootId": window["rootId"],
         "ajax_uri": window["ajax_uri"],
         "backLinks": window["backLinks"],
-        "edges": window["edges"]
+        "edges": window["edges"],
+        "canPurge": window["canPurge"],
+        "canRevoke": window["canRevoke"]
     });
 
     ko.applyBindings(viewModel);

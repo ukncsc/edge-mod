@@ -1,0 +1,7 @@
+<template id="Purge">
+    <div>
+        <span data-bind="if: canRevoke"><a class="btn btn-xs btn-danger"
+                                            data-bind="click: revokeObject">Revoke</a></span>
+        <span data-bind="if: canPurge"><a class="btn btn-xs btn-danger" data-bind="click: purgeObject">Purge</a></span>
+    </div>
+</template>

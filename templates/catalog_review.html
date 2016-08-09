@@ -14,6 +14,7 @@
         {% include 'catalog-matching-content.html' %}
         {% include 'catalog-referenced-by.html' %}
         {% include 'catalog-edges.html' %}
+        {% include 'catalog-purge.html' %}
         <div class="row" data-bind="template: 'header'"></div>
         <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
         </br>
@@ -62,6 +63,7 @@
                 <small data-bind="text: root().id"></small>
             </h3>
             <div data-bind="template: { name: 'Revisions', data: section().findByLabel('Revisions')}"></div>
+            <div class="pull-right" data-bind="template: { name: 'Purge', data: section().findByLabel('Purge')}"></div>
         </div>
     </script>
 
@@ -93,6 +95,8 @@
         var revisions = Object.freeze({{ revisions|safe }});
         var backLinks = Object.freeze({{ back_links|safe }});
         var edges = Object.freeze({{ edges|safe }});
+        var canRevoke = "{{ can_revoke }}";
+        var canPurge = "{{ can_purge }}";
 
     </script>
 

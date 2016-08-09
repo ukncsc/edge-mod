@@ -20,8 +20,9 @@ from users.decorators import superuser_or_staff_role, json_body
 from users.models import Draft
 from edge.generic import EdgeObject, load_edge_object_or_404
 from edge.inbox import InboxProcessorForBuilders, InboxItem, InboxError
-from edge import IDManager
+from edge import IDManager, NamespaceNotConfigured
 from edge.handling import make_handling
+from edge.tools import Optional
 import rbac
 from clippy.models import CLIPPY_TYPES
 
@@ -167,6 +168,21 @@ def review(request, id):
                                                                       % (root_edge_object.created_by_username,
                                                                          req_user)}}})
 
+    try:
+        system_id_ns = IDManager().get_namespace()
+    except NamespaceNotConfigured:
+        system_id_ns = None
+
+    created_by_organization = Optional(Repository_User).objects.get(id=root_edge_object.doc['created_by']).organization.value()
+    can_revoke = (
+        root_edge_object.id_ns == system_id_ns and
+        request.user.organization is not None and
+        created_by_organization == request.user.organization and
+        root_edge_object.ty in ['ttp', 'cam', 'act', 'coa', 'tgt', 'inc', 'ind']
+    )
+
+    can_purge = can_revoke and root_edge_object.is_revoke()
+
     request.breadcrumbs([("Catalog", "")])
     return render(request, "catalog_review.html", {
         "root_id": id,
@@ -181,7 +197,9 @@ def review(request, id):
         'visualiser_url': '/adapter/certuk_mod/visualiser/%s' % urllib.quote(id),
         'clone_url': "/adapter/certuk_mod/clone",
         "revisions": json.dumps(root_edge_object.revisions),
-        'ajax_uri': reverse('catalog_ajax')
+        'ajax_uri': reverse('catalog_ajax'),
+        "can_revoke": can_revoke,
+        "can_purge": can_purge
     })
 
 @login_required
