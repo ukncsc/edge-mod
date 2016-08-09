@@ -93,7 +93,6 @@ def incident_view(request, id, edit=False):
         'statuses': json.dumps(static['statuses']),
         'categories': json.dumps(CATEGORIES),
         'time_types_list': json.dumps(TIME_TYPES),
-        'marking_priorities': json.dumps(MARKING_PRIORITIES),
         'confidences': json.dumps(static['confidences']),
         'tlps': json.dumps(static['tlps']),
         'trustgroups': json.dumps(static['trustgroups']),
