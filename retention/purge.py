@@ -18,25 +18,30 @@ class STIXPurge(object):
 
     def _get_old_external_ids(self, minimum_id, minimum_date, version_epoch):
         old_external_ids = get_db().stix.find({
-            'data.api.timestamp': {
+            'created_on': {
                 '$lt': minimum_date
             },
             '_id': {
                 '$gt': minimum_id
+            },
+            'data.summary.type': {
+                # Exclude Observable Compositions, since they will only ever have at most 1 back link
+                # We sweep up any orphaned Observable Compositions later...
+                '$ne': 'ObservableComposition'
             },
             'cv': {
                 '$lte': str(version_epoch)
             }
         }, {
             '_id': 1,
-            'data.api.timestamp': 1
-        }).sort([('data.api.timestamp', -1), ('_id', 1)]).limit(self.PAGE_SIZE)
+            'created_on': 1
+        }).sort([('created_on', -1), ('_id', 1)]).limit(self.PAGE_SIZE)
 
         old_external_ids = list(old_external_ids)
         if not old_external_ids:
             return None, None, []
-        new_minimum_date = old_external_ids[-1]['data.api.timestamp']
-        # We need this, just in case we have more than PAGE_SIZE worth of data with the same 'data.api.timestamp' date.
+        new_minimum_date = old_external_ids[-1]['created_on']
+        # We need this, just in case we have more than PAGE_SIZE worth of data with the same 'created_on' date.
         # If not, we'd end up in a loop because the returned new_minimum_date is not updated.
         # We could simply sort on '_id' only, however it's probably quicker to sort on a date field first, then by ID.
         new_minimum_id = old_external_ids[-1]['_id']
@@ -145,17 +150,20 @@ class STIXPurge(object):
         return [doc['_id'] for doc in ids_to_delete]
 
     @staticmethod
-    def _get_orphaned_external_observables(as_at_timestamp):
-        ids = get_db().stix.find({
-            'type': 'obs'
+    def _get_orphaned_external_observable_compositions(as_at_timestamp):
+        composition_ids = get_db().stix.find({
+            'data.summary.type': 'ObservableComposition',
+            'created_on': {
+                '$lt': as_at_timestamp
+            }
         }, {
             '_id': 1
         })
-        ids = [doc['_id'] for doc in ids]
+        composition_ids = [doc['_id'] for doc in composition_ids]
         orphaned_ids = []
 
-        for page_index in range(0, len(ids), STIXPurge.PAGE_SIZE):
-            chunk_ids = ids[page_index: page_index + STIXPurge.PAGE_SIZE]
+        for page_index in range(0, len(composition_ids), STIXPurge.PAGE_SIZE):
+            chunk_ids = composition_ids[page_index: page_index + STIXPurge.PAGE_SIZE]
             with_back_links_chunk = get_db().stix_backlinks.find({
                 '_id': {
                     '$in': chunk_ids
@@ -170,7 +178,7 @@ class STIXPurge(object):
     @staticmethod
     def _get_old_packages(minimum_date):
         query = {
-            'data.api.timestamp': {
+            'created_on': {
                 '$lt': minimum_date
             },
             'type': 'pkg'
@@ -273,7 +281,7 @@ class STIXPurge(object):
             raise TimeoutError('Timeout waiting for sightings and backlinks jobs to complete.  Will retry in 24 hours.')
 
     def run(self):
-        def build_activity_message(min_date, objects, observables, packages, time_ms):
+        def build_activity_message(min_date, objects, compositions, packages, time_ms):
             def summarise(into, summary_template, items):
                 num_items = len(items)
                 into.append(summary_template % num_items)
@@ -281,7 +289,7 @@ class STIXPurge(object):
             messages = [
                 'Objects created before %s are candidates for deletion' % min_date.strftime("%Y-%m-%d %H:%M:%S")]
             summarise(messages, 'Found %d objects with insufficient back links or sightings', objects)
-            summarise(messages, 'Found %d orphaned observables', observables)
+            summarise(messages, 'Found %d orphaned observable compositions', compositions)
             summarise(messages, 'Found %d old packages', packages)
             messages.append('In %dms' % time_ms)
             return "\n".join(messages)
@@ -292,14 +300,14 @@ class STIXPurge(object):
             STIXPurge.wait_for_background_jobs_completion(current_date)
             minimum_date = current_date - relativedelta(months=self.retention_config.max_age_in_months)
 
-            # Get old items that don't have enough back links and sightings (excluding observables):
+            # Get old items that don't have enough back links and sightings (excluding observable compositions):
             objects_to_delete = self.get_purge_candidates(minimum_date)
-            # Look for any observables that were orphaned on the previous call to run:
-            orphaned_observables_to_delete = STIXPurge._get_orphaned_external_observables(
+            # Look for any observable compositions that were orphaned on the previous call to run:
+            orphaned_observable_compositions_to_delete = STIXPurge._get_orphaned_external_observable_compositions(
                 current_date)
             # Look for old packages
             old_packages_to_delete = STIXPurge._get_old_packages(minimum_date)
-            ids_to_delete = objects_to_delete + orphaned_observables_to_delete + old_packages_to_delete
+            ids_to_delete = objects_to_delete + orphaned_observable_compositions_to_delete + old_packages_to_delete
 
             for page_index in range(0, len(ids_to_delete), self.PAGE_SIZE):
                 try:
@@ -311,6 +319,6 @@ class STIXPurge(object):
             log_activity('system', 'AGEING', 'ERROR', e.message)
         else:
             log_activity('system', 'AGEING', 'INFO', build_activity_message(
-                    minimum_date, objects_to_delete, orphaned_observables_to_delete, old_packages_to_delete,
+                    minimum_date, objects_to_delete, orphaned_observable_compositions_to_delete, old_packages_to_delete,
                     timer.ms()
             ))
