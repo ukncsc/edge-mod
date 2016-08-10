@@ -11,6 +11,9 @@ define([
             this.label = ko.observable("Matching");
             this.id = ko.observable("");
             this.duplicates = ko.observableArray([]);
+            this.hasMatches = ko.computed( function () {
+               return this.duplicates().length != 0;
+            }.bind(this));
         },
 
         loadStatic: function (optionsList) {
