@@ -1,11 +1,12 @@
 <template id="Activity">
     <div class="col-sm-12">
-        <h3>
-            <a data-toggle="collapse" data-target="#collapse1"><span
-                    class="glyphicon glyphicon-chevron-right transform-medium icon-sm"></span> Activity</a>
+        <div class="panel-heading">
+        <h3 class="panel-title">
+            <a data-toggle="collapse" data-target="#collapse1"> Activity</a>
 
         </h3>
-        <div id="collapse1" class="panel-collapse collapse in">
+            </div>
+        <div id="collapse1" class="panel-collapse collapse">
             <div class="pull-right">
                 <select data-bind="options: action_choices,
                        value: action_selected,

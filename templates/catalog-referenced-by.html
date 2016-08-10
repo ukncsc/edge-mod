@@ -1,30 +1,31 @@
 <template id="References">
     <div class="col-sm-12" data-bind="if: backLinks.length != 0">
-        <h3>
-            <a data-toggle="collapse" data-target="#collapseReferencedBy"><span
-                    class="glyphicon glyphicon-chevron-right transform-medium icon-sm"></span> Referenced By</a>
-        </h3>
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a data-toggle="collapse" data-target="#collapseReferencedBy"> Referenced By</a>
+            </h3>
+        </div>
         <div id="collapseReferencedBy" class="panel-collapse collapse in">
-        <table class="table table-bordered table-striped table-condensed">
-            <thead>
-            <tr>
-                <th>Type</th>
-                <th>title</th>
-                <th>Id</th>
-            </tr>
-            </thead>
-            <tbody data-bind="foreach: backLinks">
-            <tr>
-                <td data-bind="text: type"></td>
-                <td data-bind="text: title"></td>
-                <td style="font-family: monospace;">
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>title</th>
+                    <th>Id</th>
+                </tr>
+                </thead>
+                <tbody data-bind="foreach: backLinks">
+                <tr>
+                    <td data-bind="text: type"></td>
+                    <td data-bind="text: title"></td>
+                    <td style="font-family: monospace;">
                     <span data-bind="visible:!is_external"><a
                             data-bind="attr:{href:'/object/'+id_}, text: id_"></a></span>
-                    <span data-bind="visible:is_external, text: id_"></span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                        <span data-bind="visible:is_external, text: id_"></span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </template>
