@@ -109,5 +109,4 @@ InboxProcessor.add = name_space_check
 
 
 def apply_patch():
-    get_db().stix.ensure_index([('data.api.timestamp',1)])
     InboxProcessorForBuilders.add = add
