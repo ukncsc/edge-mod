@@ -14,13 +14,9 @@ define([
                 sup.call(this, "Backlink rebuild", "mod_bl_task", "");
             }
         }),
-
         getConfig: function () {
-
         },
-
         onSave: function (reset) {
-
         } ,
         changesPending: function() {
             return false;

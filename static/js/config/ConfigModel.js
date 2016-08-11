@@ -8,7 +8,7 @@ define([
     "config/CRMConfig",
     "config/HandlingConfig",
     "config/BacklinkConfig"
-], function (declare, Modal, PublisherConfig, RetentionConfig, FTSConfig, CRMConfig, HandlingConfig, BacklinkConfig) {
+], function (declare, Modal, PublisherConfig, RetentionConfig, FTSConfig, DeDupConfig, CRMConfig, HandlingConfig, BacklinkConfig) {
     "use strict";
 
     return declare(null, {
