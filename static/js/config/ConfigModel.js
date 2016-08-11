@@ -6,8 +6,9 @@ define([
     "config/FTSConfig",
     "config/DeDupConfig",
     "config/CRMConfig",
-    "config/HandlingConfig"
-], function (declare, Modal, PublisherConfig, RetentionConfig, FTSConfig, DeDupConfig, CRMConfig, HandlingConfig) {
+    "config/HandlingConfig",
+    "config/BacklinkConfig"
+], function (declare, Modal, PublisherConfig, RetentionConfig, FTSConfig, DeDupConfig, CRMConfig, HandlingConfig, BacklinkConfig) {
     "use strict";
 
     return declare(null, {
@@ -17,6 +18,7 @@ define([
             this.retention = new RetentionConfig();
             this.fts = new FTSConfig();
             this.dedup = new DeDupConfig();
+            this.bl = new BacklinkConfig();
             this.crm = new CRMConfig();
             this.handling = new HandlingConfig();
 
