@@ -10,6 +10,7 @@ require([
     viewModel.loadStatic({
         "revisions": window["revisions"],
         "rootId": window["rootId"],
+        "revision": window["revision"],
         "ajax_uri": window["ajax_uri"],
         "backLinks": window["backLinks"],
         "edges": window["edges"],

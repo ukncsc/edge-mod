@@ -14,7 +14,7 @@ define([
     "use strict";
 
     return declare(null, {
-        constructor: function (rootId, stixPackage,trustGroups, validationInfo, viewURL, editURL) {
+        constructor: function (rootId, stixPackage, trustGroups, validationInfo, viewURL, editURL) {
             this.stixPackage = ko.observable(new StixPackage(stixPackage, rootId, trustGroups, validationInfo));
 
             this.root = ko.computed(function () {
@@ -25,16 +25,23 @@ define([
             }, this);
             this.viewURL = ko.observable(viewURL);
             this.editURL = ko.observable(editURL);
+            this.rootID = ko.observable(rootId);
+            this.revision = ko.observable("");
             this.editable = ko.observable(this.isEditable(rootId))
             this.section = ko.observable(new Section());
             this.handling = ko.observable(new Handling());
-            Topic.subscribe(topics.HANDLING, function() {
+            Topic.subscribe(topics.HANDLING, function () {
                 this.onPublishWithHandling()
             }.bind(this), this);
-            this.timekey = ko.observable();
             Topic.subscribe(topics.REVISION, function (data) {
-                this.timekey(data)
+                this.reload(data)
             }.bind(this), this);
+        },
+
+        reload: function (timekey) {
+            if (timekey !== this.revision()) {
+                 window.location.href = "/object/" + this.rootID() + "/" + timekey;
+            }
         },
 
         isEditable: function (id) {
@@ -47,6 +54,7 @@ define([
         },
 
         loadStatic: function (optionLists) {
+            this.revision(optionLists.revision);
             this.section().loadStatic(optionLists);
         },
 
@@ -90,8 +98,8 @@ define([
             }.bind(this));
         },
 
-        onPublish: function() {
-           this.handling().onPublish(this.onPublishWithHandling);
+        onPublish: function () {
+            this.handling().onPublish(this.onPublishWithHandling);
         },
 
         onPublishWithHandling: function () {
@@ -155,11 +163,11 @@ define([
             }), onPublishCallback);
         },
 
-        onRowClicked: function (item) {
+        onRowClicked: function (item, event) {
             if (item.id() && item.title().value() != "(External)") {
                 var path = window.location.href.split("/");
                 path[path.length - 2] = item.id();
-                window.location.assign(path.join("/"));
+                window.open(path.join("/"));
             }
         }
     });

@@ -3,7 +3,7 @@ import urllib2
 import urllib
 
 import json
-import datetime
+from datetime import datetime
 from dateutil import tz
 import mimetypes
 
@@ -151,9 +151,24 @@ def _get_request_username(request):
     return ""
 
 
+def __extract_revision(id):
+    revision = "latest"
+    if '/' in id:
+        revision = id.split('/')[1]
+        id = id.split('/')[0]
+    return revision, id
+
+
 @login_required
 def review(request, id):
-    root_edge_object = PublisherEdgeObject.load(id, filters=request.user.filters(), include_revision_index=True)
+    revision, id = __extract_revision(id)
+
+    root_edge_object = PublisherEdgeObject.load(id, filters=request.user.filters(), revision=revision,
+                                                include_revision_index=True)
+
+    if revision is "latest":
+        revision = root_edge_object.revisions[0]['timekey']
+
     package = PackageGenerator.build_package(root_edge_object)
     validation_info = PackageValidationInfo.validate(package)
     user_loader = lambda idref: EdgeObject.load(idref, request.user.filters())
@@ -163,17 +178,18 @@ def review(request, id):
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
         validation_info.validation_dict.update({id: {"created_by":
-                                                          {"status": ValidationStatus.WARN,
-                                                           "message": "This object was created by %s not %s"
-                                                                      % (root_edge_object.created_by_username,
-                                                                         req_user)}}})
+                                                         {"status": ValidationStatus.WARN,
+                                                          "message": "This object was created by %s not %s"
+                                                                     % (root_edge_object.created_by_username,
+                                                                        req_user)}}})
 
     try:
         system_id_ns = IDManager().get_namespace()
     except NamespaceNotConfigured:
         system_id_ns = None
 
-    created_by_organization = Optional(Repository_User).objects.get(id=root_edge_object.doc['created_by']).organization.value()
+    created_by_organization = Optional(Repository_User).objects.get(
+        id=root_edge_object.doc['created_by']).organization.value()
     can_revoke = (
         root_edge_object.id_ns == system_id_ns and
         request.user.organization is not None and
@@ -192,15 +208,19 @@ def review(request, id):
         "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
         "back_links": json.dumps(back_links),
         "edges": json.dumps(edges),
-        'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/view/%s/' % urllib.quote(id)),
-        'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + ('/edit/%s/' % urllib.quote(id)),
+        'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
+        '/view/%s/' % urllib.quote(id)),
+        'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
+        '/edit/%s/' % urllib.quote(id)),
         'visualiser_url': '/adapter/certuk_mod/visualiser/%s' % urllib.quote(id),
         'clone_url': "/adapter/certuk_mod/clone",
         "revisions": json.dumps(root_edge_object.revisions),
+        "revision" : revision,
         'ajax_uri': reverse('catalog_ajax'),
         "can_revoke": can_revoke,
         "can_purge": can_purge
     })
+
 
 @login_required
 def object_details(request, id_):
@@ -220,6 +240,7 @@ def review_set_handling(request, data):
         edge_object = EdgeObject.load(data["rootId"])
 
         generic_object = edge_object.to_ApiObject()
+        generic_object.obj.timestamp=datetime.now(tz.tzutc())
         append_handling(generic_object, data["handling"])
         ip = InboxProcessorForBuilders(
                 user=request.user,
@@ -297,7 +318,7 @@ def ajax_get_sites(request, data):
 @json_body
 def ajax_get_datetime(request, data):
     configuration = settings.ACTIVE_CONFIG
-    current_date_time = datetime.datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime(
+    current_date_time = datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime(
             '%Y-%m-%dT%H:%M:%S')
     return {'result': current_date_time}
 
