@@ -306,7 +306,8 @@ def _coalesce_non_observable_duplicates(contents, map_table):
             existing_id = map_table[id_]
             edges_of_duplicate = io.api_object.edges()
             for edge in edges_of_duplicate:
-                additional_edges.setdefault(existing_id, []).append(edge)
+                if edge.idref not in map_table.values(): # Dismiss case of duplicates referencing each other
+                    additional_edges.setdefault(existing_id, []).append(edge)
     return out, additional_edges
 
 
@@ -372,8 +373,8 @@ def _package_title_capec_string_to_ids(contents, local):
     return title_capec_string_to_ids
 
 
-def _existing_title_and_capecs(local, timestamp):
-    existing_ttps = capec_finder(local, timestamp)
+def _existing_title_and_capecs(local):
+    existing_ttps = capec_finder(local)
 
     existing_title_capec_string_to_id = {}
     for found_ttp in existing_ttps:
@@ -385,7 +386,7 @@ def _existing_title_and_capecs(local, timestamp):
 
 
 def _existing_ttp_capec_dedup(contents, hashes, user, local):
-    existing_title_capec_string_to_id = _existing_title_and_capecs(local, timestamp=None)
+    existing_title_capec_string_to_id = _existing_title_and_capecs(local)
 
     ttp_title_capec_string_to_ids = _package_title_capec_string_to_ids(contents, local)
 
@@ -442,8 +443,8 @@ def _package_cve_id_to_ids(contents, local):
     return cves_to_ids
 
 
-def _existing_tgts_with_cves(local, timestamp):
-    existing_cves = cve_finder(local, timestamp)
+def _existing_tgts_with_cves(local):
+    existing_cves = cve_finder(local)
 
     existing_cves_to_ids = {}
     for found_tgt in existing_cves:
@@ -472,7 +473,7 @@ def _new_tgt_cve_dedup(contents, hashes, user, local):
 
 
 def _existing_tgt_cve_dedup(contents, hashes, user, local):
-    existing_cve_ids_to_id = _existing_tgts_with_cves(local, timestamp=None)
+    existing_cve_ids_to_id = _existing_tgts_with_cves(local)
 
     cve_to_tgt_ids = _package_cve_id_to_ids(contents, local)
 

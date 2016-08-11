@@ -81,4 +81,3 @@ def match_tlp_hash(hash_, tlp_level):
             'data.hash': hash_,
             'data.etlp': tlp_level
         }))
-

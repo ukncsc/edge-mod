@@ -17,7 +17,6 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor, _
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
 import adapters.certuk_mod.dedup.rehash as rehash
-import adapters.certuk_mod.builder.customizations as cert_builder
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 
@@ -29,6 +28,7 @@ class STIXDedup(object):
     HASH_MAP = {'RED': 4, 'AMBER': 3, 'GREEN': 2, 'WHITE': 1, 'NULL': 0}
     LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
     OBJECT_TYPES = ['ttp', 'tgt', 'obs']
+    NAME_TYPES = {'obs': 'Observable', 'ttp': 'TTP', 'tgt': 'Exploit Target'}
 
     def __init__(self, dedup_config):
         self.config = dedup_config
@@ -37,19 +37,17 @@ class STIXDedup(object):
     def run(self):
         def build_activity_message(type_, num_of_duplicates):
             if num_of_duplicates:
-                return 'Deduped %d %s ' % (num_of_duplicates, type_)
+                return 'Deduped %d %s ' % (num_of_duplicates, self.NAME_TYPES[type_])
             else:
-                return "No %s duplicates found" % type_
+                return "No %s duplicates found" % self.NAME_TYPES[type_]
 
         messages = []
         elapsed = StopWatch()
         try:
-            cert_builder.apply_customizations()
-            rehash.main()
-            last_run = StixBacklink.objects.get(id='max_created_on').edges
-
-            for object_type in STIXDedup.OBJECT_TYPES:
-                cursor = STIXDedup.find_duplicates(object_type, self.config.only_local_ns, last_run)
+            for object_type in self.OBJECT_TYPES:
+                if object_type == 'obs':
+                    rehash.main()
+                cursor = STIXDedup.find_duplicates(object_type, self.config.only_local_ns)
                 for original, duplicates in cursor.iteritems():
                     try:
                         self.merge_object(original, duplicates)
@@ -71,7 +69,7 @@ class STIXDedup(object):
         return api_obj, tlp, esms, etou
 
     def remap_objects(self, duplicates):  # Inbox duplicates. Will be remapped to original by the DDIP.
-        ip = DedupInboxProcessor(user=self.user, validate=True)
+        ip = DedupInboxProcessor(user=self.user, validate=False)
         for dup in duplicates:
             try:
                 api_obj, tlp, esms, etou = STIXDedup.load_eo(dup)
@@ -112,7 +110,7 @@ class STIXDedup(object):
                 if edge_id != original and edge_id not in duplicates:  # If opposite is true, dup references original
                     # or dup references another dup. Remapping results in originals backlinks updated incorrectly
                     try:
-                        if backlinks_to_update.get(edge_id):
+                        if backlinks_to_update.get(edge_id): # Will be executed if edge_id has more than one dupe referencing it
                             backlinks_to_update[edge_id][original] = backlinks_to_update[edge_id].pop(dup)
                         else:
                             backlinks_to_update[edge_id] = StixBacklink.objects.get(id=edge_id).edges
@@ -125,7 +123,7 @@ class STIXDedup(object):
         for id_, backlinks in backlinks_to_update.iteritems():
             get_db().stix_backlinks.update({'_id': id_}, {'$set': {'value': backlinks}}, upsert=True)
 
-    @staticmethod  # If duplicates have any backlinks update original backlinks with these
+    @staticmethod  # If duplicates have any backlinks update these to refer to original
     def remap_backlinks_for_original(original, duplicates):
         parents_of_original, parents_of_duplicate = STIXDedup.calculate_backlinks(original, duplicates)
 
@@ -168,14 +166,12 @@ class STIXDedup(object):
         self.remap_parent_objects(parents_of_duplicates, map_table)
         self.remap_objects(duplicates)
 
-    @classmethod
-    def find_duplicates(cls, type_, local, last_run):
+    @staticmethod
+    def find_duplicates(type_, local):
         if local:
-            namespace_query = {'_id': {'$regex': cls.LOCAL_ALIAS_REGEX}, 'type': type_, 'created_on': {
-                '$lt': last_run
-            }}
+            namespace_query = {'_id': {'$regex': STIXDedup.LOCAL_ALIAS_REGEX}, 'type': type_}
         else:
-            namespace_query = {'type': type_, 'created_on': {'$lt': last_run}}
+            namespace_query = {'type': type_}
 
         def obs_transform(cursor):  # If duplicates have more than one tlpLevel take the most permissive
             obs = {}
@@ -206,9 +202,9 @@ class STIXDedup(object):
         if type_ == 'obs':
             return obs_transform(STIXDedup.obs_hash_match(namespace_query))
         elif type_ == 'ttp':
-            return ttp_tgt_transform(_existing_title_and_capecs(local, last_run))
+            return ttp_tgt_transform(_existing_title_and_capecs(local))
         elif type_ == 'tgt':
-            return ttp_tgt_transform(_existing_tgts_with_cves(local, last_run))
+            return ttp_tgt_transform(_existing_tgts_with_cves(local))
 
     @staticmethod
     def obs_hash_match(namespace_query):
@@ -237,13 +233,8 @@ class STIXDedup(object):
                 '$match': {
                     'count': {'$gt': 1}
                 }
-            },
-            {
-                '$sort': {
-                    'count': 1
-                }
             }
-        ], cursor={})
+        ], cursor={}, allowDiskUse=True)
 
     @staticmethod
     def match_tlp_hash(hash_, tlp_level):
