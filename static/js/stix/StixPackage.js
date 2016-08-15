@@ -3,9 +3,16 @@ define([
     "knockout",
     "./StixId",
     "./ReviewValue",
-    "./ValidationInfo"
-], function (declare, ko, StixId, ReviewValue, ValidationInfo) {
+    "./ValidationInfo",
+    "common/cert-identity",
+    "text!config-service"
+], function (declare, ko, StixId, ReviewValue, ValidationInfo, Identity, configService) {
     "use strict";
+
+    var config = Object.freeze(JSON.parse(configService));
+    var crm_config = config.crm_config;
+    var crmURL = crm_config.crm_url
+    var crmIsEnabled = crm_config.enabled;
 
     return declare(null, {
         declaredClass: "StixPackage",
@@ -81,7 +88,7 @@ define([
         },
 
         trustGroups: function () {
-          return this._trustGroups;
+            return this._trustGroups;
         },
 
         safeGet: function (/*Object*/ stixObject, /*String*/ propertyPath) {
@@ -114,6 +121,15 @@ define([
                 : null;
         },
 
+        safeObservableArrayGet: function (/*Object*/ object, /*String*/ propertyPath,
+                                          /*function*/ itemCallback, /*Object?*/ itemCallbackBinding) {
+            var collection = this.safeGet(object, propertyPath);
+            var cb = itemCallbackBinding ? itemCallback.bind(itemCallbackBinding) : itemCallback;
+            return collection instanceof Array && collection.length > 0
+                ? ko.utils.arrayMap(collection, cb)
+                : null;
+        },
+
         safeListGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
                                /*String?*/ valueKey, /*String?*/ validationPath, /*String?*/ delimiter) {
             var itemPropertyPath = valueKey || "value";
@@ -131,6 +147,53 @@ define([
             }, this);
             var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
             return new ReviewValue(values, validation.state, validation.message);
+        },
+
+        safeMarkingsGet: function () {
+
+        },
+
+        safeIdentityGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath, /*String?*/ validationPath) {
+            if (crmIsEnabled) {
+                var identity = new Identity();
+                var uuidValue = this.safeGet(object, propertyPath);
+                identity.getNameFromCRM(uuidValue);
+                var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
+                return new ReviewValue(identity.name, validation.state, validation.message);
+            } else {
+                return this.safeValueGet(id, object, propertyPath, validationPath);
+            }
+        },
+
+        retrieveIdentity: function (/*Object*/object, /*String*/ propertyPath) {
+            var identity = new Identity();
+            var uuidValue = this.safeGet(object, propertyPath);
+            identity.getNameFromCRM(uuidValue);
+            //var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
+            return identity.name;
+        },
+
+        safeIdentityListGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
+                                       /*String?*/ valueKey, /*String?*/ validationPath, /*String?*/ delimiter) {
+            var itemPropertyPath = valueKey || "value";
+            var obsArrayIds = ko.observableArray(this.safeArrayGet(object, propertyPath, function (item) {
+                return this.retrieveIdentity(item, itemPropertyPath);
+            }, this) || []);
+
+            var computedStringRep = ko.computed(function() {
+                var result = "";
+                ko.utils.arrayForEach(obsArrayIds(), function(id) {
+                    result = result + id() + ",";
+                })
+                return result;
+            });
+            /* ko.utils.arrayForEach(idArray, function (id){
+             var identity = new Identity();
+             identity.getNameFromCRM(id)
+             return new ReviewValue(identity.name, null, null);
+             });      */
+            var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
+            return new ReviewValue(computedStringRep, validation.state, validation.message);
         }
     });
 });

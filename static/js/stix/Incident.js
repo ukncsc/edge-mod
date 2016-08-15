@@ -21,19 +21,19 @@ define([
                 return stixPackage.safeListGet(this.id(), this.data(), "categories", "value");
             }, this);
             this.victims = ko.computed(function () {
-                return stixPackage.safeListGet(this.id(), this.data(), "victims", "name");
+                return stixPackage.safeIdentityListGet(this.id(), this.data(), "victims", "name");
             }, this);
             this.reporter = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), this.data(), "reporter.identity.name");
-            }, this);
+                return stixPackage.safeIdentityGet(this.id(), this.data(), "reporter.identity.name");
+            }, this, this.DEFER_EVALUATION);
             this.confidence = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "confidence.value.value");
             }, this);
             this.responders = ko.computed(function () {
-                return stixPackage.safeListGet(this.id(), this.data(), "responders", "identity.name");
+                return stixPackage.safeIdentityListGet(this.id(), this.data(), "responders", "identity.name");
             }, this);
             this.coordinators = ko.computed(function () {
-                return stixPackage.safeListGet(this.id(), this.data(), "coordinators", "identity.name");
+                return stixPackage.safeIdentityListGet(this.id(), this.data(), "coordinators", "identity.name");
             }, this);
             this.intendedEffects = ko.computed(function () {
                 return stixPackage.safeListGet(this.id(), this.data(), "intended_effects", "value.value");
