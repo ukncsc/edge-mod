@@ -106,7 +106,7 @@ def _update_existing_properties(additional_sightings, additional_file_hashes, us
     inbox_processor.run()
 
 
-def _coalesce_duplicates(contents, map_table):
+def add_additional_file_hashes(io, additional_file_hashes, existing_id):
     def add_missing_file_hash(inbox_object, file_hashes, property_name):
         hash_type = property_name[-1]
         if hash_type not in file_hashes:
@@ -114,6 +114,18 @@ def _coalesce_duplicates(contents, map_table):
             if hash_value is not None:
                 file_hashes[hash_type] = hash_value
 
+    if rgetattr(io, PROPERTY_TYPE, None) == 'FileObjectType':
+        if existing_id not in additional_file_hashes:
+            additional_file_hashes[existing_id] = {}
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_MD5)
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA1)
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA224)
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA256)
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA384)
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA512)
+
+
+def _coalesce_duplicates(contents, map_table):
     out = {}
     additional_sightings = {}
     additional_file_hashes = {}
@@ -125,15 +137,7 @@ def _coalesce_duplicates(contents, map_table):
             existing_id = map_table[id_]
             sightings_for_duplicate = _get_sighting_count(io.api_object.obj)
             additional_sightings[existing_id] = additional_sightings.get(existing_id, 0) + sightings_for_duplicate
-            if rgetattr(io, PROPERTY_TYPE, None) == 'FileObjectType':
-                if existing_id not in additional_file_hashes:
-                    additional_file_hashes[existing_id] = {}
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_MD5)
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA1)
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA224)
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA256)
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA384)
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA512)
+            add_additional_file_hashes(io, additional_file_hashes, existing_id)
     return out, additional_sightings, additional_file_hashes
 
 
@@ -306,7 +310,7 @@ def _coalesce_non_observable_duplicates(contents, map_table):
             existing_id = map_table[id_]
             edges_of_duplicate = io.api_object.edges()
             for edge in edges_of_duplicate:
-                if edge.idref not in map_table.values(): # Dismiss case of duplicates referencing each other
+                if edge.idref not in map_table.values() and edge.idref != existing_id: # Dismiss case of duplicates referencing each other
                     additional_edges.setdefault(existing_id, []).append(edge)
     return out, additional_edges
 

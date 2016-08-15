@@ -7,13 +7,14 @@ from mongoengine.errors import DoesNotExist
 from pymongo.errors import PyMongoError
 from datetime import datetime
 from edge import LOCAL_ALIAS
-from edge.tools import StopWatch
+from edge.tools import StopWatch, rgetattr
 from edge.generic import EdgeObject
 from edge.inbox import InboxError, InboxProcessor, InboxItem
 from edge.models import StixBacklink
 from users.models import Repository_User
-from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor, _existing_title_and_capecs, \
-    _existing_tgts_with_cves
+from adapters.certuk_mod.dedup.DedupInboxProcessor import _existing_title_and_capecs, \
+    _existing_tgts_with_cves, _update_existing_objects, _update_existing_properties, _get_sighting_count, \
+    add_additional_file_hashes
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
 import adapters.certuk_mod.dedup.rehash as rehash
@@ -30,6 +31,8 @@ class STIXDedup(object):
     OBJECT_TYPES = ['ttp', 'tgt', 'obs']
     NAME_TYPES = {'obs': 'Observable', 'ttp': 'TTP', 'tgt': 'Exploit Target'}
 
+    PROPERTY_TYPE = ['obj', 'object_', 'properties', '_XSI_TYPE']
+
     def __init__(self, dedup_config):
         self.config = dedup_config
         self.user = Repository_User.objects.get(username='system')
@@ -42,15 +45,16 @@ class STIXDedup(object):
                 return "No %s duplicates found" % self.NAME_TYPES[type_]
 
         messages = []
+        last_run_at = self.config.task.last_run_at
         elapsed = StopWatch()
         try:
             for object_type in self.OBJECT_TYPES:
                 if object_type == 'obs':
-                    rehash.main()
+                    rehash.main(last_run_at)
                 cursor = STIXDedup.find_duplicates(object_type, self.config.only_local_ns)
                 for original, duplicates in cursor.iteritems():
                     try:
-                        self.merge_object(original, duplicates)
+                        self.merge_object(original, duplicates, object_type)
                     except Exception as e:
                         log_activity('system', 'DEDUP', 'ERROR', e.message)
                 messages.append(build_activity_message(object_type, len(cursor)))
@@ -68,23 +72,40 @@ class STIXDedup(object):
         api_obj = eo.to_ApiObject()
         return api_obj, tlp, esms, etou
 
-    def remap_objects(self, duplicates):  # Inbox duplicates. Will be remapped to original by the DDIP.
-        ip = DedupInboxProcessor(user=self.user, validate=False)
+    @staticmethod
+    def get_additional_sightings_count(original, duplicates):
+        additional_sightings = {}
         for dup in duplicates:
-            try:
-                api_obj, tlp, esms, etou = STIXDedup.load_eo(dup)
-                ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms, etou=etou))
-            except InboxError as e:
-                log_error(e, 'adapters/dedup/dedup', 'Adding object %s to IP failed' % dup)
-        get_db().stix.remove({'_id': {
-            '$in': duplicates}})
-        try:
-            ip.run()
-        except Exception as e:
-            log_error(e, 'adapters/dedup/dedup', 'Inboxing objects failed')
+            api_object = EdgeObject.load(dup).to_ApiObject()
+            additional_sightings[original] = additional_sightings.get(original, 0) + _get_sighting_count(api_object.obj)
+        return additional_sightings
 
-    def remap_parent_objects(self, parents,
-                             map_table):  # Inbox parents of duplicates remapping duplicate reference to original
+    @staticmethod
+    def get_additional_file_hashes(original, duplicates):
+        additional_file_hashes = {}
+        api_object = EdgeObject.load(original).to_ApiObject()
+        if rgetattr(api_object, STIXDedup.PROPERTY_TYPE, None) == 'FileObjectType':
+            for dup in duplicates:
+                api_obj, tlp, esms, etou = STIXDedup.load_eo(dup)
+                io = InboxItem(api_object=api_obj, etlp=tlp, esms=esms, etou=etou)
+                add_additional_file_hashes(io, additional_file_hashes, original)
+        return additional_file_hashes
+
+    def update_existing_properties_on_original(self, original, duplicates, duplicates_edges,
+                                               type_):
+        if type_ == 'tgt' or 'ttp':
+            _update_existing_objects(duplicates_edges, self.user)
+            get_db().stix.remove({'_id': {
+                '$in': duplicates}})
+        elif type_ == 'obs':
+            additional_sightings = STIXDedup.get_additional_sightings_count(original, duplicates)
+            additional_file_hashes = STIXDedup.get_additional_file_hashes(original, duplicates)
+            _update_existing_properties(additional_sightings, additional_file_hashes, self.user)
+            get_db().stix.remove({'_id': {
+                '$in': duplicates}})
+
+    def remap_duplicates_parents(self, parents,
+                                 map_table):  # Inbox parents of duplicates remapping duplicate reference to original
         if parents:
             ip = InboxProcessor(user=self.user, trustgroups=None)
             for id_, type_ in parents.iteritems():
@@ -94,32 +115,27 @@ class STIXDedup(object):
                     ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms, etou=etou))
                 except InboxError as e:
                     log_error(e, 'adapters/dedup/dedup', 'Adding parent %s to IP failed' % id_)
-                    pass
             try:
                 ip.run()
             except InboxError as e:
                 log_error(e, 'adapters/dedup/dedup', 'Remapping parent objects failed')
 
     @staticmethod  # Update backlinks for duplicates edges.
-    def remap_backlinks_for_edges(original, duplicates):
+    def remap_backlinks_for_edges_of_duplicates(original, duplicates, duplicates_edges):
         backlinks_to_update = {}
-        for dup in duplicates:
-            edges_of_duplicate = EdgeObject.load(dup).to_ApiObject().edges()
-            for edge in edges_of_duplicate:
-                edge_id = edge.idref
-                if edge_id != original and edge_id not in duplicates:  # If opposite is true, dup references original
-                    # or dup references another dup. Remapping results in originals backlinks updated incorrectly
-                    try:
-                        if backlinks_to_update.get(edge_id): # Will be executed if edge_id has more than one dupe referencing it
+        for edge in duplicates_edges[original]:
+            edge_id = edge.idref
+            if edge_id != original and edge_id not in duplicates:  # If opposite is true, dup references original
+                # or dup references another dup. Remapping results in external references being left in backlinks
+                try:
+                    backlinks_to_update[edge_id] = StixBacklink.objects.get(id=edge_id).edges
+                    for dup in duplicates:
+                        if dup in backlinks_to_update[edge_id]:
                             backlinks_to_update[edge_id][original] = backlinks_to_update[edge_id].pop(dup)
-                        else:
-                            backlinks_to_update[edge_id] = StixBacklink.objects.get(id=edge_id).edges
-                            backlinks_to_update[edge_id][original] = backlinks_to_update[edge_id].pop(dup)
-                    except DoesNotExist as e:
-                        pass
-                    except Exception as e:
-                        log_error(e, 'adapters/dedup/dedup', 'Finding parents for %s failed' % edge_id)
-                        pass
+                except DoesNotExist as e:
+                    pass
+                except Exception as e:
+                    log_error(e, 'adapters/dedup/dedup', 'Finding parents for %s failed' % edge_id)
         for id_, backlinks in backlinks_to_update.iteritems():
             get_db().stix_backlinks.update({'_id': id_}, {'$set': {'value': backlinks}}, upsert=True)
 
@@ -133,7 +149,7 @@ class STIXDedup(object):
             if dup in new_parents:
                 del new_parents[dup]
         try:
-            get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}})
+            get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
         except PyMongoError as pme:
             log_error(pme, 'adapters/dedup/dedup', 'Updating backlinks failed')
         if parents_of_duplicate:
@@ -156,15 +172,25 @@ class STIXDedup(object):
                 pass
         return parents_of_original, parents_of_duplicate
 
-    def merge_object(self, original, duplicates):
+    @staticmethod  # duplicates_edges = {original: [edges]}
+    def calculate_edges_of_duplicates(original, duplicates):
+        duplicates_edges = {}
+        for dup in duplicates:
+            edges_of_duplicates = EdgeObject.load(dup).to_ApiObject().edges()
+            for edge in edges_of_duplicates:
+                duplicates_edges.setdefault(original, []).append(edge)
+        return duplicates_edges
+
+    def merge_object(self, original, duplicates, type_):
+        duplicates_edges = STIXDedup.calculate_edges_of_duplicates(original, duplicates)
         parents_of_duplicates = STIXDedup.calculate_backlinks(original, duplicates)[1]
 
         STIXDedup.remap_backlinks_for_original(original, duplicates)
-        STIXDedup.remap_backlinks_for_edges(original, duplicates)
+        STIXDedup.remap_backlinks_for_edges_of_duplicates(original, duplicates, duplicates_edges)
 
         map_table = {dup: original for dup in duplicates}
-        self.remap_parent_objects(parents_of_duplicates, map_table)
-        self.remap_objects(duplicates)
+        self.remap_duplicates_parents(parents_of_duplicates, map_table)
+        self.update_existing_properties_on_original(original, duplicates, duplicates_edges, type_)
 
     @staticmethod
     def find_duplicates(type_, local):
@@ -245,3 +271,13 @@ class STIXDedup(object):
             'data.hash': hash_,
             'data.etlp': tlp_level
         }))
+
+    @staticmethod
+    def file_obs_hash_match():
+        cursor = get_db().stix.aggregate([
+            {
+                '$match': {
+                    'data.summary.type': 'FileObjectType'
+                }
+            }
+        ])
