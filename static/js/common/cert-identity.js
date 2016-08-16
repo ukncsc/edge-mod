@@ -6,13 +6,19 @@ define([
 ], function (declare, ko, AbstractBuilderForm, configText) {
     "use strict";
 
+    var crmURL;
+
     var config = Object.freeze(JSON.parse(configText));
+    var crm_config = config.crm_config;
+    if (crm_config) {
+         crmURL = crm_config.crm_url;
+    }
 
     var CERTIdentity = declare(AbstractBuilderForm, {
         declaredClass: "CERTIdentity",
 
         constructor: function () {
-            this.CRMURL = config.crmURL;
+            this.CRMURL = crmURL;
             this.searchTerm = ko.observable(null);
             this.searchResults = ko.observableArray([]);
 

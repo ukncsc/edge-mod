@@ -9,10 +9,13 @@ define([
 ], function (declare, ko, StixId, ReviewValue, ValidationInfo, Identity, configService) {
     "use strict";
 
+    var crmIsEnabled = "";
+
     var config = Object.freeze(JSON.parse(configService));
     var crm_config = config.crm_config;
-    var crmURL = crm_config.crm_url
-    var crmIsEnabled = crm_config.enabled;
+    if (crm_config) {
+        crmIsEnabled = crm_config.enabled;
+    }
 
     return declare(null, {
         declaredClass: "StixPackage",
@@ -121,15 +124,6 @@ define([
                 : null;
         },
 
-        safeObservableArrayGet: function (/*Object*/ object, /*String*/ propertyPath,
-                                          /*function*/ itemCallback, /*Object?*/ itemCallbackBinding) {
-            var collection = this.safeGet(object, propertyPath);
-            var cb = itemCallbackBinding ? itemCallback.bind(itemCallbackBinding) : itemCallback;
-            return collection instanceof Array && collection.length > 0
-                ? ko.utils.arrayMap(collection, cb)
-                : null;
-        },
-
         safeListGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
                                /*String?*/ valueKey, /*String?*/ validationPath, /*String?*/ delimiter) {
             var itemPropertyPath = valueKey || "value";
@@ -154,12 +148,10 @@ define([
         },
 
         safeIdentityGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath, /*String?*/ validationPath) {
-            if (crmIsEnabled) {
-                var identity = new Identity();
-                var uuidValue = this.safeGet(object, propertyPath);
-                identity.getNameFromCRM(uuidValue);
+            if (crmIsEnabled != "") {
+                var identityName = this.retrieveIdentity(object, propertyPath);
                 var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
-                return new ReviewValue(identity.name, validation.state, validation.message);
+                return new ReviewValue(identityName, validation.state, validation.message);
             } else {
                 return this.safeValueGet(id, object, propertyPath, validationPath);
             }
@@ -169,31 +161,33 @@ define([
             var identity = new Identity();
             var uuidValue = this.safeGet(object, propertyPath);
             identity.getNameFromCRM(uuidValue);
-            //var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
             return identity.name;
         },
 
         safeIdentityListGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
                                        /*String?*/ valueKey, /*String?*/ validationPath, /*String?*/ delimiter) {
-            var itemPropertyPath = valueKey || "value";
-            var obsArrayIds = ko.observableArray(this.safeArrayGet(object, propertyPath, function (item) {
-                return this.retrieveIdentity(item, itemPropertyPath);
-            }, this) || []);
+            if (crmIsEnabled != "") {
+                var itemPropertyPath = valueKey || "value";
+                var obsArrayIds = ko.observableArray(this.safeArrayGet(object, propertyPath, function (item) {
+                        return this.retrieveIdentity(item, itemPropertyPath);
+                    }, this) || []);
 
-            var computedStringRep = ko.computed(function() {
+                var computedStringRepresentation = this.concatenateIdentities(obsArrayIds);
+                var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
+                return new ReviewValue(computedStringRepresentation, validation.state, validation.message);
+            } else {
+                return this.safeListGet(id, object, propertyPath, valueKey, validationPath, delimiter)
+            }
+        },
+
+        concatenateIdentities: function (observableIdArray) {
+            return ko.computed(function () {
                 var result = "";
-                ko.utils.arrayForEach(obsArrayIds(), function(id) {
+                ko.utils.arrayForEach(observableIdArray(), function (id) {
                     result = result + id() + ",";
-                })
+                });
                 return result;
             });
-            /* ko.utils.arrayForEach(idArray, function (id){
-             var identity = new Identity();
-             identity.getNameFromCRM(id)
-             return new ReviewValue(identity.name, null, null);
-             });      */
-            var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
-            return new ReviewValue(computedStringRep, validation.state, validation.message);
         }
     });
 });
