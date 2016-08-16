@@ -7,7 +7,7 @@ define([
     "use strict";
 
     return declare(null, {
-        declaredClass: "Revisions",
+        declaredClass: "CatalogRevisions",
         constructor: function () {
             this.label = ko.observable("Revisions");
             this.revisions = ko.observableArray([]);

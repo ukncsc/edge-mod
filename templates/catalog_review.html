@@ -49,10 +49,12 @@
                        data-bind="attr: { href: editURL}">Edit in<br>Builder
                     </a>
                     <!-- /ko -->
+                    <!-- ko if: type().code != 'obs' -->
                     <!-- ko if: type().code != 'pkg' -->
                     <a type="button" class="btn btn-warning"
                        data-bind="attr: { href: cloneURL}">Clone to<br>Draft
                     </a>
+                    <!-- /ko -->
                     <!-- /ko -->
                     <a type="button" class="btn btn-primary"
                        data-bind="attr: { href: visualiserURL}">View in<br>Visualiser

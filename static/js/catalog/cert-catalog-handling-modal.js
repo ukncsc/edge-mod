@@ -6,7 +6,7 @@ define([
     "use strict";
 
     return declare(Modal, {
-        declaredClass: "cert-catalog-handling-modal",
+        declaredClass: "CatalogHandlingModal",
         constructor: function () {
             this.items = ko.observableArray([]);
         },

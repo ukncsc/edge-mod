@@ -6,7 +6,7 @@ define([
     "use strict";
 
     return declare(null, {
-        declaredClass: "Matching",
+        declaredClass: "CatalogMatching",
         constructor: function () {
             this.label = ko.observable("Matching");
             this.id = ko.observable("");

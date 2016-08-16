@@ -5,7 +5,7 @@ define([
     "use strict";
 
     return declare(null, {
-        declaredClass: "References",
+        declaredClass: "CatalogReferences",
         constructor: function () {
             this.label = ko.observable("References");
             this.backEdges = ko.observableArray([]);

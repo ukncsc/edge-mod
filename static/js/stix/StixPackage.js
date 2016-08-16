@@ -143,10 +143,6 @@ define([
             return new ReviewValue(values, validation.state, validation.message);
         },
 
-        safeMarkingsGet: function () {
-
-        },
-
         safeIdentityGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath, /*String?*/ validationPath) {
             if (crmIsEnabled != "") {
                 var identityName = this.retrieveIdentity(object, propertyPath);

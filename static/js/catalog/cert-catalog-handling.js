@@ -13,7 +13,7 @@ define([
     var sharing_groups = config.sharing_groups;
 
     return declare(null, {
-        declaredClass: "cert-catalog-handling",
+        declaredClass: "CatalogHandling",
         constructor: function () {
             this.choices = ko.observableArray(this.parseSharingGroups(sharing_groups))
         },

@@ -17,7 +17,7 @@ define([
     }
 
     return declare(null, {
-        declaredClass: "Catalog-Section",
+        declaredClass: "CatalogSection",
         constructor: function () {
             this.options = ko.observableArray([
                 ko.observable(new Revisions()),

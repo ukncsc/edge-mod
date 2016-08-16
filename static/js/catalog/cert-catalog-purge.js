@@ -7,7 +7,7 @@ define([
     "use strict";
 
     return declare(null, {
-        declaredClass: "cert-catalog-purge",
+        declaredClass: "CatalogPurge",
         constructor: function () {
             this.label = ko.observable("Purge");
             this.canRevoke = ko.observable("");

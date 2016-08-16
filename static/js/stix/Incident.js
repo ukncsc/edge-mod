@@ -25,7 +25,7 @@ define([
             }, this);
             this.reporter = ko.computed(function () {
                 return stixPackage.safeIdentityGet(this.id(), this.data(), "reporter.identity.name");
-            }, this, this.DEFER_EVALUATION);
+            }, this);
             this.confidence = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "confidence.value.value");
             }, this);

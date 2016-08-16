@@ -6,7 +6,7 @@ define([
     "use strict";
 
     return declare(null, {
-        declaredClass: "cert-catalog-activity",
+        declaredClass: "CatalogActivity",
         constructor: function () {
             this.label = ko.observable("Activity");
             this.activity_log = ko.observableArray([]);
