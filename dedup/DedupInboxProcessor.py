@@ -48,7 +48,7 @@ def _merge_ttps(api_object, references):
     for ref in references:
         related_objects.setdefault(ref.ty, []).append(ref.idref)
     if getattr(api_object, 'exploit_targets', None) is None:
-        setattr(api_object, 'exploit_targets',ExploitTargets())
+        setattr(api_object, 'exploit_targets', ExploitTargets())
     if getattr(api_object, 'related_ttps', None) is None:
         setattr(api_object, 'related_ttps', RelatedTTPs())
 
@@ -320,9 +320,12 @@ def _coalesce_non_observable_duplicates(contents, map_table):
             out[id_] = io
         elif io.api_object.ty == 'ttp' or io.api_object.ty == 'tgt':  # Merge duplicates edges into masters
             existing_id = map_table[id_]
+            edges_of_existing = [e.id_ for e in EdgeObject.load(existing_id).edges]
             edges_of_duplicate = io.api_object.edges()
             for edge in edges_of_duplicate:
-                if edge.idref not in map_table.values() and edge.idref != existing_id: # Dismiss case of duplicates referencing each other
+                if edge.idref not in map_table.keys() \
+                        and edge.idref != existing_id \
+                        and edge.idref not in edges_of_existing:
                     additional_edges.setdefault(existing_id, []).append(edge)
     return out, additional_edges
 
@@ -494,7 +497,8 @@ def _existing_tgt_cve_dedup(contents, hashes, user, local):
     cve_to_tgt_ids = _package_cve_id_to_ids(contents, local)
 
     map_table = {
-        id_[0]: existing_cve_ids_to_id[key][0] for key, id_ in cve_to_tgt_ids.iteritems() if key in existing_cve_ids_to_id
+        id_[0]: existing_cve_ids_to_id[key][0] for key, id_ in cve_to_tgt_ids.iteritems() if
+        key in existing_cve_ids_to_id
         }
 
     out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
