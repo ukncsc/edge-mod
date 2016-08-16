@@ -14,7 +14,7 @@ from edge.models import StixBacklink
 from users.models import Repository_User
 from adapters.certuk_mod.dedup.DedupInboxProcessor import _existing_title_and_capecs, \
     _existing_tgts_with_cves, _update_existing_objects, _update_existing_properties, _get_sighting_count, \
-    add_additional_file_hashes
+    add_additional_file_hashes, _is_matching_file2
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
 import adapters.certuk_mod.dedup.rehash as rehash
@@ -26,10 +26,10 @@ if not hasattr(settings, 'BASE_DIR'):
 
 
 class STIXDedup(object):
-    HASH_MAP = {'RED': 4, 'AMBER': 3, 'GREEN': 2, 'WHITE': 1, 'NULL': 0}
+    TLP_MAP = {'RED': 4, 'AMBER': 3, 'GREEN': 2, 'WHITE': 1, 'NULL': 0}
     LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
-    OBJECT_TYPES = ['ttp', 'tgt', 'obs']
-    NAME_TYPES = {'obs': 'Observable', 'ttp': 'TTP', 'tgt': 'Exploit Target'}
+    OBJECT_TYPES = ['obs'] # ['ttp', 'tgt', 'obs']
+    NAME_TYPES = {'obs': 'Observables'} # {'obs': 'Observable', 'ttp': 'TTP', 'tgt': 'Exploit Target'}
 
     PROPERTY_TYPE = ['obj', 'object_', 'properties', '_XSI_TYPE']
 
@@ -56,6 +56,8 @@ class STIXDedup(object):
                     try:
                         self.merge_object(original, duplicates, object_type)
                     except Exception as e:
+                        print original
+                        print duplicates
                         log_activity('system', 'DEDUP', 'ERROR', e.message)
                 messages.append(build_activity_message(object_type, len(cursor)))
             messages.insert(0, 'Online Dedup (in %dms): ' % int(elapsed.ms()))
@@ -93,16 +95,18 @@ class STIXDedup(object):
 
     def update_existing_properties_on_original(self, original, duplicates, duplicates_edges,
                                                type_):
-        if type_ == 'tgt' or 'ttp':
-            _update_existing_objects(duplicates_edges, self.user)
-            get_db().stix.remove({'_id': {
-                '$in': duplicates}})
-        elif type_ == 'obs':
+
+        if type_ == 'obs':
             additional_sightings = STIXDedup.get_additional_sightings_count(original, duplicates)
             additional_file_hashes = STIXDedup.get_additional_file_hashes(original, duplicates)
             _update_existing_properties(additional_sightings, additional_file_hashes, self.user)
             get_db().stix.remove({'_id': {
                 '$in': duplicates}})
+        # elif type_ == 'tgt' or type_ == 'ttp':
+        #     if duplicates:
+        #         _update_existing_objects(duplicates_edges, self.user)
+        #     get_db().stix.remove({'_id': {
+        #         '$in': duplicates}})
 
     def remap_duplicates_parents(self, parents,
                                  map_table):  # Inbox parents of duplicates remapping duplicate reference to original
@@ -114,6 +118,7 @@ class STIXDedup(object):
                     api_obj = api_obj.remap(map_table)
                     ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms, etou=etou))
                 except InboxError as e:
+                    print id_
                     log_error(e, 'adapters/dedup/dedup', 'Adding parent %s to IP failed' % id_)
             try:
                 ip.run()
@@ -123,19 +128,23 @@ class STIXDedup(object):
     @staticmethod  # Update backlinks for duplicates edges.
     def remap_backlinks_for_edges_of_duplicates(original, duplicates, duplicates_edges):
         backlinks_to_update = {}
-        for edge in duplicates_edges[original]:
-            edge_id = edge.idref
-            if edge_id != original and edge_id not in duplicates:  # If opposite is true, dup references original
-                # or dup references another dup. Remapping results in external references being left in backlinks
-                try:
-                    backlinks_to_update[edge_id] = StixBacklink.objects.get(id=edge_id).edges
-                    for dup in duplicates:
-                        if dup in backlinks_to_update[edge_id]:
-                            backlinks_to_update[edge_id][original] = backlinks_to_update[edge_id].pop(dup)
-                except DoesNotExist as e:
-                    pass
-                except Exception as e:
-                    log_error(e, 'adapters/dedup/dedup', 'Finding parents for %s failed' % edge_id)
+        edges_already_done = []
+        if duplicates_edges:
+            for edge in duplicates_edges.get(original, []):
+                edge_id = edge.idref
+                if edge_id != original and edge_id not in duplicates and edge_id not in edges_already_done:  # If opposite is true, dup references original
+                    # or dup references another dup. Remapping results in external references being left in backlinks
+                    try:
+                        print "For obs only remap backlinks if original is ObsComp. EdgeID: %s" % edge_id
+                        edges_already_done.append(edge_id)
+                        backlinks_to_update[edge_id] = StixBacklink.objects.get(id=edge_id).edges
+                        for dup in duplicates:
+                            if dup in backlinks_to_update[edge_id]:
+                                backlinks_to_update[edge_id][original] = backlinks_to_update[edge_id].pop(dup)
+                    except DoesNotExist as e:
+                        pass
+                    except Exception as e:
+                        log_error(e, 'adapters/dedup/dedup', 'Finding parents for %s failed' % edge_id)
         for id_, backlinks in backlinks_to_update.iteritems():
             get_db().stix_backlinks.update({'_id': id_}, {'$set': {'value': backlinks}}, upsert=True)
 
@@ -143,13 +152,12 @@ class STIXDedup(object):
     def remap_backlinks_for_original(original, duplicates):
         parents_of_original, parents_of_duplicate = STIXDedup.calculate_backlinks(original, duplicates)
 
-        new_parents = parents_of_duplicate.copy()
-        new_parents.update(parents_of_original)
+        parents_of_original.update(parents_of_duplicate)
         for dup in duplicates:  # Strip out references to duplicates in updated backlinks
-            if dup in new_parents:
-                del new_parents[dup]
+            if dup in parents_of_original:
+                del parents_of_original[dup]
         try:
-            get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': new_parents}}, upsert=True)
+            get_db().stix_backlinks.update({'_id': original}, {'$set': {'value': parents_of_original}}, upsert=True)
         except PyMongoError as pme:
             log_error(pme, 'adapters/dedup/dedup', 'Updating backlinks failed')
         if parents_of_duplicate:
@@ -195,9 +203,11 @@ class STIXDedup(object):
     @staticmethod
     def find_duplicates(type_, local):
         if local:
-            namespace_query = {'_id': {'$regex': STIXDedup.LOCAL_ALIAS_REGEX}, 'type': type_}
+            namespace_query = {'_id': {'$regex': STIXDedup.LOCAL_ALIAS_REGEX}, 'type': type_, 'data.summary.type': {
+                '$ne': 'FileObjectType'}}
         else:
-            namespace_query = {'type': type_}
+            namespace_query = {'type': type_, 'data.summary.type': {
+                '$ne': 'FileObjectType'}}
 
         def obs_transform(cursor):  # If duplicates have more than one tlpLevel take the most permissive
             obs = {}
@@ -206,8 +216,8 @@ class STIXDedup(object):
                     tlps = row.get('tlpLevels')
                     map_tlps = {}
                     for tlp in tlps:
-                        if STIXDedup.HASH_MAP.get(tlp):
-                            map_tlps[tlp] = STIXDedup.HASH_MAP.get(tlp)
+                        if STIXDedup.TLP_MAP.get(tlp):
+                            map_tlps[tlp] = STIXDedup.TLP_MAP.get(tlp)
                     tlp_level = sorted(map_tlps.items(), key=operator.itemgetter(1))[0][0]
                     id_ = STIXDedup.match_tlp_hash(row.get('_id'), tlp_level).get('_id')
                     ids = row.get('uniqueIds')
@@ -217,20 +227,23 @@ class STIXDedup(object):
                     obs[row.get('uniqueIds')[0]] = row.get('uniqueIds')[1:]
             return obs
 
-        def ttp_tgt_transform(cursor):
-            original_to_duplicates = {}
-            for row in cursor.values():
-                if len(row) > 1:
-                    master = row[0]
-                    original_to_duplicates[master] = row[1:]
-            return original_to_duplicates
+        # def ttp_tgt_transform(cursor):
+        #     original_to_duplicates = {}
+        #     for row in cursor.values():
+        #         if len(row) > 1:
+        #             master = row[0]
+        #             original_to_duplicates[master] = row[1:]
+        #     return original_to_duplicates
 
         if type_ == 'obs':
-            return obs_transform(STIXDedup.obs_hash_match(namespace_query))
-        elif type_ == 'ttp':
-            return ttp_tgt_transform(_existing_title_and_capecs(local))
-        elif type_ == 'tgt':
-            return ttp_tgt_transform(_existing_tgts_with_cves(local))
+            matches = obs_transform(STIXDedup.obs_hash_match(namespace_query))
+            namespace_query.update({'data.summary.type': 'FileObjectType'})
+            matches.update(STIXDedup.file_obs_match(namespace_query))
+            return matches
+        # elif type_ == 'ttp':
+        #     return ttp_tgt_transform(_existing_title_and_capecs(local))
+        # elif type_ == 'tgt':
+        #     return ttp_tgt_transform(_existing_tgts_with_cves(local))
 
     @staticmethod
     def obs_hash_match(namespace_query):
@@ -273,11 +286,61 @@ class STIXDedup(object):
         }))
 
     @staticmethod
-    def file_obs_hash_match():
+    def file_obs_match(namespace_query):
+
         cursor = get_db().stix.aggregate([
             {
+                '$match': namespace_query
+            },
+            {
+                '$sort': {
+                    'created_on': -1
+                }
+            },
+            {
+                '$group': {
+                    '_id': '$data.summary.value',
+                    'ids': {
+                        '$push': '$_id'
+                    },
+                    'count': {'$sum': 1}
+                }
+            },
+            {
                 '$match': {
-                    'data.summary.type': 'FileObjectType'
+                    'count': {'$gt': 1}
                 }
             }
-        ])
+        ], cursor={})
+
+        complete_map_table = {}
+        for doc in cursor:
+            map_table = {}
+            matching_key_objects = {}
+
+            for id in doc['ids']:
+                id_ao, tlp, esms, etou = STIXDedup.load_eo(id)
+                matching_key = None
+                for key in map_table.keys():
+                    key_ao = matching_key_objects[key]['ao']
+                    key_tlp = matching_key_objects[key]['tlp']
+                    if _is_matching_file2(id_ao, key_ao):
+                        matching_key = key
+                        break
+                if matching_key:
+                    if STIXDedup.TLP_MAP[tlp] < STIXDedup.TLP_MAP[key_tlp]:
+                        map_table[id] = map_table[matching_key]
+                        map_table[id].append(matching_key)
+                        del map_table[matching_key]
+                        del matching_key_objects[matching_key]
+                        matching_key_objects.setdefault(id, {"ao": id_ao, "tlp": tlp})
+                    else:
+                        map_table[matching_key].append(id)
+                else:
+                    map_table[id] = []
+                    matching_key_objects.setdefault(id, {"ao": id_ao, "tlp": tlp})
+            for key, value in map_table.iteritems():
+                if len(value):
+                    complete_map_table[key] = value
+
+        return complete_map_table

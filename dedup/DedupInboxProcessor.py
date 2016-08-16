@@ -216,6 +216,18 @@ def _is_matching_file(existing_file, new_file):
         matches(existing_file, new_file, PROPERTY_SHA512)
     )
 
+def _is_matching_file2(existing_file, new_file):
+    def matches(existing_value, new_value):
+        return existing_value is not None and new_value is not None and existing_value == new_value
+
+    return (
+        matches(existing_file.obj.object_.properties.md5, new_file.obj.object_.properties.md5) or
+        matches(existing_file.obj.object_.properties.sha1, new_file.obj.object_.properties.sha1) or
+        matches(existing_file.obj.object_.properties.sha224, new_file.obj.object_.properties.sha224) or
+        matches(existing_file.obj.object_.properties.sha256, new_file.obj.object_.properties.sha256) or
+        matches(existing_file.obj.object_.properties.sha384, new_file.obj.object_.properties.sha384) or
+        matches(existing_file.obj.object_.properties.sha512, new_file.obj.object_.properties.sha512))
+
 
 def _add_matching_file_observables(db, map_table, contents):
     # identify file observables in contents excluding any which are already in map_table
@@ -306,7 +318,7 @@ def _coalesce_non_observable_duplicates(contents, map_table):
         if id_ not in map_table:
             io.api_object = io.api_object.remap(map_table)
             out[id_] = io
-        elif io.api_object.ty == 'ttp' or 'tgt':  # Merge duplicates edges into masters
+        elif io.api_object.ty == 'ttp' or io.api_object.ty == 'tgt':  # Merge duplicates edges into masters
             existing_id = map_table[id_]
             edges_of_duplicate = io.api_object.edges()
             for edge in edges_of_duplicate:

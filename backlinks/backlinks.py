@@ -66,4 +66,4 @@ class STIXBacklinks(object):
 
 
 if __name__ == '__main__':
-    STIXBacklinks().run();
+    STIXBacklinks().run()

@@ -79,8 +79,8 @@ def ajax_merge_object(request):
     stix_dedup = STIXDedup(DedupConfiguration.get())
     try:
         raw_body = json.loads(request.body)
-        original, duplicates = raw_body.get('original'), raw_body.get('duplicate')
-        stix_dedup.merge_object(original, duplicates)
+        original, duplicates, type_ = raw_body.get('original'), raw_body.get('duplicate'), raw_body.get('type')
+        stix_dedup.merge_object(original, duplicates, type_)
         return JsonResponse({
             'validation_message': {}
         }, status=200)
@@ -95,10 +95,10 @@ def ajax_merge_all(request):
     stix_dedup = STIXDedup(DedupConfiguration.get())
     try:
         raw_body = json.loads(request.body)
-        objects = raw_body.get('objects')
+        objects, type_ = raw_body.get('objects'), raw_body.get('type')
 
         for original, duplicates in objects.iteritems():
-            stix_dedup.merge_object(original, duplicates)
+            stix_dedup.merge_object(original, duplicates, type_)
 
         message = 'DeDuped ' + str(len(objects)) + ' successfully'
         return JsonResponse({
