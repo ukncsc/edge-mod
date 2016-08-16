@@ -4,6 +4,7 @@ from dateutil.parser import parse
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 from django.conf import settings
+
 if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.py')
 import adapters.certuk_mod.builder.customizations as cert_builder
 
@@ -12,10 +13,12 @@ from mongoengine.connection import get_db
 from pprint import pprint
 from pymongo.errors import BulkWriteError, PyMongoError
 
-def main(timestamp):
+
+def rehash(timestamp):
     """
     A script to recalculate all observable data hashes according to CERT requirements (can safely be run multiple times)
     """
+    PAGE_SIZE = 5000
     cert_builder.apply_customizations()
     db = get_db()
     base_query = {
@@ -34,7 +37,10 @@ def main(timestamp):
 
     bulk = db.stix.initialize_unordered_bulk_op()
 
+    update_count = 0
+
     for row in cursor:
+        update_count += 1
         stix_id = row['_id']
         eo = EdgeObject.load(stix_id)
         ao = eo.to_ApiObject()
@@ -49,14 +55,13 @@ def main(timestamp):
             }
         })
 
-    try:
-        bulk_result = bulk.execute()
-    except PyMongoError as pme:
-        print pme
-    except BulkWriteError as bwe:
-        pprint(bwe.details)
-    else:
-        pprint(bulk_result)
+        if not update_count % PAGE_SIZE:
+            bulk.execute()
+            bulk = db.stix.initialize_unordered_bulk_op()
+
+    if update_count % PAGE_SIZE:
+        bulk.execute()
+
 
 if __name__ == '__main__':
     timestamp = None
@@ -66,4 +71,4 @@ if __name__ == '__main__':
             timestamp = parse(args[1])
         except Exception as e:
             raise e
-    main(timestamp)
+    rehash(timestamp)

@@ -50,7 +50,10 @@ class STIXDedup(object):
         try:
             for object_type in self.OBJECT_TYPES:
                 if object_type == 'obs':
-                    rehash.main(last_run_at)
+                    try:
+                        rehash.rehash(last_run_at)
+                    except:
+                        pass #rehash failed, let's just continue with the hashes as is.
                 cursor = STIXDedup.find_duplicates(object_type, self.config.only_local_ns)
                 for original, duplicates in cursor.iteritems():
                     try:
