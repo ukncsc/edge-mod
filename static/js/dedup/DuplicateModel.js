@@ -20,13 +20,13 @@ define([
 
     var type_labels = Object.freeze({
         //"ind": "Indicator",
-        "obs": "Observable",
-        "ttp": "TTP",
+        "obs": "Observable"
+        //"ttp": "TTP",
         //"coa": "Course Of Action",
         //"act": "Threat Actor",
         //"cam": "Campaign",
         //"inc": "Incident",
-        "tgt": "Exploit Target"
+        //"tgt": "Exploit Target"
         //"pkg": "Package"
     });
     var rate_limited = Object.freeze({rateLimit: {timeout: 50, method: "notifyWhenChangesStop"}});

@@ -1,5 +1,6 @@
 import pymongo
 import operator
+import datetime
 
 from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong, \
     drop_envelopes, INBOX_DROP_ENVELOPES
@@ -82,6 +83,7 @@ def _update_existing_objects(references, user):
             _merge_ttps(api_object.obj, references)
         elif edge_object.ty == 'tgt':
             _merge_tgts(api_object.obj, references)
+        setattr(api_object, 'obj.timestamp' , datetime.datetime.utcnow())
         inbox_processor.add(InboxItem(
             api_object=api_object,
             etlp=edge_object.etlp,
@@ -216,7 +218,7 @@ def _is_matching_file(existing_file, new_file):
         matches(existing_file, new_file, PROPERTY_SHA512)
     )
 
-def _is_matching_file2(existing_file, new_file):
+def _has_matching_file_hash(existing_file, new_file):
     def matches(existing_value, new_value):
         return existing_value is not None and new_value is not None and existing_value == new_value
 
@@ -320,7 +322,7 @@ def _coalesce_non_observable_duplicates(contents, map_table):
             out[id_] = io
         elif io.api_object.ty == 'ttp' or io.api_object.ty == 'tgt':  # Merge duplicates edges into masters
             existing_id = map_table[id_]
-            edges_of_existing = [e.id_ for e in EdgeObject.load(existing_id).edges]
+            edges_of_existing = [e.idref for e in EdgeObject.load(existing_id).to_ApiObject().edges()]
             edges_of_duplicate = io.api_object.edges()
             for edge in edges_of_duplicate:
                 if edge.idref not in map_table.keys() \

@@ -14,7 +14,7 @@ from edge.models import StixBacklink
 from users.models import Repository_User
 from adapters.certuk_mod.dedup.DedupInboxProcessor import _existing_title_and_capecs, \
     _existing_tgts_with_cves, _update_existing_objects, _update_existing_properties, _get_sighting_count, \
-    add_additional_file_hashes, _is_matching_file2
+    add_additional_file_hashes, _has_matching_file_hash
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
 import adapters.certuk_mod.dedup.rehash as rehash
@@ -120,6 +120,7 @@ class STIXDedup(object):
                 except InboxError as e:
                     print id_
                     log_error(e, 'adapters/dedup/dedup', 'Adding parent %s to IP failed' % id_)
+                    continue
             try:
                 ip.run()
             except InboxError as e:
@@ -180,9 +181,18 @@ class STIXDedup(object):
                 pass
         return parents_of_original, parents_of_duplicate
 
+    @staticmethod
+    def could_have_edges(eo):
+        if eo.ty == 'ttp' or eo.ty == 'tgt' or eo.summary.get('type') == 'ObservableComposition':
+            return True
+        else:
+            return False
+
     @staticmethod  # duplicates_edges = {original: [edges]}
     def calculate_edges_of_duplicates(original, duplicates):
         duplicates_edges = {}
+        if not STIXDedup.could_have_edges(EdgeObject.load(original)):
+            return duplicates_edges
         for dup in duplicates:
             edges_of_duplicates = EdgeObject.load(dup).to_ApiObject().edges()
             for edge in edges_of_duplicates:
@@ -209,27 +219,27 @@ class STIXDedup(object):
             namespace_query = {'type': type_, 'data.summary.type': {
                 '$ne': 'FileObjectType'}}
 
-        def obs_transform(cursor):  # If duplicates have more than one tlpLevel take the most permissive
+        def obs_transform(matches):  # If duplicates have more than one tlpLevel take the most permissive
             obs = {}
-            for row in cursor:
-                if len(row.get('tlpLevels')) > 1:
-                    tlps = row.get('tlpLevels')
+            for match in matches:
+                if len(match.get('tlpLevels')) > 1:
+                    tlps = match.get('tlpLevels')
                     map_tlps = {}
                     for tlp in tlps:
                         if STIXDedup.TLP_MAP.get(tlp):
                             map_tlps[tlp] = STIXDedup.TLP_MAP.get(tlp)
                     tlp_level = sorted(map_tlps.items(), key=operator.itemgetter(1))[0][0]
-                    id_ = STIXDedup.match_tlp_hash(row.get('_id'), tlp_level).get('_id')
-                    ids = row.get('uniqueIds')
+                    id_ = STIXDedup.match_tlp_hash(match.get('_id'), tlp_level).get('_id')
+                    ids = match.get('uniqueIds')
                     ids.pop(ids.index(id_))
                     obs[id_] = ids
                 else:
-                    obs[row.get('uniqueIds')[0]] = row.get('uniqueIds')[1:]
+                    obs[match.get('uniqueIds')[0]] = match.get('uniqueIds')[1:]
             return obs
 
-        # def ttp_tgt_transform(cursor):
+        # def ttp_tgt_transform(matches):
         #     original_to_duplicates = {}
-        #     for row in cursor.values():
+        #     for row in matches.values():
         #         if len(row) > 1:
         #             master = row[0]
         #             original_to_duplicates[master] = row[1:]
@@ -324,7 +334,7 @@ class STIXDedup(object):
                 for key in map_table.keys():
                     key_ao = matching_key_objects[key]['ao']
                     key_tlp = matching_key_objects[key]['tlp']
-                    if _is_matching_file2(id_ao, key_ao):
+                    if _has_matching_file_hash(id_ao, key_ao):
                         matching_key = key
                         break
                 if matching_key:
