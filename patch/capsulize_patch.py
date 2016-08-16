@@ -58,15 +58,32 @@ def generate_stix_header(self):
             handling=Marking([
                 MarkingSpecification(
                         controlled_structure=PackageXPath.make_marking_xpath_by_node_relative(),
-                        marking_structures=list(chain(
-                                (TLPMarkingStructure(item) for item in [self.etlp] if item != 'NULL'),
-                                (TermsOfUseMarkingStructure(item) for item in self.etou),
-                                (SimpleMarkingStructure(item['statement']) for item in handling_markings)
-                        )),
+                        marking_structures=generate_marking_structure(self, handling_markings),
                 )
             ]),
     )
     return stix_header
+
+
+def generate_marking_structure(self, handling_markings):
+    marking_structure = list(chain(
+            (TLPMarkingStructure(item) for item in [self.etlp] if item != 'NULL'),
+            (TermsOfUseMarkingStructure(item) for item in self.etou)),
+    )
+
+    marking_structure.extend(generate_simple_markings(handling_markings))
+
+    return marking_structure
+
+
+def generate_simple_markings(handling_markings):
+    handling_list = list()
+    for item in handling_markings:
+        simple_structure = SimpleMarkingStructure(item['statement'])
+        if not item.get("marking_model_name", None) is None:
+            simple_structure.marking_model_name = item["marking_model_name"]
+        handling_list.append(simple_structure)
+    return handling_list
 
 
 def apply_patch():

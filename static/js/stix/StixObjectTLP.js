@@ -3,19 +3,31 @@ define([
     "knockout",
     "./ReviewValue",
     "./StixObject",
+    "text!config-service",
     "kotemplate!common-fields-TLP:./templates/commonTLP.html"
-], function (declare, ko, ReviewValue, StixObject) {
+], function (declare, ko, ReviewValue, StixObject, configService) {
     "use strict";
+
+    var config = Object.freeze(JSON.parse(configService));
+    var sharing_groups = config.sharing_groups;
 
     function simpleItem(item) {
         return item;
+    }
+
+    function checkIsHandlingCaveat(item, valueKey) {
+        if (item.hasOwnProperty("marking_model_name")) {
+            return sharing_groups[item["statement"]]
+        } else {
+            return item[valueKey];
+        }
     }
 
     function findByXsiType(markingStructures, xsiType, valueKey, validation) {
         var value = (ko.utils.arrayMap(ko.utils.arrayFilter(markingStructures, function (item) {
             return item["xsi:type"].split(":", 2)[1] === xsiType;
         }), function (item) {
-            return item[valueKey];
+            return checkIsHandlingCaveat(item, valueKey)
         })).join(", ");
         return new ReviewValue(value, validation.state, validation.message);
     }
