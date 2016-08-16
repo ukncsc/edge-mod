@@ -19,12 +19,13 @@ from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from edge.inbox import InboxError
 from edge.tools import StopWatch
-from users.decorators import login_required_ajax
+from users.decorators import login_required_ajax, superuser_role
 from users.models import Repository_User
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 
 
 @login_required
+@superuser_role
 def duplicates_finder(request):
     request.breadcrumbs([("Duplicates Finder", "")])
     return render(request, "duplicates_finder.html", {
@@ -33,6 +34,7 @@ def duplicates_finder(request):
 
 
 @login_required_ajax
+@superuser_role
 def ajax_load_duplicates(request, typ):
     try:
         local = request.body
