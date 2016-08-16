@@ -4,17 +4,19 @@
     </div>
     <div class="panel-body">
         <div class="row">
-                <div class="col-sm-3">
-                    <h5>Rebuild all backlinks (may take a long time): </h5>
-                </div>
+            <div class="col-sm-3">
+                <h5>Rebuild all backlinks (may take a long time): </h5>
+            </div>
 
-                <div class="col-sm-5">
-                    <button class="btn btn-default pull-right"
-                            data-bind="click: runNow,
+            <div class="col-sm-5">
+            </div>
+            <div class="col-sm-4">
+                <button class="btn btn-default pull-right"
+                        data-bind="click: runNow,
                            css: { disabled: running() || changesPending() },
                            text: running() ? 'Running...' : 'Run now'">
-                    </button>
-                </div>
+                </button>
+            </div>
         </div>
 
     </div>
