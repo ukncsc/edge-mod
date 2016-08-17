@@ -10,8 +10,6 @@ import adapters.certuk_mod.builder.customizations as cert_builder
 
 from edge.generic import EdgeObject
 from mongoengine.connection import get_db
-from pprint import pprint
-from pymongo.errors import BulkWriteError, PyMongoError
 
 
 def rehash(timestamp):
@@ -39,6 +37,14 @@ def rehash(timestamp):
 
     update_count = 0
 
+    def bulk_execute(bulk):
+        try:
+            bulk.execute()
+        except Exception:
+            pass
+
+        return db.stix.initialize_unordered_bulk_op()
+
     for row in cursor:
         update_count += 1
         stix_id = row['_id']
@@ -56,11 +62,10 @@ def rehash(timestamp):
         })
 
         if not update_count % PAGE_SIZE:
-            bulk.execute()
-            bulk = db.stix.initialize_unordered_bulk_op()
+            bulk = bulk_execute(bulk)
 
     if update_count % PAGE_SIZE:
-        bulk.execute()
+        bulk_execute(bulk)
 
 
 if __name__ == '__main__':
