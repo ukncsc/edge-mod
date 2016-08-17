@@ -1,7 +1,4 @@
 <template id="Purge">
-    <div>
-        <span data-bind="visible: canRevoke"><a class="btn btn-xs btn-danger"
-                                            data-bind="click: revokeObject">Revoke</a></span>
-        <span data-bind="visible: canPurge"><a class="btn btn-xs btn-danger" data-bind="click: purgeObject">Purge</a></span>
-    </div>
+    <a class="btn btn-xs btn-danger" data-bind="visible: canRevoke, click: revokeObject">Revoke</a>
+    <a class="btn btn-xs btn-danger" data-bind="visible: canPurge, click: purgeObject">Purge</a>
 </template>

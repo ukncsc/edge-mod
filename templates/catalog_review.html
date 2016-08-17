@@ -33,32 +33,22 @@
     <script type="text/html" id="header">
         <div class="col-sm-12">
             <h3 class="obj-title">
-                <div class="btn-group pull-right">
-                    <button class="btn"
-                            data-bind="click: onPublish">Publish<br>Externally
-                    </button>
+                <div class="btn-group pull-right" style="background-color: rgb(247, 247, 247)">
+                    <a class="btn" data-bind="click: onPublish">External Publish</a>
                     <!-- ko if: type().code != 'obs' -->
                     <!-- ko if: type().code != 'pkg' -->
-                    <button class="btn"
-                       data-bind="attr: { href: viewURL}">View in<br>Builder
-                    </button>
+                    <a class="btn" title="View in Builder" data-bind="attr: { href: viewURL}">View</a>
                     <!-- /ko -->
                     <!-- /ko -->
                     <!-- ko if : editable -->
-                    <button class="btn"
-                       data-bind="attr: { href: editURL}">Edit in<br>Builder
-                    </button>
+                    <a class="btn" title="Edit in Builder" data-bind="attr: { href: editURL}">Edit</a>
                     <!-- /ko -->
                     <!-- ko if: type().code != 'obs' -->
                     <!-- ko if: type().code != 'pkg' -->
-                    <button class="btn"
-                       data-bind="attr: { href: cloneURL}">Clone to<br>Draft
-                    </button>
+                    <a class="btn" title="Clone to Draft" data-bind="attr: { href: cloneURL}">Clone</a>
                     <!-- /ko -->
                     <!-- /ko -->
-                    <button class="btn"
-                       data-bind="attr: { href: visualiserURL}">View in<br>Visualiser
-                    </button>
+                    <a class="btn" type="button" data-bind="attr: { href: visualiserURL}">Visualise</a>
                 </div>
                 <img alt="" src="" data-bind="attr: {
                     src: '{% static "img/hex" %}/hex_'+type().code+'.png'
@@ -67,16 +57,17 @@
                 <small data-bind="text: root().id"></small>
             </h3>
             <div data-bind="template: { name: 'Revisions', data: section().findByLabel('Revisions')}"></div>
+
             <div class="btn-group pull-right">
                 <!-- ko if: type().code === 'obs' -->
-                <span>Sightings  <span data-bind="text: sightings" class="badge"></span></span>
+                <a class="btn btn-xs btn-success">Sightings <span data-bind="text: sightings" class="badge"></span></a>
                 <!-- /ko -->
                 <a class="btn btn-xs btn-primary"
                    data-bind="attr:{href:'/catalog/download/'+type().code+'/'+rootID()+'/'+version()}" target='_blank'>Download
                     Revision</a>
                 <a class="btn btn-xs btn-primary" data-bind="attr:{href:'/to_html/'+rootID()}" target='_blank'>View
                     STIX-to-HTML</a>
-                <div data-bind="template: { name: 'Purge', data: section().findByLabel('Purge')}"></div>
+                <!-- ko template: { name: 'Purge', data: section().findByLabel('Purge')} --><!-- /ko -->
             </div>
         </div>
     </script>

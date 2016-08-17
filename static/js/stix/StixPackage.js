@@ -135,8 +135,14 @@ define([
         },
 
         safeConcatenatedListGet: function(/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
-                               /*String*/ valueKey, /*String*/secondValueKey){
-
+                               /*String*/ valueKey, /*String*/secondValueKey, /*String?*/ validationPath){
+            var listValue = (this.safeArrayGet(object, propertyPath, function (item) {
+                var value1= (valueKey === ".") ? item : this.safeGet(item, valueKey);
+                var value2 =(secondValueKey === ".") ? item : this.safeGet(item, secondValueKey);
+                return value1 + "(" + value2 + ")"
+            }, this) || []).join(", ");
+            var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
+            return new ReviewValue(listValue, validation.state, validation.message);
         },
 
         safeReferenceArrayGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
