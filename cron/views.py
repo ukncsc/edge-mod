@@ -61,6 +61,10 @@ def ajax_get_dedup_task_status(request, data):
 @json_body
 def ajax_run_dedup(request, data):
     task = dedup_update.delay()
+    return {
+        'id': task.id
+    }
+
 
 @login_required_ajax
 @superuser_or_staff_role
