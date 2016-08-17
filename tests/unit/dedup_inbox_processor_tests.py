@@ -168,7 +168,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='ttp'))}
 
-        coalesce, additional_edges = _coalesce_non_observable_duplicates(contents, {'pss:ttp-00000000-0000-0000-0000-000000000002': 'DeDuptoMe'})
+        coalesce, additional_edges = _coalesce_non_observable_duplicates(contents, {'pss:ttp-00000000-0000-0000-0000-000000000002': 'pss:ttp-00000000-0000-0000-0000-000000000001'})
 
         self.assertItemsEqual(['pss:ttp-00000000-0000-0000-0000-000000000001'], coalesce.keys())
 

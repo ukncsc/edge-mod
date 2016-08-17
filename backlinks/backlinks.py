@@ -55,11 +55,11 @@ class STIXBacklinks(object):
             _process_bulk_op()
 
         log_activity("system", 'Backlink', 'INFO',
-                     "%s : Updated for %d objects in %dms" %
+                     "%s : Updated for %d objects in %ds" %
                      (
                          'Full Rebuild',
                          db.stix.count(),
-                         update_timer.ms())
+                         update_timer.sec())
                      )
 
 

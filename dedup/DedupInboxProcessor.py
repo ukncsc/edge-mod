@@ -83,7 +83,6 @@ def _update_existing_objects(references, user):
             _merge_ttps(api_object.obj, references)
         elif edge_object.ty == 'tgt':
             _merge_tgts(api_object.obj, references)
-        setattr(api_object, 'obj.timestamp' , datetime.datetime.utcnow())
         inbox_processor.add(InboxItem(
             api_object=api_object,
             etlp=edge_object.etlp,
@@ -218,6 +217,7 @@ def _is_matching_file(existing_file, new_file):
         matches(existing_file, new_file, PROPERTY_SHA512)
     )
 
+
 def _has_matching_file_hash(existing_file, new_file):
     def matches(existing_value, new_value):
         return existing_value is not None and new_value is not None and existing_value == new_value
@@ -313,6 +313,13 @@ def _new_hash_dedup(contents, hashes, user):
     return out, message
 
 
+def _edges_of_master(contents, master_id):
+    if master_id in contents:
+        return [e.idref for e in contents[master_id].api_object.edges()]
+    else:
+        return [e.idref for e in EdgeObject.load(master_id).to_ApiObject().edges()]
+
+
 def _coalesce_non_observable_duplicates(contents, map_table):
     out = {}
     additional_edges = {}
@@ -321,14 +328,14 @@ def _coalesce_non_observable_duplicates(contents, map_table):
             io.api_object = io.api_object.remap(map_table)
             out[id_] = io
         elif io.api_object.ty == 'ttp' or io.api_object.ty == 'tgt':  # Merge duplicates edges into masters
-            existing_id = map_table[id_]
-            edges_of_existing = [e.idref for e in EdgeObject.load(existing_id).to_ApiObject().edges()]
+            master_id = map_table[id_]
+            edges_of_master = _edges_of_master(contents, master_id)
             edges_of_duplicate = io.api_object.edges()
             for edge in edges_of_duplicate:
                 if edge.idref not in map_table.keys() \
-                        and edge.idref != existing_id \
-                        and edge.idref not in edges_of_existing:
-                    additional_edges.setdefault(existing_id, []).append(edge)
+                        and edge.idref != master_id \
+                        and edge.idref not in edges_of_master:
+                    additional_edges.setdefault(master_id, []).append(edge)
     return out, additional_edges
 
 

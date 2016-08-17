@@ -61,7 +61,7 @@ class STIXDedup(object):
                     except Exception as e:
                         log_error(e, 'adapters/dedup/dedup', 'Failed to merge %s' % original)
                 messages.append(build_activity_message(object_type, len(original_to_duplicates)))
-            messages.insert(0, 'Online Dedup (in %dms): ' % int(elapsed.ms()))
+            messages.insert(0, 'Online Dedup in %ds: ' % int(elapsed.sec()))
             log_activity('system', 'DEDUP', 'INFO', "\n \t".join(messages))
         except Exception as e:
             log_activity('system', 'DEDUP', 'ERROR', e.message)
@@ -237,7 +237,7 @@ class STIXDedup(object):
                     lowest_tlp = get_lowest_tlp(match)
                     id_ = STIXDedup.match_tlp_hash(match.get('_id'), lowest_tlp).get('_id')
                     ids = match.get('uniqueIds')
-                    del ids[(ids.index(id_))]
+                    del ids[ids.index(id_)]
                     obs[id_] = ids
                 else:
                     obs[match.get('uniqueIds')[0]] = match.get('uniqueIds')[1:]
