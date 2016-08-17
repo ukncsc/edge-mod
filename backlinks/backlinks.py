@@ -4,6 +4,7 @@ from mongoengine.connection import get_db
 from edge.tools import StopWatch
 from adapters.certuk_mod.common.activity import save as log_activity
 from datetime import datetime
+from pymongo.errors import InvalidOperation
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.py')
@@ -39,10 +40,8 @@ class STIXBacklinks(object):
 
         update_timer = StopWatch()
 
-        update_count = 0
         dict_bls = {}
         for doc in db.stix.find({}):
-            update_count += 1
 
             if 'data' in doc and 'edges' in doc['data']:
                 for edge in doc['data']['edges'].keys():
@@ -56,10 +55,9 @@ class STIXBacklinks(object):
             _process_bulk_op()
 
         log_activity("system", 'Backlink', 'INFO',
-                     "%s : Updated %d of %d objects in %dms" %
+                     "%s : Updated for %d objects in %dms" %
                      (
                          'Full Rebuild',
-                         update_count,
                          db.stix.count(),
                          update_timer.ms())
                      )

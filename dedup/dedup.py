@@ -8,7 +8,7 @@ from pymongo.errors import PyMongoError
 from datetime import datetime
 from edge import LOCAL_ALIAS
 from edge.tools import StopWatch, rgetattr
-from edge.generic import EdgeObject
+from edge.generic import EdgeObject, EdgeError
 from edge.inbox import InboxError, InboxProcessor, InboxItem
 from edge.models import StixBacklink
 from users.models import Repository_User
@@ -28,8 +28,8 @@ if not hasattr(settings, 'BASE_DIR'):
 class STIXDedup(object):
     TLP_MAP = {'RED': 4, 'AMBER': 3, 'GREEN': 2, 'WHITE': 1, 'NULL': 0}
     LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
-    OBJECT_TYPES = ['obs'] # ['ttp', 'tgt', 'obs']
-    NAME_TYPES = {'obs': 'Observables'} # {'obs': 'Observable', 'ttp': 'TTP', 'tgt': 'Exploit Target'}
+    OBJECT_TYPES = ['obs']  # ['ttp', 'tgt', 'obs']
+    NAME_TYPES = {'obs': 'Observables'}  # {'obs': 'Observable', 'ttp': 'TTP', 'tgt': 'Exploit Target'}
 
     PROPERTY_TYPE = ['obj', 'object_', 'properties', '_XSI_TYPE']
 
@@ -53,16 +53,14 @@ class STIXDedup(object):
                     try:
                         rehash.rehash(last_run_at)
                     except:
-                        pass #rehash failed, let's just continue with the hashes as is.
-                cursor = STIXDedup.find_duplicates(object_type, self.config.only_local_ns)
-                for original, duplicates in cursor.iteritems():
+                        pass  # rehash failed, let's just continue with the hashes as is.
+                original_to_duplicates = STIXDedup.find_duplicates(object_type, self.config.only_local_ns)
+                for original, duplicates in original_to_duplicates.iteritems():
                     try:
                         self.merge_object(original, duplicates, object_type)
                     except Exception as e:
-                        print original
-                        print duplicates
-                        log_activity('system', 'DEDUP', 'ERROR', e.message)
-                messages.append(build_activity_message(object_type, len(cursor)))
+                        log_error(e, 'adapters/dedup/dedup', 'Failed to merge %s' % original)
+                messages.append(build_activity_message(object_type, len(original_to_duplicates)))
             messages.insert(0, 'Online Dedup (in %dms): ' % int(elapsed.ms()))
             log_activity('system', 'DEDUP', 'INFO', "\n \t".join(messages))
         except Exception as e:
@@ -78,12 +76,12 @@ class STIXDedup(object):
         return api_obj, tlp, esms, etou
 
     @staticmethod
-    def get_additional_sightings_count(original, duplicates):
-        additional_sightings = {}
+    def get_additional_sightings_count(duplicates):
+        count = 0
         for dup in duplicates:
             api_object = EdgeObject.load(dup).to_ApiObject()
-            additional_sightings[original] = additional_sightings.get(original, 0) + _get_sighting_count(api_object.obj)
-        return additional_sightings
+            count += _get_sighting_count(api_object.obj)
+        return count
 
     @staticmethod
     def get_additional_file_hashes(original, duplicates):
@@ -91,25 +89,30 @@ class STIXDedup(object):
         api_object = EdgeObject.load(original).to_ApiObject()
         if rgetattr(api_object, STIXDedup.PROPERTY_TYPE, None) == 'FileObjectType':
             for dup in duplicates:
-                api_obj, tlp, esms, etou = STIXDedup.load_eo(dup)
+                try:
+                    api_obj, tlp, esms, etou = STIXDedup.load_eo(dup)
+                except EdgeError as e:
+                    continue
                 io = InboxItem(api_object=api_obj, etlp=tlp, esms=esms, etou=etou)
                 add_additional_file_hashes(io, additional_file_hashes, original)
         return additional_file_hashes
 
-    def update_existing_properties_on_original(self, original, duplicates, duplicates_edges,
-                                               type_):
+    def update_existing_properties_on_original(self, original, duplicates, type_):
 
         if type_ == 'obs':
-            additional_sightings = STIXDedup.get_additional_sightings_count(original, duplicates)
+            additional_sightings = STIXDedup.get_additional_sightings_count(duplicates)
             additional_file_hashes = STIXDedup.get_additional_file_hashes(original, duplicates)
-            _update_existing_properties(additional_sightings, additional_file_hashes, self.user)
-            get_db().stix.remove({'_id': {
-                '$in': duplicates}})
+            _update_existing_properties({original: additional_sightings}, additional_file_hashes, self.user)
         # elif type_ == 'tgt' or type_ == 'ttp':
         #     if duplicates:
         #         _update_existing_objects(duplicates_edges, self.user)
         #     get_db().stix.remove({'_id': {
         #         '$in': duplicates}})
+
+    @staticmethod
+    def remove_duplicates(duplicates):
+        get_db().stix.remove({'_id': {
+                '$in': duplicates}})
 
     def remap_duplicates_parents(self, parents,
                                  map_table):  # Inbox parents of duplicates remapping duplicate reference to original
@@ -118,10 +121,12 @@ class STIXDedup(object):
             for id_, type_ in parents.iteritems():
                 try:
                     api_obj, tlp, esms, etou = STIXDedup.load_eo(id_)
+                except EdgeError as e:  # Parent may not exist in Edge but has a record in the STIX BLs collection
+                    continue
+                try:
                     api_obj = api_obj.remap(map_table)
                     ip.add(InboxItem(api_object=api_obj, etlp=tlp, esms=esms, etou=etou))
                 except InboxError as e:
-                    print id_
                     log_error(e, 'adapters/dedup/dedup', 'Adding parent %s to IP failed' % id_)
                     continue
             try:
@@ -139,7 +144,6 @@ class STIXDedup(object):
                 if edge_id != original and edge_id not in duplicates and edge_id not in edges_already_done:  # If opposite is true, dup references original
                     # or dup references another dup. Remapping results in external references being left in backlinks
                     try:
-                        print "For obs only remap backlinks if original is ObsComp. EdgeID: %s" % edge_id
                         edges_already_done.append(edge_id)
                         backlinks_to_update[edge_id] = StixBacklink.objects.get(id=edge_id).edges
                         for dup in duplicates:
@@ -205,34 +209,33 @@ class STIXDedup(object):
     def merge_object(self, original, duplicates, type_):
         duplicates_edges = STIXDedup.calculate_edges_of_duplicates(original, duplicates)
         parents_of_duplicates = STIXDedup.calculate_backlinks(original, duplicates)[1]
+        map_table = {dup: original for dup in duplicates}
+
+        self.remap_duplicates_parents(parents_of_duplicates, map_table)
+        self.update_existing_properties_on_original(original, duplicates, type_)
 
         STIXDedup.remap_backlinks_for_original(original, duplicates)
         STIXDedup.remap_backlinks_for_edges_of_duplicates(original, duplicates, duplicates_edges)
 
-        map_table = {dup: original for dup in duplicates}
-        self.remap_duplicates_parents(parents_of_duplicates, map_table)
-        self.update_existing_properties_on_original(original, duplicates, duplicates_edges, type_)
+        STIXDedup.remove_duplicates(duplicates)
 
     @staticmethod
     def find_duplicates(type_, local):
-        if local:
-            namespace_query = {'_id': {'$regex': STIXDedup.LOCAL_ALIAS_REGEX}, 'type': type_, 'data.summary.type': {
-                '$ne': 'FileObjectType'}}
-        else:
-            namespace_query = {'type': type_, 'data.summary.type': {
-                '$ne': 'FileObjectType'}}
-
         def obs_transform(matches):  # If duplicates have more than one tlpLevel take the most permissive
+            def get_lowest_tlp(match):
+                tlps = match.get('tlpLevels')
+                map_tlps = {}
+                for tlp in tlps:
+                    if STIXDedup.TLP_MAP.get(tlp):
+                        map_tlps[tlp] = STIXDedup.TLP_MAP.get(tlp)
+                tlp_level = sorted(map_tlps.items(), key=operator.itemgetter(1))[0][0]
+                return tlp_level
+
             obs = {}
             for match in matches:
                 if len(match.get('tlpLevels')) > 1:
-                    tlps = match.get('tlpLevels')
-                    map_tlps = {}
-                    for tlp in tlps:
-                        if STIXDedup.TLP_MAP.get(tlp):
-                            map_tlps[tlp] = STIXDedup.TLP_MAP.get(tlp)
-                    tlp_level = sorted(map_tlps.items(), key=operator.itemgetter(1))[0][0]
-                    id_ = STIXDedup.match_tlp_hash(match.get('_id'), tlp_level).get('_id')
+                    lowest_tlp = get_lowest_tlp(match)
+                    id_ = STIXDedup.match_tlp_hash(match.get('_id'), lowest_tlp).get('_id')
                     ids = match.get('uniqueIds')
                     ids.pop(ids.index(id_))
                     obs[id_] = ids
@@ -249,8 +252,11 @@ class STIXDedup(object):
         #     return original_to_duplicates
 
         if type_ == 'obs':
+            namespace_query = {'type': type_, 'data.summary.type': {
+                '$ne': 'FileObjectType'}}
+            if local:
+                namespace_query.update({'_id': {'$regex': STIXDedup.LOCAL_ALIAS_REGEX}})
             matches = obs_transform(STIXDedup.obs_hash_match(namespace_query))
-            namespace_query.update({'data.summary.type': 'FileObjectType'})
             matches.update(STIXDedup.file_obs_match(namespace_query))
             return matches
         # elif type_ == 'ttp':
@@ -300,8 +306,9 @@ class STIXDedup(object):
 
     @staticmethod
     def file_obs_match(namespace_query):
-
-        cursor = get_db().stix.aggregate([
+        namespace_query.update({'data.summary.type': 'FileObjectType'})
+        # 'data.summary.value' field stores the file name for File Observables.
+        matches = get_db().stix.aggregate([
             {
                 '$match': namespace_query
             },
@@ -326,33 +333,38 @@ class STIXDedup(object):
             }
         ], cursor={})
 
+        # Compare each File Obs matched on file name. Compare each to see if they also have a matching file hash
+        # If true take the File Obs with the most permissive TLP as we do for other Observables.
         complete_map_table = {}
-        for doc in cursor:
-            map_table = {}
-            matching_key_objects = {}
+        for doc in matches:
+            _map_table = {}
+            _matching_key_objects = {}
 
-            for id in doc['ids']:
-                id_ao, tlp, esms, etou = STIXDedup.load_eo(id)
+            for id_ in doc['ids']:
+                try:
+                    id_ao, tlp, esms, etou = STIXDedup.load_eo(id_)
+                except EdgeError as e:
+                    continue
                 matching_key = None
-                for key in map_table.keys():
-                    key_ao = matching_key_objects[key]['ao']
-                    key_tlp = matching_key_objects[key]['tlp']
+                for key in _map_table.keys():
+                    key_ao = _matching_key_objects[key]['ao']
                     if _has_matching_file_hash(id_ao, key_ao):
                         matching_key = key
                         break
                 if matching_key:
+                    key_tlp = _matching_key_objects[key]['tlp']
                     if STIXDedup.TLP_MAP[tlp] < STIXDedup.TLP_MAP[key_tlp]:
-                        map_table[id] = map_table[matching_key]
-                        map_table[id].append(matching_key)
-                        del map_table[matching_key]
-                        del matching_key_objects[matching_key]
-                        matching_key_objects.setdefault(id, {"ao": id_ao, "tlp": tlp})
+                        _map_table[id_] = _map_table[matching_key]
+                        _map_table[id_].append(matching_key)
+                        del _map_table[matching_key]
+                        del _matching_key_objects[matching_key]
+                        _matching_key_objects.setdefault(id_, {"ao": id_ao, "tlp": tlp})
                     else:
-                        map_table[matching_key].append(id)
+                        _map_table[matching_key].append(id_)
                 else:
-                    map_table[id] = []
-                    matching_key_objects.setdefault(id, {"ao": id_ao, "tlp": tlp})
-            for key, value in map_table.iteritems():
+                    _map_table[id_] = []
+                    _matching_key_objects.setdefault(id_, {"ao": id_ao, "tlp": tlp})
+            for key, value in _map_table.iteritems():
                 if len(value):
                     complete_map_table[key] = value
 

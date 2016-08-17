@@ -50,7 +50,6 @@ def ajax_run_fts(request, data):
 @login_required_ajax
 @superuser_or_staff_role
 @json_body
-
 def ajax_get_dedup_task_status(request, data):
     return {
         'status': dedup_task_is_running()
@@ -63,6 +62,9 @@ def ajax_get_dedup_task_status(request, data):
 def ajax_run_dedup(request, data):
     task = dedup_update.delay()
 
+@login_required_ajax
+@superuser_or_staff_role
+@json_body
 def ajax_get_mod_bl_task_status(request, data):
     return {
         'status': bl_task_is_running()
