@@ -30,6 +30,8 @@ def ajax_set_crm_config(request):
         }, status=500)
 
 
+@login_required_ajax
+@superuser_or_staff_role
 def ajax_get_crm_config(request):
     try:
         config = get_config("crm_config")
@@ -40,6 +42,8 @@ def ajax_get_crm_config(request):
         }, status=500)
 
 
+@login_required_ajax
+@superuser_or_staff_role
 def ajax_get_sharing_groups(request):
     try:
         sharing_groups = get_config("sharing_groups")
@@ -63,6 +67,8 @@ def ajax_set_sharing_groups(request):
         }, status=500)
 
 
+@login_required_ajax
+@superuser_or_staff_role
 def ajax_get_markings(request):
     try:
         markings = get_config("markings")
@@ -71,6 +77,7 @@ def ajax_get_markings(request):
         return JsonResponse({
             'message': e.message
         }, status=500)
+
 
 @login_required_ajax
 @superuser_or_staff_role
