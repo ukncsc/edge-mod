@@ -14,9 +14,7 @@ define([
             getJSON(url, {}, function (response) {
                 this._parseResponse(response);
             }.bind(this), function (error) {
-                if (error.responseText != "{\"message\": \"'NoneType' object has no attribute 'get'\"}") {
-                    this.createErrorModal(errorMessage + " (" + error + ").")
-                }
+                this.createErrorModal(errorMessage + " (" + error + ").")
             }.bind(this));
         },
 
