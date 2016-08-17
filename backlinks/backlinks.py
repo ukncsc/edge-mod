@@ -5,7 +5,6 @@ from edge.tools import StopWatch
 from adapters.certuk_mod.common.activity import save as log_activity
 from datetime import datetime
 
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.py')
 
@@ -13,10 +12,8 @@ if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.p
 class STIXBacklinks(object):
     PAGE_SIZE = 5000
 
-
     def __init__(self):
         pass
-
 
     def run(self):
         def _process_bulk_op():
@@ -31,7 +28,10 @@ class STIXBacklinks(object):
                     existing_bls[new_bl['id']] = new_bl['type']
 
                 bulk_op.find({'_id': blo}).upsert().update({"$set": {'value': existing_bls}})
-            bulk_op.execute()
+            try:
+                bulk_op.execute()
+            except Exception:
+                pass
 
         db = get_db()
         db.stix_backlinks.drop()
@@ -48,11 +48,11 @@ class STIXBacklinks(object):
                 for edge in doc['data']['edges'].keys():
                     dict_bls.setdefault(edge, []).append({"id": doc['_id'], "type": doc['type']})
 
-            if not update_count % STIXBacklinks.PAGE_SIZE:
+            if not (len(dict_bls) % STIXBacklinks.PAGE_SIZE):
                 _process_bulk_op()
                 dict_bls = {}
 
-        if update_count % STIXBacklinks.PAGE_SIZE:
+        if len(dict_bls):
             _process_bulk_op()
 
         log_activity("system", 'Backlink', 'INFO',
