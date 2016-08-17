@@ -27,6 +27,8 @@ define([
             this.editURL = ko.observable(editURL);
             this.rootID = ko.observable(rootId);
             this.revision = ko.observable("");
+            this.version = ko.observable("");
+            this.sightings = ko.observable("");
             this.editable = ko.observable(this.isEditable(rootId))
             this.section = ko.observable(new Section());
             this.handling = ko.observable(new Handling());
@@ -53,9 +55,11 @@ define([
             }.bind(this));
         },
 
-        loadStatic: function (optionLists) {
-            this.revision(optionLists.revision);
-            this.section().loadStatic(optionLists);
+        loadStatic: function (optionsList) {
+            this.sightings(optionsList.sightings);
+            this.version(optionsList.version);
+            this.revision(optionsList.revision);
+            this.section().loadStatic(optionsList);
         },
 
         _onPublishModalOK: function (modal) {

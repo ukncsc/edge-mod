@@ -134,6 +134,11 @@ define([
             return new ReviewValue(listValue, validation.state, validation.message);
         },
 
+        safeConcatenatedListGet: function(/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
+                               /*String*/ valueKey, /*String*/secondValueKey){
+
+        },
+
         safeReferenceArrayGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
                                          /*String*/ idrefKey, /*String?*/ validationPath) {
             var values = this.safeArrayGet(object, propertyPath, function (item) {

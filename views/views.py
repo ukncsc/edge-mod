@@ -20,9 +20,9 @@ from users.decorators import superuser_or_staff_role, json_body
 from users.models import Draft
 from edge.generic import EdgeObject, load_edge_object_or_404
 from edge.inbox import InboxProcessorForBuilders, InboxItem, InboxError
-from edge import IDManager, NamespaceNotConfigured
+from edge import IDManager
 from edge.handling import make_handling
-from edge.tools import Optional
+from edge.sightings import getSightingsFollowHash
 import rbac
 from clippy.models import CLIPPY_TYPES
 
@@ -65,6 +65,7 @@ from adapters.certuk_mod.common.objectid import discover as objectid_discover, f
 from adapters.certuk_mod.catalog.backlink import BackLinkGenerator
 from adapters.certuk_mod.catalog.duplicates import DuplicateFinder
 from adapters.certuk_mod.catalog.edges import EdgeGenerator
+from adapters.certuk_mod.catalog.revoke import Revocable
 
 from adapters.certuk_mod.retention.purge import STIXPurge
 
@@ -82,7 +83,7 @@ audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
 mimetypes.init()
-EDGE_DEPTH_LIMIT = 2
+EDGE_DEPTH_LIMIT = 1
 HANDLING_CAVEAT = 'HANDLING_CAVEAT'
 
 
@@ -171,9 +172,16 @@ def review(request, id):
 
     package = PackageGenerator.build_package(root_edge_object)
     validation_info = PackageValidationInfo.validate(package)
-    user_loader = lambda idref: EdgeObject.load(idref, request.user.filters())
+
+    def user_loader(idref):
+        return EdgeObject.load(idref, request.user.filters())
+
     back_links = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
     edges = EdgeGenerator.gather_edges(root_edge_object.edges, depth_limit=EDGE_DEPTH_LIMIT, load_by_id=user_loader)
+
+    sightings = None
+    if root_edge_object.ty == 'obs':
+        sightings = getSightingsFollowHash(root_edge_object.doc['data']['hash'])
 
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
@@ -183,19 +191,9 @@ def review(request, id):
                                                                      % (root_edge_object.created_by_username,
                                                                         req_user)}}})
 
-    try:
-        system_id_ns = IDManager().get_namespace()
-    except NamespaceNotConfigured:
-        system_id_ns = None
+    revocable = Revocable(root_edge_object, request)
 
-    created_by_organization = Optional(Repository_User).objects.get(
-        id=root_edge_object.doc['created_by']).organization.value()
-    can_revoke = (
-        root_edge_object.id_ns == system_id_ns and
-        request.user.organization is not None and
-        created_by_organization == request.user.organization and
-        root_edge_object.ty in ['ttp', 'cam', 'act', 'coa', 'tgt', 'inc', 'ind']
-    )
+    can_revoke = revocable.is_revocable()
 
     can_purge = can_revoke and root_edge_object.is_revoke()
 
@@ -216,6 +214,8 @@ def review(request, id):
         'clone_url': "/adapter/certuk_mod/clone",
         "revisions": json.dumps(root_edge_object.revisions),
         "revision" : revision,
+        "version": root_edge_object.version,
+        "sightings": sightings,
         'ajax_uri': reverse('catalog_ajax'),
         "can_revoke": can_revoke,
         "can_purge": can_purge

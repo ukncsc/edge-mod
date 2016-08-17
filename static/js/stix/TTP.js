@@ -14,7 +14,7 @@ define([
                 return stixPackage.safeValueGet(this.id(), this.data(), "victim_targeting.identity.name");
             }, this);
             this.attackPatterns = ko.computed(function () {
-                return stixPackage.safeListGet(this.id(), this.data(), "behavior.attack_patterns", "title");
+                return stixPackage.safeListGet(this.id(), this.data(), "behavior.attack_patterns", "title") + stixPackage.safeListGet(this.id(), this.data(), "behavior.attack_patterns", "title");
             }, this);
             this.malwareInstances = ko.computed(function () {
                 return stixPackage.safeListGet(this.id(), this.data(), "behavior.malware_instances", "types.0.value");

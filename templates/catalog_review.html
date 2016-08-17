@@ -34,31 +34,31 @@
         <div class="col-sm-12">
             <h3 class="obj-title">
                 <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-danger"
+                    <button class="btn"
                             data-bind="click: onPublish">Publish<br>Externally
                     </button>
                     <!-- ko if: type().code != 'obs' -->
                     <!-- ko if: type().code != 'pkg' -->
-                    <a type="button" class="btn btn-info"
+                    <button class="btn"
                        data-bind="attr: { href: viewURL}">View in<br>Builder
-                    </a>
+                    </button>
                     <!-- /ko -->
                     <!-- /ko -->
                     <!-- ko if : editable -->
-                    <a type="button" class="btn btn-success"
+                    <button class="btn"
                        data-bind="attr: { href: editURL}">Edit in<br>Builder
-                    </a>
+                    </button>
                     <!-- /ko -->
                     <!-- ko if: type().code != 'obs' -->
                     <!-- ko if: type().code != 'pkg' -->
-                    <a type="button" class="btn btn-warning"
+                    <button class="btn"
                        data-bind="attr: { href: cloneURL}">Clone to<br>Draft
-                    </a>
+                    </button>
                     <!-- /ko -->
                     <!-- /ko -->
-                    <a type="button" class="btn btn-primary"
+                    <button class="btn"
                        data-bind="attr: { href: visualiserURL}">View in<br>Visualiser
-                    </a>
+                    </button>
                 </div>
                 <img alt="" src="" data-bind="attr: {
                     src: '{% static "img/hex" %}/hex_'+type().code+'.png'
@@ -67,7 +67,17 @@
                 <small data-bind="text: root().id"></small>
             </h3>
             <div data-bind="template: { name: 'Revisions', data: section().findByLabel('Revisions')}"></div>
-            <div class="pull-right" data-bind="template: { name: 'Purge', data: section().findByLabel('Purge')}"></div>
+            <div class="btn-group pull-right">
+                <!-- ko if: type().code === 'obs' -->
+                <span>Sightings  <span data-bind="text: sightings" class="badge"></span></span>
+                <!-- /ko -->
+                <a class="btn btn-xs btn-primary"
+                   data-bind="attr:{href:'/catalog/download/'+type().code+'/'+rootID()+'/'+version()}" target='_blank'>Download
+                    Revision</a>
+                <a class="btn btn-xs btn-primary" data-bind="attr:{href:'/to_html/'+rootID()}" target='_blank'>View
+                    STIX-to-HTML</a>
+                <div data-bind="template: { name: 'Purge', data: section().findByLabel('Purge')}"></div>
+            </div>
         </div>
     </script>
 
@@ -98,6 +108,8 @@
         var cloneURL = "{{ clone_url }}";
         var visualiserURL = "{{ visualiser_url }}";
         var revisions = Object.freeze({{ revisions|safe }});
+        var version = "{{ version }}";
+        var sightings = "{{ sightings }}";
         var backLinks = Object.freeze({{ back_links|safe }});
         var edges = Object.freeze({{ edges|safe }});
         var canRevoke = {{ can_revoke|yesno:"true,false" }};

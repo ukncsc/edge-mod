@@ -15,7 +15,9 @@ require([
         "backLinks": window["backLinks"],
         "edges": window["edges"],
         "canPurge": window["canPurge"],
-        "canRevoke": window["canRevoke"]
+        "canRevoke": window["canRevoke"],
+        "sightings": window["sightings"],
+        "version": window["version"]
     });
 
     ko.applyBindings(viewModel);
