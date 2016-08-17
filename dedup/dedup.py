@@ -237,7 +237,7 @@ class STIXDedup(object):
                     lowest_tlp = get_lowest_tlp(match)
                     id_ = STIXDedup.match_tlp_hash(match.get('_id'), lowest_tlp).get('_id')
                     ids = match.get('uniqueIds')
-                    ids.pop(ids.index(id_))
+                    del ids[(ids.index(id_))]
                     obs[id_] = ids
                 else:
                     obs[match.get('uniqueIds')[0]] = match.get('uniqueIds')[1:]
@@ -297,7 +297,7 @@ class STIXDedup(object):
     @staticmethod
     def match_tlp_hash(hash_, tlp_level):
         def transform(doc):
-            return {'_id': doc('_id')}
+            return {'_id': doc['_id']}
 
         return transform(get_db().stix.find_one({
             'data.hash': hash_,
