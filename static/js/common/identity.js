@@ -8,10 +8,13 @@ define([
 ], function (ko, declare, CERTIdentity, EdgeIdentity, IdentityShowModal, ConfigService) {
     "use strict";
 
+    var isEnabled = false;
+
     var config = Object.freeze(JSON.parse(ConfigService));
     var crm_config = config.crm_config;
-    var isEnabled = crm_config.enabled;
-
+    if (crm_config != undefined) {
+        isEnabled = crm_config.enabled
+    }
 
     var CERTIdentity = declare(CERTIdentity, {
         declaredClass: "CERTIdentity",

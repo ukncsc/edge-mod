@@ -9,8 +9,8 @@ define([
         constructor: declare.superCall(function (sup) {
             return function () {
                 sup.call(this);
-                this.CRMURL = ko.observable();
-                this.enabled = ko.observable();
+                this.CRMURL = ko.observable("");
+                this.enabled = ko.observable(false);
             }
         }),
 
@@ -19,8 +19,10 @@ define([
         },
 
         _parseResponse: function (response) {
-            this.CRMURL(response["crm_url"]);
-            this.enabled(response["enabled"])
+            if (response != null) {
+                this.CRMURL(response["crm_url"] || "");
+                this.enabled(response["enabled"] || false);
+            }
         },
 
         save: function () {
@@ -32,8 +34,12 @@ define([
         },
 
         isValid: function (url) {
-            var endsWithCRM = /crmapi$/;
-            return endsWithCRM.test(url)
+            if (this.enabled()) {
+                var endsWithCRM = /crmapi$/;
+                return endsWithCRM.test(url)
+            } else {
+                return true
+            }
         },
 
         createCRMConfig: function () {
