@@ -16,8 +16,12 @@ define([
     }
 
     function checkIsHandlingCaveat(item, valueKey) {
-        if (item.hasOwnProperty("marking_model_name")) {
-            return sharing_groups[item["statement"]]
+        if (item.hasOwnProperty("marking_model_name") && sharing_groups != undefined) {
+            if (sharing_groups[item["statement"]] != undefined) {
+                return sharing_groups[item["statement"]]
+            } else {
+                return item[valueKey]
+            }
         } else {
             return item[valueKey];
         }
