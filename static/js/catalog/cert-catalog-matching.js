@@ -24,8 +24,6 @@ define([
         load: function () {
             postJSON("/adapter/certuk_mod/review/duplicates/" + this.id(),"", function (response) {
                 this.duplicates(response["duplicates"]);
-            }.bind(this), function (error) {
-                showErrorModal(error, false)
             }.bind(this));
         }
     });

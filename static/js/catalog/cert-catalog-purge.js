@@ -31,17 +31,21 @@ define([
 
         revokeObject: function () {
             postJSON(this.ajaxURI() + "revoke_object/", this.createParams(), function (response) {
-                showPublishModal("Revoked", "The STIX object has been successfully revoked", false);
-            }.bind(this), function (error) {
-                showErrorModal(error, false)
+                if (response["success"] === true) {
+                    showPublishModal("Revoked", "The STIX object has been successfully revoked", false);
+                } else {
+                    showErrorModal("Couldn't Revoke this Stix Object", false)
+                }
             }.bind(this));
         },
 
         purgeObject: function () {
             postJSON(this.ajaxURI() + "purge_object/", this.createParams(), function (response) {
-                document.location = '/catalog/' + response['type'] + '/';
-            }.bind(this), function (error) {
-                showErrorModal(error, false)
+                if (response["success"] === true) {
+                    document.location = '/catalog/' + response['type'] + '/';
+                } else {
+                    showErrorModal("Couldn't Revoke this Stix Object", false)
+                }
             }.bind(this));
 
         }

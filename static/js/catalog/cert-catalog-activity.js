@@ -28,8 +28,6 @@ define([
                 ko.utils.arrayForEach(response['entries'], function (entry) {
                     this.activity_log.push(entry);
                 }.bind(this))
-            }.bind(this), function (error) {
-                showErrorModal(error, false)
             }.bind(this));
         },
 
@@ -40,7 +38,7 @@ define([
             var params = {
                 "id": this.stix_id(),
                 "revision": "latest"
-            }
+            };
             this.load(params);
         },
 
@@ -53,8 +51,6 @@ define([
             postJSON(ajax_uri + 'add_activity/', params, function (response) {
                 this.action_note('');
                 this.activity_log.push(response['entry']);
-            }.bind(this), function (error) {
-                showErrorModal(error, false)
             }.bind(this));
         }
     });

@@ -86,15 +86,11 @@ define([
                 modal.contentData.waitingForResponse(false);
 
                 var success = !!(response["success"]);
-                var errorMessage = response["error_message"];
-                if (errorMessage) {
-                    errorMessage = errorMessage.replace(/^[A-Z]/, function (match) {
-                        return match.toLowerCase();
-                    }).replace(/[,.]+$/, "");
-                }
+                var message = response["messages"];
+
                 var message = success ?
                     "The Handling Caveats were succesfully set" :
-                "An error occurred during editing the STIX object (" + errorMessage + ")";
+                "An error occurred during editing the STIX object (" + message + ")";
                 var title = success ? "Success" : "Error";
                 var titleIcon = success ? "glyphicon-ok-sign" : "glyphicon-exclamation-sign";
 
@@ -102,12 +98,20 @@ define([
                 modal.titleIcon(titleIcon);
                 modal.contentData.message(message);
 
-                yesButton.hide(true);
-                noButton.hide(true);
-                publishButton.hide(false);
-                publishButton.callback = function() {
-                    Topic.publish(topics.HANDLING, true);
+                if (success) {
+                    yesButton.hide(true);
+                    noButton.hide(true);
+                    publishButton.hide(false);
+                    publishButton.callback = function () {
+                        Topic.publish(topics.HANDLING, true);
+                    }
+                } else {
+                    yesButton.hide(true);
+                    noButton.hide(false);
+                    noButton.disabled(false);
+                    publishButton.hide(true);
                 }
+
             }.bind(this));
         },
 

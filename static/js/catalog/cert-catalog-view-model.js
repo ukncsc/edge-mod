@@ -33,7 +33,7 @@ define([
             this.section = ko.observable(new Section());
             this.handling = ko.observable(new Handling());
             Topic.subscribe(topics.HANDLING, function () {
-                this.onPublishWithHandling()
+                this.externalPublish()
             }.bind(this), this);
             Topic.subscribe(topics.REVISION, function (data) {
                 this.reload(data)
@@ -42,16 +42,13 @@ define([
 
         reload: function (timekey) {
             if (timekey !== this.revision()) {
-                 window.location.href = "/object/" + this.rootID() + "/" + timekey;
+                window.location.href = "/object/" + this.rootID() + "/" + timekey;
             }
         },
 
         isEditable: function (id) {
             postJSON("/adapter/certuk_mod/review/editable/" + id, "", function (response) {
                 this.editable(response["allow_edit"]);
-            }.bind(this), function (error) {
-                showErrorModal(error, false);
-                this.editable(false);
             }.bind(this));
         },
 
@@ -103,10 +100,16 @@ define([
         },
 
         onPublish: function () {
-            this.handling().onPublish(this.onPublishWithHandling);
+            //Can't set handling on observables as they are CYBOX Objects not STIX
+            //therefore go straight to externalPublish
+            if (this.type().code === "obs") {
+                this.externalPublish()
+            } else {
+                this.handling().onPublish(this.externalPublish);
+            }
         },
 
-        onPublishWithHandling: function () {
+        externalPublish: function () {
             var validations = this.stixPackage().validations();
             var contentData = {
                 phase: ko.observable("INPUT"),
