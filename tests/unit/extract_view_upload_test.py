@@ -30,4 +30,4 @@ class ExtractUploadTests(unittest.TestCase):
 
         extract_upload(mock_request)
 
-        mock_extract_update.assert_called_once();
+        self.assertTrue(mock_extract_update.called_once())
