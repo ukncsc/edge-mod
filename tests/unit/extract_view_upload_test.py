@@ -7,11 +7,10 @@ class ExtractUploadTests(unittest.TestCase):
     @mock.patch('users.models.Draft.load')
     @mock.patch('users.models.Draft.upsert')
     @mock.patch('edge.generic.EdgeObject.load')
-    @mock.patch('adapters.certuk_mod.extract.views.parse_file')
+    @mock.patch('adapters.certuk_mod.extract.extract_store.update')
     @mock.patch('adapters.certuk_mod.extract.views.DedupInboxProcessor')
     @mock.patch('django.http.request.HttpRequest')
-    @mock.patch('adapters.certuk_mod.extract.views.redirect')
-    def test_extract_upload_simple(self, mock_redirect, mock_request, mock_dedup_ip, mock_parse_file, mock_edge_load, mock_draft_upsert, mock_draft_load):
+    def test_extract_upload_simple(self, mock_request, mock_dedup_ip, mock_extract_update, mock_edge_load, mock_draft_upsert, mock_draft_load):
         mock_user = mock.MagicMock()
         mock_user.username = "user"
         mock_request.user = mock_user
@@ -31,4 +30,4 @@ class ExtractUploadTests(unittest.TestCase):
 
         extract_upload(mock_request)
 
-        mock_draft_upsert.assert_called_with('ind', {'observables': [mock_observable], 'id': 'indicator1'}, mock_request.user)
+        mock_extract_update.assert_called_once();
