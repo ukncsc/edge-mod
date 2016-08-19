@@ -33,7 +33,6 @@ from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObj
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 from adapters.certuk_mod.common.views import error_with_message
-from adapters.certuk_mod.decorators.json_response import json_response
 
 import adapters.certuk_mod.builder.customizations as cert_builder
 
@@ -235,7 +234,7 @@ def object_details(request, id_):
 
 
 @login_required
-@json_response
+@json_body
 def review_set_handling(request, data):
     try:
         edge_object = EdgeObject.load(data["rootId"])
@@ -249,19 +248,18 @@ def review_set_handling(request, data):
 
         ip.add(InboxItem(api_object=generic_object, etlp=edge_object.etlp))
         ip.run()
-        return JsonResponse({
-            'messages': '',
+        return {
+            'message': '',
             'state': 'success',
             "success": True
-        }, status=200)
+        }
     except InboxError as e:
-        log_activity(request.user, 'HANDLING', 'ERROR', e.message)
-        log_error(e, 'adapters/dedup/import', 'Failed to set Handling')
-        return JsonResponse({
-            'messages': [e.message],
+        log_error(e, 'adapters/review/handling', 'Failed to set Handling')
+        return {
+            'message': e.message,
             'state': 'error',
             "success": False
-        }, status=500)
+        }
 
 
 def append_handling(edge_object, handling_markings):
