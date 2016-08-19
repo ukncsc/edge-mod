@@ -1,5 +1,6 @@
 import pymongo
 import operator
+import datetime
 
 from edge.inbox import InboxProcessorForPackages, InboxProcessorForBuilders, InboxItem, InboxError, anti_ping_pong, \
     drop_envelopes, INBOX_DROP_ENVELOPES
@@ -11,6 +12,9 @@ from .property_finder import capec_finder, cve_finder
 from edge.tools import rgetattr
 from .edges import dedup_collections
 from edge import LOCAL_NAMESPACE
+from stix.ttp import TTP, RelatedTTPs, ExploitTargets
+from stix.exploit_target import ExploitTarget, PotentialCOAs, RelatedExploitTargets
+from stix.coa import CourseOfAction
 
 PROPERTY_TYPE = ['api_object', 'obj', 'object_', 'properties', '_XSI_TYPE']
 PROPERTY_FILENAME = ['api_object', 'obj', 'object_', 'properties', 'file_name']
@@ -40,6 +44,55 @@ def _merge_properties(api_object, id_, count, additional_file_hashes):
                 setattr(file_properties, hash_type, hash_value)
 
 
+def _merge_ttps(api_object, references):
+    related_objects = {}
+    for ref in references:
+        related_objects.setdefault(ref.ty, []).append(ref.idref)
+    if getattr(api_object, 'exploit_targets', None) is None:
+        setattr(api_object, 'exploit_targets', ExploitTargets())
+    if getattr(api_object, 'related_ttps', None) is None:
+        setattr(api_object, 'related_ttps', RelatedTTPs())
+
+    for tgt in related_objects.get('tgt', []):
+        api_object.exploit_targets.append(ExploitTarget(idref=tgt))
+    for ttp in related_objects.get('ttp', []):
+        api_object.related_ttps.append(TTP(idref=ttp))
+
+
+def _merge_tgts(api_object, references):
+    related_objects = {}
+    for ref in references:
+        related_objects.setdefault(ref.ty, []).append(ref.idref)
+    if getattr(api_object, 'related_exploit_targets', None) is None:
+        setattr(api_object, 'related_exploit_targets', RelatedExploitTargets())
+    if getattr(api_object, 'potential_coas', None) is None:
+        setattr(api_object, 'potential_coas', PotentialCOAs())
+
+    for tgt in related_objects.get('tgt', []):
+        api_object.related_exploit_targets.append(ExploitTarget(idref=tgt))
+    for coa in related_objects.get('coa', []):
+        api_object.potential_coas.append(CourseOfAction(idref=coa))
+
+
+def _update_existing_objects(references, user):
+    inbox_processor = InboxProcessorForBuilders(user=user)
+    for id_, references in references.iteritems():
+        edge_object = EdgeObject.load(id_)
+        api_object = edge_object.to_ApiObject()
+        if edge_object.ty == 'ttp':
+            _merge_ttps(api_object.obj, references)
+        elif edge_object.ty == 'tgt':
+            _merge_tgts(api_object.obj, references)
+        setattr(api_object, 'obj.timestamp', datetime.datetime.utcnow())
+        inbox_processor.add(InboxItem(
+            api_object=api_object,
+            etlp=edge_object.etlp,
+            etou=edge_object.etou,
+            esms=edge_object.esms
+        ))
+    inbox_processor.run()
+
+
 def _update_existing_properties(additional_sightings, additional_file_hashes, user):
     inbox_processor = InboxProcessorForBuilders(user=user)
     for id_, count in additional_sightings.iteritems():
@@ -55,7 +108,7 @@ def _update_existing_properties(additional_sightings, additional_file_hashes, us
     inbox_processor.run()
 
 
-def _coalesce_duplicates(contents, map_table):
+def add_additional_file_hashes(io, additional_file_hashes, existing_id):
     def add_missing_file_hash(inbox_object, file_hashes, property_name):
         hash_type = property_name[-1]
         if hash_type not in file_hashes:
@@ -63,6 +116,18 @@ def _coalesce_duplicates(contents, map_table):
             if hash_value is not None:
                 file_hashes[hash_type] = hash_value
 
+    if rgetattr(io, PROPERTY_TYPE, None) == 'FileObjectType':
+        if existing_id not in additional_file_hashes:
+            additional_file_hashes[existing_id] = {}
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_MD5)
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA1)
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA224)
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA256)
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA384)
+        add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA512)
+
+
+def _coalesce_duplicates(contents, map_table):
     out = {}
     additional_sightings = {}
     additional_file_hashes = {}
@@ -74,15 +139,7 @@ def _coalesce_duplicates(contents, map_table):
             existing_id = map_table[id_]
             sightings_for_duplicate = _get_sighting_count(io.api_object.obj)
             additional_sightings[existing_id] = additional_sightings.get(existing_id, 0) + sightings_for_duplicate
-            if rgetattr(io, PROPERTY_TYPE, None) == 'FileObjectType':
-                if existing_id not in additional_file_hashes:
-                    additional_file_hashes[existing_id] = {}
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_MD5)
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA1)
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA224)
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA256)
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA384)
-                add_missing_file_hash(io, additional_file_hashes[existing_id], PROPERTY_SHA512)
+            add_additional_file_hashes(io, additional_file_hashes, existing_id)
     return out, additional_sightings, additional_file_hashes
 
 
@@ -160,6 +217,19 @@ def _is_matching_file(existing_file, new_file):
         matches(existing_file, new_file, PROPERTY_SHA384) or
         matches(existing_file, new_file, PROPERTY_SHA512)
     )
+
+
+def _has_matching_file_hash(existing_file, new_file):
+    def matches(existing_value, new_value):
+        return existing_value is not None and new_value is not None and existing_value == new_value
+
+    return (
+        matches(existing_file.obj.object_.properties.md5, new_file.obj.object_.properties.md5) or
+        matches(existing_file.obj.object_.properties.sha1, new_file.obj.object_.properties.sha1) or
+        matches(existing_file.obj.object_.properties.sha224, new_file.obj.object_.properties.sha224) or
+        matches(existing_file.obj.object_.properties.sha256, new_file.obj.object_.properties.sha256) or
+        matches(existing_file.obj.object_.properties.sha384, new_file.obj.object_.properties.sha384) or
+        matches(existing_file.obj.object_.properties.sha512, new_file.obj.object_.properties.sha512))
 
 
 def _add_matching_file_observables(db, map_table, contents):
@@ -254,13 +324,30 @@ def _new_observable_hash_dedup(contents, hashes, user):
     return out, message
 
 
+def _edges_of_master(contents, master_id):
+    if master_id in contents:
+        return [e.idref for e in contents[master_id].api_object.edges()]
+    else:
+        return [e.idref for e in EdgeObject.load(master_id).to_ApiObject().edges()]
+
+
 def _coalesce_non_observable_duplicates(contents, map_table):
     out = {}
+    additional_edges = {}
     for id_, io in contents.iteritems():
         if id_ not in map_table:
             io.api_object = io.api_object.remap(map_table)
             out[id_] = io
-    return out
+        elif io.api_object.ty == 'ttp' or io.api_object.ty == 'tgt':  # Merge duplicates edges into masters
+            master_id = map_table[id_]
+            edges_of_master = _edges_of_master(contents, master_id)
+            edges_of_duplicate = io.api_object.edges()
+            for edge in edges_of_duplicate:
+                if edge.idref not in map_table.keys() \
+                        and edge.idref != master_id \
+                        and edge.idref not in edges_of_master:
+                    additional_edges.setdefault(master_id, []).append(edge)
+    return out, additional_edges
 
 
 def create_capec_title_key(title, capec_ids):
@@ -271,8 +358,8 @@ def create_capec_title_key(title, capec_ids):
 def _set_id_to_description_length(contents, ids):
     id_to_description_length = {}
     for id_ in ids:
-            if contents[id_].api_object.obj.description is not None:
-                id_to_description_length[id_] = len(contents[id_].api_object.obj.description.value)
+        if contents[id_].api_object.obj.description is not None:
+            id_to_description_length[id_] = len(contents[id_].api_object.obj.description.value)
     return id_to_description_length
 
 
@@ -332,7 +419,7 @@ def _existing_title_and_capecs(local):
     for found_ttp in existing_ttps:
         capec_ids = [found_capec['capec'] for found_capec in found_ttp['capecs']]
         key = create_capec_title_key(found_ttp['title'], capec_ids)
-        existing_title_capec_string_to_id[key] = found_ttp['_id']
+        existing_title_capec_string_to_id.setdefault(key, []).append(found_ttp['_id'])
 
     return existing_title_capec_string_to_id
 
@@ -343,11 +430,14 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
     ttp_title_capec_string_to_ids = _package_title_capec_string_to_ids(contents, local)
 
     map_table = {
-        id_[0]: existing_title_capec_string_to_id[key] for key, id_ in ttp_title_capec_string_to_ids.iteritems() if
+        id_[0]: existing_title_capec_string_to_id[key][0] for key, id_ in ttp_title_capec_string_to_ids.iteritems() if
         key in existing_title_capec_string_to_id
         }
 
-    out = _coalesce_non_observable_duplicates(contents, map_table)
+    out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
+
+    if additional_edges:
+        _update_existing_objects(additional_edges, user)
 
     message = _generate_message("Remapped %d " + ('local' if local else 'external') +
                                 " namespace TTPs to existing TTPs based on CAPEC-IDs and title", contents, out)
@@ -359,7 +449,12 @@ def _new_ttp_capec_dedup(contents, hashes, user, local):
 
     map_table = _get_map_table(contents, ttp_title_capec_string_to_ids)
 
-    out = _coalesce_non_observable_duplicates(contents, map_table)
+    out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
+
+    for id_, references in additional_edges.iteritems():
+        inbox_item = contents.get(id_, None)
+        if inbox_item is not None:
+            _merge_ttps(inbox_item.api_object.obj, references)
 
     message = _generate_message("Merged %d " + ('local' if local else 'external') +
                                 " namespace TTPs in the supplied package based on CAPEC-IDs and title", contents, out)
@@ -394,7 +489,7 @@ def _existing_tgts_with_cves(local):
     for found_tgt in existing_cves:
         cve_ids = [found_cve['cve'] for found_cve in found_tgt['cves']]
         key = ",".join(sorted(cve_ids))
-        existing_cves_to_ids[key] = found_tgt['_id']
+        existing_cves_to_ids.setdefault(key, []).append(found_tgt['_id'])
 
     return existing_cves_to_ids
 
@@ -404,7 +499,12 @@ def _new_tgt_cve_dedup(contents, hashes, user, local):
 
     map_table = _get_map_table(contents, cve_to_tgt_ids)
 
-    out = _coalesce_non_observable_duplicates(contents, map_table)
+    out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
+
+    for id_, references in additional_edges.iteritems():
+        inbox_item = contents.get(id_, None)
+        if inbox_item is not None:
+            _merge_tgts(inbox_item.api_object.obj, references)
 
     message = _generate_message("Merged %d " + ('local' if local else 'external') +
                                 " namespace Exploit Targets in the supplied package based on CVE-IDs", contents, out)
@@ -417,10 +517,14 @@ def _existing_tgt_cve_dedup(contents, hashes, user, local):
     cve_to_tgt_ids = _package_cve_id_to_ids(contents, local)
 
     map_table = {
-        id_[0]: existing_cve_ids_to_id[key] for key, id_ in cve_to_tgt_ids.iteritems() if key in existing_cve_ids_to_id
-    }
+        id_[0]: existing_cve_ids_to_id[key][0] for key, id_ in cve_to_tgt_ids.iteritems() if
+        key in existing_cve_ids_to_id
+        }
 
-    out = _coalesce_non_observable_duplicates(contents, map_table)
+    out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
+
+    if additional_edges:
+        _update_existing_objects(additional_edges, user)
 
     message = _generate_message("Remapped %d " + ('local' if local else 'external') +
                                 " namespace Exploit Targets to existing Targets based on CVE-IDs", contents, out)
@@ -439,7 +543,7 @@ def _existing_incident_hash_dedup(contents, hashes, user):
     db = get_db()
     map_table = _generate_duplicates_by_hash(contents, hashes, db, 'inc')
 
-    out = _coalesce_non_observable_duplicates(contents, map_table)
+    out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
 
     message = _generate_message("Remapped %d incidents to existing incidents bashed on hashes", contents, out)
 
@@ -449,7 +553,7 @@ def _existing_incident_hash_dedup(contents, hashes, user):
 def _new_incident_hash_dedup(contents, hashes, user):
     map_table = _generate_map_table_on_hash(contents, hashes, 'inc')
 
-    out = _coalesce_non_observable_duplicates(contents, map_table)
+    out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
 
     message = _generate_message("Merged %d incidents in the supplied package based on hashes", contents, out)
 

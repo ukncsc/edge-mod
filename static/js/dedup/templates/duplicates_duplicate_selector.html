@@ -17,4 +17,9 @@
         name: 'duplicates-preview',
         data: selectedDuplicate
     }"></div>
+    <hr>
+    <div data-bind="template: {
+        if: analysisStatus() === 3,
+        name: 'duplicates-analyse-table',
+        data: analysisDuplicate}"></div>
 </fieldset>

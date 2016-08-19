@@ -1,0 +1,1 @@
+{ "_id" : "fireeye:observable-63cc5116-d7e6-4fe6-bc2c-5f2dfbac1012" , "value" : { "pss:observable-eaa4f378-02ca-4ab1-8983-801baefc38a3" : "obs" , "pss:observable-6cc2a7fa-db58-4e66-a222-0e2c96c547f0" : "obs" , "fireeye:stix-b7b16e67-4292-46a3-ba64-60c1a491723d" : "pkg" , "fireeye:indicator-3bd2e7a6-12a7-4c55-ad14-360cd0f68b51" : "ind"}}

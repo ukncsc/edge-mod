@@ -1,0 +1,53 @@
+<div class="panel panel-default" data-bind="with: dedup">
+    <div class="panel-heading">
+        <h3 class="panel-title">Online DeDup</h3>
+    </div>
+    <div class="panel-body">
+
+        <div class="row">
+            <div class="col-sm-3">
+                <h5>Rebuild policy: </h5>
+            </div>
+            <div data-bind="template: {name: 'ConfigTask'}"></div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-3">
+                <h5>Build Type: </h5>
+            </div>
+            <div class="col-sm-5">
+                <!--This dropdown is very similar to the one above, potential here for template/component-->
+                <div class="dropdown">
+                    <button class="btn btn-default btn-block dropdown-toggle" type="button"
+                            data-toggle="dropdown" data-bind="enable: enabled">
+                                        <span class="btn-content pull-left glyphicon"
+                                              data-bind=""></span>
+                                        <span class="btn-content pull-left"
+                                              data-bind="text: localNamespaceOnly() ? 'Only Local Namespace': 'External Namespaces'"></span>
+                        <span class="btn-content pull-right glyphicon glyphicon-chevron-down"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <!-- ko foreach: [true, false] -->
+                        <li>
+                            <a href="#" data-bind="click: function() { $parent.localNamespaceOnly($data); }">
+                                                <span class="glyphicon"
+                                                      data-bind=""></span>
+                                <span data-bind="text: $data ? 'Only Local Namespace': 'External Namespaces'"></span>
+                            </a>
+                        </li>
+                        <!-- /ko -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <h5>Run rebuild daily at: </h5>
+            </div>
+
+            <div data-bind="template: {name:'RunConfig'}"></div>
+        </div>
+
+    </div>
+
+</div>

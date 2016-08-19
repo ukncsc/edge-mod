@@ -11,7 +11,12 @@
 
 {% block body-content %}
     <div class="container">
-        <!-- ko ifnot: selectedType -->
+
+        <div class="row">
+            <div data-bind="template:'duplicates-type-selector'"></div>
+        </div>
+
+        <!-- ko if: searching -->
         <div class="jumbotron">
             <img src="/static/img/soltra_flame_anim.gif" class="pull-left" style="margin:2em">
             <div>
@@ -20,10 +25,9 @@
             </div>
         </div>
         <!-- /ko -->
+
+        <!-- ko ifnot: searching -->
         <!-- ko if: selectedType -->
-        <div class="row">
-            <div data-bind="template:'duplicates-type-selector'"></div>
-        </div>
         <div class="row">
             <div data-bind="template:'duplicates-original-selector'"></div>
             <div data-bind="template:'duplicates-duplicate-selector'"></div>
@@ -31,6 +35,7 @@
         <div class="row">
             <div data-bind="template:'duplicates-analyse'"></div>
         </div>
+        <!-- /ko -->
         <!-- /ko -->
     </div>
 {% endblock %}
@@ -43,10 +48,13 @@
         var require = {
             baseUrl: "/adapter/certuk_mod{% static 'js' %}",
             paths: {
-                knockout: "common/knockout-shim"
+                knockout: "common/knockout-shim",
+                "config-service": "/adapter/certuk_mod/config/get_cert_config",
+                d3: "{% static "js/d3.min" %}"
             },
             urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
         };
+        var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
     </script>
-    <script src="/adapter/certuk_mod{% static 'js/require.js'%}" data-main="dedup/main"></script>
+    <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="dedup/main"></script>
 {% endblock %}

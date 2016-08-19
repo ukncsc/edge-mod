@@ -1,11 +1,13 @@
 from edge import LOCAL_NAMESPACE
 from mongoengine.connection import get_db
 
+
 def capec_finder(local):
     if local:
         namespace = LOCAL_NAMESPACE
     else:
         namespace = {'$ne': LOCAL_NAMESPACE}
+
     return get_db().stix.aggregate([
         {
             '$match': {
@@ -42,11 +44,13 @@ def capec_finder(local):
             '$sort': {'created_on': 1}
         }], cursor={})
 
+
 def cve_finder(local):
     if local:
         namespace = LOCAL_NAMESPACE
     else:
         namespace = {'$ne': LOCAL_NAMESPACE}
+
     return get_db().stix.aggregate([
         {
             '$match': {

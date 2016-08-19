@@ -8,7 +8,6 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'repository.settings'
 
 
 class PublisherIntegrationTests(edge_test.TestCase):
-
     fixtures = ['stix', 'user']
 
     def loaddata(self, labels):

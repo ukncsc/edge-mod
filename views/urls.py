@@ -57,7 +57,7 @@ publisher_urls = [
     (r'^duplicates/$', 'views.duplicates_finder', 'duplicates_finder'),
     (r'^duplicates/(?P<typ>' + VALID_TYPES + ')$', 'views.ajax_load_duplicates', 'duplicates_duplicates_loader'),
     (r'^duplicates/object/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_load_object', 'duplicates_object_loader'),
-    (r'^duplicates/parents/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_load_parent_ids', 'duplicates_parents_loader'),
+    (r'^duplicates/parents/$', 'views.ajax_load_parent_ids', 'duplicates_parents_loader'),
     (r'^ajax/get_sites/$', 'views.ajax_get_sites', None),
     (r'^ajax/set_publish_site/$', 'views.ajax_set_publish_site', None),
     (r'^ajax/publish/$', 'views.ajax_publish', None),
@@ -75,6 +75,16 @@ publisher_urls = [
     (r'^ajax/reset_fts_config/$', 'views.ajax_reset_fts_config', None),
     (r'^ajax/get_fts_task_status/$', 'views.ajax_get_fts_task_status', None),
     (r'^ajax/run_fts_task/$', 'views.ajax_run_fts', None),
+
+    (r'^ajax/get_dedup_config/$', 'views.ajax_get_dedup_config', None),
+    (r'^ajax/set_dedup_config/$', 'views.ajax_set_dedup_config', None),
+    (r'^ajax/reset_dedup_config/$', 'views.ajax_reset_dedup_config', None),
+    (r'^ajax/get_dedup_task_status/$', 'views.ajax_get_dedup_task_status', None),
+    (r'^ajax/run_dedup_task/$', 'views.ajax_run_dedup', None),
+
+    (r'^ajax/get_mod_bl_task_status/$', 'views.ajax_get_mod_bl_task_status', None),
+    (r'^ajax/run_mod_bl_task/$', 'views.ajax_run_bl', None),
+
 
     (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),
     (r'^config/get_cert_config/$', 'views.ajax_get_cert_config', None),
@@ -104,7 +114,7 @@ navitems = [
     ('Clone to Draft', 'clone_to_draft'),
     ('Visualiser', 'visualiser_discover'),
     ('Incident Timeline', 'timeline_discover'),
-    # ('Duplicates Finder', 'duplicates_finder'),
+    ('Duplicates Finder', 'duplicates_finder'),
     ('Activity Log', 'activity_log'),
     ('CERT-UK Configuration', 'publisher_config')
 ]

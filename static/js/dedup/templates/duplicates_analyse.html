@@ -1,16 +1,24 @@
-<hr>
-<div class="row" data-bind="if: analysisStatus() === 1">
-    <button data-bind="click: analyse.bind($root)" class="btn btn-default pull-right">Analyse</button>
+<div class="row" data-bind="if: analysisStatus() === 4">
+    <pre data-bind="text: ko.toJSON(analysisMerge, null, 2)"></pre>
 </div>
+
 <div class="row" data-bind="if: analysisStatus() === 2">
     <div class="jumbotron">
         <img src="/static/img/soltra_flame_anim.gif" class="pull-left" style="margin:2em">
         <div>
-            <h1>Analysing&hellip;</h1>
+            <h1 data-bind="text: analysisText">&hellip;</h1>
             <p>This may take a few minutes. Please be patient.</p>
         </div>
     </div>
 </div>
-<div class="row" data-bind="if: analysisStatus() === 3">
-    <pre data-bind="text: ko.toJSON(analysis, null, 2)"></pre>
+<div class="row button-group" data-bind="if: analysisStatus() === 1 || 3">
+    <!--<button data-bind="click: mergeAll.bind($root), enable: enableMerge" class="btn btn-danger pull-right">Merge
+        all <span data-bind="text: selectedType"></span></button>
+    <button data-bind="click: merge.bind($root), enable: enableMerge" class="btn btn-default pull-right">Merge all duplicates for <span
+            class="text-danger"
+            data-bind="text: selectedOriginalId"></span></button> -->
+    <button data-bind="click: analyse.bind($root), enable: analysisStatus() !== 2" class="btn btn-default pull-right">Analyse</button>
+    <button data-bind="click: loadDuplicates, enable: analysisStatus() !==2" class="btn btn-default pull-left">Reload
+        duplicates
+    </button>
 </div>

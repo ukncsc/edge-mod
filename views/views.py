@@ -48,12 +48,15 @@ from adapters.certuk_mod.cron.views import ajax_get_purge_task_status, ajax_run_
 from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, \
     ajax_set_retention_config
 
-from adapters.certuk_mod.cron.views import ajax_get_fts_task_status, ajax_run_fts
+from adapters.certuk_mod.cron.views import ajax_get_fts_task_status, ajax_run_fts, ajax_run_bl, ajax_get_mod_bl_task_status
 from adapters.certuk_mod.fts.views import ajax_get_fts_config, ajax_reset_fts_config, \
     ajax_set_fts_config
 
+from adapters.certuk_mod.cron.views import ajax_get_dedup_task_status, ajax_run_dedup
 from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, \
-    ajax_load_parent_ids, ajax_import
+    ajax_load_parent_ids, ajax_import, ajax_get_dedup_config, ajax_set_dedup_config, \
+    ajax_reset_dedup_config
+
 from adapters.certuk_mod.config.views import ajax_get_crm_config, ajax_set_crm_config, ajax_get_cert_config, \
     ajax_get_sharing_groups, ajax_set_sharing_groups, ajax_get_markings, ajax_set_markings
 from adapters.certuk_mod.audit import setup as audit_setup, status
@@ -95,8 +98,8 @@ def static(request, path):
     if "../" not in clean_path:
         content_type, _ = mimetypes.guess_type(clean_path)
         return FileResponse(
-                open(os.path.dirname(__file__) + "/../static/" + clean_path, mode="rb"),
-                content_type=content_type
+            open(os.path.dirname(__file__) + "/../static/" + clean_path, mode="rb"),
+            content_type=content_type
         )
     else:
         return HttpResponseNotFound()
