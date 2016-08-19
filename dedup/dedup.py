@@ -5,15 +5,13 @@ from django.conf import settings
 from mongoengine.connection import get_db
 from mongoengine.errors import DoesNotExist
 from pymongo.errors import PyMongoError
-from datetime import datetime
 from edge import LOCAL_ALIAS
 from edge.tools import StopWatch, rgetattr
 from edge.generic import EdgeObject, EdgeError
 from edge.inbox import InboxError, InboxProcessor, InboxItem
 from edge.models import StixBacklink
 from users.models import Repository_User
-from adapters.certuk_mod.dedup.DedupInboxProcessor import _existing_title_and_capecs, \
-    _existing_tgts_with_cves, _update_existing_objects, _update_existing_properties, _get_sighting_count, \
+from adapters.certuk_mod.dedup.DedupInboxProcessor import _update_existing_properties, _get_sighting_count, \
     add_additional_file_hashes, _has_matching_file_hash
 from adapters.certuk_mod.common.activity import save as log_activity
 from adapters.certuk_mod.common.logger import log_error
@@ -28,9 +26,6 @@ if not hasattr(settings, 'BASE_DIR'):
 class STIXDedup(object):
     TLP_MAP = {'RED': 4, 'AMBER': 3, 'GREEN': 2, 'WHITE': 1, 'NULL': 0}
     LOCAL_ALIAS_REGEX = '^%s:' % LOCAL_ALIAS
-    OBJECT_TYPES = ['obs']  # ['ttp', 'tgt', 'obs']
-    NAME_TYPES = {'obs': 'Observables'}  # {'obs': 'Observable', 'ttp': 'TTP', 'tgt': 'Exploit Target'}
-
     PROPERTY_TYPE = ['obj', 'object_', 'properties', '_XSI_TYPE']
 
     def __init__(self, dedup_config):
@@ -38,29 +33,29 @@ class STIXDedup(object):
         self.user = Repository_User.objects.get(username='system')
 
     def run(self):
-        def build_activity_message(type_, num_of_duplicates):
+        def build_activity_message(num_of_duplicates):
             if num_of_duplicates:
-                return 'Deduped %d %s ' % (num_of_duplicates, self.NAME_TYPES[type_])
+                return 'Deduped %d Observables ' % (num_of_duplicates)
             else:
-                return "No %s duplicates found" % self.NAME_TYPES[type_]
+                return "No Observable duplicates found"
 
         messages = []
         last_run_at = self.config.task.last_run_at
         elapsed = StopWatch()
         try:
-            for object_type in self.OBJECT_TYPES:
-                if object_type == 'obs':
-                    try:
-                        rehash.rehash(last_run_at)
-                    except:
-                        pass  # rehash failed, let's just continue with the hashes as is.
-                original_to_duplicates = STIXDedup.find_duplicates(object_type, self.config.only_local_ns)
-                for original, duplicates in original_to_duplicates.iteritems():
-                    try:
-                        self.merge_object(original, duplicates, object_type)
-                    except Exception as e:
-                        log_error(e, 'adapters/dedup/dedup', 'Failed to merge %s' % original)
-                messages.append(build_activity_message(object_type, len(original_to_duplicates)))
+            try:
+                rehash.rehash(last_run_at)
+            except:
+                pass  # rehash failed, let's just continue with the hashes as is.
+
+            original_to_duplicates = STIXDedup.find_duplicates(self.config.only_local_ns)
+            for original, duplicates in original_to_duplicates.iteritems():
+                try:
+                    self.merge_object(original, duplicates)
+                except Exception as e:
+                    log_error(e, 'adapters/dedup/dedup', 'Failed to merge %s' % original)
+
+            messages.append(build_activity_message(len(original_to_duplicates)))
             messages.insert(0, 'Online Dedup in %ds: ' % int(elapsed.sec()))
             log_activity('system', 'DEDUP', 'INFO', "\n \t".join(messages))
         except Exception as e:
@@ -97,22 +92,15 @@ class STIXDedup(object):
                 add_additional_file_hashes(io, additional_file_hashes, original)
         return additional_file_hashes
 
-    def update_existing_properties_on_original(self, original, duplicates, type_):
-
-        if type_ == 'obs':
-            additional_sightings = STIXDedup.get_additional_sightings_count(duplicates)
-            additional_file_hashes = STIXDedup.get_additional_file_hashes(original, duplicates)
-            _update_existing_properties({original: additional_sightings}, additional_file_hashes, self.user)
-        # elif type_ == 'tgt' or type_ == 'ttp':
-        #     if duplicates:
-        #         _update_existing_objects(duplicates_edges, self.user)
-        #     get_db().stix.remove({'_id': {
-        #         '$in': duplicates}})
+    def update_existing_properties_on_original(self, original, duplicates):
+        additional_sightings = STIXDedup.get_additional_sightings_count(duplicates)
+        additional_file_hashes = STIXDedup.get_additional_file_hashes(original, duplicates)
+        _update_existing_properties({original: additional_sightings}, additional_file_hashes, self.user)
 
     @staticmethod
     def remove_duplicates(duplicates):
         get_db().stix.remove({'_id': {
-                '$in': duplicates}})
+            '$in': duplicates}})
 
     def remap_duplicates_parents(self, parents,
                                  map_table):  # Inbox parents of duplicates remapping duplicate reference to original
@@ -133,28 +121,6 @@ class STIXDedup(object):
                 ip.run()
             except InboxError as e:
                 log_error(e, 'adapters/dedup/dedup', 'Remapping parent objects failed')
-
-    @staticmethod  # Update backlinks for duplicates edges.
-    def remap_backlinks_for_edges_of_duplicates(original, duplicates, duplicates_edges):
-        backlinks_to_update = {}
-        edges_already_done = []
-        if duplicates_edges:
-            for edge in duplicates_edges.get(original, []):
-                edge_id = edge.idref
-                if edge_id != original and edge_id not in duplicates and edge_id not in edges_already_done:  # If opposite is true, dup references original
-                    # or dup references another dup. Remapping results in external references being left in backlinks
-                    try:
-                        edges_already_done.append(edge_id)
-                        backlinks_to_update[edge_id] = StixBacklink.objects.get(id=edge_id).edges
-                        for dup in duplicates:
-                            if dup in backlinks_to_update[edge_id]:
-                                backlinks_to_update[edge_id][original] = backlinks_to_update[edge_id].pop(dup)
-                    except DoesNotExist as e:
-                        pass
-                    except Exception as e:
-                        log_error(e, 'adapters/dedup/dedup', 'Finding parents for %s failed' % edge_id)
-        for id_, backlinks in backlinks_to_update.iteritems():
-            get_db().stix_backlinks.update({'_id': id_}, {'$set': {'value': backlinks}}, upsert=True)
 
     @staticmethod  # If duplicates have any backlinks update these to refer to original
     def remap_backlinks_for_original(original, duplicates):
@@ -188,39 +154,18 @@ class STIXDedup(object):
                 pass
         return parents_of_original, parents_of_duplicate
 
-    @staticmethod
-    def could_have_edges(eo):
-        if eo.ty == 'ttp' or eo.ty == 'tgt' or eo.summary.get('type') == 'ObservableComposition':
-            return True
-        else:
-            return False
-
-    @staticmethod  # duplicates_edges = {original: [edges]}
-    def calculate_edges_of_duplicates(original, duplicates):
-        duplicates_edges = {}
-        if not STIXDedup.could_have_edges(EdgeObject.load(original)):
-            return duplicates_edges
-        for dup in duplicates:
-            edges_of_duplicates = EdgeObject.load(dup).to_ApiObject().edges()
-            for edge in edges_of_duplicates:
-                duplicates_edges.setdefault(original, []).append(edge)
-        return duplicates_edges
-
-    def merge_object(self, original, duplicates, type_):
-        duplicates_edges = STIXDedup.calculate_edges_of_duplicates(original, duplicates)
+    def merge_object(self, original, duplicates):
         parents_of_duplicates = STIXDedup.calculate_backlinks(original, duplicates)[1]
         map_table = {dup: original for dup in duplicates}
 
         self.remap_duplicates_parents(parents_of_duplicates, map_table)
-        self.update_existing_properties_on_original(original, duplicates, type_)
+        self.update_existing_properties_on_original(original, duplicates)
 
         STIXDedup.remap_backlinks_for_original(original, duplicates)
-        STIXDedup.remap_backlinks_for_edges_of_duplicates(original, duplicates, duplicates_edges)
-
         STIXDedup.remove_duplicates(duplicates)
 
     @staticmethod
-    def find_duplicates(type_, local):
+    def find_duplicates(local):
         def obs_transform(matches):  # If duplicates have more than one tlpLevel take the most permissive
             def get_lowest_tlp(match):
                 tlps = match.get('tlpLevels')
@@ -243,29 +188,17 @@ class STIXDedup(object):
                     obs[match.get('uniqueIds')[0]] = match.get('uniqueIds')[1:]
             return obs
 
-        # def ttp_tgt_transform(matches):
-        #     original_to_duplicates = {}
-        #     for row in matches.values():
-        #         if len(row) > 1:
-        #             master = row[0]
-        #             original_to_duplicates[master] = row[1:]
-        #     return original_to_duplicates
-
-        if type_ == 'obs':
-            namespace_query = {}
-            if local:
-                namespace_query.update({'_id': {'$regex': STIXDedup.LOCAL_ALIAS_REGEX}})
-            matches = obs_transform(STIXDedup.obs_hash_match(namespace_query))
-            matches.update(STIXDedup.file_obs_match(namespace_query))
-            return matches
-        # elif type_ == 'ttp':
-        #     return ttp_tgt_transform(_existing_title_and_capecs(local))
-        # elif type_ == 'tgt':
-        #     return ttp_tgt_transform(_existing_tgts_with_cves(local))
+        namespace_query = {}
+        if local:
+            namespace_query.update({'_id': {'$regex': STIXDedup.LOCAL_ALIAS_REGEX}})
+        matches = obs_transform(STIXDedup.obs_hash_match(namespace_query))
+        matches.update(STIXDedup.file_obs_match(namespace_query))
+        return matches
 
     @staticmethod
     def obs_hash_match(namespace_query):
-        namespace_query.update({'type': 'obs', 'data.summary.type': {'$nin': ['FileObjectType', 'ObservableComposition']}})
+        namespace_query.update(
+            {'type': 'obs', 'data.summary.type': {'$nin': ['FileObjectType', 'ObservableComposition']}})
         return get_db().stix.aggregate([
             {
                 '$match': namespace_query

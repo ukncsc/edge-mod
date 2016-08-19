@@ -38,7 +38,7 @@ def duplicates_finder(request):
 def ajax_load_duplicates(request, typ):
     try:
         local = request.body
-        duplicates = STIXDedup.find_duplicates(typ, local)
+        duplicates = STIXDedup.find_duplicates(local)
         return JsonResponse({
             typ: duplicates
         }, status=200)
@@ -82,7 +82,7 @@ def ajax_merge_object(request):
     try:
         raw_body = json.loads(request.body)
         original, duplicates, type_ = raw_body.get('original'), raw_body.get('duplicate'), raw_body.get('type')
-        stix_dedup.merge_object(original, duplicates, type_)
+        stix_dedup.merge_object(original, duplicates)
         return JsonResponse({
             'validation_message': {}
         }, status=200)
@@ -100,7 +100,7 @@ def ajax_merge_all(request):
         objects, type_ = raw_body.get('objects'), raw_body.get('type')
 
         for original, duplicates in objects.iteritems():
-            stix_dedup.merge_object(original, duplicates, type_)
+            stix_dedup.merge_object(original, duplicates)
 
         message = 'DeDuped ' + str(len(objects)) + ' successfully'
         return JsonResponse({
