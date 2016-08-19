@@ -25,8 +25,7 @@ class ExtractTests(unittest.TestCase):
         self.mock_get_item_patcher.stop()
 
     def test_extract_visualiser_item_get_real_object(self):
-        self.mock_draft_list.return_value = []
-        self.mock_draft_load.return_value = {}
+        self.mock_draft_load.side_effect = Exception("nope")
         extract_visualiser_item_get(self.mock_request, '123')
         self.mock_get_item.assert_called_with(self.mock_request, '123')
 

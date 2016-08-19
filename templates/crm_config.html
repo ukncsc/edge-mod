@@ -6,6 +6,39 @@
 
         <div class="row">
             <div class="col-sm-3">
+                <h5>CRM: </h5>
+            </div>
+            <div class="col-sm-5">
+                <div class="dropdown">
+                    <button class="btn btn-default btn-block dropdown-toggle" type="button"
+                            data-toggle="dropdown">
+                                        <span class="btn-content pull-left glyphicon"
+                                              data-bind="css: {
+                                              'glyphicon-ok': enabled(),
+                                              'glyphicon-remove': !(enabled())}"></span>
+                                        <span class="btn-content pull-left"
+                                              data-bind="text: enabled() ? 'Enabled': 'Disabled'"></span>
+                        <span class="btn-content pull-right glyphicon glyphicon-chevron-down"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <!-- ko foreach: [true, false] -->
+                        <li>
+                            <a href="#" data-bind="click: function() { $parent.enabled($data); }">
+                                                <span class="glyphicon"
+                                                      data-bind="css: {
+                                                      'glyphicon-ok': $data,
+                                                      'glyphicon-remove': !$data }"></span>
+                                <span data-bind="text: $data ? 'Enabled' : 'Disabled'"></span>
+                            </a>
+                        </li>
+                        <!-- /ko -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-3">
                 <h5>Url: </h5>
             </div>
 

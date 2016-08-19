@@ -6,6 +6,7 @@
 
 {% block body-content %}
     {% include 'cert-identity.html' %}
+    {% include 'edge-identity.html' %}
     {% include 'candidate_modal.html' %}
     {% include 'related_items.html' %}
     {% include 'list_selects.html' %}
@@ -19,8 +20,6 @@
          data-bind="templateWithContext: { name: 'builder-hdr', data: $root, context: { imgsrc: '{% static 'img/hex/hex_inc.png' %}', typeName: 'Incident' }  }"></div>
 
     <div class="container">
-        {% include 'partials/identity.html' %}
-
 
         <div class="row builder">
             <div class="col-sm-3">
@@ -119,7 +118,6 @@
         incident_builder.intended_effects_list = {{ intended_effects|safe }};
 
         incident_builder.time_zone = '{{ time_zone }}';
-        incident_builder.marking_priorities = {{ marking_priorities|safe }};
         incident_builder.draft_id = '{{ draft_id }}';
     </script>
 

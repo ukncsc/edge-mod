@@ -20,10 +20,7 @@ define([
             this.d3Layout = ko.computed(function () {
                 return _d3Layout;
             });
-            this.backlinks = ko.observableArray([]);
-            this.matches = ko.observableArray([]);
-            this.no_edges = ko.observableArray([]);
-            this.edges = ko.observableArray([]);
+
             // create proxy observables for all [gs]etters on _d3Layout with the default value provided by D3
             var _pendingUpdate = null;
             ko.utils.objectForEach(_d3Layout, function (name, value) {
@@ -95,7 +92,8 @@ define([
         nodeAlreadyExists: function (currentNodes, nodeData) {
             for (var i = 0, j = currentNodes.length; i < j; i++) {
                 var node = currentNodes[i];
-                if (nodeData.id === node.id()) {
+                if (nodeData.depth === node.depth() &&
+                    nodeData.id === node.id()) {
                     return node;
                 }
             }
@@ -104,7 +102,9 @@ define([
         linkAlreadyExists: function (currentLinks, sourceData, targetData) {
             for (var i = 0, j = currentLinks.length; i < j; i++) {
                 var link = currentLinks[i];
-                if (sourceData.id() === link.source.id() &&
+                if (sourceData.depth() === link.source.depth() &&
+                    sourceData.id() === link.source.id() &&
+                    targetData.depth() === link.target.depth() &&
                     targetData.id() === link.target.id()) {
                     return link;
                 }

@@ -13,7 +13,7 @@ HASHES = {
     r'SHA256': (re.compile(r'^[A-Za-z0-9]{64}$'), r'Expected 64 hexadecimal digits'),
     r'SHA384': (re.compile(r'^[A-Za-z0-9]{96}$'), r'Expected 96 hexadecimal digits'),
     r'SHA512': (re.compile(r'^[A-Za-z0-9]{128}$'), r'Expected 128 hexadecimal digits'),
-    r'SSDeep': (re.compile(r'^(\d+):([\w/+]+):([\w/+]+),"([\w/\s\.-]+)"$'), r'Expected blocksize:hash:hash,"filename"'),
+    r'SSDEEP': (re.compile(r'^(\d+):([\w/+]+):([\w/+]+),"([\w/\s\.-]+)"$'), r'Expected blocksize:hash:hash,"filename"'),
     r'Other': (re.compile(r'^.+$'), r'Expected a hash')
 }
 
@@ -33,7 +33,7 @@ class FileValidationInfo(ObservableValidationInfo):
         self.SHA256 = field_validation.get(r'SHA256')
         self.SHA384 = field_validation.get(r'SHA384')
         self.SHA512 = field_validation.get(r'SHA512')
-        self.SSDeep = field_validation.get(r'SSDeep')
+        self.SSDEEP = field_validation.get(r'SSDEEP')
         self.Other = field_validation.get(r'Other')
 
     @classmethod
@@ -53,7 +53,7 @@ class FileValidationInfo(ObservableValidationInfo):
             SHA256=hashes_validation.get(r'SHA256'),
             SHA384=hashes_validation.get(r'SHA384'),
             SHA512=hashes_validation.get(r'SHA512'),
-            SSDeep=hashes_validation.get(r'SSDeep'),
+            SSDEEP=hashes_validation.get(r'SSDEEP'),
             Other=hashes_validation.get(r'Other')
         )
 

@@ -14,9 +14,7 @@ define([
             getJSON(url, {}, function (response) {
                 this._parseResponse(response);
             }.bind(this), function (error) {
-                if (error.responseText != "{\"message\": \"'NoneType' object has no attribute 'get'\"}") {
-                    this.createErrorModal(errorMessage + " (" + error + ").")
-                }
+                this.createErrorModal(errorMessage + " (" + error + ").")
             }.bind(this));
         },
 
@@ -37,6 +35,22 @@ define([
 
         isValid: function (data) {
             //stub - does nothing here
+        },
+
+        hasDuplicates: function (array) {
+            return (new Set(array)).size !== array.length;
+        },
+
+        removeIndexes: function (toRemove, arrayToPurge) {
+            var numberToRemove = toRemove.length;
+            for (var index = 0; index < numberToRemove; index++) {
+                //works back through array so safely remove, no falling off
+                arrayToPurge.splice(toRemove[index], 1)
+            }
+        },
+
+        isEmptyString: function (/*String*/ string) {
+            return typeof string === "string" && string.trim().length > 0;
         },
 
         saveData: function (/*String*/ url, data, /*String*/ successMessage, /*String*/ errorMessage) {
