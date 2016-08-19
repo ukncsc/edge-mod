@@ -252,8 +252,7 @@ class STIXDedup(object):
         #     return original_to_duplicates
 
         if type_ == 'obs':
-            namespace_query = {'type': type_, 'data.summary.type': {
-                '$ne': 'FileObjectType'}}
+            namespace_query = {}
             if local:
                 namespace_query.update({'_id': {'$regex': STIXDedup.LOCAL_ALIAS_REGEX}})
             matches = obs_transform(STIXDedup.obs_hash_match(namespace_query))
@@ -266,6 +265,7 @@ class STIXDedup(object):
 
     @staticmethod
     def obs_hash_match(namespace_query):
+        namespace_query.update({'type': 'obs', 'data.summary.type': {'$nin': ['FileObjectType', 'ObservableComposition']}})
         return get_db().stix.aggregate([
             {
                 '$match': namespace_query
@@ -306,7 +306,7 @@ class STIXDedup(object):
 
     @staticmethod
     def file_obs_match(namespace_query):
-        namespace_query.update({'data.summary.type': 'FileObjectType'})
+        namespace_query.update({'type': 'obs', 'data.summary.type': 'FileObjectType'})
         # 'data.summary.value' field stores the file name for File Observables.
         matches = get_db().stix.aggregate([
             {
@@ -331,7 +331,7 @@ class STIXDedup(object):
                     'count': {'$gt': 1}
                 }
             }
-        ], cursor={})
+        ], cursor={}, allowDiskUse=True)
 
         # Compare each File Obs matched on file name. Compare each to see if they also have a matching file hash
         # If true take the File Obs with the most permissive TLP as we do for other Observables.

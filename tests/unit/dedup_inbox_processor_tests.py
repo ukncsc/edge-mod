@@ -10,7 +10,7 @@ from stix.exploit_target import ExploitTarget
 from stix.exploit_target.vulnerability import Vulnerability
 from stix.common.structured_text import StructuredText
 
-from edge.generic import ApiObject
+from edge.generic import ApiObject, ApiReference
 from edge.inbox import InboxItem
 from edge import LOCAL_NAMESPACE
 
@@ -22,7 +22,9 @@ from adapters.certuk_mod.dedup.DedupInboxProcessor import \
     _coalesce_non_observable_duplicates, \
     _package_title_capec_string_to_ids, \
     _package_cve_id_to_ids, \
-    _get_map_table
+    _get_map_table, \
+    _merge_ttps, \
+    _merge_tgts
 
 EXTERNAL_NAMESPACE = "Matt's Namespace"
 def create_file(file_name=None, md5=None, sha1=None, sha256=None):
@@ -523,3 +525,24 @@ class DedupInboxProcessorTests(unittest.TestCase):
         self.assertDictEqual({'pss:ttp-00000000-0000-0000-0000-000000000001': 'pss:ttp-00000000-0000-0000-0000-000000000003',
                               'pss:ttp-00000000-0000-0000-0000-000000000002': 'pss:ttp-00000000-0000-0000-0000-000000000003'},
                              map_table)
+
+    @mock.patch('adapters.certuk_mod.dedup.DedupInboxProcessor._merge_ttps')
+    def test_merge_ttps(self, mock_merge_ttps):
+        mock_merge_ttps.return_value = ['pss:tgt-00000000-0000-0000-0000-000000000001',
+                                        'pss:ttp-00000000-0000-0000-0000-000000000001']
+        api_object = mock.create_autospec(ApiObject, ty='ttp')
+        references = [mock.create_autospec(ApiReference, idref='pss:ttp-00000000-0000-0000-0000-000000000001', ty='ttp'),
+                      mock.create_autospec(ApiReference, idref='pss:tgt-00000000-0000-0000-0000-000000000001', ty='tgt')]
+
+        _merge_ttps(api_object, references)
+        self.assertEquals(api_object.related_ttps._inner[0].item.idref, 'pss:ttp-00000000-0000-0000-0000-000000000001')
+        self.assertEquals(api_object.exploit_targets._inner[0].item.idref, 'pss:tgt-00000000-0000-0000-0000-000000000001')
+
+    def test_merge_tgts(self):
+        api_object = mock.create_autospec(ApiObject, ty='tgt')
+        references = [mock.create_autospec(ApiReference, idref='pss:coa-00000000-0000-0000-0000-000000000001', ty='coa'),
+                      mock.create_autospec(ApiReference, idref='pss:tgt-00000000-0000-0000-0000-000000000001', ty='tgt')]
+
+        _merge_tgts(api_object, references)
+        self.assertEquals(api_object.potential_coas._inner[0].item.idref, 'pss:coa-00000000-0000-0000-0000-000000000001')
+        self.assertEquals(api_object.related_exploit_targets._inner[0].item.idref, 'pss:tgt-00000000-0000-0000-0000-000000000001')

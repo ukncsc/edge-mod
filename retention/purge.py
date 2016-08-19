@@ -11,7 +11,7 @@ from adapters.certuk_mod.common.activity import save as log_activity
 
 
 class STIXPurge(object):
-    PAGE_SIZE = 5000
+    PAGE_SIZE = 2000
 
     def __init__(self, retention_config):
         self.retention_config = retention_config
