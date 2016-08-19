@@ -11,7 +11,6 @@ define([
     "use strict";
 
     var config = Object.freeze(JSON.parse(configService));
-    var sharing_groups = config.sharing_groups;
     var markings = config.markings;
 
     return declare(AbstractBuilderForm, {
@@ -78,15 +77,6 @@ define([
                     }
                 });
 
-                this.handling_caveat = ko.observable().extend({
-                    requiredGrouped: {
-                        required: true,
-                        group: this.validationGroup,
-                        displayMessage: "You need to select a handling caveat for your indicator"
-                    }
-                });
-
-                this.handling_caveats = ko.observableArray([]);
                 this.statuses = ko.observableArray([]);
                 this.marking_priorities = ko.observableArray([]);
                 this.confidences = ko.observableArray([]);
@@ -101,37 +91,6 @@ define([
             this.statuses(optionLists.statuses_list);
             this.categories(optionLists.categories_list);
             this.marking_priorities(markings);
-            this.handling_caveats(this.generateCaveatLabelArray(sharing_groups));
-        },
-
-        generateCaveatLabelArray: function (sharingGroups) {
-            var LabelList = [];
-            for (var key in sharingGroups) {
-                if (sharingGroups.hasOwnProperty(key)) {
-                    LabelList.push(sharingGroups[key])
-                }
-            }
-            return LabelList
-        },
-
-        findValueOfCaveat: function (sharingGroups, label) {
-            for (var key in sharingGroups) {
-                if (sharingGroups.hasOwnProperty(key)) {
-                    if (sharingGroups[key] == label) {
-                        return key
-                    }
-                }
-            }
-        },
-
-        getLabelForCaveat: function (sharingGroups, value) {
-            for (var key in sharingGroups) {
-                if (sharingGroups.hasOwnProperty(key)) {
-                    if (key == value) {
-                        return sharingGroups[key]
-                    }
-                }
-            }
         },
 
         addReporter: function () {
@@ -166,12 +125,6 @@ define([
                 this.markings(data["markings"] || "");
             }
 
-            if ("handling_caveat" in data && data["handling_caveat"].length == 0) {
-                this.handling_caveat("");
-            } else {
-                this.handling_caveat(this.getLabelForCaveat(sharing_groups, data["handling_caveat"]) || "");
-            }
-
             this.status.subscribe(function (data) {
                 Topic.publish(topics.STATUS_CHANGE, data);
             }.bind(this));
@@ -186,8 +139,7 @@ define([
                 confidence: this.confidence(),
                 reporter: {'identity': this.reporter().to_json()},
                 tlp: this.tlp(),
-                markings: this.markings(),
-                handling_caveat: this.findValueOfCaveat(sharing_groups, this.handling_caveat())
+                markings: this.markings()
             };
         }
     });

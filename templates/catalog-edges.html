@@ -1,0 +1,29 @@
+<template id="Edges">
+    <div class="col-sm-12" data-bind="if: edges.length != 0">
+        <h3>
+            <a data-toggle="collapse" data-target="#collapseEdges"><span
+                    class="glyphicon glyphicon-chevron-right transform-medium icon-sm"></span> Edges</a>
+        </h3>
+        <div id="collapseEdges" class="panel-collapse collapse in">
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Id</th>
+                </tr>
+                </thead>
+                <tbody data-bind="foreach: edges">
+                <tr data-bind="attr: {class:'tree d'+depth}">
+                    <td data-bind="text: type,attr: { style: 'padding-left:'+ ((depth*24)+12) + 'px !important; background-position:'+((depth*24)+12)+'px inherit;'}"></td>
+                    <td data-bind="text: title" class="forcewrap"></td>
+                    <td style="font-family:monospace;">
+                        <span data-bind="visible:!is_external"><a data-bind="attr:{href:'/adapter/certuk_mod/review/'+id_}, text: id_"></a></span>
+                        <span data-bind="visible:is_external, text: id_"></span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</template>

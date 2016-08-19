@@ -23,6 +23,9 @@ VALID_TYPES = '|'.join(CLIPPY_TYPES.iterkeys())
 publisher_urls = [
     (r'^static/(?P<path>[\S]+)$', 'views.static', 'static_content'),
     (r'^review/$', 'views.discover', 'publisher_discover'),
+    (r'^review/duplicates/(?P<id_>' + VALID_STIX_ID + ')$', 'views.get_duplicates', 'get_duplicates'),
+    (r'^review/editable/(?P<id_>' + VALID_STIX_ID + ')$', 'views.object_details', 'object_details'),
+    (r'^review/handling/', 'views.review_set_handling', 'review_set_handling'),
 
     (r'^extract/$', 'views.extract', 'extract_stix'),
     (r'^uploaded_stix_extracts/$', 'views.uploaded_stix_extracts', 'uploaded_stix_extracts'),
@@ -45,7 +48,7 @@ publisher_urls = [
     (r'^import/incident_ingest/(?P<username>\S+)$', 'views.ajax_create_incidents', None),
 
     (r'^clone/$', 'views.clone', 'clone_to_draft'),
-    (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'publisher_review'),
+    (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'catalog_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
     (r'^noclone/(?P<msg>)', 'views.error_with_message', 'error_with_message'),
     (r'^config/$', 'views.config', 'publisher_config'),
@@ -95,7 +98,7 @@ publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publis
 urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
 navitems = [
-    ('External Publisher', 'publisher_discover'),
+    # ('External Publisher', 'publisher_discover'),
     ('Extract Stix', 'extract_stix'),
     ('Uploaded Stix Extracts', 'uploaded_stix_extracts'),
     ('Clone to Draft', 'clone_to_draft'),

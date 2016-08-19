@@ -21,6 +21,7 @@ class STIXPurge(object):
             'created_on': {
                 '$lt': minimum_date
             },
+            'type': {'$in': ['obs', 'ind']},
             '_id': {
                 '$gt': minimum_id
             },
@@ -175,19 +176,6 @@ class STIXPurge(object):
 
         return orphaned_ids
 
-    @staticmethod
-    def _get_old_packages(minimum_date):
-        query = {
-            'created_on': {
-                '$lt': minimum_date
-            },
-            'type': 'pkg'
-        }
-        packages_cursor = get_db().stix.find(query, {
-            '_id': 1
-        })
-        return [doc['_id'] for doc in packages_cursor]
-
     def get_purge_candidates(self, minimum_date):
         version_epoch = int(1000 * (minimum_date - datetime(1970, 1, 1)).total_seconds() + 0.5)
         minimum_id = ''
@@ -267,7 +255,7 @@ class STIXPurge(object):
         })
 
     def run(self):
-        def build_activity_message(min_date, objects, compositions, packages, time_ms):
+        def build_activity_message(min_date, objects, compositions, time_ms):
             def summarise(into, summary_template, items):
                 num_items = len(items)
                 into.append(summary_template % num_items)
@@ -276,7 +264,6 @@ class STIXPurge(object):
                 'Objects created before %s are candidates for deletion' % min_date.strftime("%Y-%m-%d %H:%M:%S")]
             summarise(messages, 'Found %d objects with insufficient back links or sightings', objects)
             summarise(messages, 'Found %d orphaned observable compositions', compositions)
-            summarise(messages, 'Found %d old packages', packages)
             messages.append('In %dms' % time_ms)
             return "\n".join(messages)
 
@@ -303,9 +290,8 @@ class STIXPurge(object):
             # Look for any observable compositions that were orphaned on the previous call to run:
             orphaned_observable_compositions_to_delete = STIXPurge._get_orphaned_external_observable_compositions(
                 current_date)
-            # Look for old packages
-            old_packages_to_delete = STIXPurge._get_old_packages(minimum_date)
-            ids_to_delete = objects_to_delete + orphaned_observable_compositions_to_delete + old_packages_to_delete
+
+            ids_to_delete = objects_to_delete + orphaned_observable_compositions_to_delete
 
             for page_index in range(0, len(ids_to_delete), self.PAGE_SIZE):
                 try:
@@ -317,6 +303,6 @@ class STIXPurge(object):
             log_activity('system', 'AGEING', 'ERROR', e.message)
         else:
             log_activity('system', 'AGEING', 'INFO', build_activity_message(
-                    minimum_date, objects_to_delete, orphaned_observable_compositions_to_delete, old_packages_to_delete,
-                    timer.ms()
+                minimum_date, objects_to_delete, orphaned_observable_compositions_to_delete,
+                timer.ms()
             ))

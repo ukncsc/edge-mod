@@ -1,0 +1,18 @@
+<template id="Matching">
+    <div class="col-sm-12" data-bind="visible: hasMatches">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a data-toggle="collapse" data-target="#collapseMatching"> Matching Content</a>
+            </h3>
+        </div>
+        <div id="collapseMatching" class="panel-collapse collapse in">
+            <table class="table table-bordered table-striped table-condensed">
+                <tbody data-bind="foreach: duplicates">
+                <tr>
+                    <td><a data-bind="attr:{ href:'/object/' + $data }, text: $data"></a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</template>

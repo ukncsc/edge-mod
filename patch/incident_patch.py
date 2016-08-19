@@ -14,7 +14,6 @@ from django.conf import settings
 from stix.common import vocabs
 from stix.incident import IncidentCategories, IntendedEffects, DiscoveryMethods, ExternalID
 from stix.incident.time import Time as StixTime
-from stix.extensions.marking.simple_marking import SimpleMarkingStructure
 
 from edge import IDManager, NamespaceNotConfigured, incident
 from edge.common import EdgeInformationSource
@@ -102,7 +101,6 @@ def incident_view(request, id, edit=False):
         'discovery_methods': json.dumps(static['discovery_methods']),
         'intended_effects': json.dumps(static['intended_effects']),
         'ajax_uri': reverse('incident_ajax'),
-        'object_type': "incident",
         'time_zone': datetime.datetime.now(settings.LOCAL_TZ).tzname()
     })
 
@@ -129,16 +127,6 @@ def from_draft_wrapper(wrapped_func):
 
         target.coordinators = [EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in
                                draft.get('coordinators', [])]
-
-        # Edge sets handling by looking for magic strings, tlp and markings, (handing_from draft in handling.py).
-        # This is the easiest/least hacky way of adding a new marking.
-        if "handling_caveat" in draft:
-            handling_caveat = SimpleMarkingStructure(draft.get('handling_caveat'))
-            # the following is to mark this as different so on assembling we can recognise
-            # between the 2 simple marking structures
-            handling_caveat.marking_model_name = HANDLING_CAVEAT
-
-            target.handling.markings[0].marking_structures.append(handling_caveat)
 
         return target
 
@@ -178,8 +166,6 @@ class DBIncidentPatch(incident.DBIncident):
         # Redoing to use correct patched function, can't guarantee correct function if monkey patched
         draft["markings"] = DBIncidentPatch.handling_to_draft(inc, "statement")
         draft["tlp"] = DBIncidentPatch.handling_to_draft(inc, "color")
-
-        draft['handling_caveat'] = DBIncidentPatch.handling_to_draft(inc, "handling_caveat")
 
         return draft
 

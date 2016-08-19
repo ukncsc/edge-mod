@@ -37,8 +37,8 @@ define([
         "ttp": {
             "class": TTP, "collection": "ttps.ttps", "label": "TTP", "code": "ttp"
         },
-        "stix": {
-            "class": StixRealPackage, "collection": "", "label": "Package", "code": "stix"
+        "pkg": {
+            "class": StixRealPackage, "collection": "related_packages.related_packages", "label": "Package", "code": "pkg"
         },
     });
 
@@ -50,7 +50,7 @@ define([
         "incident": "inc",
         "indicator": "ind",
         "observable": "obs",
-        "package": "stix"
+        "stix": "pkg"
     });
 
     var PATTERN = Object.freeze({

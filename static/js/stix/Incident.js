@@ -17,14 +17,23 @@ define([
             this.status = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "status.value");
             }, this);
+            this.categories = ko.computed(function() {
+                return stixPackage.safeListGet(this.id(), this.data(), "categories", "value");
+            }, this);
+            this.victims = ko.computed(function () {
+                return stixPackage.safeIdentityListGet(this.id(), this.data(), "victims", "name");
+            }, this);
             this.reporter = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), this.data(), "reporter.identity.name");
+                return stixPackage.safeIdentityGet(this.id(), this.data(), "reporter.identity.name");
             }, this);
             this.confidence = ko.computed(function () {
                 return stixPackage.safeValueGet(this.id(), this.data(), "confidence.value.value");
             }, this);
             this.responders = ko.computed(function () {
-                return stixPackage.safeListGet(this.id(), this.data(), "responders", "identity.name");
+                return stixPackage.safeIdentityListGet(this.id(), this.data(), "responders", "identity.name");
+            }, this);
+            this.coordinators = ko.computed(function () {
+                return stixPackage.safeIdentityListGet(this.id(), this.data(), "coordinators", "identity.name");
             }, this);
             this.intendedEffects = ko.computed(function () {
                 return stixPackage.safeListGet(this.id(), this.data(), "intended_effects", "value.value");
@@ -41,6 +50,9 @@ define([
             this.relatedIncidents = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_incidents.incidents", "incident.idref");
             }, this, this.DEFER_EVALUATION);
+            this.attributedActors = ko.computed(function () {
+                return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "attributed_threat_actors.threat_actors", "threat_actor.idref");
+            }, this, this.DEFER_EVALUATION)
             this.relatedIndicators = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "related_indicators.indicators", "indicator.idref");
             }, this, this.DEFER_EVALUATION);
