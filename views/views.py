@@ -45,7 +45,7 @@ from adapters.certuk_mod.fts.views import ajax_get_fts_config, ajax_reset_fts_co
 
 from adapters.certuk_mod.cron.views import ajax_get_dedup_task_status, ajax_run_dedup
 from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplicates, ajax_load_object, \
-    ajax_load_parent_ids, ajax_import, ajax_merge_object, ajax_merge_all, ajax_get_dedup_config, ajax_set_dedup_config, \
+    ajax_load_parent_ids, ajax_import, ajax_get_dedup_config, ajax_set_dedup_config, \
     ajax_reset_dedup_config
 
 from adapters.certuk_mod.config.views import ajax_get_crm_url, ajax_set_crm_url, ajax_get_cert_config, \

@@ -75,43 +75,6 @@ def ajax_load_parent_ids(request):
             'message': e.message
         }, status=500)
 
-
-@login_required_ajax
-def ajax_merge_object(request):
-    stix_dedup = STIXDedup(DedupConfiguration.get())
-    try:
-        raw_body = json.loads(request.body)
-        original, duplicates, type_ = raw_body.get('original'), raw_body.get('duplicate'), raw_body.get('type')
-        stix_dedup.merge_object(original, duplicates)
-        return JsonResponse({
-            'validation_message': {}
-        }, status=200)
-    except Exception as e:
-        return JsonResponse({
-            'message': e.message
-        }, status=500)
-
-
-@login_required_ajax
-def ajax_merge_all(request):
-    stix_dedup = STIXDedup(DedupConfiguration.get())
-    try:
-        raw_body = json.loads(request.body)
-        objects, type_ = raw_body.get('objects'), raw_body.get('type')
-
-        for original, duplicates in objects.iteritems():
-            stix_dedup.merge_object(original, duplicates)
-
-        message = 'DeDuped ' + str(len(objects)) + ' successfully'
-        return JsonResponse({
-            'validation_message': message
-        }, status=200)
-    except Exception as e:
-        return JsonResponse({
-            'message': e.message
-        }, status=500)
-
-
 @csrf_exempt
 def ajax_import(request, username):
     def build_activity_message(count, duration, messages, validation_result):

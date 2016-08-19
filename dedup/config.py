@@ -12,8 +12,6 @@ class DedupConfigurationError(Exception):
 class DedupConfiguration(object):
 
     TASK_NAME = 'adapters.certuk_mod.cron.dedup_job.update'
-    # DEFAULT_OBJECT_TYPES = ['obs', 'tgt', 'ttp']
-    # VALID_OBJECT_TYPES = ['obs', 'tgt', 'ttp', 'inc', 'ind', 'act', 'cam', 'coa']
     DEFAULT_LOCAL_NS = True
     DEFAULT_HOUR = '00'
     DEFAULT_MINUTE = '00'
@@ -22,7 +20,6 @@ class DedupConfiguration(object):
 
     __time_key = 'time'
     __enabled_key = 'enabled'
-    # __object_type_key = 'object_types'
     __local_ns_key = 'localNamespaceOnly'
 
     def __init__(self, task):
@@ -46,9 +43,6 @@ class DedupConfiguration(object):
     @staticmethod
     def __validate(only_local_ns, hour_str, minute_str):
         errors = []
-        # for object_type in object_types_to_dedup:
-        #     if object_type not in DedupConfiguration.VALID_OBJECT_TYPES:
-        #         errors.append(object_type + ' not a valid STIX type')
 
         if not isinstance(only_local_ns, bool):
             errors.append('Boolean required for only_local_ns')
@@ -98,7 +92,7 @@ class DedupConfiguration(object):
         task.kwargs = {
             cls.__local_ns_key: only_local_ns
         }
-        #task.args = object_types_to_dedup
+
         task.enabled = bool(enabled)
 
         errors = []

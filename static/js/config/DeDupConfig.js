@@ -6,18 +6,6 @@ define([
 ], function (declare, ko, Modal, BaseConfig) {
     "use strict";
 
-    //var type_labels = Object.freeze({
-    //    "ind": "Indicator",
-    //    "obs": "Observable",
-    //    "ttp": "TTP",
-    //    "coa": "Course Of Action",
-    //    "act": "Threat Actor",
-    //    "cam": "Campaign",
-    //    "inc": "Incident",
-    //    "tgt": "Exploit Target",
-    //    "pkg": "Package"
-    //});
-
     return declare(BaseConfig, {
         declaredClass: "DeDupConfig",
         constructor: declare.superCall(function (sup) {
