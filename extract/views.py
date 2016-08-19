@@ -39,6 +39,12 @@ def extract(request):
     return render(request, "extract_upload_form.html")
 
 
+@login_required
+def uploaded_stix_extracts(request):
+    request.breadcrumbs([("Extract Stix", "")])
+    return render(request, "extract_status.html")
+
+
 @login_required_ajax
 def extract_upload(request):
     file_import = request.FILES.get('import', "");
@@ -46,7 +52,7 @@ def extract_upload(request):
 
     if 'import' not in request.FILES:
         extract_store.update(extract_id, "FAILED", "Error in file upload", [])
-        return HttpResponse(status=204)
+        return JsonResponse({'result': str(extract_id)}, status=200)
 
     try:
         stream = parse_file(file_import)
@@ -56,12 +62,12 @@ def extract_upload(request):
                              "Error parsing file: %s content from parser was %s" % (e.message, stream.buf),
                              [])
 
-        return HttpResponse(status=204)
+        return JsonResponse({'result': str(extract_id)}, status=200)
 
     threading.Thread(target=process_stix,
-                           args=(stream, request.user, extract_id, str(file_import))).start()
+                     args=(stream, request.user, extract_id, str(file_import))).start()
 
-    return HttpResponse(status=204)
+    return JsonResponse({'result': str(extract_id)}, status=200)
 
 
 def create_extract_json(extract):
@@ -76,6 +82,18 @@ def create_extract_json(extract):
             'datetime': time_string,
             'visualiser_url': visualiser_url,
             'id': str(extract['_id'])}
+
+
+@login_required_ajax
+def extract_status(request):
+    id = request.body
+    if id.startswith('"') and id.endswith('"'):
+        id = id[1:-1]
+    extract = extract_store.get(id)
+    if extract:
+        return JsonResponse({'result': create_extract_json(extract)}, status=200)
+
+    return JsonResponse({'result': "Unknown Error. Unable to find extract"}, status=500)
 
 
 @login_required_ajax
@@ -226,7 +244,11 @@ def extract_visualiser_item_get(request, node_id):
         return view_obs
 
     def is_draft_ind():
-        return node_id in {x['draft']['id'] for x in Draft.list(request.user, 'ind') if 'id' in x['draft']}
+        try:
+            Draft.load(node_id, request.user)
+            return True
+        except:
+            return False
 
     def build_obs_package_from_draft(obs):
         return {'observables': {'observables': [convert_draft_to_viewable_obs(obs)]}}
@@ -262,7 +284,7 @@ def extract_visualiser_merge_observables(request):
 
     draft_obs_offsets = [get_draft_obs_offset(draft_ind, id_) for id_ in merge_data['ids'] if DRAFT_ID_SEPARATOR in id_]
 
-    hash_types = ['MD5', 'MD6', 'SHA1', 'SHA224', 'SHA256', 'SHA384', 'SHA512', 'SSDeep', 'Other']
+    hash_types = ['MD5', 'MD6', 'SHA1', 'SHA224', 'SHA256', 'SHA384', 'SHA512', 'SSDEEP', 'Other']
     (can_merge, message) = can_merge_observables(draft_obs_offsets, draft_ind, hash_types)
     if not can_merge:
         return JsonResponse({'Error': message}, status=400)

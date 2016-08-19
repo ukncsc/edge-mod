@@ -4,7 +4,13 @@
     {{ main_title }}
 {% endblock %}
 
+{% block head-content %}
+    <link rel="stylesheet" href="/adapter/certuk_mod{% static "css/spinner.css" %}" media="screen">
+{% endblock %}
+
+
 {% block body-content %}
+    <div id="_loading_" style="display:none" class="loading">Loading&#8230;</div>
     <link rel="stylesheet" href="/adapter/certuk_mod{% static "css/extract_upload_form.css" %}" media="screen">
 
     <div class="container">
@@ -17,8 +23,7 @@
         </div>
 
 
-        <form action="{% url 'extract_upload' %}" method="POST" data-bind="submit: submitted" id="extract_upload_form"
-              enctype="multipart/form-data">{% csrf_token %}
+        <form data-bind="submit: submitted" id="extract_upload_form">{% csrf_token %}
             <div class="row">
                 <div class="col-lg-6">
                     <div class="input-group">
@@ -34,52 +39,8 @@
                         </span>
                     </div>
                 </div>
-
             </div>
         </form>
-        <br>
-        <div class="panel panel default">
-            <div class="panel-heading">Extract Uploads</div>
-            <table class="table table-striped" style="table-layout: fixed; width: 100%">
-                <thead class="bold">
-                <tr>
-                    <th>MetaData</th>
-                    <th>Message</th>
-                </tr>
-                </thead>
-                <tbody>
-                <!-- ko foreach: results -->
-                <tr>
-                    <td>
-                        <div>
-                            <span data-bind="text: datetime"></span>
-                        </div>
-                        <div>
-                            State:
-                            <span data-bind="text: state"></span>
-                        </div>
-                        <div>
-                            Filename:
-                            <span data-bind="text: filename"></span>
-                        </div>
-                        <div>
-                            <!-- ko if: visualiser_url -->
-                            <a data-bind="attr: {href: visualiser_url}">Extract Visualiser</a>
-                            <!-- /ko -->
-                        </div>
-                    <td style="word-wrap: break-word">
-                    <div>
-                        <span data-bind="text: message"></span>
-                    <button type="button" class="btn btn-default pull-right" data-bind="click: $parent.deleteExtract.bind($data, $parent)">
-                    <span class="glyphicon glyphicon-trash"></span></button>
-                    </div>
-                </td>
-
-                </tr>
-                <!-- /ko -->
-                </tbody>
-            </table>
-        </div>
     </div>
 {% endblock %}
 
@@ -98,4 +59,5 @@
     </script>
 
     <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="extract/upload/main"></script>
+
 {% endblock %}

@@ -11,6 +11,9 @@ define([
 
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
+            this.status = ko.computed(function () {
+                return stixPackage.safeValueGet(this.id(), this.data(),"status.value");
+            }, this);
             this.intendedEffects = ko.computed(function () {
                 return stixPackage.safeListGet(this.id(), this.data(), "intended_effects", "value.value");
             }, this);

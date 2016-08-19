@@ -23,8 +23,13 @@ VALID_TYPES = '|'.join(CLIPPY_TYPES.iterkeys())
 publisher_urls = [
     (r'^static/(?P<path>[\S]+)$', 'views.static', 'static_content'),
     (r'^review/$', 'views.discover', 'publisher_discover'),
+    (r'^review/duplicates/(?P<id_>' + VALID_STIX_ID + ')$', 'views.get_duplicates', 'get_duplicates'),
+    (r'^review/editable/(?P<id_>' + VALID_STIX_ID + ')$', 'views.object_details', 'object_details'),
+    (r'^review/handling/', 'views.review_set_handling', 'review_set_handling'),
 
     (r'^extract/$', 'views.extract', 'extract_stix'),
+    (r'^uploaded_stix_extracts/$', 'views.uploaded_stix_extracts', 'uploaded_stix_extracts'),
+    (r'^ajax/extract_status/$', 'views.extract_status', 'extract_status'),
     (r'^extract_upload/$', 'views.extract_upload', 'extract_upload'),
     (r'^ajax/extract_list/$', 'views.extract_list', 'extract_list'),
     (r'^ajax/delete_extract/$', 'views.delete_extract', 'delete_extract'),
@@ -40,8 +45,10 @@ publisher_urls = [
     (r'^incident_timeline/missing/$', 'views.incident_timeline_not_found', 'incident_timeline_not_found'),
     (r'^ajax/incident_timeline/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_incident_timeline', 'ajax_incident_timeline'),
 
+    (r'^import/incident_ingest/(?P<username>\S+)$', 'views.ajax_create_incidents', None),
+
     (r'^clone/$', 'views.clone', 'clone_to_draft'),
-    (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'publisher_review'),
+    (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'catalog_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
     (r'^noclone/(?P<msg>)', 'views.error_with_message', 'error_with_message'),
     (r'^config/$', 'views.config', 'publisher_config'),
@@ -81,10 +88,12 @@ publisher_urls = [
 
     (r'^ajax/get_datetime/$', 'views.ajax_get_datetime', None),
     (r'^config/get_cert_config/$', 'views.ajax_get_cert_config', None),
-    (r'^config/get_crm_url/$', 'views.ajax_get_crm_url', None),
-    (r'^config/set_crm_url/$', 'views.ajax_set_crm_url', None),
+    (r'^config/get_crm_config/$', 'views.ajax_get_crm_config', None),
+    (r'^config/set_crm_config/$', 'views.ajax_set_crm_config', None),
     (r'^config/get_sharing_groups/$', 'views.ajax_get_sharing_groups', None),
     (r'^config/set_sharing_groups/$', 'views.ajax_set_sharing_groups', None),
+    (r'^config/get_markings/$', 'views.ajax_get_markings', None),
+    (r'^config/set_markings/$', 'views.ajax_set_markings', None),
 
     (r'^visualiser/$', 'views.visualiser_discover', 'visualiser_discover'),
     (r'^visualiser/missing/$', 'views.visualiser_not_found', 'visualiser_not_found'),
@@ -99,8 +108,9 @@ publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publis
 urlpatterns = patterns('adapters.certuk_mod.views', *publisher_url_patterns)
 
 navitems = [
-    ('External Publisher', 'publisher_discover'),
+    # ('External Publisher', 'publisher_discover'),
     ('Extract Stix', 'extract_stix'),
+    ('Uploaded Stix Extracts', 'uploaded_stix_extracts'),
     ('Clone to Draft', 'clone_to_draft'),
     ('Visualiser', 'visualiser_discover'),
     ('Incident Timeline', 'timeline_discover'),

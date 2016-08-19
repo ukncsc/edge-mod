@@ -21,7 +21,7 @@ class FileValidationTests(unittest.TestCase):
         self.assertIsNone(file_validation.SHA256)
         self.assertIsNone(file_validation.SHA384)
         self.assertIsNone(file_validation.SHA512)
-        self.assertIsNone(file_validation.SSDeep)
+        self.assertIsNone(file_validation.SSDEEP)
         self.assertIsNone(file_validation.Other)
 
     def test_Validate_IfSizeInBytesNonNumeric_Error(self):
@@ -134,15 +134,15 @@ class FileValidationTests(unittest.TestCase):
 
     def test_Validate_IfSSDeepInvalid_Warn(self):
         file_validation = FileValidationInfo.validate(
-            hashes=make_hashes([(r'SSDeep', r'invalid')]))
+            hashes=make_hashes([(r'SSDEEP', r'invalid')]))
         self.assertIsInstance(file_validation, FileValidationInfo)
-        self.assertEqual(file_validation.SSDeep.status, ValidationStatus.WARN)
+        self.assertEqual(file_validation.SSDEEP.status, ValidationStatus.WARN)
 
     def test_Validate_IfSSDeepValid_Pass(self):
         file_validation = FileValidationInfo.validate(
-            hashes=make_hashes([(r'SSDeep', r'1234567890:0aZ/+:/+zA0,"path/to/a.file"')]))
+            hashes=make_hashes([(r'SSDEEP', r'1234567890:0aZ/+:/+zA0,"path/to/a.file"')]))
         self.assertIsInstance(file_validation, FileValidationInfo)
-        self.assertIsNone(file_validation.SSDeep)
+        self.assertIsNone(file_validation.SSDEEP)
 
     def test_Validate_IfOtherInvalid_Warn(self):
         file_validation = FileValidationInfo.validate(

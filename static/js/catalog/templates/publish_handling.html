@@ -1,0 +1,43 @@
+<style>
+
+    .option-container {
+        max-width: 100%;
+    }
+
+    .option-container button {
+        height: 75px;
+        margin: 2px;
+        width: 156px;
+    }
+
+    .option-container button.btn-default {
+        color: #989898;
+    }
+
+    .option-container button.btn-selected {
+        background-color: #4b5f6a;
+        color: #ffffff;
+    }
+
+</style>
+
+<div>
+    <div>
+        <div class="container option-container">
+            <!-- ko if: message -->
+            <div class="text-center" data-bind="text: message"></div>
+            <!-- /ko -->
+            <!-- ko ifnot: message -->
+                <!-- ko foreach: choices -->
+                <button class="btn" style="white-space: normal" data-bind="
+                        text: $data,
+                        click: $parents[1].toggle.bind($parents[1]),
+                        css: {
+                            'btn-default': !($parents[1].isSelected($data)),
+                            'btn-selected': $parents[1].isSelected($data)
+                        }"></button>
+                <!-- /ko -->
+            <!-- /ko -->
+        </div>
+    </div>
+</div>

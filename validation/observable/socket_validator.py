@@ -22,7 +22,7 @@ def __validate_port(port):
     return port_validation
 
 
-def __validate_protocol(protocol):
+def validate_protocol(protocol):
     protocol_validation = None
 
     if protocol and any(char.isdigit() for char in protocol):
@@ -31,7 +31,7 @@ def __validate_protocol(protocol):
     return protocol_validation
 
 
-def __validate_ip_address(address):
+def validate_ip_address(address):
     if AddressValidationInfo.is_ipv4(address) or AddressValidationInfo.is_ipv6(address):
         return None
     return FieldValidationInfo(ValidationStatus.WARN, 'Socket IP address appears invalid')
@@ -44,7 +44,7 @@ def validate_socket(observable_data):
     hostname = observable_data.get('hostname')
 
     port_validation = __validate_port(port)
-    protocol_validation = __validate_protocol(protocol)
+    protocol_validation = validate_protocol(protocol)
     ip_address_validation = None
     hostname_validation = None
 
@@ -52,7 +52,7 @@ def validate_socket(observable_data):
         ip_address_validation = hostname_validation = \
             FieldValidationInfo(ValidationStatus.ERROR, 'Only one of IP address or Hostname must be completed')
     elif ip_address:
-        ip_address_validation = __validate_ip_address(ip_address)
+        ip_address_validation = validate_ip_address(ip_address)
     elif hostname:
         hostname_validation = HostnameValidationInfo.validate_hostname_value(False, hostname)
 

@@ -6,9 +6,10 @@ define([
     "config/FTSConfig",
     "config/DeDupConfig",
     "config/CRMConfig",
+    "config/MarkingConfig",
     "config/HandlingConfig",
     "config/BacklinkConfig"
-], function (declare, Modal, PublisherConfig, RetentionConfig, FTSConfig, DeDupConfig, CRMConfig, HandlingConfig, BacklinkConfig) {
+], function (declare, Modal, PublisherConfig, RetentionConfig, FTSConfig, DeDupConfig, CRMConfig, MarkingConfig, HandlingConfig, BacklinkConfig) {
     "use strict";
 
     return declare(null, {
@@ -21,6 +22,7 @@ define([
             this.bl = new BacklinkConfig();
             this.crm = new CRMConfig();
             this.handling = new HandlingConfig();
+            this.markings = new MarkingConfig();
 
             this.publisher.getSites();
             this.retention.getConfig();
@@ -28,6 +30,7 @@ define([
             this.dedup.getConfig();
             this.crm.getURL();
             this.handling.getConfig();
+            this.markings.getConfig();
         }
     });
 });

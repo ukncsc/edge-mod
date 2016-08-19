@@ -1,6 +1,9 @@
 import datetime
 import json
+from stix.extensions.identity.ciq_identity_3_0 import STIXCIQIdentity3_0, OrganisationInfo, PartyName, Language, \
+    Address, ElectronicAddressIdentifier, FreeTextLine, ContactNumber
 from dateutil import parser as dtparser
+import types
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -11,7 +14,6 @@ from django.conf import settings
 from stix.common import vocabs
 from stix.incident import IncidentCategories, IntendedEffects, DiscoveryMethods, ExternalID
 from stix.incident.time import Time as StixTime
-from stix.extensions.marking.simple_marking import SimpleMarkingStructure
 
 from edge import IDManager, NamespaceNotConfigured, incident
 from edge.common import EdgeInformationSource
@@ -32,7 +34,6 @@ TIME_TYPES = (("first_malicious_action", "First Malicious Action", False),
               ("incident_reported", "Incident Reported", False),
               ("incident_closed", "Incident Closed", False))
 
-MARKING_PRIORITIES = ("UK HMG Priority: [C1]", "UK HMG Priority: [C2]", "UK HMG Priority: [C3]")
 
 configuration = settings.ACTIVE_CONFIG
 
@@ -49,7 +50,6 @@ def get_build_template(static, id_, id_ns):
         'statuses': json.dumps(static['statuses']),
         'categories': json.dumps(CATEGORIES),
         'time_types_list': json.dumps(TIME_TYPES),
-        'marking_priorities': json.dumps(MARKING_PRIORITIES),
         'confidences': json.dumps(static['confidences']),
         'tlps': json.dumps(static['tlps']),
         'trustgroups': json.dumps(static['trustgroups']),
@@ -95,14 +95,12 @@ def incident_view(request, id, edit=False):
         'statuses': json.dumps(static['statuses']),
         'categories': json.dumps(CATEGORIES),
         'time_types_list': json.dumps(TIME_TYPES),
-        'marking_priorities': json.dumps(MARKING_PRIORITIES),
         'confidences': json.dumps(static['confidences']),
         'tlps': json.dumps(static['tlps']),
         'trustgroups': json.dumps(static['trustgroups']),
         'discovery_methods': json.dumps(static['discovery_methods']),
         'intended_effects': json.dumps(static['intended_effects']),
         'ajax_uri': reverse('incident_ajax'),
-        'object_type': "incident",
         'time_zone': datetime.datetime.now(settings.LOCAL_TZ).tzname()
     })
 
@@ -130,15 +128,6 @@ def from_draft_wrapper(wrapped_func):
         target.coordinators = [EdgeInformationSource.from_draft(drop_if_empty(coordinator)) for coordinator in
                                draft.get('coordinators', [])]
 
-        # Edge sets handling by looking for magic strings, tlp and markings, (handing_from draft in handling.py).
-        # This is the easiest/least hacky way of adding a new marking.
-        handling_caveat = SimpleMarkingStructure(draft.get('handling_caveat'))
-        # the following is to mark this as different so on assembling we can recognise
-        # between the 2 simple marking structures
-        handling_caveat.marking_model_name = HANDLING_CAVEAT
-
-        target.handling.markings[0].marking_structures.append(handling_caveat)
-
         return target
 
     return classmethod(_w)
@@ -161,7 +150,7 @@ class DBIncidentPatch(incident.DBIncident):
 
         draft['categories'] = [c.value for c in rgetattr(inc, ['categories'], [])]
         if inc.time:
-            draft['time'] = inc.time.to_dict();
+            draft['time'] = inc.time.to_dict()
             for key, value in draft.get('time').iteritems():
                 if isinstance(value, basestring):
                     new_value = DBIncidentPatch.convert_to_and_strip_config_timezone(value)
@@ -174,15 +163,11 @@ class DBIncidentPatch(incident.DBIncident):
             for ex_id in inc.external_ids:
                 draft['external_ids'].append({'source': ex_id.source, 'id': ex_id.value})
 
-
         # Redoing to use correct patched function, can't guarantee correct function if monkey patched
         draft["markings"] = DBIncidentPatch.handling_to_draft(inc, "statement")
         draft["tlp"] = DBIncidentPatch.handling_to_draft(inc, "color")
 
-        draft['handling_caveat'] = DBIncidentPatch.handling_to_draft(inc, "handling_caveat")
-
         return draft
-
 
     @staticmethod
     def handling_to_draft(construct, structure):
@@ -201,7 +186,6 @@ class DBIncidentPatch(incident.DBIncident):
                         if getattr(marking_structure, structure, None):
                             draft[structure].append(getattr(marking_structure, structure, None))
         return draft[structure]
-
 
     @staticmethod
     def append_config_timezone(time_dict):
@@ -230,10 +214,6 @@ class DBIncidentPatch(incident.DBIncident):
         self.external_ids = []
         for ex_id in update_obj.external_ids:
             self.external_ids.append(ExternalID(ex_id.value, ex_id.source))
-
-    @classmethod
-    def api_from_dict(cls, data):
-        return cls.from_dict(data)
 
 
 def apply_patch():

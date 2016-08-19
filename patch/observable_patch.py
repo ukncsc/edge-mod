@@ -49,7 +49,7 @@ def generate_db_observable_patch(custom_draft_handler_map):
                 # to_draft sets the hash_type to lower case. This is not what is expected during Inboxing or Validation!
                 hash_type_map = {'md5': 'MD5', 'md6': 'MD6', 'sha1': 'SHA1', 'sha224': 'SHA224',
                                  'sha256': 'SHA256', 'sha384': 'SHA384', 'sha512': 'SHA512',
-                                 'ssdeep': 'SSDeep', 'other': 'Other'}
+                                 'ssdeep': 'SSDEEP', 'other': 'Other'}
 
                 if 'hashes' in draft:
                     for hash_ in draft['hashes']:

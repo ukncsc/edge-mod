@@ -19,9 +19,14 @@ def save(name, value):
 
 
 def get(name):
-    return _config().find_one({
+    value = _config().find_one({
         'name': name
-    }).get('value')
+    })
+
+    if value is not None:
+        return value.get('value')
+    else:
+        return value
 
 
 def get_all():

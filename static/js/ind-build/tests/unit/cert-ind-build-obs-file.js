@@ -37,7 +37,7 @@ define([
                 "get SSDEEP": function () {
                     var obsFile = new CERTObservableFile();
                     var type = obsFile.getHashType("1234567890:0aZ/+:/+zA0,\"path/to/a.file\"");
-                    assert.isTrue(type === "SSDeep");
+                    assert.isTrue(type === "SSDEEP");
                 },
 
                 "get SHA224": function () {

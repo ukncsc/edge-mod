@@ -20,7 +20,6 @@ define([
         "categories_list": incident_builder.categories_list,
         "time_zones_list": incident_builder.time_zones_list,
         "time_types_list": incident_builder.time_types_list,
-        "marking_priorities": incident_builder.marking_priorities,
         "time_zone": incident_builder.time_zone
     });
 

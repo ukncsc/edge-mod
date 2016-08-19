@@ -9,7 +9,6 @@
     'text-info': value().hasInfo,
     'value-missing': value().isEmpty
     }">
-    <!-- ko ifnot: value().isEmpty -->
     <table class="table table-condensed table-striped" data-bind="css: { 'cols-3': columns.length === 3 }">
         <thead>
         <tr data-bind="foreach: columns">
@@ -22,5 +21,4 @@
         </tr>
         </tbody>
     </table>
-    <!-- /ko -->
 </dd>

@@ -19,12 +19,23 @@ def ajax_get_cert_config(request):
 
 @login_required_ajax
 @superuser_or_staff_role
-def ajax_get_crm_url(request):
+def ajax_set_crm_config(request):
+    config = json.loads(request.body)
     try:
-        url = get_config("crmURL")
+        save_config("crm_config", config)
+        return JsonResponse({}, status=200)
+    except Exception as e:
         return JsonResponse({
-            'crmURL': url
-        }, status=200)
+            'message': e.message
+        }, status=500)
+
+
+@login_required_ajax
+@superuser_or_staff_role
+def ajax_get_crm_config(request):
+    try:
+        config = get_config("crm_config")
+        return JsonResponse(config, safe=False, status=200)
     except Exception as e:
         return JsonResponse({
             'message': e.message
@@ -36,7 +47,7 @@ def ajax_get_crm_url(request):
 def ajax_get_sharing_groups(request):
     try:
         sharing_groups = get_config("sharing_groups")
-        return JsonResponse(sharing_groups, status=200)
+        return JsonResponse(sharing_groups, safe=False, status=200)
     except Exception as e:
         return JsonResponse({
             'message': e.message
@@ -58,22 +69,26 @@ def ajax_set_sharing_groups(request):
 
 @login_required_ajax
 @superuser_or_staff_role
-def ajax_set_crm_url(request):
-    url = json.loads(request.body)
-
-    if validate(url):
-        try:
-            save_config("crmURL", url)
-            return JsonResponse({}, status=200)
-        except Exception as e:
-            return JsonResponse({
-                'message': e.message
-            }, status=500)
-    else:
+def ajax_get_markings(request):
+    try:
+        markings = get_config("markings")
+        return JsonResponse(markings, safe=False, status=200)
+    except Exception as e:
         return JsonResponse({
-            'message': "Invalid URL"
-        }, status=400)
+            'message': e.message
+        }, status=500)
 
 
-def validate(value):
-    return value.endswith("crmapi")
+@login_required_ajax
+@superuser_or_staff_role
+def ajax_set_markings(request):
+    markings = json.loads(request.body)
+    try:
+        save_config("markings", markings)
+        return JsonResponse({}, status=200)
+    except Exception as e:
+        return JsonResponse({
+            'message': e.message
+        }, status=500)
+
+

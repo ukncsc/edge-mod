@@ -10,7 +10,7 @@
     },
     modules: [
         {
-            name: "publisher/main"
+            name: "catalog/cert-catalog-build-ready"
         },
         {
             name: "config/config-main"
@@ -38,6 +38,9 @@
         },
         {
             name: "extract/visualise/main"
+        },
+        {
+            name: "extract/status/main"
         },
         {
             name: "timeline/incident_main"

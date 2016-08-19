@@ -24,6 +24,9 @@ define([
         "Number" : function (rawValue) {
             return isFinite(rawValue) ? rawValue : null;
         },
+        "ObservableString" : function (rawValue, deliminator) {
+            return rawValue;
+        },
         "String" : function (rawValue, rawDelimiter) {
             var delimiter = rawDelimiter || "##comma##";
             return rawValue.length > 0 ? rawValue.split(delimiter).join(",") : null;
@@ -65,7 +68,12 @@ define([
     }
 
     function buildValue(rawValue, delimiter) {
-        var valueType = Object.prototype.toString.call(rawValue).slice(8, -1);
+        if (ko.isObservable(rawValue)) {
+            var valueType = "ObservableString";
+        } else {
+             var valueType = Object.prototype.toString.call(rawValue).slice(8, -1);
+        }
+
         return (valueBuilders[valueType] || defaultValueBuilder)(rawValue, delimiter);
     }
 
@@ -77,7 +85,11 @@ define([
         declaredClass: "ReviewValue",
         constructor: function (/*Any*/ value, /*State?*/ state, /*String?*/ message) {
             this.value = ko.computed(function () {
-                return buildValue(value);
+                var ret = buildValue(value);
+                if (ko.isObservable(ret)) {
+                    return ret();
+                }
+                return ret;
             });
             this.state = ko.computed(function () {
                 return isValidState(state) ? state : ReviewValue.State.OK;
