@@ -19,11 +19,6 @@ class URLConfTests(unittest.TestCase):
         review_resolve_match = resolve('/review/', URLConfTests.urls)
         self.assertEqual(review_resolve_match.func, views.discover)
 
-    def test_Reverse_PublisherReview_ReturnsCorrectURL(self):
-        review_url = reverse('publisher_review', URLConfTests.urls,
-                             kwargs={"id_": "example:incident-02468346-fdf2-4095-a905-f3731fccd58d"})
-        self.assertEqual(review_url, '/review/example%3Aincident-02468346-fdf2-4095-a905-f3731fccd58d')
-
     def test_Resolve_PublisherReview_ReturnsCorrectHandler(self):
         review_resolve_match = resolve('/review/example:incident-02468346-fdf2-4095-a905-f3731fccd58d',
                                        URLConfTests.urls)
