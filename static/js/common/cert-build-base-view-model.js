@@ -1,11 +1,11 @@
-define([
+ define([
     "dcl/dcl",
     "knockout",
     "common/modal/Modal",
     "kotemplate!builder-publish:./templates/builder-publish-modal.html",
     "common/cert-build-mode",
     "stix/ValidationInfo",
-    "kotemplate!validation-results:../publisher/templates/validation-results.html",
+    "kotemplate!validation-results:../catalog/templates/validation-results.html",
     "common/modal/publish-modal-content",
     "common/change-tracker",
     "common/jquery-shim"

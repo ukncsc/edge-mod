@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% load staticfiles %}
+{% block head-title %}{{ main_title }}{% endblock %}
+{% block head-content %}
+    <link rel="stylesheet" href="/adapter/certuk_mod{% static "css/timeline.css" %}" media="screen">
+    <link rel="stylesheet" href="/adapter/certuk_mod{% static "css/catalog.css" %}" media="screen">
+{% endblock %}
+
+{% block body-content %}
+    <div class="container">
+        {% include 'catalog_activity_log.html' %}
+        {% include 'catalog_revisions.html' %}
+        {% include 'catalog-matching-content.html' %}
+        {% include 'catalog-referenced-by.html' %}
+        {% include 'catalog-edges.html' %}
+        {% include 'catalog-purge.html' %}
+        <div class="row" data-bind="template: 'header'"></div>
+        <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
+        </br>
+        <!-- ko if: type().code == "inc" -->
+        <div id="incidentTimelineSVG" class="col-sm-12 chart"></div>
+        <!-- /ko -->
+        <div data-bind="template: { name: 'Edges', data: section().findByLabel('Edges')}"></div>
+        <div data-bind="template: { name: 'Matching', data: section().findByLabel('Matching')}"></div>
+        <div data-bind="template: { name: 'References', data: section().findByLabel('References')}"></div>
+        <div data-bind="template: { name: 'Activity', data: section().findByLabel('Activity')}"></div>
+
+    </div>
+{% endblock %}
+
+{% block body-end %}
+    <script type="text/html" id="header">
+        <div class="col-sm-12">
+            <h3 class="obj-title">
+                <div class="btn-group pull-right" style="background-color: rgb(247, 247, 247)">
+                    <a class="btn" data-bind="click: onPublish">External Publish</a>
+                    <!-- ko if: type().code != 'obs' -->
+                    <!-- ko if: type().code != 'pkg' -->
+                    <a class="btn" title="View in Builder" data-bind="attr: { href: viewURL}">View</a>
+                    <!-- /ko -->
+                    <!-- /ko -->
+                    <!-- ko if : editable -->
+                    <a class="btn" title="Edit in Builder" data-bind="attr: { href: editURL}">Edit</a>
+                    <!-- /ko -->
+                    <!-- ko if: type().code != 'obs' -->
+                    <!-- ko if: type().code != 'pkg' -->
+                    <a class="btn" title="Clone to Draft" data-bind="attr: { href: cloneURL}">Clone</a>
+                    <!-- /ko -->
+                    <!-- /ko -->
+                    <a class="btn" type="button" data-bind="attr: { href: visualiserURL}">Visualise</a>
+                </div>
+                <img alt="" src="" data-bind="attr: {
+                    src: '{% static "img/hex" %}/hex_'+type().code+'.png'
+                }">
+                <span data-bind="text: type().label"></span><br>
+                <small data-bind="text: root().id"></small>
+            </h3>
+            <div data-bind="template: { name: 'Revisions', data: section().findByLabel('Revisions')}"></div>
+
+            <div class="btn-group pull-right">
+                <!-- ko if: type().code === 'obs' -->
+                <a class="btn btn-xs btn-success">Sightings <span data-bind="text: sightings" class="badge"></span></a>
+                <!-- /ko -->
+                <a class="btn btn-xs btn-primary"
+                   data-bind="attr:{href:'/catalog/download/'+type().code+'/'+rootID()+'/'+version()}" target='_blank'>Download
+                    Revision</a>
+                <a class="btn btn-xs btn-primary" data-bind="attr:{href:'/to_html/'+rootID()}" target='_blank'>View
+                    STIX-to-HTML</a>
+                <!-- ko template: { name: 'Purge', data: section().findByLabel('Purge')} --><!-- /ko -->
+            </div>
+        </div>
+    </script>
+
+    {% include 'publisher-warning.html' %}
+
+    <script src="{% static 'js/knockout-3.1.0.js' %}"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/stickytape.js' %}"></script>
+    <script>
+        var require = {
+            baseUrl: "/adapter/certuk_mod{% static 'js' %}",
+            paths: {
+                d3: "{% static "js/d3.min" %}",
+                knockout: "common/knockout-shim",
+                "config-service": "/adapter/certuk_mod/config/get_cert_config"
+            },
+            urlArgs: "{% spaceless %}{% include 'version.html' %}{% endspaceless %}"
+        };
+        var rootId = "{{ root_id }}";
+        var revision = "{{ revision }}";
+        var trustGroups = Object.freeze({{ trust_groups|safe }});
+        var stixPackage = Object.freeze({{ package.to_json|safe }});
+        var validationInfo = Object.freeze({{ validation_info.to_json|safe }});
+        var killChainPhases = Object.freeze({{ kill_chain_phases|safe }});
+        var ajax_uri = '{{ ajax_uri }}';
+        var viewURL = "{{ view_url }}";
+        var editURL = "{{ edit_url }}";
+        var cloneURL = "{{ clone_url }}";
+        var visualiserURL = "{{ visualiser_url }}";
+        var revisions = Object.freeze({{ revisions|safe }});
+        var version = "{{ version }}";
+        var sightings = "{{ sightings }}";
+        var backLinks = Object.freeze({{ back_links|safe }});
+        var edges = Object.freeze({{ edges|safe }});
+        var canRevoke = {{ can_revoke|yesno:"true,false" }};
+        var canPurge = {{ can_purge|yesno:"true,false" }};
+
+    </script>
+
+    <script src="/adapter/certuk_mod{% static 'js/require.js' %}" data-main="catalog/cert-catalog-build-ready"></script>
+
+{% endblock %}
