@@ -45,6 +45,8 @@ publisher_urls = [
     (r'^incident_timeline/missing/$', 'views.incident_timeline_not_found', 'incident_timeline_not_found'),
     (r'^ajax/incident_timeline/(?P<id_>' + VALID_STIX_ID + ')$', 'views.ajax_incident_timeline', 'ajax_incident_timeline'),
 
+    (r'^import/incident_ingest/(?P<username>\S+)$', 'views.ajax_create_incidents', None),
+
     (r'^clone/$', 'views.clone', 'clone_to_draft'),
     (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'catalog_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),

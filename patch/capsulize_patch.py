@@ -42,7 +42,7 @@ def extract_handling_markings(self):
     api_data = self.apidata
     if 'handling' in api_data:
         handling = api_data["handling"][0]
-        if "marking_structures" in handling:
+        if 'marking_structures' in handling:
             marking_structures = handling["marking_structures"]
 
             for structure in marking_structures:

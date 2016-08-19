@@ -183,11 +183,9 @@ def _add_matching_file_observables(db, map_table, contents):
                 map_table[new_id] = existing_file['_id']
 
 
-def _existing_hash_dedup(contents, hashes, user):
-    db = get_db()
-
+def _generate_duplicates_by_hash(contents, hashes, db, type):
     existing_items = db.stix.find({
-        'type': 'obs',
+        'type': type,
         'data.hash': {
             '$in': hashes.values()
         }
@@ -202,6 +200,28 @@ def _existing_hash_dedup(contents, hashes, user):
         id_: hash_to_existing_ids[hash_] for id_, hash_ in hashes.iteritems() if hash_ in hash_to_existing_ids
         }
 
+    return map_table
+
+def _generate_map_table_on_hash(contents, hashes, type):
+    hash_to_ids = {}
+    for id_, hash_ in sorted(hashes.iteritems()):
+        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == type:
+            hash_to_ids.setdefault(hash_, []).append(id_)
+
+    map_table = {}
+    for hash_, ids in hash_to_ids.iteritems():
+        if len(ids) > 1:
+            master = ids[0]
+            for dup in ids[1:]:
+                map_table[dup] = master
+    return map_table
+
+
+def _existing_observable_hash_dedup(contents, hashes, user):
+    db = get_db()
+
+    map_table = _generate_duplicates_by_hash(contents, hashes, db, 'obs')
+
     # file observable have more complex rules for duplicates, so simple hash matching isn't good enough
     _add_matching_file_observables(db, map_table, contents)
 
@@ -215,18 +235,8 @@ def _existing_hash_dedup(contents, hashes, user):
     return out, message
 
 
-def _new_hash_dedup(contents, hashes, user):
-    hash_to_ids = {}
-    for id_, hash_ in sorted(hashes.iteritems()):
-        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == 'obs':
-            hash_to_ids.setdefault(hash_, []).append(id_)
-
-    map_table = {}
-    for hash_, ids in hash_to_ids.iteritems():
-        if len(ids) > 1:
-            master = ids[0]
-            for dup in ids[1:]:
-                map_table[dup] = master
+def _new_observable_hash_dedup(contents, hashes, user):
+    map_table = _generate_map_table_on_hash(contents, hashes, 'obs')
 
     out, additional_sightings, additional_file_hashes = _coalesce_duplicates(contents, map_table)
 
@@ -425,10 +435,33 @@ def _existing_tgt_local_ns_cve_dedup(contents, hashes, user):
     return _existing_tgt_cve_dedup(contents, hashes, user, True)
 
 
+def _existing_incident_hash_dedup(contents, hashes, user):
+    db = get_db()
+    map_table = _generate_duplicates_by_hash(contents, hashes, db, 'inc')
+
+    out = _coalesce_non_observable_duplicates(contents, map_table)
+
+    message = _generate_message("Remapped %d incidents to existing incidents bashed on hashes", contents, out)
+
+    return out, message
+
+
+def _new_incident_hash_dedup(contents, hashes, user):
+    map_table = _generate_map_table_on_hash(contents, hashes, 'inc')
+
+    out = _coalesce_non_observable_duplicates(contents, map_table)
+
+    message = _generate_message("Merged %d incidents in the supplied package based on hashes", contents, out)
+
+    return out, message
+
+
 class DedupInboxProcessor(InboxProcessorForPackages):
     filters = ([drop_envelopes] if INBOX_DROP_ENVELOPES else []) + [
-        _new_hash_dedup,  # removes new STIX objects matched by hash
-        _existing_hash_dedup,  # removes existing STIX objects matched by hash
+        _new_observable_hash_dedup,  # removes new observables matched by hash
+        _existing_observable_hash_dedup,  # removes observables objects matched by hash
+        _new_incident_hash_dedup,  # removes new incidents matched by hash
+        _existing_incident_hash_dedup,  # removes existing incidents matched by hash
         _new_ttp_local_ns_capec_dedup,  # removes new TTPs matched by CAPEC-IDs and Title in local NS
         _existing_ttp_local_ns_capec_dedup,  # dedup against existing TTPs matched by CAPEC-IDs and Title in local NS
         _new_tgt_local_ns_cve_dedup,  # removes new tgts matched by CVE-ID in incoming package in local NS

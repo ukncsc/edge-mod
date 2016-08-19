@@ -1,6 +1,9 @@
 import datetime
 import json
+from stix.extensions.identity.ciq_identity_3_0 import STIXCIQIdentity3_0, OrganisationInfo, PartyName, Language, \
+    Address, ElectronicAddressIdentifier, FreeTextLine, ContactNumber
 from dateutil import parser as dtparser
+import types
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -211,10 +214,6 @@ class DBIncidentPatch(incident.DBIncident):
         self.external_ids = []
         for ex_id in update_obj.external_ids:
             self.external_ids.append(ExternalID(ex_id.value, ex_id.source))
-
-    @classmethod
-    def api_from_dict(cls, data):
-        return cls.from_dict(data)
 
 
 def apply_patch():

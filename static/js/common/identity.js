@@ -44,9 +44,8 @@ define([
 
     if (isEnabled) {
         return CERTIdentity;
-    } else {
-        return EdgeIdentity;
     }
 
+    return EdgeIdentity;
 
 });

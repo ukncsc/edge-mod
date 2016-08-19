@@ -128,7 +128,9 @@ define([
                 return {
                     name: this.UUID(),
                     specification: {
-                        organisation_info: this.sector()
+                        organisation_info: {
+                            industry_type: this.sector()
+                        }
                     }
                 }
             } else {
