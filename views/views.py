@@ -34,7 +34,7 @@ from adapters.certuk_mod.validation.package.validator import PackageValidationIn
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 from adapters.certuk_mod.common.views import error_with_message
 
-import adapters.certuk_mod.builder.customizations as cert_builder
+from adapters.certuk_mod.builder import customizations as cert_builder
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log

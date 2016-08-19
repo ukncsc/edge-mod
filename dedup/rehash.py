@@ -6,7 +6,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 from django.conf import settings
 
 if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.py')
-import adapters.certuk_mod.builder.customizations as cert_builder
+from adapters.certuk_mod.builder import customizations as cert_builder
 
 from edge.generic import EdgeObject
 from mongoengine.connection import get_db
