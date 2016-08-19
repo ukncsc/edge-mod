@@ -16,7 +16,6 @@ with mock.patch('django.contrib.auth.decorators.login_required', lambda func: fu
 
 
 class ViewHandlerTests(unittest.TestCase):
-
     @mock.patch('adapters.certuk_mod.common.objectid.redirect')
     @mock.patch(EdgeObject.__module__ + '.' + EdgeObject.__name__ + '.load', new=mock.Mock())
     @mock.patch('adapters.certuk_mod.common.objectid.find_id')
@@ -51,25 +50,54 @@ class ViewHandlerTests(unittest.TestCase):
         self.assertEqual(response, mock_redirect.return_value)
 
     @mock.patch.object(views, 'render')
+    @mock.patch('adapters.certuk_mod.catalog.backlink.BackLinkGenerator.retrieve_back_links')
+    @mock.patch('adapters.certuk_mod.catalog.edges.EdgeGenerator.gather_edges')
+    @mock.patch('adapters.certuk_mod.catalog.revoke.Revocable.is_revocable')
     @mock.patch('adapters.certuk_mod.validation.package.validator.PackageValidationInfo.validate')
     @mock.patch('adapters.certuk_mod.publisher.package_generator.PackageGenerator.build_package')
-    @mock.patch(EdgeObject.__module__ + '.' + EdgeObject.__name__ + '.load', new=mock.Mock())
+    @mock.patch('adapters.certuk_mod.publisher.publisher_edge_object.PublisherEdgeObject.load')
     @mock.patch('adapters.certuk_mod.common.objectid.find_id')
     @mock.patch('django.http.request.HttpRequest')
-    def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_find_id, mock_package_builder, mock_validate,
+    def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_find_id, mock_publisher_object,
+                                            mock_package_builder, mock_validate, mock_revoke, mock_edges,
+                                            mock_back_links,
                                             mock_render):
-        mock_id = 'Dummy ID'
+        mock_id = 'Dummy ID/3'
         mock_find_id.return_value = mock_id
 
         mock_render.return_value = 'Mock render'
+        mock_root_edgge_object = mock.Mock()
+        mock_root_edgge_object.tg = {}
+        mock_root_edgge_object.doc = {}
+        mock_root_edgge_object.doc["type"] = 'ind'
+        mock_root_edgge_object.revisions = {}
+        mock_publisher_object.return_value = mock_root_edgge_object
 
-        response = views.review(mock_request, id_=mock_id)
+        mock_back_links.return_value = {}
+        mock_edges.return_value = {}
+        mock_revoke.return_value = False
+
+        response = views.review(mock_request, id=mock_id)
 
         mock_render.assert_called_with(mock_request, 'catalog_review.html', {
-            'root_id': mock_id,
+            'root_id': "Dummy ID",
             'validation_info': mock_validate.return_value,
             'package': mock_package_builder.return_value,
-            'kill_chain_phases': {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES}
+            'kill_chain_phases': {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
+            "trust_groups": '{}',
+            "back_links": '{}',
+            "edges": '{}',
+            'view_url': '/indicator/view/Dummy%20ID/',
+            'edit_url': '/indicator/edit/Dummy%20ID/',
+            'visualiser_url': '/adapter/certuk_mod/visualiser/Dummy%20ID',
+            'clone_url': "/adapter/certuk_mod/clone",
+            "revisions": '{}',
+            "revision": "3",
+            "version": mock_root_edgge_object.version,
+            "sightings": None,
+            'ajax_uri': '/catalog/ajax/',
+            "can_revoke": False,
+            "can_purge": False
         })
 
         self.assertEqual(response, mock_render.return_value)
