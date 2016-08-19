@@ -9,7 +9,7 @@ require([
         window["rootId"],
         "/adapter/certuk_mod/ajax/visualiser/",
         "/adapter/certuk_mod/ajax/visualiser/item/",
-        "/adapter/certuk_mod/review/",
+        "/object/",
         (new PanelActionsBuilder()).build(),
         function (viewModel) {
             ko.applyBindings(
