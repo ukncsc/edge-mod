@@ -4,7 +4,6 @@ from mongoengine.connection import get_db
 from edge.tools import StopWatch
 from adapters.certuk_mod.common.activity import save as log_activity
 from datetime import datetime
-from pymongo.errors import InvalidOperation
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.py')
