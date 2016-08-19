@@ -17,7 +17,9 @@ define([
         name: uuid,
         roles: null,
         specification: {
-            organisation_info: it
+            organisation_info: {
+                "industry_type": it
+            }
         }
     };
 
@@ -25,7 +27,9 @@ define([
         name: testORG2,
         roles: null,
         specification: {
-            organisation_info: it
+            organisation_info: {
+                "industry_type": it
+            }
         }
     };
 
