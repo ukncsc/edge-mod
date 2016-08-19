@@ -21,7 +21,7 @@ class STIXPurge(object):
             'created_on': {
                 '$lt': minimum_date
             },
-            "$or": [{"type": "ind"}, {"type": "obs"}],
+            'type': {'$in': ['obs', 'ind']},
             '_id': {
                 '$gt': minimum_id
             },
