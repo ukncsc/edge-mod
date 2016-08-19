@@ -66,11 +66,11 @@ define([
                     assert.isFalse(actual.isEmpty());
                     assert.equal(actual.value(), "Primary Target");
                 },
-                "has correct attack patterns": function () {
+                "has correct attack patterns, concatenating capec ids into values": function () {
                     var actual = classUnderTest.attackPatterns();
                     assert.instanceOf(actual, ReviewValue);
                     assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Pattern 1, Pattern 2, Pattern 3");
+                    assert.equal(actual.value(), "Pattern 1(CAPEC-01), Pattern 2(CAPEC-02), Pattern 3(CAPEC-03)");
                 },
                 "has correct malware instances": function () {
                     var actual = classUnderTest.malwareInstances();
