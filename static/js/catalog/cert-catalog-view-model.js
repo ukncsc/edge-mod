@@ -172,9 +172,7 @@ define([
 
         onRowClicked: function (item, event) {
             if (item.id() && item.title().value() != "(External)") {
-                var path = window.location.href.split("/");
-                path[path.length - 2] = item.id();
-                window.open(path.join("/"));
+                window.open("/object/" + item.id());
             }
         }
     });
