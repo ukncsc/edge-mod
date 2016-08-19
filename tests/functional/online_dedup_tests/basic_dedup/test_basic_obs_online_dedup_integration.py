@@ -43,7 +43,7 @@ class BasicOnlineDedupFunctionalTests(online_dedup.BaseOnlineDedupFunctionalTest
         in_backlinks_after = self.parent_ID_in_Childs_Backlinks('fireeye:observable-ed28d1a1-ab04-4f04-b7ae-78562a91286a',
                                               'fireeye:indicator-cfe1379b-2ddd-460c-b3cc-29758ce8d6c1')
 
-        self.assertEquals(1, stix_count_before -stix_count_after)
+        self.assertEquals(1, stix_count_before - stix_count_after)
         self.assertEquals(1, correct_obs_exists)
         self.assertEquals(0, deleted_obs_gone)
 

@@ -47,7 +47,7 @@ class ObsCompOnlineDedupFunctionalTests(online_dedup.BaseOnlineDedupFunctionalTe
                                               'pss:observable-fa7590ac-fd4f-4a74-a84a-d0301f4ec667')
 
 
-        self.assertEquals(-1, stix_count_after - stix_count_before)
+        self.assertEquals(1, stix_count_before - stix_count_after)
         self.assertEquals(1, correct_obs_exists)
         self.assertEquals(0, deleted_obs_gone)
 

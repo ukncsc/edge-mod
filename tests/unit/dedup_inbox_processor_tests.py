@@ -526,10 +526,7 @@ class DedupInboxProcessorTests(unittest.TestCase):
                               'pss:ttp-00000000-0000-0000-0000-000000000002': 'pss:ttp-00000000-0000-0000-0000-000000000003'},
                              map_table)
 
-    @mock.patch('adapters.certuk_mod.dedup.DedupInboxProcessor._merge_ttps')
-    def test_merge_ttps(self, mock_merge_ttps):
-        mock_merge_ttps.return_value = ['pss:tgt-00000000-0000-0000-0000-000000000001',
-                                        'pss:ttp-00000000-0000-0000-0000-000000000001']
+    def test_merge_ttps(self):
         api_object = mock.create_autospec(ApiObject, ty='ttp')
         references = [mock.create_autospec(ApiReference, idref='pss:ttp-00000000-0000-0000-0000-000000000001', ty='ttp'),
                       mock.create_autospec(ApiReference, idref='pss:tgt-00000000-0000-0000-0000-000000000001', ty='tgt')]
