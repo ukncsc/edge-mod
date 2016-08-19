@@ -17,7 +17,9 @@ define([
         name: uuid,
         roles: null,
         specification: {
-            organisation_info: it
+            organisation_info: {
+                "industry_type": it
+            }
         }
     };
 
@@ -25,7 +27,9 @@ define([
         name: testORG2,
         roles: null,
         specification: {
-            organisation_info: it
+            organisation_info: {
+                "industry_type": it
+            }
         }
     };
 
@@ -80,21 +84,23 @@ define([
                         assert.equal(identity.UUID(), uuid);
                         assert.equal(identity.name(), uuid);
                     },
-                    "will provide empty string for UUID and sector if not supplied in data": function() {
+                    "will provide empty string for UUID and sector if not supplied in data": function () {
                         var identity = new CERTIdentity();
 
                         getJSONReturnError = false;
                         var data = {
                             name: null,
                             specification: {
-                                organisation_info: null
+                                organisation_info: {
+                                    "industry_type": null
+                                }
                             }
                         };
                         identity.load(data);
 
                         assert.equal(identity.UUID(), "");
                         assert.equal(identity.sector(), "");
-                        assert.equal(identity.name(). testORG);
+                        assert.equal(identity.name(), "");
                     }
                 },
                 "return json": {
@@ -112,7 +118,9 @@ define([
                         var expectedJson = {
                             name: testORG2,
                             specification: {
-                                organisation_info: it
+                                organisation_info: {
+                                    "industry_type": it
+                                }
                             }
                         };
 
@@ -234,20 +242,20 @@ define([
                         };
 
                         identity.modal = {
-                            close: function() {
-                            return true;
+                            close: function () {
+                                return true;
                             }
                         };
                         identity.onSelect(data);
 
                         assert.equal(identity.searchTerm(), "");
                     },
-                    "cancels correctly from modal view": function() {
+                    "cancels correctly from modal view": function () {
                         var identity = new CERTIdentity();
 
                         identity.modal = {
-                            close: function() {
-                            return true;
+                            close: function () {
+                                return true;
                             }
                         };
                         identity.cancel();
@@ -256,7 +264,7 @@ define([
                     }
                 },
                 "searches crm": {
-                    "search crm correctly": function() {
+                    "search crm correctly": function () {
                         var identity = new CERTIdentity();
 
                         getJSONReturnError = false;
@@ -267,7 +275,7 @@ define([
                         assert.deepEqual(identity.searchResults(), {name: 'test-org'});
                         assert.isFalse(identity.error());
                     },
-                    "error in searching crm": function() {
+                    "error in searching crm": function () {
                         var identity = new CERTIdentity();
 
                         getJSONReturnError = true;

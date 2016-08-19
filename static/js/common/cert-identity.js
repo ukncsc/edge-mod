@@ -45,7 +45,7 @@ define([
         load: function (data) {
             this.UUID(data["name"] || "");
             this.getName(this.UUID());
-            this.sector(data["specification"]["organisation_info"] || "");
+            this.sector(data["specification"]["organisation_info"]["industry_type"] || "");
             this.selected(true);
             return this;
         },
