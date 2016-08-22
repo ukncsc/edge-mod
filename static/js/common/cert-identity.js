@@ -46,7 +46,7 @@ define([
             this.UUID(data["name"] || "");
             this.getName(this.UUID());
             if (Utils.checkNestedFieldExists(data, "specification", "organisation_info", "industry_type")) {
-                this.sector(data["specification"]["organisation_info"]["industry_type"]);
+                this.sector(data["specification"]["organisation_info"]["industry_type"] || "");
             }
             this.selected(true);
             return this;

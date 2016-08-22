@@ -89,13 +89,9 @@ define([
 
                         getJSONReturnError = false;
                         var data = {
-                            name: null,
-                            specification: {
-                                organisation_info: {
-                                    "industry_type": null
-                                }
-                            }
+                            name: null
                         };
+
                         identity.load(data);
 
                         assert.equal(identity.UUID(), "");
