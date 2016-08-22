@@ -1,7 +1,8 @@
 define([
     "dcl/dcl",
-    "knockout"
-], function (declare, ko) {
+    "knockout",
+    "common/cert-utils"
+], function (declare, ko, Utils) {
     "use strict";
     /*
      * Refactored existing Edge Identity to use DCL to allow swapping from CRM Identity to CIQ 3.0 Identity.
@@ -27,19 +28,19 @@ define([
             this.name(data["name"] || '');
             this.roles(data["roles"] || []);
 
-            if (this.checkNestedFieldExists(data, "specification", "electronic_address_identifiers")) {
+            if (Utils.checkNestedFieldExists(data, "specification", "electronic_address_identifiers")) {
                 this.electronic_address_identifiers(data["specification"]["electronic_address_identifiers"]);
             } else {
                 this.electronic_address_identifiers([]);
             }
 
-            if (this.checkNestedFieldExists(data, "specification", "party_name", "name_lines")) {
+            if (Utils.checkNestedFieldExists(data, "specification", "party_name", "name_lines")) {
                 this.party_name(data["specification"]["party_name"]["name_lines"][0]["value"]);
             } else {
                 this.party_name('');
             }
 
-            if (this.checkNestedFieldExists(data, "specification", "languages")) {
+            if (Utils.checkNestedFieldExists(data, "specification", "languages")) {
                 this.languages(data.specification.languages.map(function (obj) {
                     return obj.value;
                 }));
@@ -47,7 +48,7 @@ define([
                 this.languages([]);
             }
 
-            if (this.checkNestedFieldExists(data, "specification", "free_text_lines")) {
+            if (Utils.checkNestedFieldExists(data, "specification", "free_text_lines")) {
                 this.free_text_lines(data.specification.free_text_lines.map(function (obj) {
                     return obj.value;
                 }));
@@ -55,18 +56,6 @@ define([
                 this.free_text_lines([]);
             }
             return this;
-        },
-
-        checkNestedFieldExists: function (obj /*, level1, level2, ... levelN*/) {
-            var args = Array.prototype.slice.call(arguments, 1);
-
-            for (var i = 0; i < args.length; i++) {
-                if (!obj || !obj.hasOwnProperty(args[i])) {
-                    return false;
-                }
-                obj = obj[args[i]];
-            }
-            return true;
         },
 
         isFull: function (array) {
