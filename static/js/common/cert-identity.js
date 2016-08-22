@@ -48,8 +48,6 @@ define([
             this.getName(this.UUID());
             if (Utils.checkNestedFieldExists("specification", "organisation_info", "industry_type")) {
                 this.sector(data["specification"]["organisation_info"]["industry_type"] || "");
-            } else {
-                this.sector("");
             }
             this.selected(true);
             return this;
