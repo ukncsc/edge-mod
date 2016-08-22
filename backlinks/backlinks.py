@@ -17,9 +17,9 @@ class STIXBacklinks(object):
 
     def run(self):
         def _process_bulk_op():
-            bulk_op = db.stix_backlinks.initialize_unordered_bulk_op()
+            bulk_op = db.stix_backlinks_mod.initialize_unordered_bulk_op()
             for blo in dict_bls.keys():
-                c = db.stix_backlinks.find_one({'_id': blo})
+                c = db.stix_backlinks_mod.find_one({'_id': blo})
                 existing_bls = {}
                 if c:
                     existing_bls = c['value']
@@ -34,8 +34,8 @@ class STIXBacklinks(object):
                 pass
 
         db = get_db()
-        db.stix_backlinks.drop()
-        db.stix_backlinks.update({"_id": "max_created_on"}, {'value': datetime.now()}, True)
+
+        db.stix_backlinks_mod.update({"_id": "max_created_on"}, {'value': datetime.now()}, True)
 
         update_timer = StopWatch()
 
@@ -52,6 +52,9 @@ class STIXBacklinks(object):
 
         if len(dict_bls):
             _process_bulk_op()
+
+        db.stix_backlinks.drop()
+        db.stix_backlinks_mod.rename("stix_backlinks")
 
         log_activity("system", 'Backlink', 'INFO',
                      "%s : Updated for %d objects in %ds" %
