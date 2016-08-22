@@ -1,11 +1,7 @@
 import os
-import io
 import subprocess
 
 import repository.test as edge_test
-from adapters.certuk_mod.dedup.DedupInboxProcessor import DedupInboxProcessor
-from users.models import Repository_User
-from edge.inbox import InboxError
 from adapters.certuk_mod.backlinks.backlinks import STIXBacklinks
 from mongoengine.connection import get_db
 
