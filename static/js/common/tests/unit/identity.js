@@ -18,7 +18,7 @@ define([
         roles: null,
         specification: {
             organisation_info: {
-                "industry_type": it
+                industry_type: it
             }
         }
     };
@@ -28,7 +28,7 @@ define([
         roles: null,
         specification: {
             organisation_info: {
-                "industry_type": it
+                industry_type: it
             }
         }
     };
