@@ -90,7 +90,7 @@ class ViewHandlerTests(unittest.TestCase):
             'view_url': '/indicator/view/Dummy%20ID/',
             'edit_url': '/indicator/edit/Dummy%20ID/',
             'visualiser_url': '/adapter/certuk_mod/visualiser/Dummy%20ID',
-            'clone_url': "/adapter/certuk_mod/clone",
+            'clone_url': "/adapter/certuk_mod/clone_direct/" + "Dummy ID",
             "revisions": '{}',
             "revision": "3",
             "version": mock_root_edgge_object.version,

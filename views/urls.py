@@ -48,6 +48,7 @@ publisher_urls = [
     (r'^import/incident_ingest/(?P<username>\S+)$', 'views.ajax_create_incidents', None),
 
     (r'^clone/$', 'views.clone', 'clone_to_draft'),
+    (r'^clone_direct/(?P<id_>' + VALID_STIX_ID + ')$', 'views.clone_direct', 'clone_direct_to_draft'),
     (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'catalog_review'),
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
     (r'^noclone/(?P<msg>)', 'views.error_with_message', 'error_with_message'),

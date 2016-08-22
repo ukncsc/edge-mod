@@ -125,6 +125,11 @@ TYPE_TO_URL = {
 @login_required
 def clone(request):
     stix_id = objectid_find(request)
+    return clone_direct(request, stix_id)
+
+@login_required
+def clone_direct(request, id_):
+    stix_id = id_
     try:
         if stix_id:
             edge_object = EdgeObject.load(stix_id)
@@ -216,7 +221,7 @@ def review(request, id):
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
         '/edit/%s/' % urllib.quote(id)),
         'visualiser_url': '/adapter/certuk_mod/visualiser/%s' % urllib.quote(id),
-        'clone_url': "/adapter/certuk_mod/clone",
+        'clone_url': "/adapter/certuk_mod/clone_direct/" + id,
         "revisions": json.dumps(root_edge_object.revisions),
         "revision" : revision,
         "version": root_edge_object.version,
