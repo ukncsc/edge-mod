@@ -6,7 +6,7 @@ from django.conf import settings
 from mongoengine.connection import get_db
 from edge.tools import StopWatch
 from adapters.certuk_mod.common.activity import save as log_activity
-from datetime import datetime
+from datetime import datetime, timedelta
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.py')
@@ -39,6 +39,7 @@ class STIXBacklinks(object):
         db = get_db()
 
         db.stix_backlinks_mod.update({"_id": "max_created_on"}, {'value': datetime.now()}, True)
+        db.stix_backlinks.update({"_id": "max_created_on"}, {'value': datetime.now() + timedelta(days=5)}, True) #Make sure the bg process doesn't continue
 
         update_timer = StopWatch()
 
@@ -55,6 +56,7 @@ class STIXBacklinks(object):
 
         if len(dict_bls):
             _process_bulk_op()
+
 
         for i in range(0, 5):  # In case something adds to stix_backlinks between the drop and rename, try a few times
             db.stix_backlinks.drop()
