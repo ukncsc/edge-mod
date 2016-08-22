@@ -193,7 +193,7 @@ define([
                 ko.utils.arrayForEach(observableIdArray(), function (id) {
                     result = result + id() + ",";
                 });
-                return result;
+                return result.length > 0 ? result : null;
             });
         }
     });
