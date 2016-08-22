@@ -26,7 +26,6 @@ define([
             this.name = ko.observable(null);
             this.UUID = ko.observable(null);
             this.sector = ko.observable("");
-
             this.haveQuery = ko.computed(function () {
                 return typeof this.searchTerm() === "string" && this.searchTerm().trim().length > 0;
             }, this);
@@ -46,7 +45,7 @@ define([
         load: function (data) {
             this.UUID(data["name"] || "");
             this.getName(this.UUID());
-            if (Utils.checkNestedFieldExists("specification", "organisation_info", "industry_type")) {
+            if (Utils.checkNestedFieldExists(data, "specification", "organisation_info", "industry_type")) {
                 this.sector(data["specification"]["organisation_info"]["industry_type"]);
             }
             this.selected(true);
