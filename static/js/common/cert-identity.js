@@ -2,8 +2,9 @@ define([
     "dcl/dcl",
     "knockout",
     "common/cert-abstract-builder-form",
+    "common/cert-utils",
     "text!config-service"
-], function (declare, ko, AbstractBuilderForm, configText) {
+], function (declare, ko, AbstractBuilderForm, Utils, configText) {
     "use strict";
 
     var crmURL;
@@ -11,7 +12,7 @@ define([
     var config = Object.freeze(JSON.parse(configText));
     var crm_config = config.crm_config;
     if (crm_config) {
-         crmURL = crm_config.crm_url;
+        crmURL = crm_config.crm_url;
     }
 
     var CERTIdentity = declare(AbstractBuilderForm, {
@@ -24,7 +25,7 @@ define([
 
             this.name = ko.observable(null);
             this.UUID = ko.observable(null);
-            this.sector = ko.observable(null);
+            this.sector = ko.observable("");
 
             this.haveQuery = ko.computed(function () {
                 return typeof this.searchTerm() === "string" && this.searchTerm().trim().length > 0;
@@ -45,7 +46,9 @@ define([
         load: function (data) {
             this.UUID(data["name"] || "");
             this.getName(this.UUID());
-            this.sector(data["specification"]["organisation_info"]["industry_type"] || "");
+            if (Utils.checkNestedFieldExists("specification", "organisation_info", "industry_type")) {
+                this.sector(data["specification"]["organisation_info"]["industry_type"]);
+            }
             this.selected(true);
             return this;
         },
