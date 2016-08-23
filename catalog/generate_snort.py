@@ -1,5 +1,7 @@
 import random
-
+from django.conf import settings
+cfg = settings.ACTIVE_CONFIG
+LOCAL_ALIAS = cfg.by_key('company_alias')
 
 def write_snort_rule(src_IP, dst_IP, src_port, dst_port, proto, msg, sid, detail):
     snort_boilerplate = """alert {{proto}} {{src_IP}} {{src_port}} -> {{dst_IP}} {{dst_port}} (msg:"{{msg}}";{{detail}} sid: {{sid}};)"""
@@ -27,7 +29,7 @@ def generate_snort(obs, obs_type, ref):
         src_port = 'any'
         proto = 'tcp'
         detail = ''
-        msg = 'Automated STIX deployment - ' + ref
+        msg = ('[%s] Automated SNORT deployment - ' % LOCAL_ALIAS) + ref
         sid = '200' + "%0.5d" % random.randint(0, 99999)
 
         return write_snort_rule(src_IP, dst_IP, src_port, dst_port, proto, msg, sid, detail)
@@ -40,7 +42,7 @@ def generate_snort(obs, obs_type, ref):
         dst_port = 'any'
         src_port = '53'
         proto = 'udp'
-        msg = 'Automated STIX deployment - ' + ref
+        msg = ('[%s] Automated SNORT deployment - ' % LOCAL_ALIAS) + ref
         sid = '200' + "%0.5d" % random.randint(0, 99999)
         # DETAIL needs a content field for the domain request
         content_string = ''

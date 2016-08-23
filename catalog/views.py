@@ -41,22 +41,33 @@ def observable_extract(request, type, obs_type, id_):
         writer = not_implemented_writer
         result = "%s not implemented" % type
 
+    stack = [id_]
+    history = {}
+    while stack:
+        node_id = stack.pop()
+        if node_id in history:
+            continue
 
-    for edge in eo.edges:
-        if edge.ty == 'obs':
-            try:
-                obs = EdgeObject.load(edge.id_, request.user.filters(), revision=revision)
-            except EdgeError:
-                continue
-            if obs.apidata.has_key("observable_composition"):
-                for c in obs.apidata["observable_composition"]['observables']:
-                    try:
-                        child_obs = EdgeObject.load(c['idref'], request.user.filters(), revision=revision)
-                    except EdgeError:
-                        continue
-                    result += writer(child_obs.summary['value'], child_obs.summary['type'])
-            else:
-                result += writer(obs.summary['value'], obs.summary['type'])
+        try:
+            eo = EdgeObject.load(node_id, request.user.filters(), revision=revision)
+        except EdgeError:
+            continue
+
+        for edge in eo.edges:
+            stack.append(edge.id_)
+
+        if eo.ty != 'obs':
+            continue
+
+        try:
+            obs = EdgeObject.load(node_id, request.user.filters(), revision=revision)
+        except EdgeError:
+            continue
+
+        if obs.apidata.has_key("observable_composition"):
+            continue
+
+        result += writer(obs.summary['value'], obs.summary['type'])
 
     response = HttpResponse(content_type='text/txt')
     response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (type, obs_type, id_)
