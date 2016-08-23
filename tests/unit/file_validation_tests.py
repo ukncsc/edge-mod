@@ -140,7 +140,7 @@ class FileValidationTests(unittest.TestCase):
 
     def test_Validate_IfSSDeepValid_Pass(self):
         file_validation = FileValidationInfo.validate(
-            hashes=make_hashes([(r'SSDEEP', r'1234567890:0aZ/+:/+zA0,"path/to/a.file"')]))
+            hashes=make_hashes([(r'SSDEEP', r'1234567890:0aZ/+:/+zA0')]))
         self.assertIsInstance(file_validation, FileValidationInfo)
         self.assertIsNone(file_validation.SSDEEP)
 

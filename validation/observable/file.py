@@ -13,7 +13,7 @@ HASHES = {
     r'SHA256': (re.compile(r'^[A-Za-z0-9]{64}$'), r'Expected 64 hexadecimal digits'),
     r'SHA384': (re.compile(r'^[A-Za-z0-9]{96}$'), r'Expected 96 hexadecimal digits'),
     r'SHA512': (re.compile(r'^[A-Za-z0-9]{128}$'), r'Expected 128 hexadecimal digits'),
-    r'SSDEEP': (re.compile(r'^(\d+):([\w/+]+):([\w/+]+),"([\w/\s\.-]+)"$'), r'Expected blocksize:hash:hash,"filename"'),
+    r'SSDEEP': (re.compile(r'^(\d+):([\w/+]+):([\w/+]+)$'), r'Expected blocksize:hash:hash'),
     r'Other': (re.compile(r'^.+$'), r'Expected a hash')
 }
 
