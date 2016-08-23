@@ -84,6 +84,8 @@ from adapters.certuk_mod.timeline.views import ajax_incident_timeline, timeline_
 
 from adapters.certuk_mod.ingest.views import ajax_create_incidents
 
+from adapters.certuk_mod.catalog.views import observable_extract
+
 audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()

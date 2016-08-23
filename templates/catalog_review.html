@@ -3,6 +3,46 @@
 {% load staticfiles %}
 {% block head-title %}{{ main_title }}{% endblock %}
 {% block head-content %}
+    <style>
+
+
+    .dropdown-submenu {
+        position: relative;
+    }
+
+    .dropdown-submenu > .dropdown-menu {
+        top: 0;
+        left: 0%;
+        margin-top: -6px;
+        margin-left: -1px;
+        -webkit-border-radius: 0 6px 6px 6px;
+        -moz-border-radius: 0 6px 6px 6px;
+        border-radius: 0 6px 6px 6px;
+    }
+
+    .dropdown-submenu:hover > .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-submenu > a:after {
+        display: block;
+        content: " ";
+        float: right;
+        width: 0;
+        height: 0;
+        border-color: transparent;
+        border-style: solid;
+        border-width: 5px 0 5px 5px;
+        border-left-color: #cccccc;
+        margin-top: 5px;
+        margin-right: -10px;
+    }
+
+    .dropdown-submenu:hover > a:after {
+        border-left-color: #ffffff;
+    }
+
+    </style>
     <link rel="stylesheet" href="/adapter/certuk_mod{% static "css/timeline.css" %}" media="screen">
     <link rel="stylesheet" href="/adapter/certuk_mod{% static "css/catalog.css" %}" media="screen">
 {% endblock %}
@@ -68,7 +108,49 @@
                 <a class="btn btn-xs btn-primary" data-bind="attr:{href:'/to_html/'+rootID()}" target='_blank'>View
                     STIX-to-HTML</a>
                 <!-- ko template: { name: 'Purge', data: section().findByLabel('Purge')} --><!-- /ko -->
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        Extract Observables
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                         <li class="dropdown-submenu"><a tabindex="-1" href="#">Plain Text</a>
+                            <ul class="dropdown-menu  pull-right" style="position: absolute;left:100%">
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/all/'+rootID()}">All</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/HTTPSessionObjectType/'+rootID()}">HTTP Session</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/NetworkConnectionObjectType/'+rootID()}">Network Connection</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/AddressObjectType/'+rootID()}">Address</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/URIObjectType/'+rootID()}">URI</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/HostnameObjectType/'+rootID()}">Hostname</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/DomainNameObjectType/'+rootID()}">Domain</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/MutexObjectType/'+rootID()}">Mutex</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/FileObjectType/'+rootID()}">File</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/SocketAddressObjectType/'+rootID()}">Socket</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/WindowsRegistryKeyObjectType/'+rootID()}">Registry Key</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/ArtifactObjectType/'+rootID()}">Artifact</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/EmailMessageObjectType/'+rootID()}">Email</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu"><a tabindex="-1" href="#">SNORT Signature</a>
+                            <ul class="dropdown-menu  pull-right" style="position: absolute;left:100%">
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/SNORT/all/'+rootID()}">All</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/SNORT/DomainNameObjectType/'+rootID()}">Domain</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/SNORT/AddressObjectType/'+rootID()}">Address</a></li>
+                            </ul>
+                        </li>
+                         <li class="dropdown-submenu"><a tabindex="-1" href="#">BRO Signature</a>
+                            <ul class="dropdown-menu  pull-right" style="position: absolute;left:100%">
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/BRO/all/'+rootID()}">All</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
+            <a class="btn btn-xs btn-primary" data-bind="attr:{href:'/to_html/'+rootID()}" target='_blank'>View
+                STIX-to-HTML</a>
+            <!-- ko template: { name: 'Purge', data: section().findByLabel('Purge')} --><!-- /ko -->
+        </div>
         </div>
     </script>
 
