@@ -51,7 +51,8 @@ define([
         "indicator": "ind",
         "observable": "obs",
         "stix": "pkg",
-        "package": "pkg"
+        "package": "pkg",
+        "stixpackage": "pkg"
     });
 
     var PATTERN = Object.freeze({
