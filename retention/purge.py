@@ -2,6 +2,7 @@ import os
 from time import sleep
 
 from celery.exceptions import TimeoutError
+from edge import LOCAL_NAMESPACE
 from mongoengine.connection import get_db
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -16,7 +17,7 @@ class STIXPurge(object):
     def __init__(self, retention_config):
         self.retention_config = retention_config
 
-    def _get_old_external_ids(self, minimum_id, minimum_date, version_epoch):
+    def _get_old_ids(self, minimum_id, minimum_date, version_epoch, namespace_filter):
         old_external_ids = get_db().stix.find({
             'created_on': {
                 '$lt': minimum_date
@@ -25,6 +26,7 @@ class STIXPurge(object):
             '_id': {
                 '$gt': minimum_id
             },
+            'data.idns': namespace_filter,
             'data.summary.type': {
                 # Exclude Observable Compositions, since they will only ever have at most 1 back link
                 # We sweep up any orphaned Observable Compositions later...
@@ -93,13 +95,15 @@ class STIXPurge(object):
 
         return under_link_threshold_objects
 
-    def _get_hashes_for_possible_deletion(self, qualifying_hashes):
+    def _get_hashes_for_possible_deletion(self, qualifying_hashes, namespace_filter):
+        # Only take the sightings count for objects that are in the same namespace
         hash_counts = get_db().stix.aggregate([
             {
                 '$match': {
                     'data.hash': {
                         '$in': qualifying_hashes
-                    }
+                    },
+                    'data.idns': namespace_filter
                 }
             },
             {
@@ -176,25 +180,25 @@ class STIXPurge(object):
 
         return orphaned_ids
 
-    def get_purge_candidates(self, minimum_date):
+    def get_purge_candidates(self, minimum_date, namespace_filter):
         version_epoch = int(1000 * (minimum_date - datetime(1970, 1, 1)).total_seconds() + 0.5)
         minimum_id = ''
 
         ids_to_delete = []
         while True:
-            minimum_id, minimum_date, old_external_ids = self._get_old_external_ids(minimum_id, minimum_date,
-                                                                                    version_epoch)
+            minimum_id, minimum_date, old_ids = self._get_old_ids(minimum_id, minimum_date,
+                                                                           version_epoch, namespace_filter)
 
-            if not old_external_ids:
+            if not old_ids:
                 break
 
-            items_under_link_threshold = self._get_items_under_link_threshold(old_external_ids,
+            items_under_link_threshold = self._get_items_under_link_threshold(old_ids,
                                                                               self.retention_config.minimum_back_links)
 
             if not items_under_link_threshold:
                 continue
 
-            hashes_deletion_candidates = self._get_hashes_for_possible_deletion(items_under_link_threshold.values())
+            hashes_deletion_candidates = self._get_hashes_for_possible_deletion(items_under_link_threshold.values(), namespace_filter)
 
             ids_to_delete += self._get_ids_for_deletion(hashes_deletion_candidates, items_under_link_threshold.keys())
 
@@ -274,21 +278,28 @@ class STIXPurge(object):
                 num_items = len(items)
                 into.append(summary_template % num_items)
 
+            namespace_filter = 'in %s namespace,' % LOCAL_NAMESPACE
+            if not self.retention_config.only_local_ns:
+                namespace_filter = 'not in %s namespace,' % LOCAL_NAMESPACE
+
             messages = [
-                'Objects created before %s are candidates for deletion' % min_date.strftime("%Y-%m-%d %H:%M:%S")]
+                'Objects created before %s which are %s are candidates for deletion' % (min_date.strftime("%Y-%m-%d %H:%M:%S"), namespace_filter)]
             summarise(messages, 'Found %d objects with insufficient back links or sightings', objects)
             summarise(messages, 'Found %d orphaned observable compositions', compositions)
             messages.append('In %dms' % time_ms)
             return "\n".join(messages)
 
+        namespace_filter = LOCAL_NAMESPACE  # Default build type
         timer = StopWatch()
         try:
             current_date = datetime.utcnow()
             STIXPurge.wait_for_background_jobs_completion(current_date)
             minimum_date = current_date - relativedelta(months=self.retention_config.max_age_in_months)
+            if not self.retention_config.only_local_ns:
+                namespace_filter = {'$ne': LOCAL_NAMESPACE}
 
             # Get old items that don't have enough back links and sightings (excluding observable compositions):
-            objects_to_delete = self.get_purge_candidates(minimum_date)
+            objects_to_delete = self.get_purge_candidates(minimum_date, namespace_filter)
             # Look for any observable compositions that were orphaned on the previous call to run:
             orphaned_observable_compositions_to_delete = STIXPurge._get_orphaned_external_observable_compositions(
                 current_date)

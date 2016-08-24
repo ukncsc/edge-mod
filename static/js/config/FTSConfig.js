@@ -13,8 +13,8 @@ define([
             return function () {
                 sup.call(this, "FTS rebuild", "fts_task", "fts_config");
 
-                this.fullBuild = ko.observable();
-                this.savedFullBuild = ko.observable();
+                this.onlyMissingIndicies = ko.observable();
+                this.savedOnlyMissingIndicies = ko.observable();
                 this.enabled.subscribe(this._onEnabledChanged.bind(this));
 
                 this.changesPending = ko.computed(this.changesPending, this);
@@ -24,8 +24,8 @@ define([
         _parseConfigResponse: declare.superCall(function (sup) {
             return function (response) {
                 // Would make sense here to use the KO Mapping plugin to allow easy conversion from JSON...
-                this.fullBuild(response["fullBuild"]);
-                this.savedFullBuild(response["fullBuild"]);
+                this.onlyMissingIndicies(response["onlyMissingIndicies"]);
+                this.savedOnlyMissingIndicies(response["onlyMissingIndicies"]);
 
                 sup.call(this, response);
             }
@@ -33,7 +33,7 @@ define([
 
         _onEnabledChanged: function () {
             if (!(this.enabled())) {
-                this.fullBuild(this.savedFullBuild());
+                this.onlyMissingIndicies(this.savedOnlyMissingIndicies());
                 this.time(this.savedTime());
             }
         },
@@ -41,7 +41,7 @@ define([
         changesPending: function () {
             return this.gotConfig() &&
                 (
-                    this.fullBuild() != this.savedFullBuild() ||
+                    this.onlyMissingIndicies() != this.savedOnlyMissingIndicies() ||
                     this.time() != this.savedTime() ||
                     this.enabled() != this.savedEnabled()
                 );
@@ -75,7 +75,7 @@ define([
 
                 var postUrl = reset ? "../ajax/reset_fts_config/" : "../ajax/set_fts_config/";
                 var postData = reset ? {} : {
-                    fullBuild: this.fullBuild(),
+                    onlyMissingIndicies: this.onlyMissingIndicies(),
                     time: this.time(),
                     enabled: this.enabled()
                 };
@@ -97,7 +97,7 @@ define([
                         this._parseConfigResponse(response);
                     }
 
-                    this.savedFullBuild(this.fullBuild());
+                    this.savedOnlyMissingIndicies(this.onlyMissingIndicies());
                     this.savedTime(this.time());
                     this.savedEnabled(this.enabled());
                 }

@@ -20,7 +20,7 @@ class STIXFts(object):
         db = get_db()
         update_timer = StopWatch()
         query = {}
-        if not self.fts_config.full_build:
+        if self.fts_config.only_missing_indicies:
             query[FTS_KEY] = {"$eq": None}
 
         bulk_op = db.stix.initialize_unordered_bulk_op()
@@ -43,7 +43,7 @@ class STIXFts(object):
         log_activity("system", 'FTS', 'INFO',
                      "%s : Updated %d of %d objects in %dms" %
                      (
-                         'Full Rebuild' if self.fts_config.full_build else 'Missing Insert',
+                         'Missing Insert' if self.fts_config.only_missing_indicies else 'Full Rebuild',
                          update_count,
                          db.stix.count(),
                          update_timer.ms())
