@@ -133,11 +133,12 @@ class STIXPurge(object):
 
         return hashes
 
-    def _get_ids_for_deletion(self, hashes_lt_min_sightings, ids_old_ext_no_back_links):
+    def _get_ids_for_deletion(self, hashes_lt_min_sightings, ids_old_ext_no_back_links, namespace_filter):
         query = {
             'data.hash': {
                 '$in': hashes_lt_min_sightings
-            }
+            },
+            'data.idns': namespace_filter
         }
         # If we are deleting things with more than 1 hash-based sighting, then we must filter by id too, otherwise we
         #  risk deleting items that are from our namespace/have back links/aren't old etc...
@@ -200,7 +201,7 @@ class STIXPurge(object):
 
             hashes_deletion_candidates = self._get_hashes_for_possible_deletion(items_under_link_threshold.values(), namespace_filter)
 
-            ids_to_delete += self._get_ids_for_deletion(hashes_deletion_candidates, items_under_link_threshold.keys())
+            ids_to_delete += self._get_ids_for_deletion(hashes_deletion_candidates, items_under_link_threshold.keys(), namespace_filter)
 
         return ids_to_delete
 
