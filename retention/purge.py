@@ -2,7 +2,7 @@ import os
 from time import sleep
 
 from celery.exceptions import TimeoutError
-from edge import LOCAL_NAMESPACE
+from edge import LOCAL_NAMESPACE, LOCAL_ALIAS
 from mongoengine.connection import get_db
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -279,9 +279,9 @@ class STIXPurge(object):
                 num_items = len(items)
                 into.append(summary_template % num_items)
 
-            namespace_filter = 'in %s namespace,' % LOCAL_NAMESPACE
+            namespace_filter = 'in %s namespace,' % LOCAL_ALIAS.upper()
             if not self.retention_config.only_local_ns:
-                namespace_filter = 'not in %s namespace,' % LOCAL_NAMESPACE
+                namespace_filter = 'not in %s namespace,' % LOCAL_ALIAS.upper()
 
             messages = [
                 'Objects created before %s which are %s are candidates for deletion' % (min_date.strftime("%Y-%m-%d %H:%M:%S"), namespace_filter)]
