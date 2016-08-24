@@ -37,7 +37,7 @@ def visualiser_not_found(request):
 def visualiser_get(request, id_):
     try:
         root_edge_object = PublisherEdgeObject.load(id_)
-        graph = create_graph([(0, None, root_edge_object, REL_TYPE_EDGE)], [], [], [], [])
+        graph = create_graph([(0, None, root_edge_object, REL_TYPE_EDGE)], [], [], [], [], [])
         return JsonResponse(graph, status=200)
     except Exception as e:
         return JsonResponse({'error': e.message}, status=500)
@@ -75,9 +75,11 @@ def visualiser_get_extended(request):
     match_ids = json_data['id_matches']
     hide_edge_ids = json_data['hide_edge_ids']
     show_edge_ids = json_data['show_edge_ids']
+    hidden_ids = json_data['hidden_ids']
     try:
         root_edge_object = PublisherEdgeObject.load(root_id)
-        graph = create_graph([(0, None, root_edge_object, REL_TYPE_EDGE)], bl_ids, match_ids, hide_edge_ids, show_edge_ids)
+        graph = create_graph([(0, None, root_edge_object, REL_TYPE_EDGE)], bl_ids, match_ids, hide_edge_ids,
+                             show_edge_ids, hidden_ids)
         return JsonResponse(graph, status=200)
     except Exception as e:
         return JsonResponse({'error': e.message}, status=500)

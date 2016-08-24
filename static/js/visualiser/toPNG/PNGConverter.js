@@ -5,12 +5,12 @@ define([
     "use strict";
 
     return {
-        getSiblingSVG: function (buttonElement) {
-            return buttonElement.currentTarget.parentNode.children["visualiser-graph"]
+        getSVG: function (buttonElement) {
+            return buttonElement.currentTarget.parentNode.parentNode.children["visualiser-graph"]
         },
 
         savetoPNG: function (buttonElement, rootID) {
-            svg2png.saveSvgAsPng(this.getSiblingSVG(buttonElement).cloneNode(true), rootID + ".png");
+            svg2png.saveSvgAsPng(this.getSVG(buttonElement).cloneNode(true), rootID + ".png");
         }
     }
 });

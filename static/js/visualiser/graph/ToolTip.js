@@ -24,6 +24,14 @@ define([
             : "";
     }
 
+    function hideNodeButton(id) {
+        return createButton("icon-red", "remove-sign", "onHideId", id);
+    }
+
+    function hideNodeChildrenButton(id) {
+        return createButton("icon-red", "minus-sign", "onHideAllChildren", id);
+    }
+
     function showBacklinksButton(id, hasBacklinks, backlinksShown) {
         return hasBacklinks ?
             createToggleButton("backlink", "arrow-left", backlinksShown, (backlinksShown ? "onMinusBacklinkClicked" : "onPlusBacklinkClicked"), id)
@@ -72,6 +80,8 @@ define([
                         showBacklinksButton(d.id(), d.hasBacklinks(), d.isBackLinkShown()) +
                         showMatchesButton(d.id(), d.hasMatches(), d.isMatchesShown()) +
                         showPublishAndHomeButton(d.id(), d.nodeType()) +
+                        hideNodeButton(d.id()) +
+                        hideNodeChildrenButton(d.id()) +
                         "</div>"
                     )
                     .style("left", ((x_middle + iWidth + (d.x - x_middle) * currentScale) + currentXOffset) + "px")
