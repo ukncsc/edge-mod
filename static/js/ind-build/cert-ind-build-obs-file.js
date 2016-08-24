@@ -25,7 +25,7 @@ define([
 
         getHashType: function (hashValue) {
             if (!(/^[0-9A-F]+$/i.test(hashValue))) {
-                if (/^(\d+):([\w/+]+):([\w/+]+),"([\w/\s\.-]+)"$/.test(hashValue)) {
+                if (/^(\d+):([\w/+]+):([\w/+]+)$/.test(hashValue)) {
                     return "SSDEEP";
                 }
                 return "Other";
