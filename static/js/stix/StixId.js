@@ -39,7 +39,7 @@ define([
         },
         "pkg": {
             "class": StixRealPackage, "collection": "related_packages.related_packages", "label": "Package", "code": "pkg"
-        },
+        }
     });
 
     var TYPE_ALIASES = Object.freeze({
@@ -50,7 +50,8 @@ define([
         "incident": "inc",
         "indicator": "ind",
         "observable": "obs",
-        "stix": "pkg"
+        "stix": "pkg",
+        "package": "pkg"
     });
 
     var PATTERN = Object.freeze({
