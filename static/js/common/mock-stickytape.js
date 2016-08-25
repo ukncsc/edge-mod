@@ -1,11 +1,10 @@
 define([], function () {
 
-    getJSON = function (url, obj, success, error) {
+    postJSON = function (url, obj, callback) {
         if (getJSONReturnError) {
-            error({});
-        }
-        else {
-            success({name: "test-org"});
+            callback({success:false});
+        } else {
+            callback({success:true, results:{name: "test-org"}})
         }
     };
 
