@@ -290,14 +290,15 @@ class STIXPurge(object):
             messages.append('In %dms' % time_ms)
             return "\n".join(messages)
 
-        namespace_filter = LOCAL_NAMESPACE  # Default build type
+        namespace_filter = LOCAL_NAMESPACE
+        if not self.retention_config.only_local_ns:
+            namespace_filter = {'$ne': LOCAL_NAMESPACE}
+
         timer = StopWatch()
         try:
             current_date = datetime.utcnow()
             STIXPurge.wait_for_background_jobs_completion(current_date)
             minimum_date = current_date - relativedelta(months=self.retention_config.max_age_in_months)
-            if not self.retention_config.only_local_ns:
-                namespace_filter = {'$ne': LOCAL_NAMESPACE}
 
             # Get old items that don't have enough back links and sightings (excluding observable compositions):
             objects_to_delete = self.get_purge_candidates(minimum_date, namespace_filter)
