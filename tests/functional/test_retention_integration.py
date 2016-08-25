@@ -101,9 +101,9 @@ class RetentionFunctionalTests(edge_test.TestCase):
 
         self.assertEquals(
             get_db().stix.find({'_id': 'fireeye:observable-ed28d1a1-ab04-4f04-b7ae-78562a91286a'}).count(), 1)
-        self.assertEquals(get_db().stix.count(), 4)
         self.assertEquals(
             get_db().stix.find({'_id': 'fireeye:observable-18e9709d-2edd-455d-b62e-9cfb71c769e6'}).count(), 1)
+        self.assertEquals(get_db().stix.count(), 4)
 
         stix_purge.run()
 

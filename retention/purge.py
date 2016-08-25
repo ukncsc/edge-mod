@@ -279,12 +279,12 @@ class STIXPurge(object):
                 num_items = len(items)
                 into.append(summary_template % num_items)
 
-            namespace_filter = 'in %s namespace,' % LOCAL_ALIAS.upper()
+            namespace_filter_text = 'in %s namespace,' % LOCAL_ALIAS.upper()
             if not self.retention_config.only_local_ns:
-                namespace_filter = 'not in %s namespace,' % LOCAL_ALIAS.upper()
+                namespace_filter_text = 'not in %s namespace,' % LOCAL_ALIAS.upper()
 
             messages = [
-                'Objects created before %s which are %s are candidates for deletion' % (min_date.strftime("%Y-%m-%d %H:%M:%S"), namespace_filter)]
+                'Objects created before %s which are %s are candidates for deletion' % (min_date.strftime("%Y-%m-%d %H:%M:%S"), namespace_filter_text)]
             summarise(messages, 'Found %d objects with insufficient back links or sightings', objects)
             summarise(messages, 'Found %d orphaned observable compositions', compositions)
             messages.append('In %dms' % time_ms)
