@@ -3,57 +3,30 @@ from django.conf import settings
 cfg = settings.ACTIVE_CONFIG
 LOCAL_ALIAS = cfg.by_key('company_alias')
 
+
 def write_snort_rule(src_IP, dst_IP, src_port, dst_port, proto, msg, sid, detail):
-    snort_boilerplate = """alert {{proto}} {{src_IP}} {{src_port}} -> {{dst_IP}} {{dst_port}} (msg:"{{msg}}";{{detail}} sid: {{sid}};)"""
-    rule = snort_boilerplate.replace('{{dst_IP}}', dst_IP) \
-        .replace('{{src_IP}}', src_IP) \
-        .replace('{{dst_port}}', dst_port) \
-        .replace('{{src_port}}', src_port) \
-        .replace('{{proto}}', proto) \
-        .replace('{{msg}}', msg) \
-        .replace('{{sid}}', sid) \
-        .replace('{{detail}}', detail)
-    return rule
+    return "alert %s %s %s -> %s %s (msg:\"%s\";%s sid: %s;)" % (proto, src_IP, src_port, dst_IP, dst_port, msg, detail, sid);
+
+
+def generate_sid():
+    return '200' + "%0.5d" % random.randint(0, 99999)
 
 
 def generate_snort(obs, obs_type, ref):
     if obs_type == 'AddressObjectType':
-        if len(obs) > 1:
-            obs = '[' + ','.join(obs) + ']'
-        else:
-            # print obs
-            obs = str(obs[0])
-        dst_IP = obs
-        src_IP = '$HOME_NET'
-        dst_port = 'any'
-        src_port = 'any'
-        proto = 'tcp'
-        detail = ''
         msg = ('[%s] Automated SNORT deployment - ' % LOCAL_ALIAS) + ref
-        sid = '200' + "%0.5d" % random.randint(0, 99999)
+        return write_snort_rule('$HOME_NET', str(obs[0]), 'any', 'any', 'tcp', msg, generate_sid(), '')
 
-        return write_snort_rule(src_IP, dst_IP, src_port, dst_port, proto, msg, sid, detail)
-    elif obs_type == 'DomainNameObjectType':
-        if len(obs) > 1:
-            print 'Can only create SNORT rule with 1 domain at a time, taking first.'
-        obs = str(obs[0])
-        src_IP = '$HOME_NET'
-        dst_IP = 'any'
-        dst_port = 'any'
-        src_port = '53'
-        proto = 'udp'
+    if obs_type == 'DomainNameObjectType':
         msg = ('[%s] Automated SNORT deployment - ' % LOCAL_ALIAS) + ref
-        sid = '200' + "%0.5d" % random.randint(0, 99999)
-        # DETAIL needs a content field for the domain request
+
         content_string = ''
-        parsed_domain = obs.split('.')
+        parsed_domain = str(obs[0]).split('.')
         if parsed_domain[0] == 'www':
             parsed_domain.pop(0)
         for item in parsed_domain:
             content_string = content_string + '|' + str(len(item)).zfill(2) + '|' + item
         detail = 'content:"' + content_string + '|00|";'
-        return write_snort_rule(src_IP, dst_IP, src_port, dst_port, proto, msg, sid, detail)
-    else:
-        return ''
+        return write_snort_rule('$HOME_NET', 'any', '53', 'any', 'udp', msg, generate_sid(), detail)
 
-    return rule
+    return ''
