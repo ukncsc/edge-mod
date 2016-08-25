@@ -46,25 +46,34 @@ define([
                 );
             },
             "id string contains unknown type": function () {
+                var data = {
+                    "wibble": [
+                        {
+                            "id": "certuk:wibble-00000000-0000-0000-0000-000000000000"
+                        }
+                    ]
+                };
                 assert.throws(
                     function () {
-                        new StixId("certuk:wibble-00000000-0000-0000-0000-000000000000");
+                        new StixId("certuk:wibble-00000000-0000-0000-0000-000000000000", data);
                     },
-                    "Unsupported type: wibble"
+                    "Unsupported type for id: certuk:wibble-00000000-0000-0000-0000-000000000000"
                 );
             },
             "valid: type matched": function () {
-                var actual = new StixId("certuk:coa-00000000-0000-0000-0000-000000000000");
+                var data = {
+                    "courses_of_action": [
+                        {
+                            "id": "certuk:coa-00000000-0000-0000-0000-000000000000"
+                        }
+                    ]
+                };
+                var actual = new StixId("certuk:coa-00000000-0000-0000-0000-000000000000", data);
                 assert.equal(actual.id(), "certuk:coa-00000000-0000-0000-0000-000000000000");
-                assert.equal(actual.type().code, "coa");
-                assert.equal(actual.namespace(), "certuk");
-            },
-            "valid: type alias matched": function () {
-                var actual = new StixId("certuk:courseofaction-00000000-0000-0000-0000-000000000000");
-                assert.equal(actual.id(), "certuk:courseofaction-00000000-0000-0000-0000-000000000000");
                 assert.equal(actual.type().code, "coa");
                 assert.equal(actual.namespace(), "certuk");
             }
         }
     });
-});
+})
+;

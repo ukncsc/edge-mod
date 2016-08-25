@@ -1,5 +1,6 @@
 define([
     "dcl/dcl",
+    "knockout",
     "./CourseOfAction",
     "./Incident",
     "./Indicator",
@@ -10,7 +11,7 @@ define([
     "./Campaign",
     "./StixRealPackage",
     "common/cert-utils"
-], function (declare, CourseOfAction, Incident, Indicator, Observable, TTP, ExploitTarget, ThreatActor, Campaign, StixRealPackage, Utils) {
+], function (declare, ko, CourseOfAction, Incident, Indicator, Observable, TTP, ExploitTarget, ThreatActor, Campaign, StixRealPackage, Utils) {
     "use strict";
 
     var TYPES = Object.freeze({

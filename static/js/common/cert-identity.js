@@ -2,24 +2,14 @@ define([
     "dcl/dcl",
     "knockout",
     "common/cert-abstract-builder-form",
-    "common/cert-utils",
-    "text!config-service"
-], function (declare, ko, AbstractBuilderForm, Utils, configText) {
+    "common/cert-utils"
+], function (declare, ko, AbstractBuilderForm, Utils) {
     "use strict";
-
-    var crmURL;
-
-    var config = Object.freeze(JSON.parse(configText));
-    var crm_config = config.crm_config;
-    if (crm_config) {
-        crmURL = crm_config.crm_url;
-    }
 
     var CERTIdentity = declare(AbstractBuilderForm, {
         declaredClass: "CERTIdentity",
 
         constructor: function () {
-            this.CRMURL = crmURL;
             this.searchTerm = ko.observable(null);
             this.searchResults = ko.observableArray([]);
 
@@ -32,14 +22,6 @@ define([
             this.search = ko.observable(false);
             this.selected = ko.observable(false);
             this.error = ko.observable(false);
-        },
-
-        buildOrgCRMURL: function () {
-            return this.CRMURL + "/organisations/";
-        },
-
-        buildSearchCRMURL: function () {
-            return this.buildOrgCRMURL() + "find?organisation=";
         },
 
         load: function (data) {
@@ -66,10 +48,12 @@ define([
         },
 
         getNameFromCRM: function (id) {
-            getJSON(this.buildOrgCRMURL() + id, null, function (data) {
-                this.name(data["name"]);
-            }.bind(this), function () {
-                this.name(id)
+            postJSON("/adapter/certuk_mod/crm/organisation/", id, function (data) {
+                if (data["success"] === true) {
+                    this.name(data["results"]["name"]);
+                } else {
+                    this.name(id);
+                }
             }.bind(this));
         },
 
@@ -77,12 +61,12 @@ define([
             this.search(true);
             this.searchResults([]);
 
-            var searchUrl = this.buildSearchCRMURL() + this.searchTerm();
-
-            getJSON(searchUrl, null, function (data) {
-                this.searchResults(data);
-            }.bind(this), function () {
-                this.error(true);
+            postJSON("/adapter/certuk_mod/crm/find/", this.searchTerm(), function (data) {
+                if (data["success"] === true) {
+                    this.searchResults(data["results"]);
+                } else {
+                    this.error(true);
+                }
             }.bind(this));
         },
 
@@ -96,8 +80,10 @@ define([
         },
 
         getSector: function (id) {
-            getJSON(this.buildOrgCRMURL() + id, null, function (data) {
-                this.sector(data["industry"] || "");
+            postJSON("/adapter/certuk_mod/crm/organisation/", id, function (data) {
+                if (Utils.checkNestedFieldExists(data, "results", "industry")) {
+                    this.sector(data["results"]["industry"] || "");
+                }
             }.bind(this));
         },
 

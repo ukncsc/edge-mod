@@ -213,22 +213,6 @@ define([
                         assert.equal(identity.name(), "test-org");
                     }
                 },
-                "builds correct urls": {
-                    "builds crm org url ": function () {
-                        var identity = new CERTIdentity();
-
-                        identity.CRMURL = crmURL;
-
-                        assert.equal(identity.buildOrgCRMURL(), crmURL + "/organisations/");
-                    },
-                    "builds crm search url ": function () {
-                        var identity = new CERTIdentity();
-
-                        identity.CRMURL = crmURL;
-
-                        assert.equal(identity.buildSearchCRMURL(), crmURL + "/organisations/find?organisation=");
-                    }
-                },
                 "closes the modal view": {
                     "selects id and closes modal view": function () {
                         var identity = new CERTIdentity();
