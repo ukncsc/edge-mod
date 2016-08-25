@@ -19,13 +19,17 @@ define([
         },
 
         _parseResponse: function (configText) {
-            var handlingList = [];
-            for (var key in configText) {
-                if (configText.hasOwnProperty(key)) {
-                    handlingList.push({"stix_value": key, "display_value": configText[key]})
+            if (configText !== null) {
+                this.enabled(configText["enabled"])
+                var handlingList = [];
+                var handlingConfigText = configText["handling"];
+                for (var key in handlingConfigText) {
+                    if (handlingConfigText.hasOwnProperty(key)) {
+                        handlingList.push({"stix_value": key, "display_value": handlingConfigText[key]})
+                    }
                 }
+                this.handling_caveats(handlingList)
             }
-            this.handling_caveats(handlingList)
         },
 
         addGroup: function () {
@@ -98,13 +102,16 @@ define([
         },
 
 
-
         createSimpleConfigObject: function (handlingArray) {
-            var configObject = {};
+            var markings = {};
             ko.utils.arrayForEach(handlingArray, function (arrayItem) {
-                configObject[arrayItem.stix_value] = arrayItem.display_value
+                markings[arrayItem.stix_value] = arrayItem.display_value
             });
-            return configObject
+
+            return {
+                "enabled": this.enabled(),
+                "handling": markings
+            }
         }
 
     });

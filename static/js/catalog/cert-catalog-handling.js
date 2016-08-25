@@ -10,7 +10,7 @@ define([
     "use strict";
 
     var config = Object.freeze(JSON.parse(configService));
-    var sharing_groups = config.sharing_groups;
+    var sharing_groups = config.sharing_groups.handling;
 
     return declare(null, {
         declaredClass: "CatalogHandling",

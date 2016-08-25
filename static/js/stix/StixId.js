@@ -39,10 +39,7 @@ define([
             "class": TTP, "collection": "ttps.ttps", "label": "TTP", "code": "ttp"
         },
         "pkg": {
-            "class": StixRealPackage,
-            "collection": "related_packages.related_packages",
-            "label": "Package",
-            "code": "pkg"
+            "class": StixRealPackage, "collection": "related_packages.related_packages", "label": "Package", "code": "pkg"
         }
     });
 
@@ -119,5 +116,4 @@ define([
             return this._namespace;
         }
     });
-})
-;
+});

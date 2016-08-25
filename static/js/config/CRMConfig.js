@@ -10,7 +10,6 @@ define([
             return function () {
                 sup.call(this);
                 this.CRMURL = ko.observable("");
-                this.enabled = ko.observable(false);
             }
         }),
 

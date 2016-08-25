@@ -8,8 +8,12 @@ define([
 ], function (declare, ko, ReviewValue, StixObject, configService) {
     "use strict";
 
+    var sharing_groups;
     var config = Object.freeze(JSON.parse(configService));
-    var sharing_groups = config.sharing_groups;
+    var handling = config.sharing_groups;
+    if (handling) {
+        sharing_groups = handling.handling;
+    }
 
     function simpleItem(item) {
         return item;

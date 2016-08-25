@@ -13,7 +13,7 @@ define([], function () {
             }
             return true;
         },
-        checkNestedFieldExistsArray: function (obj, args) {
+        checkNestedFieldExistsArray: function (obj,/*Array*/ args) {
             for (var i = 0; i < args.length; i++) {
                 if (!obj || !obj.hasOwnProperty(args[i])) {
                     return false;
@@ -22,7 +22,7 @@ define([], function () {
             }
             return true;
         },
-        getNestedFieldArray: function (obj, args) {
+        getNestedFieldArray: function (obj, /*Array*/args) {
             var currentLevel = obj;
             for (var i = 0; i < args.length; i++) {
                 currentLevel = currentLevel[args[i]];

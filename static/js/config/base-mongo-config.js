@@ -8,6 +8,7 @@ define([
     return declare(null, {
         declaredClass: "base-mongo-config",
         constructor: function () {
+            this.enabled = ko.observable(false);
         },
 
         getData: function (url, errorMessage) {
