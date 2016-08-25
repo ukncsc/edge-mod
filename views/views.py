@@ -426,9 +426,11 @@ def ajax_validate(request, data):
 def get_crm_org_details(request, id_):
     crm_url = get_crm_url()
     response = requests.get(crm_url + ORGANISATIONS_URL + id_, headers=_construct_headers())
+    results = get_results(response)
+
     return {
         "success": response.ok,
-        "results":response.json()
+        "results": results
     }
 
 
@@ -437,11 +439,19 @@ def get_crm_org_details(request, id_):
 def find_crm_org(request, search):
     crm_url = get_crm_url()
     response = requests.get(crm_url + ORGANISATIONS_URL + FIND_URL + search, headers=_construct_headers())
-
+    results = get_results(response)
     return {
         "success": response.ok,
-        "results":response.json()
+        "results": results
     }
+
+
+def get_results(response):
+    try:
+        results = response.json()
+    except ValueError:
+        results = {}
+    return results
 
 
 def get_crm_url():
