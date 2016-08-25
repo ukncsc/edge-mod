@@ -369,7 +369,7 @@ def ajax_publish(request, data):
 
     try:
         root_id = data['root_id']
-        edge_object = PublisherEdgeObject.load(root_id, publish_externally=True)
+        edge_object = PublisherEdgeObject.load_and_parse(root_id)
         package = PackageGenerator.build_package(edge_object)
         namespace_info = edge_object.ns_dict()
         Publisher.push_package(package, namespace_info)
