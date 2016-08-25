@@ -93,7 +93,8 @@ cert_builder.apply_customizations()
 cron_setup.create_jobs()
 mimetypes.init()
 
-
+OnPublish = Event()
+OnPublish.set_handler("Write to log", log_activity)
 
 @login_required
 def static(request, path):
@@ -113,6 +114,11 @@ def discover(request):
     return objectid_discover(request, "publisher_review", "publisher_not_found")
 
 
+@login_required
+def clone(request):
+    stix_id = objectid_find(request)
+    return clone_direct(request, stix_id)
+
 TYPE_TO_URL = {
     'cam': 'campaign',
     'coa': 'course_of_action',
@@ -123,12 +129,6 @@ TYPE_TO_URL = {
     'act': 'threat_actor',
     'ttp': 'ttp'
 }
-
-
-@login_required
-def clone(request):
-    stix_id = objectid_find(request)
-    return clone_direct(request, stix_id)
 
 @login_required
 def clone_direct(request, id_):
@@ -143,10 +143,10 @@ def clone_direct(request, id_):
             draft['id'] = new_id
             Draft.upsert(edge_object.ty, draft, request.user)
             return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
-        else:
-            return error_with_message(request,
-                                      "No clonable object found; please only choose " +
-                                      "the clone option from an object's summary or external publish page")
+
+        return error_with_message(request,
+                                "No clonable object found; please only choose " +
+                                "the clone option from an object's summary or external publish page")
 
     except Exception as e:
         ext_ref_error = "not found"
@@ -155,15 +155,8 @@ def clone_direct(request, id_):
                                       "Unable to load object as some external references were not found: "
                                       + e.message[0:-len(ext_ref_error)])
 
-        else:
-            return error_with_message(request, e.message)
 
-
-
-
-
-
-
+        return error_with_message(request, e.message)
 
 
 @login_required
@@ -231,10 +224,6 @@ def ajax_set_publish_site(request, data):
         'saved_id': site_id,
         'error_message': error_message
     }
-
-
-OnPublish = Event()
-OnPublish.set_handler("Write to log", log_activity)
 
 
 @login_required
