@@ -34,7 +34,7 @@ from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObj
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 from adapters.certuk_mod.common.views import error_with_message
-from adapters.certuk_mod.config.cert_config import get  as get_config
+from adapters.certuk_mod.config.cert_config import get as get_config
 
 
 from adapters.certuk_mod.builder import customizations as cert_builder
