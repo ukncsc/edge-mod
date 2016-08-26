@@ -1,4 +1,3 @@
-import traceback
 import os
 import urllib
 import json
@@ -174,7 +173,6 @@ def get_duplicates(request, id_):
 
 @login_required
 def observable_extract(request, type, obs_type, id_, revision):
-
     def text_writer(value, obs_type_in):
         if obs_type_in == obs_type or obs_type == "all":
             return value + os.linesep
@@ -200,14 +198,16 @@ def observable_extract(request, type, obs_type, id_, revision):
         result = "%s not implemented" % type
 
     stack = [id_]
-    history = {}
+    history = set()
     while stack:
         node_id = stack.pop()
+
         if node_id in history:
             continue
+        history.add(node_id)
 
         try:
-            eo = EdgeObject.load(node_id, request.user.filters(), revision=revision)
+            eo = EdgeObject.load(node_id, request.user.filters(), revision=revision if node_id is id_ else "latest")
         except EdgeError:
             continue
 
@@ -217,15 +217,10 @@ def observable_extract(request, type, obs_type, id_, revision):
         if eo.ty != 'obs':
             continue
 
-        try:
-            obs = EdgeObject.load(node_id, request.user.filters(), revision=revision)
-        except EdgeError:
+        if eo.apidata.has_key("observable_composition"):
             continue
 
-        if obs.apidata.has_key("observable_composition"):
-            continue
-
-        result += writer(obs.summary['value'], obs.summary['type'])
+        result += writer(eo.summary['value'], eo.summary['type'])
 
     response = HttpResponse(content_type='text/txt')
     response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (type, obs_type, id_)
