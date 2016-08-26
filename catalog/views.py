@@ -173,6 +173,7 @@ def get_duplicates(request, id_):
 
 @login_required
 def observable_extract(request, type, obs_type, id_, revision):
+
     def text_writer(value, obs_type_in):
         if obs_type_in == obs_type or obs_type == "all":
             return value + os.linesep
