@@ -224,7 +224,7 @@ def extract_visualiser_get(request, id_):
         if not is_valid_stix_id(id_):
             return JsonResponse({"invalid stix id: " + id_}, status=200)
 
-        return JsonResponse(iterate_draft(Draft.load(id_, request.user), [], [], [], []), status=200)
+        return JsonResponse(iterate_draft(Draft.load(id_, request.user), [], [], [], [], []), status=200)
     except Exception as e:
         return JsonResponse({'error': e.message}, status=400)
 
@@ -331,9 +331,11 @@ def extract_visualiser_get_extended(request):
     id_matches = json_data['id_matches']
     hide_edge_ids = json_data['hide_edge_ids']
     show_edge_ids = json_data['show_edge_ids']
+    hidden_ids = json_data['hidden_ids']
     try:
         return JsonResponse(
-            iterate_draft(Draft.load(root_id, request.user), bl_ids, id_matches, hide_edge_ids, show_edge_ids),
+            iterate_draft(Draft.load(root_id, request.user), bl_ids, id_matches, hide_edge_ids, show_edge_ids,
+                          hidden_ids),
             status=200)
     except Exception:
         pass
@@ -341,7 +343,7 @@ def extract_visualiser_get_extended(request):
     try:
         root_edge_object = PublisherEdgeObject.load(root_id)
         graph = create_graph([(0, None, root_edge_object, REL_TYPE_EDGE)], bl_ids, id_matches, hide_edge_ids,
-                             show_edge_ids)
+                             show_edge_ids, hidden_ids)
         return JsonResponse(graph, status=200)
     except Exception as e:
         return JsonResponse({'error': e.message}, status=400)

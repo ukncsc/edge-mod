@@ -44,7 +44,7 @@ class VisualiserGraphBacklinkTests(unittest.TestCase):
     def test_create_graph_with_backlink_rel_type(self):
         bl_ids = ['purple']
         stack = [(0, None, self.mock_backlink, 'backlink')]
-        response = create_graph(stack, bl_ids, [], [], [])
+        response = create_graph(stack, bl_ids, [], [], [], [])
         self.assertEquals(response['nodes'], [self.backlink_node])
         self.assertEquals(response['links'], [])
 
@@ -54,7 +54,7 @@ class VisualiserGraphBacklinkTests(unittest.TestCase):
         mock_edge_object.load.return_value = self.mock_backlink2
         bl_ids = ['purple']
         stack = [(0, None, self.mock_backlink, 'backlink')]
-        response = create_graph(stack, bl_ids, [], [], [])
+        response = create_graph(stack, bl_ids, [], [], [], [])
         links = [{'source': 0, 'target': 1, 'rel_type': 'backlink'}]
         self.assertEquals(response['nodes'][0], self.backlink_node)
         self.assertEquals(response['nodes'][1], self.backlink_node2)

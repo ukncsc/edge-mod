@@ -165,6 +165,19 @@ define([
                 return nodeId === node.id();
             });
         },
+        findNodeReferences: function (nodeId) {
+            var refedNodes = []
+            ko.utils.arrayForEach(this.links(), function (link) {
+                if (link.source.id() === nodeId &&
+                    (link.relType() === "edge" ||
+                    link.relType() === "draft" ||
+                    link.relType() === "external_ref")) {
+                    refedNodes.push(link.target)
+                }
+            });
+
+            return refedNodes;
+        },
         selectNode: function (nodeId) {
             var oldNode = this.selectedNode();
             if (oldNode instanceof Node) {
