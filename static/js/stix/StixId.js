@@ -1,5 +1,6 @@
 define([
     "dcl/dcl",
+    "knockout",
     "./CourseOfAction",
     "./Incident",
     "./Indicator",
@@ -8,8 +9,9 @@ define([
     "./ExploitTarget",
     "./ThreatActor",
     "./Campaign",
-    "./StixRealPackage"
-], function (declare, CourseOfAction, Incident, Indicator, Observable, TTP, ExploitTarget, ThreatActor, Campaign, StixRealPackage) {
+    "./StixRealPackage",
+    "common/cert-utils"
+], function (declare, ko, CourseOfAction, Incident, Indicator, Observable, TTP, ExploitTarget, ThreatActor, Campaign, StixRealPackage, Utils) {
     "use strict";
 
     var TYPES = Object.freeze({
@@ -38,21 +40,13 @@ define([
             "class": TTP, "collection": "ttps.ttps", "label": "TTP", "code": "ttp"
         },
         "pkg": {
-            "class": StixRealPackage, "collection": "related_packages.related_packages", "label": "Package", "code": "pkg"
+            "class": StixRealPackage,
+            "collection": "related_packages.related_packages",
+            "label": "Package",
+            "code": "pkg"
         }
     });
 
-    var TYPE_ALIASES = Object.freeze({
-        "campaign": "cam",
-        "courseofaction": "coa",
-        "et": "tgt",
-        "threatactor": "act",
-        "incident": "inc",
-        "indicator": "ind",
-        "observable": "obs",
-        "stix": "pkg",
-        "package": "pkg"
-    });
 
     var PATTERN = Object.freeze({
         namespace: "[a-z][\\w\\d-]+",
@@ -60,10 +54,6 @@ define([
         uuid: "[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}",
         draft: ":draft:[a-f\\d]{32}"
     });
-
-    function resolveAlias(type) {
-        return TYPE_ALIASES[type] || type;
-    }
 
     function parseId(/*String*/ id) {
         if (!(typeof id === "string")) {
@@ -80,12 +70,32 @@ define([
         return match;
     }
 
-    function findType(parsedId) {
-        var type = TYPES[resolveAlias(parsedId[2].toLowerCase())];
-        if (!type) {
-            throw new TypeError("Unsupported type: " + parsedId[2]);
+    function findType(id, data) {
+
+        for (var typename in TYPES) {
+            var collection_path = TYPES[typename]['collection'];
+            if (!Utils.checkNestedFieldExistsArray(data, collection_path.split('.'))) {
+                continue;
+            }
+            var collection = Utils.getNestedFieldArray(data, collection_path.split('.'));
+            if (typename === 'pkg') {
+                var found_type = ko.utils.arrayFirst(collection, function (item) {
+                    return id === item.package.id;
+                });
+            } else {
+                var found_type = ko.utils.arrayFirst(collection, function (item) {
+                    return id === item.id;
+                });
+            }
+
+
+            if (found_type == null) {
+                continue;
+            }
+            return TYPES[typename];
         }
-        return type;
+
+        throw new TypeError("Unsupported type for id: " + id);
     }
 
     function findNamespace(parsedId) {
@@ -94,10 +104,10 @@ define([
 
     return declare(null, {
         declaredClass: "StixId",
-        constructor: function (id) {
+        constructor: function (id, data) {
             var parsedId = parseId(id);
             this._id = id;
-            this._type = findType(parsedId);
+            this._type = findType(id, data);
             this._namespace = findNamespace(parsedId);
         },
         id: function () {
@@ -110,4 +120,5 @@ define([
             return this._namespace;
         }
     });
-});
+})
+;

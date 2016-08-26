@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 from dateutil import tz
 import mimetypes
+import requests
 
 from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
@@ -22,6 +23,9 @@ from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 from adapters.certuk_mod.common.views import error_with_message
+
+from adapters.certuk_mod.config.cert_config import get as get_config
+
 from adapters.certuk_mod.builder import customizations as cert_builder
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.cron import setup as cron_setup
@@ -92,6 +96,10 @@ audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
 mimetypes.init()
+
+ORGANISATIONS_URL = "/organisations/"
+FIND_URL = "find?organisation="
+
 
 OnPublish = Event()
 OnPublish.set_handler("Write to log", log_activity)
@@ -235,7 +243,7 @@ def ajax_publish(request, data):
 
     try:
         root_id = data['root_id']
-        edge_object = PublisherEdgeObject.load(root_id)
+        edge_object = PublisherEdgeObject.load_and_parse(root_id)
         package = PackageGenerator.build_package(edge_object)
         namespace_info = edge_object.ns_dict()
         Publisher.push_package(package, namespace_info)
@@ -280,3 +288,51 @@ def ajax_validate(request, data):
         'error_message': error_message,
         'validation_info': validation_info
     }
+
+
+@login_required
+@json_body
+def get_crm_org_details(request, id_):
+    crm_url = get_crm_url()
+    response = requests.get(crm_url + ORGANISATIONS_URL + id_, headers=_construct_headers())
+    results = get_results(response)
+
+    return {
+        "success": response.ok,
+        "results": results
+    }
+
+
+@login_required
+@json_body
+def find_crm_org(request, search):
+    crm_url = get_crm_url()
+    response = requests.get(crm_url + ORGANISATIONS_URL + FIND_URL + search, headers=_construct_headers())
+    results = get_results(response)
+    return {
+        "success": response.ok,
+        "results": results
+    }
+
+
+def get_results(response):
+    try:
+        results = response.json()
+    except ValueError:
+        results = {}
+    return results
+
+
+def get_crm_url():
+    crm_config = get_config("crm_config")
+    return crm_config.get("crm_url", "")
+
+
+def _construct_headers():
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+    return headers
+
+

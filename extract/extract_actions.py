@@ -40,7 +40,7 @@ def create_draft_obs_hash(obs):
     return hashlib.md5(obs['title'].encode("utf-8")).hexdigest()
 
 
-def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
+def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids):
     def create_draft_observable_id(obs):
         d = create_draft_obs_hash(obs)
         return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + d
@@ -61,14 +61,15 @@ def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids
     for i in xrange(len(draft_object['observables'])):
         observable = draft_object['observables'][i]
         obs_id = observable.get('id', create_draft_observable_id(observable))
-        if DRAFT_ID_SEPARATOR in obs_id:
-            stack.append((1, 0, create_draft_obs_node(obs_id, observable_to_name(observable, True)), REL_TYPE_DRAFT))
-        else:
-            stack.append((1, 0, EdgeObject.load(obs_id), REL_TYPE_EDGE))
+        if obs_id not in hidden_ids:
+            if DRAFT_ID_SEPARATOR in obs_id:
+                stack.append((1, 0, create_draft_obs_node(obs_id, observable_to_name(observable, True)), REL_TYPE_DRAFT))
+            else:
+                stack.append((1, 0, EdgeObject.load(obs_id), REL_TYPE_EDGE))
 
     stack.append((0, None, create_draft_ind_node(draft_object['id'], draft_object['title']), REL_TYPE_DRAFT))
 
-    return create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids)
+    return create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids)
 
 
 def merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types):

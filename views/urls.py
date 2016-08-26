@@ -28,6 +28,9 @@ publisher_urls = [
     (r'^review/editable/(?P<id_>' + VALID_STIX_ID + ')$', 'views.object_details', 'object_details'),
     (r'^review/handling/', 'views.review_set_handling', 'review_set_handling'),
 
+    (r'^crm/find/$', 'views.find_crm_org', 'find_crm_org'),
+    (r'^crm/organisation/$', 'views.get_crm_org_details', 'get_crm_org_details'),
+
     (r'^extract/$', 'views.extract', 'extract_stix'),
     (r'^uploaded_stix_extracts/$', 'views.uploaded_stix_extracts', 'uploaded_stix_extracts'),
     (r'^ajax/extract_status/$', 'views.extract_status', 'extract_status'),

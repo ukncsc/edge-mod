@@ -18,6 +18,8 @@ define([
                 this.savedAge = ko.observable();
                 this.savedSightings = ko.observable();
                 this.savedBackLinks = ko.observable();
+                this.localNamespaceOnly = ko.observable();
+                this.savedLocalNamespaceOnly = ko.observable();
                 this.enabled.subscribe(this._onEnabledChanged.bind(this));
 
                 this.changesPending = ko.computed(this.changesPending, this);
@@ -36,6 +38,9 @@ define([
                 this.backLinks(response["minimum_back_links"]);
                 this.savedBackLinks(response["minimum_back_links"]);
 
+                this.localNamespaceOnly(response["localNamespaceOnly"]);
+                this.savedLocalNamespaceOnly(response["localNamespaceOnly"]);
+
                 sup.call(this, response)
             }
         }),
@@ -45,6 +50,7 @@ define([
                 this.age(this.savedAge());
                 this.sightings(this.savedSightings());
                 this.backLinks(this.savedBackLinks());
+                this.localNamespaceOnly(this.savedLocalNamespaceOnly());
                 this.time(this.savedTime());
             }
         },
@@ -55,6 +61,7 @@ define([
                     this.age() != this.savedAge() ||
                     this.sightings() != this.savedSightings() ||
                     this.backLinks() != this.savedBackLinks() ||
+                    this.localNamespaceOnly() != this.savedLocalNamespaceOnly() ||
                     this.time() != this.savedTime() ||
                     this.enabled() != this.savedEnabled()
                 );
@@ -110,6 +117,7 @@ define([
                     max_age_in_months: Number(this.age()),
                     minimum_sightings: Number(this.sightings()),
                     minimum_back_links: Number(this.backLinks()),
+                    localNamespaceOnly: this.localNamespaceOnly(),
                     time: this.time(),
                     enabled: this.enabled()
                 };
@@ -134,6 +142,7 @@ define([
                     this.savedAge(this.age());
                     this.savedSightings(this.sightings());
                     this.savedBackLinks(this.backLinks());
+                    this.savedLocalNamespaceOnly(this.localNamespaceOnly());
                     this.savedTime(this.time());
                     this.savedEnabled(this.enabled());
                 }

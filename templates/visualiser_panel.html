@@ -19,6 +19,17 @@
 
 </template>
 
+<template id="VisualiserPanelHidden">
+    <dt data-bind="attr: {class: cssClass}"><span data-bind="text: title"></span></dt>
+    <!-- ko foreach: Object.keys(model.hidden()) -->
+    <dd data-bind=" attr: {title: $data} ">
+        <span class="glyphicon glyphicon-remove" data-bind="click:$parent.model.unHideId.bind($parent.model, $data)"></span>
+        <img data-bind="attr: { src: '{% static 'img/hex/hex_' %}' + $parent.model.hidden()[$data] + '_20.png'}">
+        &nbsp;<span data-bind="text:$data"></span>
+    </dd>
+    <!-- /ko -->
+</template>
+
 <template id="VisualiserPanelDrafts">
     <!-- ko template: {name: 'VisualiserPanel', data: $data} --><!-- /ko -->
 

@@ -1,11 +1,23 @@
 {% load staticfiles %}
 {% include 'visualiser_panel.html' %}
-<template id="Graph" >
+<template id="Graph">
     <div id="graph-container" class="flex-main" data-bind="with: model">
-        <button type="button" class="btn btn-default btn-lg pull-right" style="position:absolute;top:5px;left:20px;"
-                data-bind="click: saveAsPNG">
-            <span class="glyphicon glyphicon-download"></span>
-        </button>
+        <div class="btn-group " style="position:absolute;top:5px;left:5px;">
+            <button type="button" class="btn btn-default btn-lg"
+                    data-bind="click: saveAsPNG">
+                <span class="glyphicon glyphicon-download"></span>
+            </button>
+
+            <button type="button" class="btn btn-default btn-lg"
+                    data-bind="click: toggleLegend">
+                <!-- ko if:legendShown-->
+                <img data-bind="attr: { src: '{% static 'img/visualiser_legend.png' %}'}">
+                <!-- /ko-->
+                <!-- ko ifnot:legendShown-->
+                <span class="glyphicon glyphicon-question-sign"></span>
+                <!-- /ko-->
+            </button>
+        </div>
         <div class="tooltip" id="graph-node-tooltip" style={'opacity':0}></div>
         <svg id="visualiser-graph" version="1.1" xmlns="http://www.w3.org/2000/svg"
              xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -35,7 +47,7 @@
                 <filter data-bind="
                             attr: {
                                 id: $parents[1].id + 'Related'
-                                 }"  filterUnits="objectBoundingBox"
+                                 }" filterUnits="objectBoundingBox"
                         x="0%" y="0%">
                     <feColorMatrix type="saturate" in="SourceGraphic" values="0.7"/>
                 </filter>
@@ -110,6 +122,7 @@
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: matches, title: 'Matching Objects', cssClass: 'match', model: $parents[1]}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanelDrafts', data: {realData: drafts, title: 'Drafts', cssClass:'draft', model: $parents[1]}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: childOf, title: 'Referenced By', cssClass: 'edge', model: $parents[1]}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanelHidden', data: {cssClass: 'hidden_node', title: 'Hidden Nodes', model: $parents[1]}}"></div>
 
                 <!-- /ko -->
             </dl>

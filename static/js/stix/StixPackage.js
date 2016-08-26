@@ -24,7 +24,7 @@ define([
                 throw new Error("STIX package cannot be null or undefined");
             }
             this._data = stixPackage;
-            this._rootId = new StixId(rootId);
+            this._rootId = new StixId(rootId, this._data);
             this._trustGroups = trustGroups;
             this._validationInfo = new ValidationInfo(validationInfo || {});
             this._cache = {};
@@ -79,7 +79,7 @@ define([
         },
 
         findByStringId: function (/*String*/ id) {
-            return this.findById(new StixId(id));
+            return this.findById(new StixId(id, this._data));
         },
 
         header: function () {
@@ -148,7 +148,7 @@ define([
         safeReferenceArrayGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
                                          /*String*/ idrefKey, /*String?*/ validationPath) {
             var values = this.safeArrayGet(object, propertyPath, function (item) {
-                return this.findById(new StixId(this.safeGet(item, idrefKey)));
+                return this.findById(new StixId(this.safeGet(item, idrefKey), this._data));
             }, this);
             var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
             return new ReviewValue(values, validation.state, validation.message);

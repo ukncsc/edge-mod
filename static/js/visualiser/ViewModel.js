@@ -54,6 +54,11 @@ define([
             this.matches = ko.observableArray([]);
             this.no_edges = ko.observableArray([]);
             this.edges = ko.observableArray([]);
+            this.hidden = ko.observable({});
+            this.legendShown = ko.observable(false);
+        },
+        toggleLegend:function() {
+            this.legendShown(!this.legendShown());
         },
         onNodeClicked: function (data) {
             if (data.nodeType() === 'external_ref') {
@@ -66,7 +71,7 @@ define([
         },
         onNewRootId: function (data, scope) {
             this.getExtended(
-                data, [], [], [], [],
+                data, [], [], [], [], [],
                 function (result) {
                     this.rootId = ko.computed(function () {
                         return data;
@@ -86,6 +91,7 @@ define([
                 this.matches(),
                 this.no_edges(),
                 this.edges(),
+                this.hidden(),
                 function (result) {
                     this.graph().loadData(result);
                     this.backlinks.push(data);
@@ -99,13 +105,14 @@ define([
                 this.matches(),
                 this.no_edges(),
                 this.edges(),
+                this.hidden(),
                 function (result) {
                     this.graph().loadData(result);
                     this.backlinks.remove(data);
                     this.graph().findNode(data).isBackLinkShown(false);
                 }.bind(this));
         },
-        getCopyWithout: function(data, originalArray) {
+        getCopyWithout: function (data, originalArray) {
             var dataIndex = originalArray.indexOf(data);
             var copy = originalArray.slice();
             copy.splice(dataIndex, dataIndex == -1 ? 0 : 1);
@@ -118,6 +125,7 @@ define([
                 this.matches(),
                 this.getCopyWithout(data, this.no_edges()),
                 this.edges().concat([data]),
+                this.hidden(),
                 function (result) {
                     this.graph().loadData(result);
                     this.no_edges.remove(data);
@@ -131,6 +139,7 @@ define([
                 this.backlinks(),
                 this.matches(),
                 this.no_edges().concat([data]),
+                this.hidden(),
                 this.getCopyWithout(data, this.edges()),
                 function (result) {
                     this.graph().loadData(result);
@@ -145,7 +154,9 @@ define([
                 this.backlinks(),
                 this.matches().concat([data]),
                 this.no_edges(),
-                this.edges(), function (result) {
+                this.edges(),
+                this.hidden(),
+                function (result) {
                     this.graph().loadData(result);
                     this.matches.push(data);
                     this.graph().findNode(data).isMatchesShown(true);
@@ -157,19 +168,70 @@ define([
                 this.backlinks(),
                 this.getCopyWithout(data, this.matches()),
                 this.no_edges(),
-                this.edges(), function (result) {
+                this.edges(),
+                this.hidden(),
+                function (result) {
                     this.graph().loadData(result);
                     this.matches.remove(data);
                     this.graph().findNode(data).isMatchesShown(false);
                 }.bind(this));
         },
-        getExtended: function (rootId, bls, matches, no_edges, edges, successcb) {
+
+        unHideId: function (data) {
+            delete this.hidden()[data];
+            this.getExtended(
+                this.rootId(),
+                this.backlinks(),
+                this.matches(),
+                this.no_edges(),
+                this.edges(),
+                this.hidden(),
+                function (result) {
+                    this.graph().loadData(result);
+                }.bind(this)
+            );
+        },
+        onHideAllChildren: function (data, scope) {
+            var nodeRefs = this.graph().findNodeReferences(data);
+            ko.utils.arrayForEach(nodeRefs, function(node) {
+                this.hidden()[node.id()] = node.type()
+            }.bind(this));
+
+            this.getExtended(
+                this.rootId(),
+                this.backlinks(),
+                this.matches(),
+                this.no_edges(),
+                this.edges(),
+                this.hidden(),
+                function (result) {
+                    this.graph().loadData(result);
+                }.bind(this)
+            );
+        },
+        onHideId: function (data, scope) {
+            this.hidden()[data] = this.graph().findNode(data).type();
+            this.getExtended(
+                this.rootId(),
+                this.backlinks(),
+                this.matches(),
+                this.no_edges(),
+                this.edges(),
+                this.hidden(),
+                function (result) {
+                    this.graph().loadData(result);
+                }.bind(this)
+            );
+        },
+        getExtended: function (rootId, bls, matches, no_edges, edges, hidden, successcb) {
+
             postJSON(this.graph_url() + "get_extended/", {
                     'id': rootId,
                     'id_bls': bls,
                     'id_matches': matches,
                     'hide_edge_ids': no_edges,
-                    'show_edge_ids': edges
+                    'show_edge_ids': edges,
+                    'hidden_ids': Object.keys(hidden)
                 }, function (result) {
                     var additionalNodes = result.nodes.length - this.graph().nodes().length
                     if (additionalNodes > 500) {

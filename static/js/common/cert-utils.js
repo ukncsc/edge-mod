@@ -12,6 +12,22 @@ define([], function () {
                 obj = obj[args[i]];
             }
             return true;
+        },
+        checkNestedFieldExistsArray: function (obj, args) {
+            for (var i = 0; i < args.length; i++) {
+                if (!obj || !obj.hasOwnProperty(args[i])) {
+                    return false;
+                }
+                obj = obj[args[i]];
+            }
+            return true;
+        },
+        getNestedFieldArray: function (obj, args) {
+            var currentLevel = obj;
+            for (var i = 0; i < args.length; i++) {
+                currentLevel = currentLevel[args[i]];
+            }
+            return currentLevel;
         }
     });
 });
