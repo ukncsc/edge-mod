@@ -14,8 +14,8 @@ define([
     "use strict";
 
     return declare(null, {
-        constructor: function (rootId, stixPackage, trustGroups, validationInfo, viewURL, editURL) {
-            this.stixPackage = ko.observable(new StixPackage(stixPackage, rootId, trustGroups, validationInfo));
+        constructor: function (rootId, stixPackage, trustGroups, validationInfo, viewURL, editURL, edges) {
+            this.stixPackage = ko.observable(new StixPackage(stixPackage, rootId, trustGroups, validationInfo, edges));
 
             this.root = ko.computed(function () {
                 return this.stixPackage().root;

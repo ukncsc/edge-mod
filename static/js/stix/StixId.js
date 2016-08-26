@@ -70,44 +70,23 @@ define([
         return match;
     }
 
-    function findType(id, data) {
-
-        for (var typename in TYPES) {
-            var collection_path = TYPES[typename]['collection'];
-            if (!Utils.checkNestedFieldExistsArray(data, collection_path.split('.'))) {
-                continue;
-            }
-            var collection = Utils.getNestedFieldArray(data, collection_path.split('.'));
-            if (typename === 'pkg') {
-                var found_type = ko.utils.arrayFirst(collection, function (item) {
-                    return id === item.package.id;
-                });
-            } else {
-                var found_type = ko.utils.arrayFirst(collection, function (item) {
-                    return id === item.id;
-                });
-            }
-
-
-            if (found_type == null) {
-                continue;
-            }
-            return TYPES[typename];
-        }
-
-        throw new TypeError("Unsupported type for id: " + id);
-    }
-
     function findNamespace(parsedId) {
         return parsedId[1];
     }
 
+    function findType(id, edges) {
+        var found_type = ko.utils.arrayFirst(edges, function (edge) {
+            return id === edge.id_;
+        });
+        return TYPES[found_type.ty];
+    }
+
     return declare(null, {
         declaredClass: "StixId",
-        constructor: function (id, data) {
+        constructor: function (id, edges) {
             var parsedId = parseId(id);
             this._id = id;
-            this._type = findType(id, data);
+            this._type = findType(id, edges)
             this._namespace = findNamespace(parsedId);
         },
         id: function () {
