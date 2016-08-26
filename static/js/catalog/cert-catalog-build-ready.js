@@ -13,7 +13,6 @@ require([
         "revision": window["revision"],
         "ajax_uri": window["ajax_uri"],
         "backLinks": window["backLinks"],
-        "edges": window["edges"],
         "canPurge": window["canPurge"],
         "canRevoke": window["canRevoke"],
         "sightings": window["sightings"],

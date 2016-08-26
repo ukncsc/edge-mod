@@ -4,9 +4,8 @@ define([
     "catalog/cert-catalog-revisions",
     "catalog/cert-catalog-activity",
     "catalog/cert-catalog-matching",
-    "catalog/cert-catalog-edges",
     "catalog/cert-catalog-purge"
-], function (declare, ko, Revisions, Activity, Matching, Edges, Purge) {
+], function (declare, ko, Revisions, Activity, Matching, Purge) {
     "use strict";
     function indexBy(items, pname) {
         var indexed = {};
@@ -23,7 +22,6 @@ define([
                 ko.observable(new Revisions()),
                 ko.observable(new Activity()),
                 ko.observable(new Matching()),
-                ko.observable(new Edges()),
                 ko.observable(new Purge())
             ]);
             this._byLabel = indexBy(this.options, "label");
