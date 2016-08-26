@@ -175,6 +175,13 @@ def __extract_revision(id):
     return revision, id
 
 
+def append_root_to_edges(edges, edge_object):
+    edges.append({
+                'ty' : edge_object.ty,
+                'id_' : edge_object.id_,
+            })
+    return edges
+
 @login_required
 def review(request, id):
     revision, id = __extract_revision(id)
@@ -193,6 +200,9 @@ def review(request, id):
 
     back_links = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
     edges = EdgeGenerator.gather_edges(root_edge_object.edges, depth_limit=EDGE_DEPTH_LIMIT, load_by_id=user_loader)
+
+   #add root object to edges for javascript to construct object
+    updated_edges = append_root_to_edges(edges, root_edge_object)
 
     sightings = None
     if root_edge_object.ty == 'obs':
@@ -220,7 +230,7 @@ def review(request, id):
         "validation_info": validation_info,
         "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
         "back_links": json.dumps(back_links),
-        "edges": json.dumps(edges),
+        "edges": json.dumps(updated_edges),
         'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
         '/view/%s/' % urllib.quote(id)),
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (

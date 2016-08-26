@@ -18,6 +18,10 @@ class EdgeGenerator(object):
                 eo = None
             else:
                 reference_title = eo.summary.get('title', '(untitled)')
+            if eo:
+                if eo.ty == 'obs':
+                    if eo.summary["type"] == "ObservableComposition":
+                        ax.extend(EdgeGenerator.gather_edges(eo.edges, depth_limit, load_by_id, current_depth))
 
             depth_viz = '' * current_depth
             ax.append({
