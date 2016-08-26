@@ -1,55 +1,45 @@
 import traceback
-
-from django.http import HttpResponse, Http404
-from edge.generic import EdgeError
-from crashlog.models import save
-from adapters.certuk_mod.catalog.generate_snort import generate_snort
-
 import os
-
 import urllib
-
 import json
 from datetime import datetime
 from dateutil import tz
+import rbac
 
-
+from django.http import HttpResponse, Http404
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-
 from django.core.exceptions import PermissionDenied
 
 from stix.extensions.marking.simple_marking import SimpleMarkingStructure
 
+from crashlog.models import save
+from clippy.models import CLIPPY_TYPES
 from users.decorators import json_body
 
+from edge.generic import EdgeError
 from edge.generic import EdgeObject, load_edge_object_or_404
 from edge.inbox import InboxProcessorForBuilders, InboxItem, InboxError
-
 from edge.handling import make_handling
 from edge.sightings import getSightingsFollowHash
-import rbac
-from clippy.models import CLIPPY_TYPES
+
+from adapters.certuk_mod.catalog.generate_snort import generate_snort
 from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
-
-
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
-
 from adapters.certuk_mod.catalog.backlink import BackLinkGenerator
 from adapters.certuk_mod.catalog.duplicates import DuplicateFinder
 from adapters.certuk_mod.catalog.edges import EdgeGenerator
 from adapters.certuk_mod.catalog.revoke import Revocable
-
-
 from adapters.certuk_mod.validation import ValidationStatus
 
 EDGE_DEPTH_LIMIT = 1
 HANDLING_CAVEAT = 'HANDLING_CAVEAT'
+
 
 def __extract_revision(id):
     revision = "latest"
@@ -97,9 +87,7 @@ def review(request, id):
                                                                         req_user)}}})
 
     revocable = Revocable(root_edge_object, request)
-
     can_revoke = revocable.is_revocable()
-
     can_purge = can_revoke and root_edge_object.is_revoke()
 
     request.breadcrumbs([("Catalog", "")])
@@ -112,13 +100,13 @@ def review(request, id):
         "back_links": json.dumps(back_links),
         "edges": json.dumps(edges),
         'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
-        '/view/%s/' % urllib.quote(id)),
+            '/view/%s/' % urllib.quote(id)),
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
-        '/edit/%s/' % urllib.quote(id)),
+            '/edit/%s/' % urllib.quote(id)),
         'visualiser_url': '/adapter/certuk_mod/visualiser/%s' % urllib.quote(id),
         'clone_url': "/adapter/certuk_mod/clone_direct/" + id,
         "revisions": json.dumps(root_edge_object.revisions),
-        "revision" : revision,
+        "revision": revision,
         "version": root_edge_object.version,
         "sightings": sightings,
         'ajax_uri': reverse('catalog_ajax'),
@@ -145,10 +133,10 @@ def review_set_handling(request, data):
         edge_object = EdgeObject.load(data["rootId"])
 
         generic_object = edge_object.to_ApiObject()
-        generic_object.obj.timestamp=datetime.now(tz.tzutc())
+        generic_object.obj.timestamp = datetime.now(tz.tzutc())
         append_handling(generic_object, data["handling"])
         ip = InboxProcessorForBuilders(
-                user=request.user,
+            user=request.user,
         )
 
         ip.add(InboxItem(api_object=generic_object, etlp=edge_object.etlp))
@@ -183,15 +171,9 @@ def get_duplicates(request, id_):
 
     return JsonResponse({"duplicates": duplicates})
 
+
 @login_required
-def observable_extract(request, type, obs_type, id_):
-    revision = "latest"
-    try:
-        eo = EdgeObject.load(id_, request.user.filters(), revision=revision)
-    except EdgeError as e:
-        e.message += " with revision %s" % revision
-        save('catalog.downloads', e.message, traceback.format_exc())
-        raise Http404()
+def observable_extract(request, type, obs_type, id_, revision):
 
     def text_writer(value, obs_type_in):
         if obs_type_in == obs_type or obs_type == "all":
@@ -202,7 +184,7 @@ def observable_extract(request, type, obs_type, id_):
         if obs_type_in == obs_type or obs_type == "all":
             snort_val = generate_snort([value], obs_type_in, id_.split(':', 1)[1].split('-', 1)[1])
             if snort_val:
-                return snort_val  + os.linesep
+                return snort_val + os.linesep
         return ""
 
     def not_implemented_writer(value, obs_type_in):
