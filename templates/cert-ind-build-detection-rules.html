@@ -1,0 +1,50 @@
+<template type="text/html" id="DetectionRulesPanel">
+    <div data-bind="if: $data == $parent.section().value()">
+        <div class="panel panel-default panel-builder">
+            <div class="panel-heading">
+                Detection Rules
+                <button class="btn btn-default btn-xs btn-add" data-bind="click: add, visible: $parent.mode().isEditable()">
+                <span class="glyphicon glyphicon-plus-sign green"></span> Add
+            </button>
+            </div>
+            <div class="panel-body">
+                <table data-bind="foreach: rules">
+                    <tbody role="form">
+                        <tr class="datarow">
+                            <td>
+                                <div class="form-horizontal">
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">Type</label>
+                                            <div class="col-lg-8">
+                                                <select data-bind="options: $parent.options"></select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">Description</label>
+                                            <div class="col-lg-8">
+                                                <input class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="ap_sdesc" class="col-lg-2 control-label">Rules</label>
+                                            <div class="col-lg-8">
+                                                <input class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="ap_capec_id" class="col-lg-2 control-label">Producer</label>
+                                            <div class="col-lg-8">
+                                                <input class="form-control">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</template>

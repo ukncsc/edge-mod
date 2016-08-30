@@ -44,6 +44,11 @@
                 </div>
 {% endblock %}
 
+{% block extra-section %}
+    {% include 'cert-ind-build-detection-rules.html' %}
+    <div data-bind="template: {name: 'DetectionRulesPanel', data: section().findByLabel('Detection Rules')}"></div>
+{% endblock %}
+
 {% block ind-build-viewmodel-setup %}{% endblock %}
 
 {% block knockout-setup %}{% endblock %}
