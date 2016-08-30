@@ -22,8 +22,9 @@ define([
     "intern/dojo/text!./data/Indicator_package_01.json",
     "intern/dojo/text!./data/Indicator_package_02.json",
     "intern/dojo/text!./data/Indicator_package_03.json",
-    "intern/dojo/text!./data/Indicator_package_04.json"
-], function (registerSuite, assert, ReviewValue, StixPackage, CourseOfAction, Indicator, Observable, TTP, package01, package02, package03, package04) {
+    "intern/dojo/text!./data/Indicator_package_04.json",
+    "stix/tests/unit/CreateEdges"
+], function (registerSuite, assert, ReviewValue, StixPackage, CourseOfAction, Indicator, Observable, TTP, package01, package02, package03, package04, CreateEdges) {
     "use strict";
 
     // statics go here
@@ -41,7 +42,34 @@ define([
         var classUnderTest = null;
 
         function loadPackage(rootId) {
-            stixPackage = new StixPackage(packageData[rootId], rootId);
+            stixPackage = new StixPackage(packageData[rootId], rootId, [], {},
+                CreateEdges.createEdges([
+                    "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3619",
+                    "purple-secure-systems:indicator-1cf691e8-6428-402c-a28e-b609ba7d6d2d",
+                    "fireeye:indicator-35dc3aed-d934-41c8-b920-5a5c9e814d41",
+                    "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d",
+                    "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3629",
+                    "purple-secure-systems:observable-346b24fb-52a3-40b3-9e1c-c30985a1253a",
+                    "purple-secure-systems:observable-4a7c90a4-7735-440b-a6d9-d81ee0632449",
+                    "purple-secure-systems:Observable-9e96c799-7710-425f-a308-d4b6716f930c",
+                    "purple-secure-systems:Observable-043c5263-c43a-4e7a-adff-553a04e4cc34",
+                    "purple-secure-systems:Indicator-7fc78054-e6f4-4b13-b3fc-44b1f4e2d9b8",
+                    "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32",
+                    "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064",
+                    "fireeye:indicator-35dc3aed-d934-41c8-b920-5a5c9e814d41",
+                    "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d",
+                    "fireeye:indicator-56dc9707-3656-4ebf-a6d3-6b979aca2ad6",
+                    "fireeye:indicator-f2c4c357-0c73-4d4b-86b2-a8a787afe5a1",
+                    "fireeye:indicator-9bf1be84-cf12-4b62-8baa-755c7a5438e8",
+                    "fireeye:indicator-ac185665-2fc9-443b-94b9-fedb9e1d5494",
+                    "fireeye:indicator-cd5515a5-cc36-4541-9579-78f810c45c8d",
+                    "fireeye:indicator-4fd76fab-a2c1-4025-8e2c-0ff97ca3d376",
+                    "fireeye:indicator-f7663237-55da-4d1c-aa52-6b24d39c47f7",
+                    "fireeye:indicator-e9c5f7c7-dee3-44e7-b2ee-c105aa08e634",
+                    "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928",
+                    "pss:TTP-f5ddf190-b7b0-4c33-a9f4-f2beb6453d04",
+                    "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3629"
+                ]));
             classUnderTest = stixPackage.root;
         }
 
@@ -156,7 +184,7 @@ define([
                     assert.instanceOf(actualRelatedIndicator, Indicator);
                     assert.equal(actualRelatedIndicator.id(), "purple-secure-systems:Indicator-7fc78054-e6f4-4b13-b3fc-44b1f4e2d9b8");
                 },
-                "has correct indicated TTPs" : function () {
+                "has correct indicated TTPs": function () {
                     var actual = classUnderTest.indicatedTTPs();
                     assert.instanceOf(actual, ReviewValue);
                     assert.isFalse(actual.isEmpty());
@@ -194,7 +222,7 @@ define([
                     assert.instanceOf(actual, ReviewValue);
                     assert.isFalse(actual.isEmpty());
                     var actualCompositeIndicators = actual.value();
-                    assert.deepEqual(actualCompositeIndicators.map(function(item) {
+                    assert.deepEqual(actualCompositeIndicators.map(function (item) {
                         return item.id();
                     }), [
                         "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d",

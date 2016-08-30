@@ -7,8 +7,9 @@ define([
     "stix/Indicator",
     "stix/Observable",
     "stix/TTP",
-    "intern/dojo/text!./data/Incident_package_01.json"
-], function (registerSuite, assert, ReviewValue, StixPackage, Incident, Indicator, Observable, TTP, package01) {
+    "intern/dojo/text!./data/Incident_package_01.json",
+    "stix/tests/unit/CreateEdges"
+], function (registerSuite, assert, ReviewValue, StixPackage, Incident, Indicator, Observable, TTP, package01, CreateEdges) {
     "use strict";
 
     // statics go here
@@ -23,7 +24,19 @@ define([
         var classUnderTest = null;
 
         function loadPackage(rootId) {
-            stixPackage = new StixPackage(packageData[rootId], rootId);
+            stixPackage = new StixPackage(packageData[rootId], rootId, [], {},
+                CreateEdges.createEdges([
+                    "purple-secure-systems:incident-02468346-fdf2-4095-a905-f3731fccd58d",
+                    "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32",
+                    "purple-secure-systems:incident-2ac2d36b-fa0f-49aa-87bc-bdc27a497f19",
+                    "purple-secure-systems:incident-0b0090ab-bae8-4167-a538-9cc68033f9c9",
+                    "purple-secure-systems:indicator-d46e13c9-7dce-4272-a593-1cd2f9212a2d",
+                    "purple-secure-systems:observable-f9faeb29-9c98-434c-b07a-4647e6cdd6f2",
+                    "purple-secure-systems:observable-1fb0e40b-d23d-4b81-ab78-0824e2642ebf",
+                    "purple-secure-systems:observable-9db11783-3887-4f32-9f10-f18ebf2fba98",
+                    "purple-secure-systems:indicator-1cf691e8-6428-402c-a28e-b609ba7d6d2d"
+
+                ]));
             classUnderTest = stixPackage.root;
         }
 
