@@ -41,9 +41,13 @@ define([
         },
 
         _findPackage: function (listToSearch, id) {
-            return ko.utils.arrayFirst(listToSearch, function (item) {
+            var data = ko.utils.arrayFirst(listToSearch, function (item) {
                 return item.package.id === id;
             }, this);
+            if (data !== null) {
+                return data.package
+            }
+            return null
         },
 
         _findStixObject: function (listToSearch, id) {
@@ -77,18 +81,14 @@ define([
 
             var stixObject = null;
             var type = stixId.type();
-            if (id === this._data.id) { //Show this package.
-                stixObject = new type.class(this._data.package, this);
+            var listToSearch = this.safeGet(this._data, type.collection);
+            if (listToSearch) {
+                var data = this.searchForStixData(listToSearch, type, id)
+                stixObject = new type.class(data, this);
             } else {
-                var listToSearch = this.safeGet(this._data, type.collection);
-                if (listToSearch) {
-                    var data = this.searchForStixData(listToSearch, type, id)
-
-                    stixObject = new type.class(data, this);
-                } else {
-                    stixObject = new type.class(this._mockExternalData(id), this);
-                }
+                stixObject = new type.class(this._mockExternalData(id), this);
             }
+
 
             this._cache[id] = stixObject;
 
