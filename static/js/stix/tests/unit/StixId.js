@@ -53,20 +53,6 @@ define([
                     "Unable to parse id: wibble"
                 );
             },
-            "id string contains unknown type": function () {
-                var data1 = [
-                    {
-                        "id_": "certuk:wibble-00000000-0000-0000-0000-000000000000",
-                        "ty": "wibble"
-                    }
-                ];
-                assert.throws(
-                    function () {
-                        new StixId("certuk:wibble-00000000-0000-0000-0000-000000000000", data1);
-                    },
-                    "Unsupported type for id: certuk:wibble-00000000-0000-0000-0000-000000000000"
-                );
-            },
             "valid: type matched": function () {
                 var actual = new StixId("certuk:coa-00000000-0000-0000-0000-000000000000", data);
                 assert.equal(actual.id(), "certuk:coa-00000000-0000-0000-0000-000000000000");
