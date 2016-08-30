@@ -263,7 +263,7 @@ define([
                     }
                     else if (this.graph().selectedNode().id() == newNode.id()) {
                         this.selectedObject.bind(this)(
-                            new StixPackage(response["package"], response["root_id"], response["validation_info"])
+                            new StixPackage(response["package"], response["root_id"], [], response["validation_info"], response["type_info"])
                         );
                     }
                 }.bind(this)
