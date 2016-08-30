@@ -12,19 +12,13 @@ define([
 
             // suite variables go here
 
-            var data = [
-                {
-                    "id_": "certuk:coa-00000000-0000-0000-0000-000000000000",
-                    "ty": "coa"
-                }
-            ];
 
             return {
                 name: "stix/StixId",
                 "undefined id string": function () {
                     assert.throws(
                         function () {
-                            new StixId(undefined, data);
+                            new StixId(undefined, {});
                         },
                         "Identifier must be a string"
                     );
@@ -32,7 +26,7 @@ define([
                 "null id string": function () {
                     assert.throws(
                         function () {
-                            new StixId(null, data);
+                            new StixId(null, {});
                         },
                         "Identifier must be a string"
                     );
@@ -40,7 +34,7 @@ define([
                 "non-string id string": function () {
                     assert.throws(
                         function () {
-                            new StixId(NaN, data);
+                            new StixId(NaN, {});
                         },
                         "Identifier must be a string"
                     );
@@ -48,7 +42,7 @@ define([
                 "invalid id string": function () {
                     assert.throws(
                         function () {
-                            new StixId("wibble", data);
+                            new StixId("wibble", {});
                         },
                         "Unable to parse id: wibble"
                     );
