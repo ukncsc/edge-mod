@@ -91,7 +91,6 @@ audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
 mimetypes.init()
-EDGE_DEPTH_LIMIT = 1
 HANDLING_CAVEAT = 'HANDLING_CAVEAT'
 ORGANISATIONS_URL = "/organisations/"
 FIND_URL = "find?organisation="
@@ -192,7 +191,13 @@ def review(request, id):
         return EdgeObject.load(idref, request.user.filters())
 
     back_links = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
-    edges = EdgeGenerator.gather_edges(root_edge_object.edges, depth_limit=EDGE_DEPTH_LIMIT, load_by_id=user_loader)
+    edges = EdgeGenerator.gather_edges(root_edge_object.edges, load_by_id=user_loader)
+
+   #add root object to edges for javascript to construct object
+    edges.append({
+                'ty' : root_edge_object.ty,
+                'id_' : root_edge_object.id_,
+            })
 
     sightings = None
     if root_edge_object.ty == 'obs':
