@@ -19,9 +19,14 @@ def save(name, value):
 
 
 def get(name):
-    return _config().find_one({
+    value = _config().find_one({
         'name': name
     })
+
+    if value is not None:
+        return value.get('value')
+    else:
+        return value
 
 
 def get_all():
@@ -30,6 +35,6 @@ def get_all():
     })
     results = {}
     for doc in cursor:
-        results[doc["name"]] = doc
+        results[doc["name"]] = doc["value"]
 
     return results
