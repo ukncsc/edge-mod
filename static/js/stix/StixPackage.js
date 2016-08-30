@@ -25,7 +25,7 @@ define([
             }
             this._data = stixPackage;
             this._edges = edges;
-            this._rootId = new StixId(rootId, this._edges, this._data);
+            this._rootId = new StixId(rootId, this._edges);
             this._trustGroups = trustGroups;
             this._validationInfo = new ValidationInfo(validationInfo || {});
             this._cache = {};
@@ -52,43 +52,46 @@ define([
             }, this);
         },
 
+        searchForStixData: function (listToSearch, type, id) {
+            var data = null;
+            if (type.label == "Package") {
+                data = this._findPackage(listToSearch, id)
+            } else {
+                data = this._findStixObject(listToSearch, id);
+            }
+            if (data == null) {
+                data = this._mockExternalData(id);
+            }
+            return data
+        },
+
         findById: function (stixId) {
             if (!(stixId instanceof StixId)) {
                 throw new Error("Identifier must be a StixId: " + stixId);
             }
             var id = stixId.id();
-            var stixObject = null;
-            if (id in this._cache) {
-                stixObject = this._cache[id];
-            } else {
-                var type = stixId.type();
-                if (id === this._data.id) { //Show this package.
-                    data = this._data;
-                } else {
-                    var listToSearch = this.safeGet(this._data, type.collection);
-                    if (listToSearch) {
-                        if (type.label == "Package") {
-                            var data = this._findPackage(listToSearch, id)
-                        } else {
-                            var data = this._findStixObject(listToSearch, id);
-                        }
-                        if (data == null) {
-                            data = this._mockExternalData(id);
-                        }
-                    }
-                }
-                if (type.label == "Package") {
-                    stixObject = new type.class(data.package, this);
-                } else {
-                    if (data === undefined) {
-                        stixObject = new type.class(this._mockExternalData(id), this);
-                    } else {
-                        stixObject = new type.class(data, this);
-                    }
-                }
 
-                this._cache[id] = stixObject;
+            if (id in this._cache) {
+                return this._cache[id];
             }
+
+            var stixObject = null;
+            var type = stixId.type();
+            if (id === this._data.id) { //Show this package.
+                stixObject = new type.class(this._data.package, this);
+            } else {
+                var listToSearch = this.safeGet(this._data, type.collection);
+                if (listToSearch) {
+                    var data = this.searchForStixData(listToSearch, type, id)
+
+                    stixObject = new type.class(data, this);
+                } else {
+                    stixObject = new type.class(this._mockExternalData(id), this);
+                }
+            }
+
+            this._cache[id] = stixObject;
+
             return stixObject;
         },
 
