@@ -54,7 +54,8 @@ def ajax_load_object(request, id_):
     package = PackageGenerator.build_package(root_edge_object)
     return JsonResponse({
         "root_id": id_,
-        "package": package.to_dict()
+        "package": package.to_dict(),
+        "type_info" : [{"id_": id_, "ty":root_edge_object.ty}]
     }, status=200)
 
 
