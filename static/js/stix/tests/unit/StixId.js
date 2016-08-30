@@ -18,7 +18,7 @@ define([
                 "undefined id string": function () {
                     assert.throws(
                         function () {
-                            new StixId(undefined, {});
+                            new StixId(undefined, []);
                         },
                         "Identifier must be a string"
                     );
@@ -26,7 +26,7 @@ define([
                 "null id string": function () {
                     assert.throws(
                         function () {
-                            new StixId(null, {});
+                            new StixId(null, []);
                         },
                         "Identifier must be a string"
                     );
@@ -34,7 +34,7 @@ define([
                 "non-string id string": function () {
                     assert.throws(
                         function () {
-                            new StixId(NaN, {});
+                            new StixId(NaN, []);
                         },
                         "Identifier must be a string"
                     );
@@ -42,7 +42,7 @@ define([
                 "invalid id string": function () {
                     assert.throws(
                         function () {
-                            new StixId("wibble", {});
+                            new StixId("wibble", []);
                         },
                         "Unable to parse id: wibble"
                     );
@@ -53,7 +53,6 @@ define([
                         [{
                             "id_": "certuk:wibble-00000000-0000-0000-0000-000000000000",
                             "ty": "asd"
-
                         }];
                     assert.doesNotThrow(
                         function () {
