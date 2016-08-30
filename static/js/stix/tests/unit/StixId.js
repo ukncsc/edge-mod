@@ -1,8 +1,9 @@
 define([
+    "knockout",
     "intern!object",
     "intern/chai!assert",
     "stix/StixId"
-], function (registerSuite, assert, StixId) {
+], function (ko, registerSuite, assert, StixId) {
     "use strict";
 
     // statics go here
@@ -11,12 +12,19 @@ define([
 
         // suite variables go here
 
+        var data = [
+            {
+                "id_": "certuk:coa-00000000-0000-0000-0000-000000000000",
+                "ty": "coa"
+            }
+        ];
+
         return {
             name: "stix/StixId",
             "undefined id string": function () {
                 assert.throws(
                     function () {
-                        new StixId(undefined);
+                        new StixId(undefined, data);
                     },
                     "Identifier must be a string"
                 );
@@ -24,7 +32,7 @@ define([
             "null id string": function () {
                 assert.throws(
                     function () {
-                        new StixId(null);
+                        new StixId(null, data);
                     },
                     "Identifier must be a string"
                 );
@@ -32,7 +40,7 @@ define([
             "non-string id string": function () {
                 assert.throws(
                     function () {
-                        new StixId(NaN);
+                        new StixId(NaN, data);
                     },
                     "Identifier must be a string"
                 );
@@ -40,34 +48,26 @@ define([
             "invalid id string": function () {
                 assert.throws(
                     function () {
-                        new StixId("wibble");
+                        new StixId("wibble", data);
                     },
                     "Unable to parse id: wibble"
                 );
             },
             "id string contains unknown type": function () {
-                var data = {
-                    "wibble": [
-                        {
-                            "id": "certuk:wibble-00000000-0000-0000-0000-000000000000"
-                        }
-                    ]
-                };
+                var data1 = [
+                    {
+                        "id_": "certuk:wibble-00000000-0000-0000-0000-000000000000",
+                        "ty": "wibble"
+                    }
+                ];
                 assert.throws(
                     function () {
-                        new StixId("certuk:wibble-00000000-0000-0000-0000-000000000000", data);
+                        new StixId("certuk:wibble-00000000-0000-0000-0000-000000000000", data1);
                     },
                     "Unsupported type for id: certuk:wibble-00000000-0000-0000-0000-000000000000"
                 );
             },
             "valid: type matched": function () {
-                var data = {
-                    "courses_of_action": [
-                        {
-                            "id": "certuk:coa-00000000-0000-0000-0000-000000000000"
-                        }
-                    ]
-                };
                 var actual = new StixId("certuk:coa-00000000-0000-0000-0000-000000000000", data);
                 assert.equal(actual.id(), "certuk:coa-00000000-0000-0000-0000-000000000000");
                 assert.equal(actual.type().code, "coa");
