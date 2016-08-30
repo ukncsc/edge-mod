@@ -174,10 +174,6 @@ def __extract_revision(id):
     return revision, id
 
 
-def append_root_to_edges(edges, edge_object):
-
-    return edges
-
 @login_required
 def review(request, id):
     revision, id = __extract_revision(id)
