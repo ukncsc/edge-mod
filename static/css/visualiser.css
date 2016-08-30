@@ -28,6 +28,10 @@
     overflow-y: auto;
 }
 
+.icon-red {
+    color: red;
+}
+
 .fa-signal:after {
     content: "";
     position: absolute;
@@ -93,6 +97,12 @@ g.ko-d3-graph-node {
     display: block;
 }
 
+.hidden_node {
+    stroke: #000000;
+    color: #000000;
+    fill: #000000;
+}
+
 .edge {
     stroke: #674a0f;
     color: #674a0f;
@@ -128,7 +138,6 @@ line.ko-d3-graph-link {
 line.ko-d3-graph-link.related {
     stroke-width: 3;
 }
-
 
 dl.dl-horizontal dd {
     margin-left: 160px;

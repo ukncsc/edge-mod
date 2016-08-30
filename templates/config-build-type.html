@@ -1,0 +1,25 @@
+<script type="text/html" id="ConfigBuildType">
+    <div class="col-sm-5">
+        <div class="dropdown">
+            <button class="btn btn-default btn-block dropdown-toggle" type="button"
+                    data-toggle="dropdown" data-bind="enable: model.enabled()">
+                                        <span class="btn-content pull-left glyphicon"
+                                              data-bind=""></span>
+                                        <span class="btn-content pull-left"
+                                              data-bind="text: defaultBuildType() ? defaultBuildText : alternateBuildText"></span>
+                <span class="btn-content pull-right glyphicon glyphicon-chevron-down"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <!-- ko foreach: [true, false] -->
+                <li>
+                    <a href="#" data-bind="click: function() { $parent.defaultBuildType($data); }">
+                                                <span class="glyphicon"
+                                                      data-bind=""></span>
+                        <span data-bind="text: $data ? $parent.defaultBuildText : $parent.alternateBuildText"></span>
+                    </a>
+                </li>
+                <!-- /ko -->
+            </ul>
+        </div>
+    </div>
+</script>

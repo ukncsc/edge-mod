@@ -72,7 +72,7 @@ ID_TYPE_ALIAS = {
         "stix": "pkg"
 }
 
-def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
+def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids):
     def show_edges(rel_type, node_id):
         return ((REL_TYPE_BACKLINK != rel_type and REL_TYPE_MATCH != rel_type) or (node_id in show_edge_ids)) and \
                (node_id not in hide_edge_ids)
@@ -102,6 +102,8 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids):
     while stack:
         depth, parent_idx, node, rel_type = stack.pop()
         node_id = node.id_
+        if node_id in hidden_ids:
+            continue
         node_type = get_node_type(rel_type)
         is_new_node = node_id not in id_to_idx
         if is_new_node:

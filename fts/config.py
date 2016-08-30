@@ -15,11 +15,11 @@ class FtsConfiguration(object):
     DEFAULT_MINUTE = '00'
     DEFAULT_TIME = DEFAULT_HOUR + ':' + DEFAULT_MINUTE
     DEFAULT_ENABLED = False
-    DEFAULT_FULLBUILD = False
+    DEFAULT_MISSING_INDICIES = True
 
     __time_key = 'time'
     __enabled_key = 'enabled'
-    __full_build_key = 'fullBuild'
+    __missing_indicies_key = 'onlyMissingIndicies'
 
     def __init__(self, task):
         if not isinstance(task, PeriodicTaskWithTTL):
@@ -31,11 +31,11 @@ class FtsConfiguration(object):
         if errors:
             raise FtsConfigurationError(errors)
 
-        full_build = task.kwargs.get(self.__full_build_key, self.DEFAULT_FULLBUILD)
+        only_missing_indicies = task.kwargs.get(self.__missing_indicies_key, self.DEFAULT_MISSING_INDICIES)
         self.hour = task.crontab.hour
         self.minute = task.crontab.minute
         self.enabled = task.enabled
-        self.full_build = full_build
+        self.only_missing_indicies = only_missing_indicies
 
     @staticmethod
     def __validate(hour_str, minute_str):
@@ -53,7 +53,7 @@ class FtsConfiguration(object):
 
     def to_dict(self):
         return {
-            self.__full_build_key: self.full_build,
+            self.__missing_indicies_key: self.only_missing_indicies,
             self.__time_key: '%02d:%02d' % (int(self.hour), int(self.minute)),
             self.__enabled_key: self.enabled
         }
@@ -68,7 +68,7 @@ class FtsConfiguration(object):
             raise
 
     @classmethod
-    def set(cls, full_build, time, enabled):
+    def set(cls, only_missing_indicies, time, enabled):
         try:
             config = cls.get()
             task = config.task
@@ -82,7 +82,7 @@ class FtsConfiguration(object):
                     enabled=enabled
             )
         task.kwargs = {
-            cls.__full_build_key: full_build
+            cls.__missing_indicies_key: only_missing_indicies
         }
         task.enabled = bool(enabled)
 
@@ -103,7 +103,7 @@ class FtsConfiguration(object):
 
     @classmethod
     def set_from_dict(cls, config_dict):
-        return cls.set(config_dict[cls.__full_build_key],
+        return cls.set(config_dict[cls.__missing_indicies_key],
                        config_dict[cls.__time_key],
                        config_dict[cls.__enabled_key])
 
@@ -116,6 +116,6 @@ class FtsConfiguration(object):
 
     @classmethod
     def reset(cls):
-        return cls.set(FtsConfiguration.DEFAULT_FULLBUILD,
+        return cls.set(FtsConfiguration.DEFAULT_MISSING_INDICIES,
                        FtsConfiguration.DEFAULT_TIME,
                        FtsConfiguration.DEFAULT_ENABLED)
