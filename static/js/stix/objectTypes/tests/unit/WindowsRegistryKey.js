@@ -4,8 +4,9 @@ define([
     "stix/objectTypes/StixObjectType",
     "stix/ReviewValue",
     "stix/StixPackage",
-    "intern/dojo/text!./data/Observable_package_registry.json"
-], function (registerSuite, assert, StixObjectType, ReviewValue, StixPackage, package01) {
+    "intern/dojo/text!./data/Observable_package_registry.json",
+    "stix/tests/unit/CreateEdges"
+], function (registerSuite, assert, StixObjectType, ReviewValue, StixPackage, package01, CreateEdges) {
     "use strict";
 
     // statics go here
@@ -20,7 +21,11 @@ define([
         var classUnderTest = null;
 
         function loadPackage(rootId, objectId) {
-            stixPackage = new StixPackage(packageData[rootId], objectId || rootId);
+            stixPackage = new StixPackage(packageData[rootId], objectId || rootId, [], {}, CreateEdges.createEdges([
+                    "purple-secure-systems:Package-c324c477-f4e4-47b6-a0fc-6754ddc089b7",
+                    "purple-secure-systems:observable-84519300-e075-4788-91b3-68af827e1fd0",
+                    "purple-secure-systems:observable-00a48e2e-800d-445e-8431-92f597b0686f"
+                ]));
             classUnderTest = stixPackage.root;
         }
 

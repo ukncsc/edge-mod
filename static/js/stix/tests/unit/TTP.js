@@ -4,8 +4,9 @@ define([
     "stix/ReviewValue",
     "stix/StixPackage",
     "stix/TTP",
-    "intern/dojo/text!./data/TTP_package_01.json"
-], function (registerSuite, assert, ReviewValue, StixPackage, TTP, package01) {
+    "intern/dojo/text!./data/TTP_package_01.json",
+    "stix/tests/unit/CreateEdges"
+], function (registerSuite, assert, ReviewValue, StixPackage, TTP, package01, CreateEdges) {
     "use strict";
 
     // statics go here
@@ -20,7 +21,11 @@ define([
         var classUnderTest = null;
 
         function loadPackage(rootId) {
-            stixPackage = new StixPackage(packageData[rootId], rootId);
+            stixPackage = new StixPackage(packageData[rootId], rootId, [], {},
+                CreateEdges.createEdges([
+                    "purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59",
+                    "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32"
+                ]));
             classUnderTest = stixPackage.root;
         }
 

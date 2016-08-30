@@ -46,14 +46,13 @@ define([
                 );
             },
             "id string contains unknown type": function () {
-                var data = {
-                    "wibble": [
-                        {
-                            "id": "certuk:wibble-00000000-0000-0000-0000-000000000000"
-                        }
-                    ]
-                };
-                assert.throws(
+                var data =
+                    [{
+                        "id_": "certuk:wibble-00000000-0000-0000-0000-000000000000",
+                        "ty": "asd"
+
+                    }];
+                assert.doesNotThrow(
                     function () {
                         new StixId("certuk:wibble-00000000-0000-0000-0000-000000000000", data);
                     },
@@ -61,19 +60,19 @@ define([
                 );
             },
             "valid: type matched": function () {
-                var data = {
-                    "courses_of_action": [
-                        {
-                            "id": "certuk:coa-00000000-0000-0000-0000-000000000000"
-                        }
-                    ]
-                };
+                var data =
+                    [{
+
+                        "id_": "certuk:coa-00000000-0000-0000-0000-000000000000",
+                        "ty": "coa"
+                    }];
                 var actual = new StixId("certuk:coa-00000000-0000-0000-0000-000000000000", data);
                 assert.equal(actual.id(), "certuk:coa-00000000-0000-0000-0000-000000000000");
                 assert.equal(actual.type().code, "coa");
                 assert.equal(actual.namespace(), "certuk");
             }
+            }
         }
-    });
+        );
 })
 ;
