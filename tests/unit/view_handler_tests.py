@@ -218,7 +218,7 @@ class ViewHandlerTests(unittest.TestCase):
     def test_AJAXPublish_IfEdgeObjectLoadFails_ReturnError(self, mock_message_formatter, mock_event_publisher,
                                                            mock_edge_object):
         mock_error = 'Mock error'
-        mock_edge_object.load.side_effect = Exception(mock_error)
+        mock_edge_object.load_and_parse.side_effect = Exception(mock_error)
         mock_id = 'blah'
         mock_user = 'mr'
         mock_message_formatter.return_value = 'dummy message'
@@ -276,7 +276,7 @@ class ViewHandlerTests(unittest.TestCase):
     def test_AJAXPublish_IfEdgeObjectGetNameSpacesFails_ReturnError(self, mock_message_formatter, mock_event_publisher,
                                                                     mock_edge_object):
         mock_error = 'Mock error'
-        mock_edge_object.load.return_value.ns_dict.side_effect = Exception(mock_error)
+        mock_edge_object.load_and_parse.return_value.ns_dict.side_effect = Exception(mock_error)
         mock_id = 'blah'
         mock_user = 'mr'
         mock_message_formatter.return_value = 'dummy message'

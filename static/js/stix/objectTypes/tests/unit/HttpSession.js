@@ -20,7 +20,7 @@ define([
         var classUnderTest = null;
 
         function loadPackage(rootId) {
-            stixPackage = new StixPackage(packageData[rootId], rootId);
+            stixPackage = new StixPackage(packageData[rootId], rootId, [], {}, [{"id_":rootId, "ty":"obs"}]);
             classUnderTest = stixPackage.root;
         }
 
