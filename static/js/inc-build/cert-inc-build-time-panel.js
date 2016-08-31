@@ -47,7 +47,7 @@ define([
         counter: function () {
             var count = 0;
             ko.utils.arrayForEach(this.timeTypes(), function (timeType) {
-                if (timeType.timeString() !== "") {
+                if (timeType.timeString() !== "" && !timeType.timeString.hasError()) {
                     count = count + 1;
                 }
             });
@@ -61,11 +61,15 @@ define([
                     displayName
                 );
 
+            var format = 'YYYY-MM-DDTHH:mm:ss';
             newTime.timeString.extend({
-                requiredGrouped: {
-                    required: timeInfo[2],
+                dateTimeGrouped: {
                     group: this.validationGroup,
-                    displayMessage: displayName + " time is required for your indicator"
+                    required: timeInfo[2],
+                    format:format,
+                    displayMessage: timeInfo[2] ?
+                        displayName + " is required and must have format " + format :
+                        displayName + " must have format " + format
                 }
             });
             this.timeTypes.push(newTime);
@@ -105,7 +109,7 @@ define([
         save: function () {
             var dataTime = {};
             ko.utils.arrayForEach(this.timeTypes(), function (item) {
-                if (item.timeString() != "") {
+                if (item.timeString() != "" && !item.timeString.hasError()) {
                     dataTime[item.saveName()] = {
                         'value': item.timeString(),
                         'precision': 'second' //Hardcoded for now and strictly not needed for 'second'.

@@ -1,4 +1,4 @@
-define([], function () {
+define(["common/moment-shim"], function (moment) {
     "use strict";
 
     var ko = window.ko;
@@ -39,6 +39,25 @@ define([], function () {
         return target;
     };
 
+    ko.extenders.dateTimeGrouped = function (target, options) {
+        var format = options['format'];
+        var displayMessage = options['displayMessage'];
+        var required = options['required'];
+        var val = ko.extenders.validate(target, {
+            isValidCallback: function (value) {
+                if (value.trim().length == 0) {
+                    return !required;
+                }
+                return moment(value, format, true).isValid();
+            },
+            failedValidationMessage: displayMessage,
+            failedValidationDisplayMessage: displayMessage
+        });
+
+        options['group'].push(target);
+        return val;
+    };
+
     ko.extenders.requiredGrouped = function (target, options) {
         if (options['required'] === true) {
 
@@ -59,8 +78,6 @@ define([], function () {
             return val;
 
         }
-
-
         return target;
     };
 
