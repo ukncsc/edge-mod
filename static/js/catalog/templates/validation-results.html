@@ -16,4 +16,7 @@
         <li data-bind="text: message, attr: { title: fields.join('\n') }"></li>
     </ul>
 </div>
+<!-- ko if: validations.hasErrors -->
+<div data-bind="text: messageError" class="bg-danger text-danger text-center"></div>
+<!-- /ko -->
 <hr>

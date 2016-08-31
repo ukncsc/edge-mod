@@ -197,6 +197,7 @@ def review(request, id):
     edges.append({
                 'ty' : root_edge_object.ty,
                 'id_' : root_edge_object.id_,
+                'is_external': False
             })
 
     sightings = None
@@ -210,6 +211,11 @@ def review(request, id):
                                                           "message": "This object was created by %s not %s"
                                                                      % (root_edge_object.created_by_username,
                                                                         req_user)}}})
+    if any(item['is_external'] for item in edges):
+        validation_info.validation_dict.update({id: {"external_references":
+                                                         {"status": ValidationStatus.ERROR,
+                                                          "message": "This object contains External References, clone "
+                                                                     "object and remove missing references before publishing"}}})
 
     revocable = Revocable(root_edge_object, request)
 
