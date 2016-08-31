@@ -16,7 +16,6 @@ define([
         declaredClass: "CatalogHandling",
         constructor: function () {
             this.choices = ko.observableArray(this.parseSharingGroups(sharing_groups));
-            this.sharingMap = ko.observable(sharing_groups);
             this.selectedCaveats = ko.observableArray([]);
         },
 
@@ -30,15 +29,16 @@ define([
             return LabelList
         },
 
-        loadStatic: function (handlingCaveats){
+        loadStatic: function (handlingCaveats) {
             this.selectedCaveats(handlingCaveats);
         },
 
-        parseToDisplayValue: function (handlingCaveats){
+        parseToDisplayValue: function (handlingCaveats) {
             var displayValues = [];
-            var sharingMap = this.sharingMap();
-            ko.utils.arrayForEach(handlingCaveats, function (handlingCaveat){
-                displayValues.push(sharingMap[handlingCaveat])
+            ko.utils.arrayForEach(handlingCaveats, function (handlingCaveat) {
+                if (sharing_groups[handlingCaveat] != undefined) {
+                    displayValues.push(sharing_groups[handlingCaveat])
+                }
             });
             return displayValues
         },
@@ -96,7 +96,7 @@ define([
             modal.contentData.message("Setting Handling Caveats ...");
 
             this.publish({
-                'handling': this.parseSharingtoStix(modal.items())
+                'handling': this.parseDisplaytoStix(modal.items())
             }, function (response) {
                 modal.contentData.phase("RESPONSE");
                 modal.contentData.waitingForResponse(false);
@@ -137,7 +137,7 @@ define([
             }), onPublishCallback);
         },
 
-        parseSharingtoStix: function (selectedSharingGroups) {
+        parseDisplaytoStix: function (selectedSharingGroups) {
             var stixValues = [];
             ko.utils.arrayForEach(selectedSharingGroups, function (selectedGroup) {
                 for (var key in sharing_groups) {
