@@ -43,6 +43,8 @@ define(["common/moment-shim"], function (moment) {
         var format = options['format'];
         var displayMessage = options['displayMessage'];
         var required = options['required'];
+        var group = options['group'];
+
         var val = ko.extenders.validate(target, {
             isValidCallback: function (value) {
                 if (value.trim().length == 0) {
@@ -54,7 +56,7 @@ define(["common/moment-shim"], function (moment) {
             failedValidationDisplayMessage: displayMessage
         });
 
-        options['group'].push(target);
+        group.push(target);
         return val;
     };
 
