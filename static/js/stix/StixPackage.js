@@ -9,7 +9,7 @@ define([
 ], function (declare, ko, StixId, ReviewValue, ValidationInfo, Identity, configService) {
     "use strict";
 
-    var crmIsEnabled = "";
+    var crmIsEnabled = false;
 
     var config = Object.freeze(JSON.parse(configService));
     var crm_config = config.crm_config;
@@ -172,7 +172,7 @@ define([
         },
 
         safeIdentityGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath, /*String?*/ validationPath) {
-            if (crmIsEnabled != "") {
+            if (crmIsEnabled !== false) {
                 var identityName = this.retrieveIdentity(object, propertyPath);
                 var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
                 return new ReviewValue(identityName, validation.state, validation.message);

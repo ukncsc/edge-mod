@@ -8,10 +8,19 @@ define([
     "catalog/cert-catalog-topics",
     "catalog/cert-catalog-handling",
     "common/modal/show-error-modal",
+    "text!config-service",
     "kotemplate!publish-modal:./templates/publish-modal-content.html",
     "kotemplate!validation-results:./templates/validation-results.html"
-], function (declare, ko, Modal, StixPackage, Section, Topic, topics, Handling, showErrorModal, publishModalTemplate) {
+], function (declare, ko, Modal, StixPackage, Section, Topic, topics, Handling, showErrorModal, configService, publishModalTemplate) {
     "use strict";
+
+    var handlingEnabled = false
+
+    var config = Object.freeze(JSON.parse(configService));
+    var handling = config.sharing_groups;
+    if (handling) {
+        handlingEnabled = handling.enabled;
+    }
 
     return declare(null, {
         constructor: function (rootId, stixPackage, trustGroups, validationInfo, viewURL, editURL, edges) {
@@ -31,6 +40,7 @@ define([
             this.sightings = ko.observable("");
             this.editable = ko.observable(this.isEditable(rootId))
             this.section = ko.observable(new Section());
+            this.handlingEnabled = ko.observable(handlingEnabled);
             this.handling = ko.observable(new Handling());
             Topic.subscribe(topics.HANDLING, function () {
                 this.externalPublish()
@@ -102,7 +112,7 @@ define([
         onPublish: function () {
             //Can't set handling on observables as they are CYBOX Objects not STIX
             //therefore go straight to externalPublish
-            if (this.type().code === "obs") {
+            if (!this.handlingEnabled() || this.type().code === "obs") {
                 this.externalPublish()
             } else {
                 this.handling().onPublish(this.externalPublish);

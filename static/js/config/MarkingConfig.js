@@ -23,10 +23,13 @@ define([
         },
 
         _parseResponse: function (/*Array*/configText) {
-            var mappedData = ko.utils.arrayMap(configText, function (marking) {
-                return new Marking(marking)
-            });
-            this.marking_priorities(mappedData);
+            if (configText !== null) {
+                this.enabled(configText["enabled"] || false);
+                var mappedData = ko.utils.arrayMap(configText["value"], function (marking) {
+                    return new Marking(marking)
+                });
+                this.marking_priorities(mappedData);
+            }
         },
 
         save: function () {
@@ -55,7 +58,10 @@ define([
             ko.utils.arrayForEach(this.marking_priorities(), function (marking) {
                 markingArray.push(marking.marking())
             });
-            return markingArray
+            return {
+                "enabled": this.enabled(),
+                "value": markingArray
+            }
         },
 
         addMarking: function () {

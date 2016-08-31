@@ -3,6 +3,9 @@
         <h3 class="panel-title">Markings</h3>
     </div>
     <div class="panel-body">
+
+        {% include "config-enabled-dropdown.html" %}
+
         <div data-bind="foreach: marking_priorities">
             <div class="row">
                 <div class="col-sm-3">
@@ -10,7 +13,8 @@
                 </div>
 
                 <div class="col-sm-5">
-                    <input type="text" class="form-control" data-bind="value: $data.marking, valueUpdate: 'afterkeydown'">
+                    <input type="text" class="form-control"
+                           data-bind="value: $data.marking, valueUpdate: 'afterkeydown'">
                 </div>
             </div>
         </div>

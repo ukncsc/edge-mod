@@ -10,8 +10,15 @@ define([
 ], function (declare, ko, AbstractBuilderForm, Messages, Identity, Topic, topics, configService) {
     "use strict";
 
+    var markingsEnabled = false;
+
     var config = Object.freeze(JSON.parse(configService));
-    var markings = config.markings;
+    var markingsConfig = config.markings;
+
+    if (markingsConfig) {
+        var markings = markingsConfig.value;
+        markingsEnabled = markingsConfig.enabled
+    }
 
     return declare(AbstractBuilderForm, {
         declaredClass: "General",
@@ -68,17 +75,20 @@ define([
                         displayMessage: "You need to select a reporter for your indicator"
                     }
                 });
-
-                this.markings = ko.observable().extend({
-                    requiredGrouped: {
-                        required: true,
-                        group: this.validationGroup,
-                        displayMessage: "You need to select a marking for your indicator"
-                    }
-                });
-
+                this.markingsEnabled = ko.observable(markingsEnabled);
+                if (markingsEnabled) {
+                    this.markings = ko.observable().extend({
+                        requiredGrouped: {
+                            required: true,
+                            group: this.validationGroup,
+                            displayMessage: "You need to select a marking for your indicator"
+                        }
+                    });
+                }
                 this.statuses = ko.observableArray([]);
-                this.marking_priorities = ko.observableArray([]);
+                if (markingsEnabled) {
+                    this.marking_priorities = ko.observableArray([]);
+                }
                 this.confidences = ko.observableArray([]);
                 this.categories = ko.observableArray();
                 this.tlps = ko.observableArray([]);
@@ -90,7 +100,9 @@ define([
             this.tlps(optionLists.tlps_list);
             this.statuses(optionLists.statuses_list);
             this.categories(optionLists.categories_list);
-            this.marking_priorities(markings);
+            if (markingsEnabled) {
+                this.marking_priorities(markings);
+            }
         },
 
         addReporter: function () {
@@ -102,7 +114,6 @@ define([
             } else {
                 this.reporter().ModelUI().done();
             }
-
         },
 
         load: function (data) {
@@ -119,18 +130,27 @@ define([
             this.confidence(data["confidence"] || "");
             this.tlp(data["tlp"] || "");
 
-            if ("markings" in data && data["markings"].length == 0) {
-                this.markings("");
-            } else {
-                this.markings(data["markings"] || "");
+            if (this.markingsEnabled()) {
+                if ("markings" in data && data["markings"].length == 0) {
+                    this.markings("");
+                } else {
+                    this.markings(data["markings"] || "");
+                }
             }
-
             this.status.subscribe(function (data) {
                 Topic.publish(topics.STATUS_CHANGE, data);
             }.bind(this));
         },
 
         save: function () {
+            if (this.markingsEnabled()) {
+                return this.incidentWithMarking();
+            } else {
+                return this.incidentWithoutMarking();
+            }
+        },
+
+        incidentWithMarking: function () {
             return {
                 title: this.title(),
                 status: this.status(),
@@ -140,6 +160,18 @@ define([
                 reporter: {'identity': this.reporter().to_json()},
                 tlp: this.tlp(),
                 markings: this.markings()
+            };
+        },
+
+        incidentWithoutMarking: function () {
+            return {
+                title: this.title(),
+                status: this.status(),
+                short_description: this.shortDescription(),
+                description: this.description(),
+                confidence: this.confidence(),
+                reporter: {'identity': this.reporter().to_json()},
+                tlp: this.tlp()
             };
         }
     });

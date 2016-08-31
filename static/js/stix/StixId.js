@@ -99,5 +99,4 @@ define([
             return this._namespace;
         }
     });
-})
-;
+});

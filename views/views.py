@@ -467,7 +467,7 @@ def get_results(response):
 
 def get_crm_url():
     crm_config = get_config("crm_config")
-    return crm_config.get("crm_url", "")
+    return crm_config["value"]["crm_url"]
 
 
 def _construct_headers():
