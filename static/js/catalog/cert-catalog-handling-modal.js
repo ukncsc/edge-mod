@@ -7,8 +7,8 @@ define([
 
     return declare(Modal, {
         declaredClass: "CatalogHandlingModal",
-        constructor: function () {
-            this.items = ko.observableArray([]);
+        constructor: function (options) {
+            this.items = ko.observableArray(options["handlingCaveats"]);
         },
 
         toggle: function (item) {

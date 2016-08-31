@@ -15,7 +15,9 @@ define([
     return declare(null, {
         declaredClass: "CatalogHandling",
         constructor: function () {
-            this.choices = ko.observableArray(this.parseSharingGroups(sharing_groups))
+            this.choices = ko.observableArray(this.parseSharingGroups(sharing_groups));
+            this.sharingMap = ko.observable(sharing_groups);
+            this.selectedCaveats = ko.observableArray([]);
         },
 
         parseSharingGroups: function (sharingGroups) {
@@ -26,6 +28,19 @@ define([
                 }
             }
             return LabelList
+        },
+
+        loadStatic: function (handlingCaveats){
+            this.selectedCaveats(handlingCaveats);
+        },
+
+        parseToDisplayValue: function (handlingCaveats){
+            var displayValues = [];
+            var sharingMap = this.sharingMap();
+            ko.utils.arrayForEach(handlingCaveats, function (handlingCaveat){
+                displayValues.push(sharingMap[handlingCaveat])
+            });
+            return displayValues
         },
 
         onPublish: function (callback) {
@@ -62,7 +77,8 @@ define([
                         hide: ko.observable(true),
                         callback: ko.observable()
                     }
-                ]
+                ],
+                handlingCaveats: this.parseToDisplayValue(this.selectedCaveats())
             });
             confirmModal.show();
         },
