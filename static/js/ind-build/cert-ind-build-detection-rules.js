@@ -1,10 +1,11 @@
 define([
     "dcl/dcl",
+    "knockout",
     "ind-build/builder-shim",
     "ind-build/indicator-builder-shim",
     "common/cert-abstract-builder-form",
     "ind-build/cert-ind-build-detection-rule"
-], function (declare, builder, indicator_builder, AbstractBuilderForm, DetectionRule) {
+], function (declare, ko, builder, indicator_builder, AbstractBuilderForm, DetectionRule) {
     "use strict";
 
     var DetectionRules = declare(AbstractBuilderForm, {
@@ -12,16 +13,20 @@ define([
 
         constructor: declare.superCall(function (sup) {
             return function () {
-                this.rules = ko.observableArray([]);
                 sup.call(this, "Detection Rules");
 
+                this.rules = ko.observableArray([]);
                 this.options = ko.observableArray(['Snort', 'Yara'])
             }
         }),
 
-        add: function() {
+        add: function () {
             var new_rule = new DetectionRule();
             this.rules.push(new_rule);
+        },
+
+        remove: function (rule) {
+            this.rules.remove(rule);
         }
 
     });

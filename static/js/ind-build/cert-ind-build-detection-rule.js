@@ -7,9 +7,18 @@ define([
     return declare(null, {
         declaredClass: "cert-ind-build-detection-rule",
         constructor: function () {
-            this.rule = ko.observable('');
-            this.description = ko.observable('');
-            this.producer = ko.observable('')
+            this.type = ko.observable('');
+            this.rules = ko.observableArray([]);
+        },
+
+        addRule: function () {
+            this.rules.push(ko.observable({
+                rule: ''
+            }));
+        },
+
+        removeRule: function (index, data) {
+            this.rules.splice(index, 1)
         }
     });
 });
