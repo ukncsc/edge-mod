@@ -2,7 +2,7 @@
 
 <script type="text/html" id="http-session-template">
     <div class="form-group">
-    <label for="user_agent" class="col-lg-2 control-label">User Agent</label>
+        <label for="user_agent" class="col-lg-2 control-label">User Agent</label>
         <div class="col-lg-6">
             <input id="user_agent" class="form-control" data-bind="value: user_agent" style="width:350px">
             <span style="color: red;">* (Required)</span>
@@ -25,10 +25,23 @@
 
 <script type="text/html" id="batch-file">
     <div class="form-group">
-    <label for="naming_system" class="col-lg-2 control-label">Values</label>
+        <label for="naming_system" class="col-lg-2 control-label">Values</label>
         <div class="col-lg-6">
             <textarea data-bind="value: objectValues" class="form-control" style="width:350px" rows="6"></textarea>
-        <p class="help-block"><span class="glyphicon glyphicon-info-sign"></span> Enter or paste one value per line.</p>
+            <p class="help-block"><span class="glyphicon glyphicon-info-sign"></span>
+                File names should be at the start of the line and be contained within double quotes.<br>
+                Separate hashes & filenames with semi-colons<br>
+                e.g. <br>
+            <dl>
+                <dd>
+                    "file1.exe";17f2eb260f0b6942f80453b30f1a13235f27b7ed80d4e5815fb58ff7322fc765;77f590608eadcbbcc07de8d26607611f
+                </dd>
+                <dd>"file2.exe";77f590608eadcbbcc07de8d26607611f</dd>
+                <dd>"file3.exe";96:KQhaGCVZGhr83h3bc0ok3892m12wzgnH5w2pw+sxNEI58:FIVkH4x73h39LH+2w+sxaD</dd>
+                <dd>"file4.exe"</dd>
+                <dd>77f590608eadcbbcc07de8d26607611f</dd>
+            </dl>
+            </p>
         </div>
     </div>
 </script>
