@@ -172,7 +172,7 @@ define([
         },
 
         safeIdentityGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath, /*String?*/ validationPath) {
-            if (crmIsEnabled != "") {
+            if (crmIsEnabled !== false) {
                 var identityName = this.retrieveIdentity(object, propertyPath);
                 var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
                 return new ReviewValue(identityName, validation.state, validation.message);

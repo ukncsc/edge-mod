@@ -20,9 +20,9 @@ define([
 
         _parseResponse: function (configText) {
             if (configText !== null) {
-                this.enabled(configText["enabled"])
+                this.enabled(configText["enabled"] || false)
                 var handlingList = [];
-                var handlingConfigText = configText["handling"];
+                var handlingConfigText = configText["value"];
                 for (var key in handlingConfigText) {
                     if (handlingConfigText.hasOwnProperty(key)) {
                         handlingList.push({"stix_value": key, "display_value": handlingConfigText[key]})
@@ -110,7 +110,7 @@ define([
 
             return {
                 "enabled": this.enabled(),
-                "handling": markings
+                "value": markings
             }
         }
 

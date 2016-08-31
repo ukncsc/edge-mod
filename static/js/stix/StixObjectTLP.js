@@ -12,7 +12,7 @@ define([
     var config = Object.freeze(JSON.parse(configService));
     var handling = config.sharing_groups;
     if (handling) {
-        sharing_groups = handling.handling;
+        sharing_groups = handling.value;
     }
 
     function simpleItem(item) {

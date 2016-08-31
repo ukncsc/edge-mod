@@ -25,7 +25,7 @@ define([
         _parseResponse: function (/*Array*/configText) {
             if (configText !== null) {
                 this.enabled(configText["enabled"] || false);
-                var mappedData = ko.utils.arrayMap(configText["markings"], function (marking) {
+                var mappedData = ko.utils.arrayMap(configText["value"], function (marking) {
                     return new Marking(marking)
                 });
                 this.marking_priorities(mappedData);
@@ -60,7 +60,7 @@ define([
             });
             return {
                 "enabled": this.enabled(),
-                "markings": markingArray
+                "value": markingArray
             }
         },
 

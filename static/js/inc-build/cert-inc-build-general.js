@@ -16,7 +16,7 @@ define([
     var markingsConfig = config.markings;
 
     if (markingsConfig) {
-        var markings = markingsConfig.markings;
+        var markings = markingsConfig.value;
         markingsEnabled = markingsConfig.enabled
     }
 
