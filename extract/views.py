@@ -257,15 +257,18 @@ def extract_visualiser_item_get(request, node_id):
         validation_dict = {}
         if DRAFT_ID_SEPARATOR in node_id:  # draft obs
             package_dict = build_obs_package_from_draft(get_draft_obs(node_id, request.user))
+            type_info = [{"id_": node_id, "ty":"obs"}]
         elif is_draft_ind():
             package_dict = build_ind_package_from_draft(Draft.load(node_id, request.user))
+            type_info = [{"id_": node_id, "ty":"ind"}]
         else:  # Non-draft
             return visualiser_item_get(request, node_id)
 
         return JsonResponse({
             "root_id": node_id,
             "package": package_dict,
-            "validation_info": validation_dict
+            "validation_info": validation_dict,
+            "type_info": type_info
         }, status=200)
     except Exception as e:
         return JsonResponse({"error": e.message}, status=500)
