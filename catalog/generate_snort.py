@@ -1,11 +1,13 @@
 import random
 from django.conf import settings
+
 cfg = settings.ACTIVE_CONFIG
 LOCAL_ALIAS = cfg.by_key('company_alias')
 
 
 def write_snort_rule(src_IP, dst_IP, src_port, dst_port, proto, msg, sid, detail):
-    return "alert %s %s %s -> %s %s (msg:\"%s\";%s sid: %s;)" % (proto, src_IP, src_port, dst_IP, dst_port, msg, detail, sid);
+    return "alert %s %s %s -> %s %s (msg:\"%s\";%s sid: %s;)" % \
+           (proto, src_IP, src_port, dst_IP, dst_port, msg, detail, sid);
 
 
 def generate_sid():
@@ -15,13 +17,13 @@ def generate_sid():
 def generate_snort(obs, obs_type, ref):
     if obs_type == 'AddressObjectType':
         msg = ('[%s] Automated SNORT deployment - ' % LOCAL_ALIAS) + ref
-        return write_snort_rule('$HOME_NET', str(obs[0]), 'any', 'any', 'tcp', msg, generate_sid(), '')
+        return write_snort_rule('$HOME_NET', obs, 'any', 'any', 'tcp', msg, generate_sid(), '')
 
     if obs_type == 'DomainNameObjectType':
         msg = ('[%s] Automated SNORT deployment - ' % LOCAL_ALIAS) + ref
 
         content_string = ''
-        parsed_domain = str(obs[0]).split('.')
+        parsed_domain = obs.split('.')
         if parsed_domain[0] == 'www':
             parsed_domain.pop(0)
         for item in parsed_domain:

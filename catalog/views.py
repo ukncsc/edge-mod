@@ -181,7 +181,7 @@ def observable_extract(request, type, obs_type, id_, revision):
 
     def snort_writer(value, obs_type_in):
         if obs_type_in == obs_type or obs_type == "all":
-            snort_val = generate_snort([value], obs_type_in, id_.split(':', 1)[1].split('-', 1)[1])
+            snort_val = generate_snort(value, obs_type_in, id_.split(':', 1)[1].split('-', 1)[1])
             if snort_val:
                 return snort_val + os.linesep
         return ""
