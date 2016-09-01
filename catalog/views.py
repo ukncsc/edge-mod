@@ -69,12 +69,12 @@ def review(request, id):
     back_links = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
     edges = EdgeGenerator.gather_edges(root_edge_object.edges, load_by_id=user_loader)
 
-    #add root object to edges for javascript to construct object
+    # add root object to edges for javascript to construct object
     edges.append({
-                'ty' : root_edge_object.ty,
-                'id_' : root_edge_object.id_,
-                'is_external': False
-            })
+        'ty': root_edge_object.ty,
+        'id_': root_edge_object.id_,
+        'is_external': False
+    })
 
     sightings = None
     if root_edge_object.ty == 'obs':
@@ -109,20 +109,19 @@ def review(request, id):
         "back_links": json.dumps(back_links),
         "edges": json.dumps(edges),
         'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
-        '/view/%s/' % urllib.quote(id)),
+            '/view/%s/' % urllib.quote(id)),
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
-        '/edit/%s/' % urllib.quote(id)),
+            '/edit/%s/' % urllib.quote(id)),
         'visualiser_url': '/adapter/certuk_mod/visualiser/%s' % urllib.quote(id),
         'clone_url': "/adapter/certuk_mod/clone_direct/" + id,
         "revisions": json.dumps(root_edge_object.revisions),
-        "revision" : revision,
+        "revision": revision,
         "version": root_edge_object.version,
         "sightings": sightings,
         'ajax_uri': reverse('catalog_ajax'),
         "can_revoke": can_revoke,
         "can_purge": can_purge
     })
-
 
 
 @login_required
@@ -134,6 +133,7 @@ def object_details(request, id_):
     return JsonResponse({
         'allow_edit': rbac.user_can_edit(request.user, edge_obj),
     })
+
 
 @login_required
 @json_body
@@ -183,6 +183,7 @@ def get_duplicates(request, id_):
 
 @login_required
 def observable_extract(request, output_format, obs_type_filter, id_, revision):
+    revision = "latest"  # override as not sure if it makes sense to use the revision.
 
     def text_writer(value, obs_type):
         if obs_type == obs_type_filter or obs_type_filter == "all":
