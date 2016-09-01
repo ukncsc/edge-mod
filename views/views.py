@@ -164,7 +164,23 @@ def clone_direct(request, id_):
                                       + e.message[0:-len(ext_ref_error)])
 
 
-        return error_with_message(request, e.message)
+        else:
+            return error_with_message(request, e.message)
+
+
+def _get_request_username(request):
+    if hasattr(request, "user") and hasattr(request.user, "username"):
+        return request.user.username
+    return ""
+
+
+def __extract_revision(id):
+    revision = "latest"
+    if '/' in id:
+        revision = id.split('/')[1]
+        id = id.split('/')[0]
+    return revision, id
+
 
 
 @login_required
@@ -325,7 +341,7 @@ def get_results(response):
 
 def get_crm_url():
     crm_config = get_config("crm_config")
-    return crm_config.get("crm_url", "")
+    return crm_config["value"]["crm_url"]
 
 
 def _construct_headers():

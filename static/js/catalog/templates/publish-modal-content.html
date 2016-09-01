@@ -12,18 +12,15 @@
         <!-- ko if: validations.hasMessages -->
         <div data-bind="template: { name: 'validation-results', data: $data }"></div>
         <!-- /ko -->
-        <!-- ko if: validations.hasErrors -->
-        <div data-bind="text: messageError" class="bg-danger text-danger text-center"></div>
-        <!-- /ko -->
         <!-- ko ifnot: validations.hasErrors -->
         <!-- ko if: validations.hasWarnings -->
         <div data-bind="text: messageWarning" class="bg-warning text-warning text-center"></div>
         <!-- /ko -->
-                <textarea data-bind="value: publicationMessage, valueUpdate: ['input','keyup']"
-                          placeholder="Reason for publication"
-                          class="form-control"
-                          rows="4"
-                          style="resize:none"></textarea>
+        <textarea data-bind="value: publicationMessage, valueUpdate: ['input','keyup']"
+                  placeholder="Reason for publication"
+                  class="form-control"
+                  rows="4"
+                  style="resize:none"></textarea>
         <br>
         <!-- /ko -->
         <div class="col-sm-12">

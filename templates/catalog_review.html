@@ -53,7 +53,6 @@
         {% include 'catalog_revisions.html' %}
         {% include 'catalog-matching-content.html' %}
         {% include 'catalog-referenced-by.html' %}
-        {% include 'catalog-edges.html' %}
         {% include 'catalog-purge.html' %}
         <div class="row" data-bind="template: 'header'"></div>
         <div class="row" data-bind="template: { name: 'root-' + type().code, data: root }"></div>
@@ -61,7 +60,6 @@
         <!-- ko if: type().code == "inc" -->
         <div id="incidentTimelineSVG" class="col-sm-12 chart"></div>
         <!-- /ko -->
-        <div data-bind="template: { name: 'Edges', data: section().findByLabel('Edges')}"></div>
         <div data-bind="template: { name: 'Matching', data: section().findByLabel('Matching')}"></div>
         <div data-bind="template: { name: 'References', data: section().findByLabel('References')}"></div>
         <div data-bind="template: { name: 'Activity', data: section().findByLabel('Activity')}"></div>

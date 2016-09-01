@@ -56,14 +56,14 @@ class VisualiserGraphExternalRefTests(unittest.TestCase):
 
     def test_create_graph_with_external_ref_rel_type(self):
         stack = [(0, None, self.mock_edge, 'external_ref')]
-        response = create_graph(stack, [], [], [], [])
+        response = create_graph(stack, [], [], [], [], [])
         self.assertEquals(response['nodes'], [self.external_node])
         self.assertEquals(response['links'], [])
 
     def test_create_graph_external_ref_link(self):
         self.mock_external_ref.fetch.side_effect = EdgeError('purple not found')
         stack = [(0, None, self.mock_edge2, 'edge')]
-        response = create_graph(stack, [], [], [], [])
+        response = create_graph(stack, [], [], [], [], [])
         links = [{'source': 0, 'target': 1, 'rel_type': 'external_ref'}]
         self.assertEquals(response['nodes'][0], self.edge_node2)
         self.assertEquals(response['nodes'][1], self.external_node2)
@@ -71,5 +71,5 @@ class VisualiserGraphExternalRefTests(unittest.TestCase):
 
     def test_create_graph_with_draft_rel_type(self):
         stack = [(0, None, self.mock_edge, 'draft')]
-        response = create_graph(stack, [], [], [], [])
+        response = create_graph(stack, [], [], [], [], [])
         self.assertEquals(response['nodes'], [self.draft_node])

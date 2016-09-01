@@ -139,7 +139,7 @@ define([
         _onOriginalChanged: function (newId) {
             if (typeof newId === "string") {
                 getJSON("/adapter/certuk_mod/duplicates/object/" + newId, null, function (data) {
-                    this.selectedOriginal(new StixPackage(data["package"], data["root_id"]));
+                    this.selectedOriginal(new StixPackage(data["package"], data["root_id"], [], {}, data["type_info"]));
                 }.bind(this));
             } else {
                 this.selectedOriginal(null);
@@ -150,7 +150,7 @@ define([
             this.analysisStatus(0);
             if (typeof newId === "string") {
                 getJSON("/adapter/certuk_mod/duplicates/object/" + newId, null, function (data) {
-                    this.selectedDuplicate(new StixPackage(data["package"], data["root_id"]));
+                    this.selectedDuplicate(new StixPackage(data["package"], data["root_id"], [], {}, data["type_info"]));
                     this.analysisStatus(1);
                 }.bind(this));
             } else {

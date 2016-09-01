@@ -44,7 +44,7 @@ class VisualiserGraphMatchesTests(unittest.TestCase):
     def test_create_graph_with_match_rel_type(self):
         id_matches = ['purple']
         stack = [(0, None, self.mock_matching, 'match')]
-        response = create_graph(stack, [], id_matches, [], [])
+        response = create_graph(stack, [], id_matches, [], [], [])
         self.assertEquals(response['nodes'], [self.matching_node])
         self.assertEquals(response['links'], [])
 
@@ -54,7 +54,7 @@ class VisualiserGraphMatchesTests(unittest.TestCase):
         self.mock_get_matches.return_value = ['matt']
         mock_edge_object.load.return_value = self.mock_matching2
         stack = [(0, None, self.mock_matching, 'match')]
-        response = create_graph(stack, [], id_matches, [], [])
+        response = create_graph(stack, [], id_matches, [], [], [])
         links = [{'source': 0, 'target': 1, 'rel_type': 'match'}]
         self.assertEqual(response['nodes'][0], self.matching_node)
         self.assertEqual(response['nodes'][1], self.matching_node2)

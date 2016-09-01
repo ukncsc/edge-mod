@@ -10,7 +10,6 @@ define([
             return function () {
                 sup.call(this);
                 this.CRMURL = ko.observable("");
-                this.enabled = ko.observable(false);
             }
         }),
 
@@ -20,8 +19,8 @@ define([
 
         _parseResponse: function (response) {
             if (response != null) {
-                this.CRMURL(response["crm_url"] || "");
-                this.enabled(response["enabled"] || false);
+                this.CRMURL(response["value"]["crm_url"] || "");
+                this.enabled(response["value"]["enabled"] || false);
             }
         },
 
@@ -44,8 +43,10 @@ define([
 
         createCRMConfig: function () {
             return {
-                "crm_url": this.CRMURL(),
-                "enabled": this.enabled()
+                "value": {
+                    "crm_url": this.CRMURL(),
+                    "enabled": this.enabled()
+                }
             }
         }
     });

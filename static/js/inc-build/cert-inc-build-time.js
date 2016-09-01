@@ -23,11 +23,20 @@ define([
 
 ko.bindingHandlers.dateTime = {
     init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var format = "YYYY-MM-DDTHH:mm:ss"
+        $(element).find('input').val(valueAccessor()());
         $(element).datetimepicker({
-            format: "YYYY-MM-DD HH:mm:ss",
-            defaultDate: valueAccessor()()
+            format: format,
+            useStrict: true,
+            keepInvalid: true
         }).on("dp.change", function (ev) {
-            valueAccessor()(ev.date ? ev.date.format("YYYY-MM-DDTHH:mm:ss") : "");
+            if (!ev.date) {
+                valueAccessor()("");
+            } else if (ev.date.isValid()) {
+                valueAccessor()(ev.date.format(format));
+            } else {
+                valueAccessor()(ev.date._i);
+            }
         });
         return ko.bindingHandlers.value.init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
     }
