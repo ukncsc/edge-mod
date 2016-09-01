@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 _STIX_ID_REGEX = r"[a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}"
 _OBJECT_ID_MATCHER = re.compile("%s$" % _STIX_ID_REGEX, re.IGNORECASE)
 _URL_OBJECT_ID_MATCHER = re.compile(r".*/(%s)/?$" % _STIX_ID_REGEX, re.IGNORECASE)
-_URL_OBJECT_ID_MATCHER_WITH_VERSION = re.compile(r".*/(%s)/[0-9]+/" % _STIX_ID_REGEX, re.IGNORECASE)
+_URL_OBJECT_ID_MATCHER_WITH_REVISION = re.compile(r".*/(%s)/[0-9]+/" % _STIX_ID_REGEX, re.IGNORECASE)
 
 
 _STIX_TYPE_ID_REGEX = r"[a-z][\w\d-]+:([a-z]+)-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}"
@@ -53,7 +53,7 @@ def find_id(request):
 
     referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
 
-    if _URL_OBJECT_ID_MATCHER_WITH_VERSION.match(referrer):
+    if _URL_OBJECT_ID_MATCHER_WITH_REVISION.match(referrer):
         referrer = strip_revision(referrer)
 
     match = _URL_OBJECT_ID_MATCHER.match(referrer)
