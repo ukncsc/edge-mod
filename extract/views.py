@@ -132,8 +132,7 @@ def process_stix(stream, user, extract_id, file_name):
         for obs in draft_indicator['observables']:
             if obs['id'] in observable_ids:  # Is it a draft?
                 del obs['id']
-                if not obs['title']:
-                    obs['title'] = summarise_draft_observable(obs)
+                obs['title'] = obs['objectType'] + ":" + obs['title']
 
     def remove_from_db(ids):
         PAGE_SIZE = 100

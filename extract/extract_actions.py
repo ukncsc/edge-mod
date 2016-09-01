@@ -32,7 +32,7 @@ def summarise_draft_observable(d):
 
 def observable_to_name(observable, is_draft):
     if is_draft:
-        return observable['objectType'] + ":" + observable['title']
+        return observable['title']
     return observable['id']
 
 
