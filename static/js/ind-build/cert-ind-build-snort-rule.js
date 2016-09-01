@@ -7,37 +7,31 @@ define([
     return declare(null, {
         declaredClass: "SnortTestMechanism",
         constructor: function () {
-            this.rules = ko.observableArray([ko.observable({
-                value: ''
-            })]);
-
+            this.rules = ko.observableArray([]);
         },
 
         addRule: function () {
-            this.rules.push(ko.observable({
-                value: ''
-            }));
+            var rule = ko.observable('');
+            this.rules.push(rule);
         },
 
         removeRule: function (index, data) {
             this.rules.splice(index, 1)
         },
 
-       load: function(rules) {
+        load: function (rules) {
             var extractedRules = [];
             ko.utils.arrayForEach(rules, function (item) {
-                extractedRules.push(ko.observable({
-                    value: item.value
-                }))
+                extractedRules.push(ko.observable(item.value))
             });
             this.rules(extractedRules);
         },
 
-        to_json: function() {
+        to_json: function () {
             var extractedRules = [];
             ko.utils.arrayForEach(this.rules(), function (item) {
                 extractedRules.push({
-                    value: item().value
+                    value: item()
                 });
             });
             return {

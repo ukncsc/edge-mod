@@ -26,6 +26,7 @@ class IndicatorValidationInfo(ObjectValidationInfo):
         self.indicated_ttps = field_validation.get('indicated_ttps')
         self.suggested_coas = field_validation.get('suggested_coas')
         self.observables = field_validation.get('observables')
+        self.test_mechanisms = field_validation.get('test_mechanisms')
 
     @staticmethod
     def __validate_kill_chain_phase_id(phase_id):
@@ -63,5 +64,29 @@ class IndicatorValidationInfo(ObjectValidationInfo):
         if not indicator_data.get('observable'):
             common_field_validation['observables'] = FieldValidationInfo(ValidationStatus.ERROR,
                                                                          'No Indicator Observables')
+
+        missing_a_rule = False
+        missing_rules = False
+
+        snort_xsi_type = 'snortTM:SnortTestMechanismType'
+        yara_xsi_type = 'yaraTM:YaraTestMechanismType'
+        for test_mechanism in indicator_data.get('test_mechanisms', []):
+            if test_mechanism.get('xsi:type') == yara_xsi_type:
+                if not test_mechanism.get('rule', {}).get('value'):
+                    missing_a_rule = True
+            if test_mechanism.get('xsi:type') == snort_xsi_type:
+                for rule in test_mechanism.get('rules', []):
+                    if not rule.get('value'):
+                        missing_rules = True
+
+        if missing_a_rule or missing_rules:
+            validation_string = ""
+            if missing_a_rule:
+                validation_string += "Yara rule field is empty"
+            if missing_rules:
+                if missing_a_rule:
+                    validation_string += " - "
+                validation_string += "A Snort rule field is empty"
+            common_field_validation['test_mechanisms'] = FieldValidationInfo(ValidationStatus.ERROR, validation_string)
 
         return cls(**common_field_validation)

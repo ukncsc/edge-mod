@@ -1,8 +1,9 @@
 define([
     "dcl/dcl",
     "knockout",
-    "ind-build/indicator-builder-shim"
-], function (declare, ko, indicator_builder) {
+    "ind-build/indicator-builder-shim",
+    "common/cert-messages"
+], function (declare, ko, indicator_builder, Messages) {
     "use strict";
 
     var Section = declare(indicator_builder.Section, {
@@ -18,7 +19,8 @@ define([
                         indexed[item()[pname]()] = item;
                     });
                     return indexed;
-                }
+                };
+
 
                 this.options = ko.observableArray([
                     ko.observable(new indicator_builder.General()),
@@ -34,7 +36,17 @@ define([
                     this.options()[0]()
                 );
             }
-        })
+        }),
+        doValidation: function () {
+            var msgs = new Messages();
+            ko.utils.arrayForEach(this.options(), function (option) {
+                var optionMsgs = option().doValidation();
+                if (optionMsgs !== null && optionMsgs.hasMessages()) {
+                    msgs.addMessages(optionMsgs);
+                }
+            });
+            return msgs;
+        },
     });
     indicator_builder.Section = Section;
     return Section;

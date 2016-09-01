@@ -19,8 +19,13 @@
                         <div class="form-group">
                             <label class="col-lg-2 control-label">Rule</label>
                             <div class="col-lg-8">
-                                    <input data-bind="value: rule, valueUpdate: 'afterkeydown', disable: $root.mode().isReadOnly()"
-                                           class="form-control">
+                                <!-- ko if: rule.hasValidation -->
+                                    <span class="validation-error"
+                                        data-bind="visible: rule.hasError, text: rule.errorMessage, disable: $root.mode().isReadOnly()">
+                                    </span>
+                                <!-- /ko -->
+                                <input data-bind="value: rule, valueUpdate: 'afterkeydown', disable: $root.mode().isReadOnly()"
+                                       class="form-control">
                             </div>
                         </div>
                     </fieldset>
