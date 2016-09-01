@@ -8,6 +8,8 @@ from django.shortcuts import redirect
 _STIX_ID_REGEX = r"[a-z][\w\d-]+:[a-z]+-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}"
 _OBJECT_ID_MATCHER = re.compile("%s$" % _STIX_ID_REGEX, re.IGNORECASE)
 _URL_OBJECT_ID_MATCHER = re.compile(r".*/(%s)/?$" % _STIX_ID_REGEX, re.IGNORECASE)
+_URL_OBJECT_ID_MATCHER_WITH_REVISION = re.compile(r".*/(%s)/[0-9]+/" % _STIX_ID_REGEX, re.IGNORECASE)
+
 
 _STIX_TYPE_ID_REGEX = r"[a-z][\w\d-]+:([a-z]+)-[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}"
 _OBJECT__TYPE_ID_MATCHER = re.compile("%s$" % _STIX_TYPE_ID_REGEX, re.IGNORECASE)
@@ -44,11 +46,19 @@ def find_id(request):
     """
     def has_single_match(match_result):
         return match_result is not None and len(match_result.groups()) == 1
-    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
-    match = _URL_OBJECT_ID_MATCHER.match(referrer)
-    id_ = None
-    if has_single_match(match):
-        id_ = match.group(1)
+
+    def get_id_from_url_with_revision(url):
+        return _URL_OBJECT_ID_MATCHER_WITH_REVISION.match(url).groups()[0]
+
+    referer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
+
+    if _URL_OBJECT_ID_MATCHER_WITH_REVISION.match(referer):
+        id_ = get_id_from_url_with_revision(referer)
+    else:
+        match = _URL_OBJECT_ID_MATCHER.match(referer)
+        id_ = None
+        if has_single_match(match):
+            id_ = match.group(1)
     return id_
 
 
