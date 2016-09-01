@@ -1,0 +1,45 @@
+<template type="text/html" id="SnortRules">
+    <table data-bind="foreach: snortRules">
+        <tbody role="form">
+        <tr class="datarow">
+            <td>
+                <div class="form-horizontal">
+                    <fieldset>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Type</label>
+                            <div class="col-lg-8"><h3>Snort rules</h3>
+                            </div>
+                                        <span class="input-group-btn" data-bind="ifnot: $root.mode().isReadOnly()">
+                                            <button type="button" class="btn btn-default" title="Remove this item"
+                                                    data-bind=" click: function() { $parent.removeSnortRule($data) }">
+                                                <span class="glyphicon glyphicon-remove"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-default"
+                                                    data-bind="click: addRule">
+                                                <span class="glyphicon glyphicon-plus"></span>
+                                            </button>
+                                        </span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Rules</label>
+                            <div class="col-lg-8" data-bind="foreach: rules">
+                                <div class="input-group">
+                                    <input data-bind="value: value, valueUpdate: 'afterkeydown', disable: $root.mode().isReadOnly()"
+                                           class="form-control">
+                                                <span class="input-group-btn"
+                                                      data-bind="ifnot: $root.mode().isReadOnly()">
+                                                    <button class="btn btn-default"
+                                                            data-bind="click: $parent.removeRule.bind($parent, $index()), disable: $parent.rules().length === 1">
+                                                        <span class="glyphicon glyphicon-remove-circle"></span>
+                                                    </button>
+                                                </span>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</template>

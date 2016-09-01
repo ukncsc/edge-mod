@@ -3,6 +3,6 @@ define([
     "ind-build/cert-ind-build-indicated-ttps",
     "ind-build/cert-ind-build-suggested-coas",
     "ind-build/cert-ind-build-section",
-    "ind-build/cert-ind-build-detection-rules"
+    "ind-build/cert-ind-build-test-mechanisms"
 ], function () {
 });

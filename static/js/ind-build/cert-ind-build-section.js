@@ -27,7 +27,7 @@ define([
                     ko.observable(new indicator_builder.IndicatedTTPs()),
                     ko.observable(new indicator_builder.RelatedIndicators()),
                     ko.observable(new indicator_builder.SuggestedCOAs()),
-                    ko.observable(new indicator_builder.DetectionRules())
+                    ko.observable(new indicator_builder.TestMechanisms())
                 ]);
                 this._byLabel = indexBy(this.options, "label");
                 this.value = ko.observable(

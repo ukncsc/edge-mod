@@ -47,8 +47,10 @@
 {% endblock %}
 
 {% block extra-section %}
-    {% include 'cert-ind-build-detection-rules.html' %}
-    <div data-bind="template: {name: 'DetectionRulesPanel', data: section().findByLabel('Detection Rules')}"></div>
+    {% include 'cert-ind-build-test-mechanisms.html' %}
+    {% include 'cert-ind-build-snort-rule.html' %}
+    {% include 'cert-ind-build-yara-rule.html' %}
+    <div data-bind="template: {name: 'TestMechanismsPanel', data: section().findByLabel('Test Mechanisms')}"></div>
 {% endblock %}
 
 {% block ind-build-viewmodel-setup %}{% endblock %}
