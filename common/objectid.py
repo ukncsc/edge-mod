@@ -47,19 +47,18 @@ def find_id(request):
     def has_single_match(match_result):
         return match_result is not None and len(match_result.groups()) == 1
 
-    def strip_revision(url):
-        url_no_revision = url[:-14]
-        return url_no_revision
+    def get_id_from_url_with_revision(url):
+        return _URL_OBJECT_ID_MATCHER_WITH_REVISION.match(url).groups()[0]
 
-    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
+    referer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
 
-    if _URL_OBJECT_ID_MATCHER_WITH_REVISION.match(referrer):
-        referrer = strip_revision(referrer)
-
-    match = _URL_OBJECT_ID_MATCHER.match(referrer)
-    id_ = None
-    if has_single_match(match):
-        id_ = match.group(1)
+    if _URL_OBJECT_ID_MATCHER_WITH_REVISION.match(referer):
+        id_ = get_id_from_url_with_revision(referer)
+    else:
+        match = _URL_OBJECT_ID_MATCHER.match(referer)
+        id_ = None
+        if has_single_match(match):
+            id_ = match.group(1)
     return id_
 
 
