@@ -8,25 +8,13 @@ def _config():
 def save(name, value):
     _config().update({
         'name': name
-    }, {
-        '$setOnInsert': {
-            'name': name,
-        },
-        '$set': {
-            'value': value
-        }
-    }, True)
+    }, value, True)
 
 
 def get(name):
-    value = _config().find_one({
+    return _config().find_one({
         'name': name
-    })
-
-    if value is not None:
-        return value.get('value')
-    else:
-        return value
+    }, {'_id': False})
 
 
 def get_all():
@@ -35,6 +23,6 @@ def get_all():
     })
     results = {}
     for doc in cursor:
-        results[doc["name"]] = doc["value"]
+        results[doc["name"]] = doc
 
     return results

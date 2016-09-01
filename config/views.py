@@ -21,6 +21,7 @@ def ajax_get_cert_config(request):
 @superuser_or_staff_role
 def ajax_set_crm_config(request):
     config = json.loads(request.body)
+    config["name"] = "crm_config"
     try:
         save_config("crm_config", config)
         return JsonResponse({}, status=200)
@@ -58,6 +59,7 @@ def ajax_get_sharing_groups(request):
 @superuser_or_staff_role
 def ajax_set_sharing_groups(request):
     sharing_groups = json.loads(request.body)
+    sharing_groups["name"] = "sharing_groups"
     try:
         save_config("sharing_groups", sharing_groups)
         return JsonResponse({}, status=200)
@@ -83,6 +85,7 @@ def ajax_get_markings(request):
 @superuser_or_staff_role
 def ajax_set_markings(request):
     markings = json.loads(request.body)
+    markings["name"] = "markings"
     try:
         save_config("markings", markings)
         return JsonResponse({}, status=200)

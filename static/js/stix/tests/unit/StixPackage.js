@@ -5,8 +5,9 @@ define([
     "stix/StixPackage",
     "stix/ValidationInfo",
     "intern/dojo/text!./data/COA_package_01.json",
-    "intern/dojo/text!./data/TTP_package_01.json"
-], function (registerSuite, assert, ReviewValue, StixPackage, ValidationInfo, package01, package02) {
+    "intern/dojo/text!./data/TTP_package_01.json",
+    "stix/tests/unit/CreateEdges"
+], function (registerSuite, assert, ReviewValue, StixPackage, ValidationInfo, package01, package02, CreateEdges) {
     "use strict";
 
     // statics go here
@@ -50,7 +51,12 @@ define([
         var classUnderTest = null;
 
         function loadPackage(/*String*/ packageId, /*String?*/ rootId, /*Object?*/ validationInfo) {
-            classUnderTest = new StixPackage(packageData[packageId], rootId || packageId, validationInfo);
+            classUnderTest = new StixPackage(packageData[packageId], rootId || packageId, [], validationInfo,
+                CreateEdges.createEdges([
+                    "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30",
+                    "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064",
+                    "purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59"
+                ]));
         }
 
         return {

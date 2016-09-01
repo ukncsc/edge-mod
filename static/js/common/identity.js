@@ -13,7 +13,7 @@ define([
     var config = Object.freeze(JSON.parse(ConfigService));
     var crm_config = config.crm_config;
     if (crm_config != undefined) {
-        isEnabled = crm_config.enabled
+        isEnabled = crm_config.value.enabled
     }
 
     var CERTIdentity = declare(CERTIdentity, {

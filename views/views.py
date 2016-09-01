@@ -91,11 +91,13 @@ audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
 mimetypes.init()
-EDGE_DEPTH_LIMIT = 1
 HANDLING_CAVEAT = 'HANDLING_CAVEAT'
 ORGANISATIONS_URL = "/organisations/"
 FIND_URL = "find?organisation="
 
+
+cfg = settings.ACTIVE_CONFIG
+LOCAL_NS = cfg.by_key('company_namespace')
 
 @login_required
 def static(request, path):
@@ -143,6 +145,7 @@ def clone_direct(request, id_):
             new_id = IDManager().get_new_id(edge_object.ty)
             draft = edge_object.to_draft()
             draft['id'] = new_id
+            draft['id_ns'] = LOCAL_NS
             Draft.upsert(edge_object.ty, draft, request.user)
             return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
         else:
@@ -192,7 +195,14 @@ def review(request, id):
         return EdgeObject.load(idref, request.user.filters())
 
     back_links = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
-    edges = EdgeGenerator.gather_edges(root_edge_object.edges, depth_limit=EDGE_DEPTH_LIMIT, load_by_id=user_loader)
+    edges = EdgeGenerator.gather_edges(root_edge_object.edges, load_by_id=user_loader)
+
+   #add root object to edges for javascript to construct object
+    edges.append({
+                'ty' : root_edge_object.ty,
+                'id_' : root_edge_object.id_,
+                'is_external': False
+            })
 
     sightings = None
     if root_edge_object.ty == 'obs':
@@ -205,6 +215,11 @@ def review(request, id):
                                                           "message": "This object was created by %s not %s"
                                                                      % (root_edge_object.created_by_username,
                                                                         req_user)}}})
+    if any(item['is_external'] for item in edges):
+        validation_info.validation_dict.update({id: {"external_references":
+                                                         {"status": ValidationStatus.ERROR,
+                                                          "message": "This object contains External References, clone "
+                                                                     "object and remove missing references before publishing"}}})
 
     revocable = Revocable(root_edge_object, request)
 
@@ -456,7 +471,7 @@ def get_results(response):
 
 def get_crm_url():
     crm_config = get_config("crm_config")
-    return crm_config.get("crm_url", "")
+    return crm_config["value"]["crm_url"]
 
 
 def _construct_headers():

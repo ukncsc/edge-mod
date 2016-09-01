@@ -8,8 +8,9 @@ define([
     "stix/Incident",
     "stix/Indicator",
     "stix/ThreatActor",
-    "intern/dojo/text!./data/Campaign_package_01.json"
-], function (registerSuite, assert, ReviewValue, StixPackage, Campaign, TTP, Incident, Indicator, ThreatActor, package01) {
+    "intern/dojo/text!./data/Campaign_package_01.json",
+    "stix/tests/unit/CreateEdges"
+], function (registerSuite, assert, ReviewValue, StixPackage, Campaign, TTP, Incident, Indicator, ThreatActor, package01, CreateEdges) {
     "use strict";
 
     // statics go here
@@ -24,7 +25,15 @@ define([
         var classUnderTest = null;
 
         function loadPackage(rootId) {
-            stixPackage = new StixPackage(packageData[rootId], rootId);
+            stixPackage = new StixPackage(packageData[rootId], rootId, [], {},
+                CreateEdges.createEdges([
+                    "pss:campaign-a7bc3ff3-2d60-4d11-9a91-09ea9f6feb9c",
+                    "opensource:ttp-70fe9862-02f1-4561-9892-209023f2b42c",
+                    "pss:incident-4ac9bbd1-99c4-48b0-adfb-593e3ef384cd",
+                    "pss:campaign-658d8c83-b38b-4979-8ec9-125653e680c7",
+                    "pss:threatactor-0bdab62c-3a6b-46ff-b3ce-59507b1aa4ed",
+                    "pss:indicator-019ac66c-131e-4f7d-9ad2-a7afa5c1640a"
+                ]));
             classUnderTest = stixPackage.root;
         }
 

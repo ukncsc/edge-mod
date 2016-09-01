@@ -9,8 +9,13 @@ define([
 ], function (declare, ko, HandlingModal, Topic, topics, ListSelectsTemplate, configService) {
     "use strict";
 
+    var sharing_groups = {}
+
     var config = Object.freeze(JSON.parse(configService));
-    var sharing_groups = config.sharing_groups;
+    var sharing_config = config.sharing_groups
+    if (sharing_config) {
+        sharing_groups = config.sharing_groups.value;
+    }
 
     return declare(null, {
         declaredClass: "CatalogHandling",
