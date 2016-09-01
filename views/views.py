@@ -96,6 +96,9 @@ ORGANISATIONS_URL = "/organisations/"
 FIND_URL = "find?organisation="
 
 
+cfg = settings.ACTIVE_CONFIG
+LOCAL_NS = cfg.by_key('company_namespace')
+
 @login_required
 def static(request, path):
     clean_path = urllib2.unquote(path)
@@ -142,6 +145,7 @@ def clone_direct(request, id_):
             new_id = IDManager().get_new_id(edge_object.ty)
             draft = edge_object.to_draft()
             draft['id'] = new_id
+            draft['id_ns'] = LOCAL_NS
             Draft.upsert(edge_object.ty, draft, request.user)
             return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
         else:
