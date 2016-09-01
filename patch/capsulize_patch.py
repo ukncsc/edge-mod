@@ -1,5 +1,4 @@
 from itertools import chain
-from sets import Set
 
 from stix.core.stix_package import STIXHeader, STIXPackage
 from stix.data_marking import Marking, MarkingSpecification
@@ -27,16 +26,15 @@ def capsulize_patch(self, pkg_id, enable_bfs=False):
 
     if enable_bfs:
         queue = [self.id_]
-        completed_ids = Set()
+        completed_ids = set()
         while queue:
             eo_id = queue.pop()
             if eo_id in completed_ids:
                 continue
-
             completed_ids.add(eo_id)
 
             if self.id_ == eo_id:
-                eo = self #must do this as self may be a revision
+                eo = self #must do this as self may be a version other than latest
             else:
                 try:
                     eo = EdgeObject.load(eo_id)
@@ -45,9 +43,7 @@ def capsulize_patch(self, pkg_id, enable_bfs=False):
 
             pkg_dispatch(eo)
             contents.append(eo)
-
-            for edge in eo.edges:
-                queue.append(edge.id_)
+            queue.extend([edge.id_ for edge in eo.edges])
     else:
         pkg_dispatch(self)
         contents.append(self)

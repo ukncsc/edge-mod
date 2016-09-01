@@ -22,7 +22,6 @@ from edge.tools import cleanstrings, rgetattr
 from incident import views
 from rbac import user_can_edit
 
-HANDLING_CAVEAT = 'HANDLING_CAVEAT'
 CATEGORIES = vocabs.IncidentCategory._ALLOWED_VALUES
 TIME_TYPES = (("first_malicious_action", "First Malicious Action", False),
               ("initial_compromise", "Initial Compromise", False),

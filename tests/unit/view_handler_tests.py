@@ -49,7 +49,8 @@ class ViewHandlerTests(unittest.TestCase):
         mock_redirect.assert_called_with('publisher_not_found')
         self.assertEqual(response, mock_redirect.return_value)
 
-    @mock.patch.object(views, 'render')
+    @mock.patch('adapters.certuk_mod.catalog.views.reverse')
+    @mock.patch('adapters.certuk_mod.catalog.views.render')
     @mock.patch('adapters.certuk_mod.catalog.backlink.BackLinkGenerator.retrieve_back_links')
     @mock.patch('adapters.certuk_mod.catalog.edges.EdgeGenerator.gather_edges')
     @mock.patch('adapters.certuk_mod.catalog.revoke.Revocable.is_revocable')
@@ -61,7 +62,7 @@ class ViewHandlerTests(unittest.TestCase):
     def test_Review_IfIdOK_RenderReviewPage(self, mock_request, mock_find_id, mock_publisher_object,
                                             mock_package_builder, mock_validate, mock_revoke, mock_edges,
                                             mock_back_links,
-                                            mock_render):
+                                            mock_render, mock_reverse):
         mock_id = 'Dummy ID/3'
         mock_find_id.return_value = mock_id
 
@@ -70,13 +71,16 @@ class ViewHandlerTests(unittest.TestCase):
         mock_root_edgge_object.tg = {}
         mock_root_edgge_object.doc = {}
         mock_root_edgge_object.doc["type"] = 'ind'
+        mock_root_edgge_object.ty = 'ind'
+        mock_root_edgge_object.id_ = mock_id
         mock_root_edgge_object.revisions = {}
         mock_publisher_object.return_value = mock_root_edgge_object
 
         mock_back_links.return_value = {}
-        mock_edges.return_value = {}
+        mock_edges.return_value = []
         mock_revoke.return_value = False
-
+        mock_request.path = "test"
+        mock_reverse.return_value = '/catalog/ajax/'
         response = views.review(mock_request, id=mock_id)
 
         mock_render.assert_called_with(mock_request, 'catalog_review.html', {
@@ -86,7 +90,7 @@ class ViewHandlerTests(unittest.TestCase):
             'kill_chain_phases': {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
             "trust_groups": '{}',
             "back_links": '{}',
-            "edges": '{}',
+            "edges": '[{"id_": "Dummy ID/3", "is_external": false, "ty": "ind"}]',
             'view_url': '/indicator/view/Dummy%20ID/',
             'edit_url': '/indicator/edit/Dummy%20ID/',
             'visualiser_url': '/adapter/certuk_mod/visualiser/Dummy%20ID',

@@ -14,7 +14,6 @@ from django.core.exceptions import PermissionDenied
 
 from stix.extensions.marking.simple_marking import SimpleMarkingStructure
 
-from crashlog.models import save
 from clippy.models import CLIPPY_TYPES
 from users.decorators import json_body
 
@@ -35,9 +34,6 @@ from adapters.certuk_mod.catalog.duplicates import DuplicateFinder
 from adapters.certuk_mod.catalog.edges import EdgeGenerator
 from adapters.certuk_mod.catalog.revoke import Revocable
 from adapters.certuk_mod.validation import ValidationStatus
-
-EDGE_DEPTH_LIMIT = 1
-HANDLING_CAVEAT = 'HANDLING_CAVEAT'
 
 
 def __extract_revision(id):
@@ -73,7 +69,7 @@ def review(request, id):
     back_links = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
     edges = EdgeGenerator.gather_edges(root_edge_object.edges, load_by_id=user_loader)
 
-   #add root object to edges for javascript to construct object
+    #add root object to edges for javascript to construct object
     edges.append({
                 'ty' : root_edge_object.ty,
                 'id_' : root_edge_object.id_,
@@ -173,7 +169,7 @@ def append_handling(edge_object, handling_markings):
         edge_object.obj.handling = make_handling(edge_object.ty)
     for handling in handling_markings:
         handling_caveat = SimpleMarkingStructure(handling)
-        handling_caveat.marking_model_name = HANDLING_CAVEAT
+        handling_caveat.marking_model_name = 'HANDLING_CAVEAT'
         edge_object.obj.handling.markings[0].marking_structures.append(handling_caveat)
 
 
@@ -186,31 +182,31 @@ def get_duplicates(request, id_):
 
 
 @login_required
-def observable_extract(request, type, obs_type, id_, revision):
+def observable_extract(request, output_format, obs_type_filter, id_, revision):
 
-    def text_writer(value, obs_type_in):
-        if obs_type_in == obs_type or obs_type == "all":
+    def text_writer(value, obs_type):
+        if obs_type == obs_type_filter or obs_type_filter == "all":
             return value + os.linesep
         return ""
 
-    def snort_writer(value, obs_type_in):
-        if obs_type_in == obs_type or obs_type == "all":
-            snort_val = generate_snort(value, obs_type_in, id_.split(':', 1)[1].split('-', 1)[1])
+    def snort_writer(value, obs_type):
+        if obs_type == obs_type_filter or obs_type_filter == "all":
+            snort_val = generate_snort(value, obs_type, id_.split(':', 1)[1].split('-', 1)[1])
             if snort_val:
                 return snort_val + os.linesep
         return ""
 
-    def not_implemented_writer(value, obs_type_in):
+    def not_implemented_writer(*args):
         return ""
 
     result = ""
-    if type == "text":
+    if output_format == "text":
         writer = text_writer
-    elif type == "SNORT":
+    elif output_format == "SNORT":
         writer = snort_writer
     else:
         writer = not_implemented_writer
-        result = "%s not implemented" % type
+        result = "%s not implemented" % output_format
 
     stack = [id_]
     history = set()
@@ -226,8 +222,7 @@ def observable_extract(request, type, obs_type, id_, revision):
         except EdgeError:
             continue
 
-        for edge in eo.edges:
-            stack.append(edge.id_)
+        stack.extend([edge.id_ for edge in eo.edges])
 
         if eo.ty != 'obs':
             continue
@@ -238,6 +233,6 @@ def observable_extract(request, type, obs_type, id_, revision):
         result += writer(eo.summary['value'], eo.summary['type'])
 
     response = HttpResponse(content_type='text/txt')
-    response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (type, obs_type, id_)
+    response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (output_format, obs_type_filter, id_)
     response.write(result)
     return response
