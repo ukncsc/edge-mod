@@ -42,7 +42,7 @@ define([
                 id,
                 base_url,
                 base_url + "item/",
-                "/adapter/certuk_mod/review/",
+                "/object/",
 
                 (new PanelActionsBuilder())
                     .addAction(create_merge_action(id))
