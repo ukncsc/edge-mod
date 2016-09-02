@@ -1,2 +1,0 @@
-from stix.extensions.test_mechanism.snort_test_mechanism import SnortTestMechanism
-from stix.extensions.test_mechanism.yara_test_mechanism import YaraTestMechanism

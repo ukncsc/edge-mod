@@ -37,9 +37,9 @@ define([
         },
 
         removeSnortRule: function (rule) {
-            ko.utils.objectForEach(rule, function (name, key) {
-                ko.utils.arrayForEach(key(), function (rule) {
-                    this.validationGroup.remove(rule)
+            ko.utils.objectForEach(rule, function (key, rules) {
+                ko.utils.arrayForEach(rules(), function (rules) {
+                    this.validationGroup.remove(rules)
                 }.bind(this))
             }.bind(this));
             this.snortRules.remove(rule);
@@ -61,7 +61,7 @@ define([
         },
 
         addSnortRuleValidation: function (new_rule) {
-           new_rule.rules.subscribe(function () {
+            new_rule.rules.subscribe(function () {
                 ko.utils.arrayForEach(new_rule.rules(), function (rule) {
                     rule.extend({
                         requiredGrouped: {
