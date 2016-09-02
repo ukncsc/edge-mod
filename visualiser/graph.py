@@ -45,8 +45,8 @@ def get_backlinks(id_):
     return ids
 
 
-def get_matches(id_):
-    eo = EdgeObject.load(id_)
+def get_matches(id_, request):
+    eo = EdgeObject.load(id_, request.user.filters())
     return [doc['_id'] for doc in
             get_db().stix.find({'data.hash': eo.doc['data']['hash'], 'type': eo.ty, '_id': {'$ne': eo.id_}},
                                {'_id': 1})]
@@ -56,8 +56,8 @@ def backlinks_exist(id_):
     return get_backlinks(id_).count()
 
 
-def matches_exist(id_):
-    return len(get_matches(id_))
+def matches_exist(id_, request):
+    return len(get_matches(id_, request))
 
 
 ID_TYPE_ALIAS = {
@@ -72,7 +72,7 @@ ID_TYPE_ALIAS = {
         "stix": "pkg"
 }
 
-def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids):
+def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids, request):
     def show_edges(rel_type, node_id):
         return ((REL_TYPE_BACKLINK != rel_type and REL_TYPE_MATCH != rel_type) or (node_id in show_edge_ids)) and \
                (node_id not in hide_edge_ids)
@@ -115,7 +115,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
             if node_type is NODE_TYPE_EXT or node_type is NODE_TYPE_DRAFT:
                 backlinks, matches = False, False
             else:
-                backlinks, matches, = backlinks_exist(node_id), matches_exist(node_id)
+                backlinks, matches, = backlinks_exist(node_id), matches_exist(node_id, request)
 
             nodes.append(dict(id=node_id, type=node.ty, title=title, depth=depth, node_type=node_type,
                               has_backlinks=backlinks, has_matches=matches, has_edges=len(node.edges) != 0,
@@ -142,15 +142,15 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
             if node_id in bl_ids:
                 for eoId in [val for doc in get_backlinks(node_id) for val in doc['value'].keys()]:
                     try:
-                        stack.append((depth + 1, idx, EdgeObject.load(eoId), REL_TYPE_BACKLINK))
+                        stack.append((depth + 1, idx, EdgeObject.load(eoId, request.user.filters()), REL_TYPE_BACKLINK))
                     except:
                         obj = create_external_reference_from_id(eoId)
                         stack.append((depth + 1, idx, obj, REL_TYPE_EXT))
 
             if node_id in id_matches:
-                for eoId in get_matches(node_id):
+                for eoId in get_matches(node_id, request):
                     try:
-                        stack.append((depth + 1, idx, EdgeObject.load(eoId), REL_TYPE_MATCH))
+                        stack.append((depth + 1, idx, EdgeObject.load(eoId, request.user.filters()), REL_TYPE_MATCH))
                     except:
                         obj = create_external_reference_from_id(eoId)
                         stack.append((depth + 1, idx, obj, REL_TYPE_EXT))

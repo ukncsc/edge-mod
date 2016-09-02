@@ -2,7 +2,7 @@ from edge import LOCAL_NAMESPACE
 from mongoengine.connection import get_db
 
 
-def capec_finder(local):
+def capec_finder(local, user):
     if local:
         namespace = LOCAL_NAMESPACE
     else:
@@ -13,11 +13,13 @@ def capec_finder(local):
             '$match': {
                 'type': 'ttp',
                 'data.idns': namespace,
+                'data.etlp': {'$in': user.memberships + ['NULL']},
                 'data.api.behavior.attack_patterns': {
                     '$exists': 'true'
                 }
             }
         },
+
         {
             '$unwind': '$data.api.behavior.attack_patterns'
         },

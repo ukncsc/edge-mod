@@ -40,7 +40,7 @@ def create_draft_obs_hash(obs):
     return hashlib.md5(obs['title'].encode("utf-8")).hexdigest()
 
 
-def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids):
+def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids, request):
     def create_draft_observable_id(obs):
         d = create_draft_obs_hash(obs)
         return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + d
@@ -69,7 +69,7 @@ def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids
 
     stack.append((0, None, create_draft_ind_node(draft_object['id'], draft_object['title']), REL_TYPE_DRAFT))
 
-    return create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids)
+    return create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids, request)
 
 
 def merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types):
@@ -118,9 +118,16 @@ def can_merge_observables(draft_obs_offsets, draft_ind, hash_types):
     return True, ""
 
 
-def delete_file_observables(draft_obs_offsets, draft_ind):
+def delete_observables(draft_obs_offsets, draft_ind):
     obs_to_dump = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
                    if len(draft_ind['observables']) > draft_offset >= 0]
+    draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
+
+def move_observables(draft_obs_offsets, draft_ind, new_draft_ind):
+    obs_to_dump = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
+                   if len(draft_ind['observables']) > draft_offset >= 0]
+    new_draft_ind['observables'].extend(obs_to_dump);
+
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
 
 

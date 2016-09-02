@@ -43,7 +43,7 @@ from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
 from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser, extract_visualiser_get, \
     extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables, \
-    extract_visualiser_get_extended, delete_extract, extract_list, extract_status, uploaded_stix_extracts
+    extract_visualiser_get_extended, delete_extract, extract_list, extract_status, uploaded_stix_extracts, extract_visualiser_move_observables
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.cron import setup as cron_setup
 

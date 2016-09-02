@@ -17,6 +17,8 @@ class DBIndicatorPatch(DBIndicator):
             draft['kill_chain_phase'] = rgetattr(kill_chain_phases[0], ['phase_id'], '')
         return draft
 
+    def map(self):
+        pass
 
 def apply_patch():
     WHICH_DBOBJ['ind'] = DBIndicatorPatch

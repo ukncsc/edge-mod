@@ -30,7 +30,7 @@ def update(id, state, message, draft_ids):
     )
 
 
-def find(user=None, filename=None, state=None, limit=100):
+def find(user=None, filename=None, state=None, draft_ind_id=None, limit=100):
     query = {}
     if user:
         query['user'] = {'$eq': user}
@@ -38,6 +38,8 @@ def find(user=None, filename=None, state=None, limit=100):
         query['filename'] = {'$eq': str(filename).upper()}
     if state and str(state).upper() in VALID_STATES:
         query['state'] = {'$eq': str(state).upper()}
+    if draft_ind_id:
+       query['draft_ids'] = {'$in':[draft_ind_id]}
     return [match for match in
             _extract_store()
                 .find(query)
