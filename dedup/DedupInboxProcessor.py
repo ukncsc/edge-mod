@@ -149,7 +149,7 @@ def _generate_message(template_text, contents, out):
     return message
 
 
-def _find_matching_db_file_obs(db, new_file_obs, user):
+def _find_matching_db_file_obs(db, new_file_obs):
     def extract_properties(inbox_items, property_path):
         return list({str(rgetattr(inbox_item, property_path, None)) for inbox_item in inbox_items.itervalues()
                      if rgetattr(inbox_item, property_path, None) is not None})
@@ -198,7 +198,7 @@ def _find_matching_db_file_obs(db, new_file_obs, user):
                 ]
             }
         ]
-    }.update(user.filter_tlp())).sort('created_on', pymongo.DESCENDING)
+    }).sort('created_on', pymongo.DESCENDING)
     return existing_file_obs
 
 
@@ -232,7 +232,7 @@ def _has_matching_file_hash(existing_file, new_file):
         matches(existing_file.obj.object_.properties.sha512, new_file.obj.object_.properties.sha512))
 
 
-def _add_matching_file_observables(db, map_table, contents, user):
+def _add_matching_file_observables(db, map_table, contents):
     # identify file observables in contents excluding any which are already in map_table
     new_file_obs = {id_: inbox_item for (id_, inbox_item) in contents.iteritems()
                     if inbox_item.api_object.ty == 'obs' and
@@ -242,7 +242,7 @@ def _add_matching_file_observables(db, map_table, contents, user):
         # if we have no new file observables, we can bail out
         return
 
-    existing_file_obs = _find_matching_db_file_obs(db, new_file_obs, user)
+    existing_file_obs = _find_matching_db_file_obs(db, new_file_obs)
 
     for existing_file in existing_file_obs:
         existing_file_obj = EdgeObject(existing_file).to_ApiObject()
@@ -253,13 +253,13 @@ def _add_matching_file_observables(db, map_table, contents, user):
                 map_table[new_id] = existing_file['_id']
 
 
-def _generate_duplicates_by_hash(contents, hashes, db, type, user):
+def _generate_duplicates_by_hash(contents, hashes, db, type):
     existing_items = db.stix.find({
         'type': type,
         'data.hash': {
             '$in': hashes.values()
         }
-    }.update(user.filter_tlp()), {
+    }, {
         '_id': 1,
         'data.hash': 1
     }).sort('created_on', pymongo.DESCENDING)
@@ -290,10 +290,10 @@ def _generate_map_table_on_hash(contents, hashes, type):
 def _existing_observable_hash_dedup(contents, hashes, user):
     db = get_db()
 
-    map_table = _generate_duplicates_by_hash(contents, hashes, db, 'obs', user)
+    map_table = _generate_duplicates_by_hash(contents, hashes, db, 'obs')
 
     # file observable have more complex rules for duplicates, so simple hash matching isn't good enough
-    _add_matching_file_observables(db, map_table, contents, user)
+    _add_matching_file_observables(db, map_table, contents)
 
     out, additional_sightings, additional_file_hashes = _coalesce_duplicates(contents, map_table)
 
@@ -412,8 +412,8 @@ def _package_title_capec_string_to_ids(contents, local):
     return title_capec_string_to_ids
 
 
-def _existing_title_and_capecs(local, user):
-    existing_ttps = capec_finder(local, user)
+def _existing_title_and_capecs(local):
+    existing_ttps = capec_finder(local)
 
     existing_title_capec_string_to_id = {}
     for found_ttp in existing_ttps:
@@ -425,7 +425,7 @@ def _existing_title_and_capecs(local, user):
 
 
 def _existing_ttp_capec_dedup(contents, hashes, user, local):
-    existing_title_capec_string_to_id = _existing_title_and_capecs(local, user)
+    existing_title_capec_string_to_id = _existing_title_and_capecs(local)
 
     ttp_title_capec_string_to_ids = _package_title_capec_string_to_ids(contents, local)
 
@@ -541,7 +541,7 @@ def _existing_tgt_local_ns_cve_dedup(contents, hashes, user):
 
 def _existing_incident_hash_dedup(contents, hashes, user):
     db = get_db()
-    map_table = _generate_duplicates_by_hash(contents, hashes, db, 'inc', user)
+    map_table = _generate_duplicates_by_hash(contents, hashes, db, 'inc')
 
     out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
 
