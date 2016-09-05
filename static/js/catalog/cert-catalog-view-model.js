@@ -66,6 +66,7 @@ define([
             this.sightings(optionsList.sightings);
             this.version(optionsList.version);
             this.revision(optionsList.revision);
+            this.handling().loadStatic(optionsList.handlingCaveats);
             this.section().loadStatic(optionsList);
         },
 

@@ -35,6 +35,7 @@ from adapters.certuk_mod.validation.package.validator import PackageValidationIn
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 from adapters.certuk_mod.common.views import error_with_message
 from adapters.certuk_mod.config.cert_config import get as get_config
+from adapters.certuk_mod.patch.incident_patch import DBIncidentPatch
 
 
 from adapters.certuk_mod.builder import customizations as cert_builder
@@ -227,6 +228,8 @@ def review(request, id):
 
     can_purge = can_revoke and root_edge_object.is_revoke()
 
+    handling_caveats = DBIncidentPatch.handling_to_draft(root_edge_object.obj, "handling_caveat")
+
     request.breadcrumbs([("Catalog", "")])
     return render(request, "catalog_review.html", {
         "root_id": id,
@@ -248,7 +251,8 @@ def review(request, id):
         "sightings": sightings,
         'ajax_uri': reverse('catalog_ajax'),
         "can_revoke": can_revoke,
-        "can_purge": can_purge
+        "can_purge": can_purge,
+        "handling_caveats": json.dumps(handling_caveats)
     })
 
 
@@ -292,9 +296,18 @@ def review_set_handling(request, data):
         }
 
 
+def purge_old_handling_caveats(edge_object):
+    markings = edge_object.obj.handling.markings[0].marking_structures
+    edge_object.obj.handling.markings[0].marking_structures = [marking for marking in markings if
+                                                               marking.marking_model_name != HANDLING_CAVEAT]
+
+
 def append_handling(edge_object, handling_markings):
     if getattr(edge_object.obj, "handling", None) is None:
         edge_object.obj.handling = make_handling(edge_object.ty)
+    else:
+        purge_old_handling_caveats(edge_object)
+
     for handling in handling_markings:
         handling_caveat = SimpleMarkingStructure(handling)
         handling_caveat.marking_model_name = HANDLING_CAVEAT
