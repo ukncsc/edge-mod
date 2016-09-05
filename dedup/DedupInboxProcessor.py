@@ -88,10 +88,10 @@ def _update_existing_objects(ids_to_references, user, tlp_levels):
                 _merge_tgts(api_object.obj, references)
         setattr(api_object, 'obj.timestamp', datetime.datetime.utcnow())
         inbox_processor.add(InboxItem(
-        api_object=api_object,
-        etlp=tlp,
-        etou=edge_object.etou,
-        esms=edge_object.esms))
+            api_object=api_object,
+            etlp=tlp,
+            etou=edge_object.etou,
+            esms=edge_object.esms))
     inbox_processor.run()
 
 
@@ -255,9 +255,9 @@ def _add_matching_file_observables(db, map_table, contents):
                 map_table[new_id] = existing_file['_id']
 
 
-def _generate_duplicates_by_hash(contents, hashes, db, type):
+def _generate_duplicates_by_hash(contents, hashes, db, type_):
     existing_items = db.stix.find({
-        'type': type,
+        'type': type_,
         'data.hash': {
             '$in': hashes.values()
         }
@@ -275,10 +275,10 @@ def _generate_duplicates_by_hash(contents, hashes, db, type):
     return map_table
 
 
-def _generate_map_table_on_hash(contents, hashes, type):
+def _generate_map_table_on_hash(contents, hashes, type_):
     hash_to_ids = {}
     for id_, hash_ in sorted(hashes.iteritems()):
-        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == type:
+        if rgetattr(contents.get(id_, None), ['api_object', 'ty'], '') == type_:
             hash_to_ids.setdefault(hash_, []).append(id_)
 
     map_table = {}
