@@ -179,10 +179,8 @@ def __extract_revision(id):
     return revision, id
 
 
-@login_required
-@json_body
-def reload_data(request, data):
-    root_edge_object = PublisherEdgeObject.load(data["id"], filters=request.user.filters(), revision=data["revision"],
+def generate_partial_review_data(request, id, revision):
+    root_edge_object = PublisherEdgeObject.load(id, filters=request.user.filters(), revision=revision,
                                                 include_revision_index=True)
     package = PackageGenerator.build_package(root_edge_object)
     validation_info = PackageValidationInfo.validate(package)
@@ -194,13 +192,13 @@ def reload_data(request, data):
 
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
-        validation_info.validation_dict.update({data["id"]:{"created_by":
+        validation_info.validation_dict.update({id:{"created_by":
                                                          {"status": ValidationStatus.WARN,
                                                           "message": "This object was created by %s not %s"
                                                                      % (root_edge_object.created_by_username,
                                                                         req_user)}}})
     if any(item['is_external'] for item in edges):
-        validation_info.validation_dict.update({data["id"]:{"external_references":
+        validation_info.validation_dict.update({id:{"external_references":
                                                          {"status": ValidationStatus.ERROR,
                                                           "message": "This object contains External References, clone "
                                                                      "object and remove missing references before publishing"}}})
@@ -213,10 +211,24 @@ def reload_data(request, data):
     })
 
     return {
-        'package': package.to_dict(),
-        "trust_groups": json.dumps(root_edge_object.tg),
-        "validation_info": validation_info.to_json(),
+        'root_edge_object': root_edge_object,
+        'package': package,
+        "trust_groups": root_edge_object.tg,
+        "validation_info": validation_info,
         "edges": edges
+    }
+
+
+@login_required
+@json_body
+def reload_data(request, data):
+    data = generate_partial_review_data(request, data["id"], data["revision"])
+
+    return {
+        'package': data["package"].to_dict(),
+        "trust_groups": json.dumps(data["trust_groups"]),
+        "validation_info": data["validation_info"].to_json(),
+        "edges": data["edges"]
     }
 
 
@@ -224,44 +236,21 @@ def reload_data(request, data):
 def review(request, id):
     revision, id = __extract_revision(id)
 
-    root_edge_object = PublisherEdgeObject.load(id, filters=request.user.filters(), revision=revision,
-                                                include_revision_index=True)
+    data = generate_partial_review_data(request, id, revision)
 
-    if revision is "latest":
-        revision = root_edge_object.revisions[0]['timekey']
-
-    package = PackageGenerator.build_package(root_edge_object)
-    validation_info = PackageValidationInfo.validate(package)
+    root_edge_object = data["root_edge_object"]
 
     def user_loader(idref):
         return EdgeObject.load(idref, request.user.filters())
 
     back_links = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
-    edges = EdgeGenerator.gather_edges(root_edge_object.edges, load_by_id=user_loader)
-
-    # add root object to edges for javascript to construct object
-    edges.append({
-        'ty': root_edge_object.ty,
-        'id_': root_edge_object.id_,
-        'is_external': False
-    })
 
     sightings = None
     if root_edge_object.ty == 'obs':
         sightings = getSightingsFollowHash(root_edge_object.doc['data']['hash'])
 
-    req_user = _get_request_username(request)
-    if root_edge_object.created_by_username != req_user:
-        validation_info.validation_dict.update({id: {"created_by":
-                                                         {"status": ValidationStatus.WARN,
-                                                          "message": "This object was created by %s not %s"
-                                                                     % (root_edge_object.created_by_username,
-                                                                        req_user)}}})
-    if any(item['is_external'] for item in edges):
-        validation_info.validation_dict.update({id: {"external_references":
-                                                         {"status": ValidationStatus.ERROR,
-                                                          "message": "This object contains External References, clone "
-                                                                     "object and remove missing references before publishing"}}})
+    if revision is "latest":
+        revision = root_edge_object.revisions[0]['timekey']
 
     revocable = Revocable(root_edge_object, request)
 
@@ -272,12 +261,12 @@ def review(request, id):
     request.breadcrumbs([("Catalog", "")])
     return render(request, "catalog_review.html", {
         "root_id": id,
-        "package": package,
+        "package": data["package"],
         "trust_groups": json.dumps(root_edge_object.tg),
-        "validation_info": validation_info,
+        "validation_info": data["validation_info"],
         "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
         "back_links": json.dumps(back_links),
-        "edges": json.dumps(edges),
+        "edges": json.dumps(data["edges"]),
         'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
             '/view/%s/' % urllib.quote(id)),
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
