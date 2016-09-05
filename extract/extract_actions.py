@@ -60,7 +60,7 @@ def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids
     stack = []
     for i in xrange(len(draft_object['observables'])):
         observable = draft_object['observables'][i]
-        obs_id = observable.get('id', create_draft_observable_id(observable))
+        obs_id = observable['id'] if 'id' in observable else create_draft_observable_id(observable)
         if obs_id not in hidden_ids:
             if DRAFT_ID_SEPARATOR in obs_id:
                 stack.append((1, 0, create_draft_obs_node(obs_id, observable_to_name(observable, True)), REL_TYPE_DRAFT))

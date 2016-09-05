@@ -128,7 +128,7 @@ def process_stix(stream, user, extract_id, file_name):
     def process_draft_obs():
         # draft_indicator['observables'] contains all obs for the ind. observable_ids just the inboxed
         # (i.e. not de-duped)
-        # If it is no de-duped, dump the id as this confuses the builder; and gives us a quick way to differentiate.
+        # If it is not de-duped, dump the id as this confuses the builder; and gives us a quick way to differentiate.
         for obs in draft_indicator['observables']:
             if obs['id'] in observable_ids:  # Is it a draft?
                 del obs['id']
