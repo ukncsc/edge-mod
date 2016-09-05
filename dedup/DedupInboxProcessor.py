@@ -75,26 +75,27 @@ def _merge_tgts(api_object, references):
         api_object.potential_coas.append(CourseOfAction(idref=coa))
 
 
-def _update_existing_objects(references, user):
+def _update_existing_objects(id_to_references, user, tlp_levels):
     inbox_processor = InboxProcessorForBuilders(user=user)
-    for id_, references in references.iteritems():
+    for id_, tlp in tlp_levels.iteritems():
         edge_object = EdgeObject.load(id_)
         api_object = edge_object.to_ApiObject()
-        if edge_object.ty == 'ttp':
-            _merge_ttps(api_object.obj, references)
-        elif edge_object.ty == 'tgt':
-            _merge_tgts(api_object.obj, references)
+        if id_ in id_to_references:
+            references = id_to_references[id_]
+            if edge_object.ty == 'ttp':
+                _merge_ttps(api_object.obj, references)
+            elif edge_object.ty == 'tgt':
+                _merge_tgts(api_object.obj, references)
         setattr(api_object, 'obj.timestamp', datetime.datetime.utcnow())
         inbox_processor.add(InboxItem(
-            api_object=api_object,
-            etlp=edge_object.etlp,
-            etou=edge_object.etou,
-            esms=edge_object.esms
-        ))
+        api_object=api_object,
+        etlp=tlp_levels[id_],
+        etou=edge_object.etou,
+        esms=edge_object.esms))
     inbox_processor.run()
 
 
-def _update_existing_properties(additional_sightings, additional_file_hashes, user):
+def _update_existing_properties(additional_sightings, additional_file_hashes, user, tlp_levels):
     inbox_processor = InboxProcessorForBuilders(user=user)
     for id_, count in additional_sightings.iteritems():
         edge_object = EdgeObject.load(id_)
@@ -102,7 +103,7 @@ def _update_existing_properties(additional_sightings, additional_file_hashes, us
         _merge_properties(api_object, id_, count, additional_file_hashes)
         inbox_processor.add(InboxItem(
             api_object=api_object,
-            etlp=edge_object.etlp,
+            etlp=tlp_levels[id_],
             etou=edge_object.etou,
             esms=edge_object.esms
         ))
@@ -300,8 +301,10 @@ def _existing_observable_hash_dedup(contents, hashes, user):
 
     out, additional_sightings, additional_file_hashes = _coalesce_duplicates(contents, map_table)
 
+    tlp_levels = _map_tlp_to_id(contents, map_table)
+
     if additional_sightings:
-        _update_existing_properties(additional_sightings, additional_file_hashes, user)
+        _update_existing_properties(additional_sightings, additional_file_hashes, user, tlp_levels)
 
     message = _generate_message("Remapped %d observables to existing observables based on hashes", contents, out)
 
@@ -366,6 +369,18 @@ def _get_lowest_tlp_id(contents, ids):
     return master
 
 
+def _map_tlp_to_id(contents, map_table):
+    tlp_levels = {}
+    for dup, original in map_table.iteritems():
+        dup_tlp = contents[dup].etlp
+        original_tlp = EdgeObject.load(original).etlp
+        if TLP_MAP[dup_tlp] < TLP_MAP[original_tlp]:
+            tlp_levels[original] = dup_tlp
+        else:
+            tlp_levels[original] = original_tlp
+    return tlp_levels
+
+
 def _get_map_table(contents, key_to_ids):
     map_table = {}
     for key, ids in key_to_ids.iteritems():
@@ -428,10 +443,12 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
         key in existing_title_capec_string_to_id
         }
 
+    tlp_levels = _map_tlp_to_id(contents, map_table)
+
     out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
 
-    if additional_edges:
-        _update_existing_objects(additional_edges, user)
+    if tlp_levels:
+        _update_existing_objects(additional_edges, user, tlp_levels)
 
     message = _generate_message("Remapped %d " + ('local' if local else 'external') +
                                 " namespace TTPs to existing TTPs based on CAPEC-IDs and title", contents, out)
@@ -517,8 +534,10 @@ def _existing_tgt_cve_dedup(contents, hashes, user, local):
 
     out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
 
-    if additional_edges:
-        _update_existing_objects(additional_edges, user)
+    tlp_levels = _map_tlp_to_id(contents, map_table)
+
+    if tlp_levels:
+        _update_existing_objects(additional_edges, user, tlp_levels)
 
     message = _generate_message("Remapped %d " + ('local' if local else 'external') +
                                 " namespace Exploit Targets to existing Targets based on CVE-IDs", contents, out)
