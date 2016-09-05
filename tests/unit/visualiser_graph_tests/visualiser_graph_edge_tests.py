@@ -12,12 +12,15 @@ class VisualiserGraphNodeTests(unittest.TestCase):
         self.mock_matches_exist_patcher = mock.patch('adapters.certuk_mod.visualiser.graph.matches_exist')
         self.mock_get_backlinks_patcher = mock.patch('adapters.certuk_mod.visualiser.graph.get_backlinks')
         self.mock_get_matches_patcher = mock.patch('adapters.certuk_mod.visualiser.graph.get_matches')
+        self.mock_request_patcher = mock.patch('django.http.request.HttpRequest')
+
 
         self.mock_build_title = self.mock_build_title_patcher.start()
         self.mock_backlinks_exist = self.mock_backlinks_exist_patcher.start()
         self.mock_matches_exist = self.mock_matches_exist_patcher.start()
         self.mock_get_backlinks = self.mock_get_backlinks_patcher.start()
         self.mock_get_matches = self.mock_get_matches_patcher.start()
+        self.mock_request = self.mock_request_patcher.start()
 
         self.init_stix_objects()
 
@@ -69,25 +72,25 @@ class VisualiserGraphNodeTests(unittest.TestCase):
 
     def test_create_graph_build_title_called(self):
         stack = [(0, None, self.mock_edge_title_None, 'edge')]
-        create_graph(stack, [], [], [], [], [])
+        create_graph(stack, [], [], [], [], [], self.mock_request)
         self.mock_build_title.assert_called_with(self.mock_edge_title_None)
 
     def test_create_graph_backlinks_matches_called(self):
         stack = [(0, None, self.mock_edge, 'edge')]
-        create_graph(stack, [], [], [], [], [])
+        create_graph(stack, [], [], [], [], [], self.mock_request)
         self.mock_backlinks_exist.assert_called_with('red')
-        self.mock_matches_exist.assert_called_with('red')
+        self.mock_matches_exist.assert_called_with('red', self.mock_request)
 
     def test_create_graph_with_edge_rel_type(self):
         stack = [(0, None, self.mock_edge, 'edge')]
-        response = create_graph(stack, [], [], [], [], [])
+        response = create_graph(stack, [], [], [], [], [], self.mock_request)
         self.assertEquals(response['nodes'], [self.edge_node])
         self.assertEquals(response['links'], [])
 
     def test_create_graph_with_links(self):
         self.mock_edge_reference.fetch.return_value = self.mock_edge3
         stack = [(0, None, self.mock_edge2, 'edge')]
-        response = create_graph(stack, [], [], [], [], [])
+        response = create_graph(stack, [], [], [], [], [], self.mock_request)
         links = [{'source': 0, 'target': 1, 'rel_type': 'edge'}]
         self.assertDictEqual(response['nodes'][0], self.edge_node2)
         self.assertDictEqual(response['nodes'][1], self.edge_node3)
@@ -96,21 +99,21 @@ class VisualiserGraphNodeTests(unittest.TestCase):
     def test_create_graph_hide_edge_ids(self):
         hide_edge_ids = ['blue']
         stack = [(0, None, self.mock_edge4, 'edge')]
-        response = create_graph(stack, [], [], hide_edge_ids, [], [])
+        response = create_graph(stack, [], [], hide_edge_ids, [], [], self.mock_request)
         self.assertEquals(response['nodes'], [self.edge_node4])
         self.assertEquals(response['links'], [])
 
     def test_create_graph_show_edges_ids(self):
         show_edge_ids = ['red']
         stack = [(0, None, self.mock_edge, 'edge')]
-        response = create_graph(stack, [], [], [], show_edge_ids, [])
+        response = create_graph(stack, [], [], [], show_edge_ids, [], self.mock_request)
         self.assertEquals(response['nodes'], [self.edge_node])
         self.assertEquals(response['links'], [])
 
     def test_create_graph_hide_ids(self):
         hide_ids = ['blue']
         stack = [(0, None, self.mock_edge4, 'edge')]
-        response = create_graph(stack, [], [], [], [], hide_ids)
+        response = create_graph(stack, [], [], [], [], hide_ids, self.mock_request)
         self.assertEquals(response['nodes'], [])
         self.assertEquals(response['links'], [])
 
@@ -118,7 +121,7 @@ class VisualiserGraphNodeTests(unittest.TestCase):
         stack = [(0, None, self.mock_edge2, 'edge')]
         self.mock_edge_reference.fetch.return_value = self.mock_edge5
         links = [{'source': 0, 'target': 0, 'rel_type': 'edge'}]
-        response = create_graph(stack, [], [], [], [], [])
+        response = create_graph(stack, [], [], [], [], [], self.mock_request)
         self.assertEqual(len(response['nodes']), 1)
         self.assertEqual(response['nodes'], [self.edge_node2])
         self.assertEqual(response['links'], links)
