@@ -28,6 +28,14 @@ define([
                     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                         topic.publish(topics.RESIZE, e.target.id);
                     });
+
+                    $(".nav-tabs").bind("DOMNodeInserted", function () {   //When a new tab is added, reset
+                        $('a[data-toggle="tab"]').off('shown.bs.tab');
+
+                        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                            topic.publish(topics.RESIZE, e.target.id);
+                        });
+                    });
                 }
             }.bind(this));
 
@@ -93,7 +101,7 @@ define([
         );
     }
 
-    function postAndReloadUrl(url, id, ids, graph, vm) {
+    function postAndAddNewIndicator(url, id, ids, graph, vm) {
         _postJSON(base_url + url, { // Calling _ version as error callback required
                 'id': id,
                 'ids': ids
@@ -106,16 +114,9 @@ define([
                         }
 
                         new_indicator = result.new_indicator;
-
                         vm.indicatorInformationTypeById[new_indicator['id']] = new_indicator;
                         vm.initViewModel(new_indicator['id']);
                         graph.loadData(response);
-
-                        ko.applyBindings(
-                            vm,
-                            document.getElementById('content')
-                        );
-
                     }
                 );
             },
@@ -143,7 +144,7 @@ define([
         return new PanelAction(
             only_obs_drafts,
             function (obs_ids_to_move, graph) {
-                postAndReloadUrl("move_observables/", id, obs_ids_to_move, graph, vm);
+                postAndAddNewIndicator("move_observables/", id, obs_ids_to_move, graph, vm);
             },
             "Move",
             "share-alt");
