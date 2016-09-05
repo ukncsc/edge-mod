@@ -75,13 +75,13 @@ def _merge_tgts(api_object, references):
         api_object.potential_coas.append(CourseOfAction(idref=coa))
 
 
-def _update_existing_objects(id_to_references, user, tlp_levels):
+def _update_existing_objects(ids_to_references, user, tlp_levels):
     inbox_processor = InboxProcessorForBuilders(user=user)
     for id_, tlp in tlp_levels.iteritems():
         edge_object = EdgeObject.load(id_)
         api_object = edge_object.to_ApiObject()
-        if id_ in id_to_references:
-            references = id_to_references[id_]
+        if id_ in ids_to_references:
+            references = ids_to_references[id_]
             if edge_object.ty == 'ttp':
                 _merge_ttps(api_object.obj, references)
             elif edge_object.ty == 'tgt':
@@ -89,7 +89,7 @@ def _update_existing_objects(id_to_references, user, tlp_levels):
         setattr(api_object, 'obj.timestamp', datetime.datetime.utcnow())
         inbox_processor.add(InboxItem(
         api_object=api_object,
-        etlp=tlp_levels[id_],
+        etlp=tlp,
         etou=edge_object.etou,
         esms=edge_object.esms))
     inbox_processor.run()
@@ -284,7 +284,7 @@ def _generate_map_table_on_hash(contents, hashes, type):
     map_table = {}
     for hash_, ids in hash_to_ids.iteritems():
         if len(ids) > 1:
-            master = _get_lowest_tlp_id(contents, ids)
+            master = _get_id_with_lowest_tlp(contents, ids)
             ids.remove(master)
             for dup in ids:
                 map_table[dup] = master
@@ -301,7 +301,7 @@ def _existing_observable_hash_dedup(contents, hashes, user):
 
     out, additional_sightings, additional_file_hashes = _coalesce_duplicates(contents, map_table)
 
-    tlp_levels = _map_tlp_to_id(contents, map_table)
+    tlp_levels = _map_id_to_tlp(contents, map_table)
 
     if additional_sightings:
         _update_existing_properties(additional_sightings, additional_file_hashes, user, tlp_levels)
@@ -361,7 +361,7 @@ def create_capec_title_key(title, capec_ids):
     return title.strip().lower() + ": " + capec_join
 
 
-def _get_lowest_tlp_id(contents, ids):
+def _get_id_with_lowest_tlp(contents, ids):
     map_tlp = {}
     for id_ in ids:
         map_tlp[id_] = TLP_MAP[contents[id_].etlp]
@@ -369,7 +369,7 @@ def _get_lowest_tlp_id(contents, ids):
     return master
 
 
-def _map_tlp_to_id(contents, map_table):
+def _map_id_to_tlp(contents, map_table):
     tlp_levels = {}
     for dup, original in map_table.iteritems():
         dup_tlp = contents[dup].etlp
@@ -387,7 +387,7 @@ def _get_map_table(contents, key_to_ids):
         if len(ids) <= 1:
             continue
 
-        master = _get_lowest_tlp_id(contents, ids)
+        master = _get_id_with_lowest_tlp(contents, ids)
         ids.remove(master)
         for dup in ids:
             map_table[dup] = master
@@ -443,7 +443,7 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
         key in existing_title_capec_string_to_id
         }
 
-    tlp_levels = _map_tlp_to_id(contents, map_table)
+    tlp_levels = _map_id_to_tlp(contents, map_table)
 
     out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
 
@@ -534,7 +534,7 @@ def _existing_tgt_cve_dedup(contents, hashes, user, local):
 
     out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
 
-    tlp_levels = _map_tlp_to_id(contents, map_table)
+    tlp_levels = _map_id_to_tlp(contents, map_table)
 
     if tlp_levels:
         _update_existing_objects(additional_edges, user, tlp_levels)
