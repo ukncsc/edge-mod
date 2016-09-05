@@ -51,8 +51,11 @@ define([
         },
 
         reload: function (timekey) {
-            if (timekey !== this.revision()) {
-                window.location.href = "/object/" + this.rootID() + "/" + timekey;
+            if (timekey !== this.revision) {
+                var params = {"id": this.rootID(), "revision": timekey}
+                postJSON("/adapter/certuk_mod/reload/", params, function (response) {
+                    this.stixPackage(new StixPackage(response["package"], this.rootID(), response["trust_groups"], response["validation_info"], response["edges"]))
+                }.bind(this));
             }
         },
 

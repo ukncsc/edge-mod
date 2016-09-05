@@ -104,7 +104,9 @@ publisher_urls = [
     (r'^visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_view', 'visualiser_view'),
     (r'^ajax/visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_get', 'visualiser_ajax_view'),
     (r'^ajax/visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_item_get', 'visualiser_ajax_item'),
-    (r'^ajax/visualiser/get_extended/.*$', 'views.visualiser_get_extended', 'visualiser_ajax_get_extended')
+    (r'^ajax/visualiser/get_extended/.*$', 'views.visualiser_get_extended', 'visualiser_ajax_get_extended'),
+
+    (r'reload/$', 'views.reload_data', None)
 ]
 
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]
