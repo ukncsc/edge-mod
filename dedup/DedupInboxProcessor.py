@@ -26,6 +26,7 @@ PROPERTY_SHA384 = ['api_object', 'obj', 'object_', 'properties', 'sha384']
 PROPERTY_SHA512 = ['api_object', 'obj', 'object_', 'properties', 'sha512']
 PROPERTY_CAPEC = ['api_object', 'obj', 'behavior', 'attack_patterns']
 PROPERTY_CVE = ['api_object', 'obj', 'vulnerabilities']
+TLP_MAP = {'RED': 4, 'AMBER': 3, 'GREEN': 2, 'WHITE': 1, 'NULL': 0}
 
 
 def _get_sighting_count(obs):
@@ -272,6 +273,7 @@ def _generate_duplicates_by_hash(contents, hashes, db, type):
 
     return map_table
 
+
 def _generate_map_table_on_hash(contents, hashes, type):
     hash_to_ids = {}
     for id_, hash_ in sorted(hashes.iteritems()):
@@ -281,8 +283,9 @@ def _generate_map_table_on_hash(contents, hashes, type):
     map_table = {}
     for hash_, ids in hash_to_ids.iteritems():
         if len(ids) > 1:
-            master = ids[0]
-            for dup in ids[1:]:
+            master = _get_lowest_tlp_id(contents, ids)
+            ids.remove(master)
+            for dup in ids:
                 map_table[dup] = master
     return map_table
 
@@ -355,19 +358,11 @@ def create_capec_title_key(title, capec_ids):
     return title.strip().lower() + ": " + capec_join
 
 
-def _set_id_to_description_length(contents, ids):
-    id_to_description_length = {}
+def _get_lowest_tlp_id(contents, ids):
+    map_tlp = {}
     for id_ in ids:
-        if contents[id_].api_object.obj.description is not None:
-            id_to_description_length[id_] = len(contents[id_].api_object.obj.description.value)
-    return id_to_description_length
-
-
-def _set_master(ids, id_to_description_length):
-    if id_to_description_length == {}:
-        master = ids[0]
-    else:
-        master = sorted(id_to_description_length.items(), key=operator.itemgetter(1))[-1][0]
+        map_tlp[id_] = TLP_MAP[contents[id_].etlp]
+    master = sorted(map_tlp.items(), key=operator.itemgetter(1))[0][0]
     return master
 
 
@@ -377,8 +372,7 @@ def _get_map_table(contents, key_to_ids):
         if len(ids) <= 1:
             continue
 
-        id_to_description_length = _set_id_to_description_length(contents, ids)
-        master = _set_master(ids, id_to_description_length)
+        master = _get_lowest_tlp_id(contents, ids)
         ids.remove(master)
         for dup in ids:
             map_table[dup] = master

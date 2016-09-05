@@ -453,13 +453,13 @@ class DedupInboxProcessorTests(unittest.TestCase):
 
     def test_map_table_duplicates(self):
         contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
-                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001', etlp= 'RED',
                         api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
-                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'Short')))),
+                            ExploitTarget))),
                     'pss:ttp-00000000-0000-0000-0000-000000000002':mock.create_autospec(
-                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002', etlp='WHITE',
                         api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
-                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'Longerr'))))}
+                            ExploitTarget)))}
         key_to_ids = {'key1': ['pss:ttp-00000000-0000-0000-0000-000000000001',
                                'pss:ttp-00000000-0000-0000-0000-000000000002']}
 
@@ -472,11 +472,11 @@ class DedupInboxProcessorTests(unittest.TestCase):
         contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
-                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'short')))),
+                            ExploitTarget))),
                     'pss:ttp-00000000-0000-0000-0000-000000000002':mock.create_autospec(
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
-                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'longer'))))}
+                            ExploitTarget)))}
         key_to_ids = {}
 
         map_table = _get_map_table(contents, key_to_ids)
@@ -486,15 +486,15 @@ class DedupInboxProcessorTests(unittest.TestCase):
         contents = contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
                         api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
-                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'short')))),
+                            ExploitTarget))),
                     'pss:ttp-00000000-0000-0000-0000-000000000002':mock.create_autospec(
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
                         api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
-                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'longer')))),
+                            ExploitTarget))),
                     'pss:ttp-00000000-0000-0000-0000-000000000003':mock.create_autospec(
                         InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000003',
                         api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
-                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'even longer'))))}
+                            ExploitTarget)))}
 
         key_to_ids = {'key1': ['pss:ttp-00000000-0000-0000-0000-000000000001'],
                       'key2':['pss:ttp-00000000-0000-0000-0000-000000000002'],
@@ -505,17 +505,17 @@ class DedupInboxProcessorTests(unittest.TestCase):
 
     def test_map_table_3_duplicates(self):
         contents = {'pss:ttp-00000000-0000-0000-0000-000000000001':mock.create_autospec(
-                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001',
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000001', etlp='AMBER',
                         api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
-                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'short')))),
+                            ExploitTarget))),
                     'pss:ttp-00000000-0000-0000-0000-000000000002':mock.create_autospec(
-                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002',
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000002', etlp='GREEN',
                         api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
-                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'longer')))),
+                            ExploitTarget))),
                     'pss:ttp-00000000-0000-0000-0000-000000000003':mock.create_autospec(
-                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000003',
+                        InboxItem, id= 'pss:ttp-00000000-0000-0000-0000-000000000003', etlp='WHITE',
                         api_object = mock.create_autospec(ApiObject, ty='ttp', obj = mock.create_autospec(
-                            ExploitTarget, description = mock.create_autospec(StructuredText, value = 'even longer'))))}
+                            ExploitTarget)))}
 
         key_to_ids = {'key1': ['pss:ttp-00000000-0000-0000-0000-000000000001', 'pss:ttp-00000000-0000-0000-0000-000000000002',
                                'pss:ttp-00000000-0000-0000-0000-000000000003']}
