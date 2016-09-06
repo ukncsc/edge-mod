@@ -1,4 +1,5 @@
 import json
+import re
 
 from mongoengine import DoesNotExist
 from defusedxml import EntitiesForbidden
@@ -31,6 +32,8 @@ import threading
 
 import adapters.certuk_mod.extract.extract_store as extract_store
 
+
+HASH_NUMBER_RE = re.compile('(.*#)([0-9]+)')
 DRAFT_ID_SEPARATOR = ":draft:"
 
 
@@ -188,7 +191,11 @@ def extract_visualiser(request, extract_id):
     request.breadcrumbs([("Extract Visualiser", "")])
 
     extract = extract_store.get(extract_id)
-    ids = extract['draft_ids']
+    if not extract:
+        ids = []
+    else:
+        ids = extract['draft_ids']
+
     indicator_ids = [id_ for id_ in ids if is_valid_stix_id(id_)]
 
     type_names = []
@@ -277,13 +284,8 @@ def extract_visualiser_item_get(request, node_id):
         return JsonResponse({"error": e.message}, status=500)
 
 
-import re
-
-
 def add_incremented_number(old_title, new_num):
-    HASH_NUMBER = '(.*#)([0-9]+)'
-    REC = re.compile(HASH_NUMBER)
-    match = REC.match(old_title)
+    match = HASH_NUMBER_RE.match(old_title)
     if not match:
         return old_title + '#' + str(new_num)
 
@@ -291,19 +293,13 @@ def add_incremented_number(old_title, new_num):
 
 
 def get_hash_number_string(title):
-    HASH_NUMBER = '(.*)(#[0-9]+)'
-    REC = re.compile(HASH_NUMBER)
-    match = REC.match(title)
-    if not match:
-        return ''
-
-    return str(match.group(2))
+    num = get_hash_number(title)
+    return str(num) if num else ''
 
 
 def get_hash_number(title):
-    HASH_NUMBER = '(.*)#([0-9]+)$'
-    REC = re.compile(HASH_NUMBER)
-    match = REC.match(title)
+
+    match = HASH_NUMBER_RE.match(title)
     if not match:
         return 0
 
@@ -322,24 +318,24 @@ def get_maximum_number(indicator_type, other_drafts, user):
 
 @login_required_ajax
 def extract_visualiser_move_observables(request):
-    delete_data = json.loads(request.body)
+    move_data = json.loads(request.body)
     try:
-        draft_ind = Draft.load(delete_data['id'], request.user)
+        draft_ind = Draft.load(move_data['id'], request.user)
     except DoesNotExist:
-        return JsonResponse({'Error': "Draft object:%s does not exist" % delete_data['id']}, status=400)
+        return JsonResponse({'Error': "Draft object:%s does not exist" % move_data['id']}, status=400)
 
-    new_draft_ind = WHICH_DBOBJ['ind'].to_draft(WHICH_DBOBJ['ind'].from_dict(draft_ind), None, EdgeObject.load);
+    new_draft_ind = WHICH_DBOBJ['ind'].to_draft(WHICH_DBOBJ['ind'].from_dict(draft_ind),  None, EdgeObject.load)
 
     new_id = IDManager().get_new_id('ind')
     new_draft_ind['id'] = new_id
     new_draft_ind['indicatorType'] = draft_ind['indicatorType']
 
-    extract = extract_store.find(draft_ind_id=delete_data['id'])[0]
+    extract = extract_store.find(draft_ind_id=move_data['id'])[0]
     new_draft_ind['title'] = add_incremented_number(new_draft_ind['title'],
                                                     get_maximum_number(new_draft_ind['indicatorType'],
                                                                        extract['draft_ids'], request.user) + 1)
 
-    draft_obs_offsets = [get_draft_obs_offset(draft_ind, id_) for id_ in delete_data['ids'] if
+    draft_obs_offsets = [get_draft_obs_offset(draft_ind, id_) for id_ in move_data['ids'] if
                          DRAFT_ID_SEPARATOR in id_]
 
     move_observables(draft_obs_offsets, draft_ind, new_draft_ind)
@@ -347,13 +343,13 @@ def extract_visualiser_move_observables(request):
     def ref_obs_generator():
         obs_id_map = {draft_ind['observables'][i]['id']: i for i in xrange(len(draft_ind['observables'])) if
                       'id' in draft_ind['observables'][i]}
-        ref_obs_ids = [obs_id for obs_id in delete_data['ids'] if DRAFT_ID_SEPARATOR not in obs_id]
+        ref_obs_ids = [obs_id for obs_id in move_data['ids'] if DRAFT_ID_SEPARATOR not in obs_id]
         for obs_id in ref_obs_ids:
             offset = obs_id_map.get(obs_id, None)
             if offset is not None:
                 yield offset
 
-    extract = extract_store.find(draft_ind_id=delete_data['id'])[0]
+    extract = extract_store.find(draft_ind_id=move_data['id'])[0]
     extract['draft_ids'].append(new_draft_ind['id'])
     extract_store.update(extract['_id'], "COMPLETE", "Found %d indicators" % (len(extract['draft_ids'])),
                          extract['draft_ids'])
@@ -362,7 +358,6 @@ def extract_visualiser_move_observables(request):
     Draft.upsert('ind', draft_ind, request.user)
     Draft.upsert('ind', new_draft_ind, request.user)
 
-    #visualiser_url = "/adapter/certuk_mod/extract_visualiser/" + str(extract['_id'])  # if empty?
     type_name = new_draft_ind['indicatorType'] + get_hash_number_string(new_draft_ind['title'])
     return JsonResponse({'result': "success",
                          "new_indicator":

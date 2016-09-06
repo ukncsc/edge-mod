@@ -2,7 +2,6 @@ from edge.generic import EdgeObject, EdgeError
 from mongoengine.connection import get_db
 from adapters.certuk_mod.common.objectid import get_type_string
 
-
 REL_TYPE_EDGE = "edge"
 REL_TYPE_MATCH = "match"
 REL_TYPE_BACKLINK = "backlink"
@@ -61,42 +60,44 @@ def matches_exist(id_, request):
 
 
 ID_TYPE_ALIAS = {
-        "campaign": "cam",
-        "courseofaction": "coa",
-        "et": "tgt",
-        "threatactor": "act",
-        "incident": "inc",
-        "indicator": "ind",
-        "observable": "obs",
-        "package": "pkg",
-        "stix": "pkg"
+    "campaign": "cam",
+    "courseofaction": "coa",
+    "et": "tgt",
+    "threatactor": "act",
+    "incident": "inc",
+    "indicator": "ind",
+    "observable": "obs",
+    "package": "pkg",
+    "stix": "pkg"
 }
 
+
 def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids, request):
-    def show_edges(rel_type, node_id):
+    def show_edges():
         return ((REL_TYPE_BACKLINK != rel_type and REL_TYPE_MATCH != rel_type) or (node_id in show_edge_ids)) and \
                (node_id not in hide_edge_ids)
 
     nodes = []
     links = []
 
-    def create_external_reference(edge):
+    def create_external_reference():
         summary = {'title': edge.id_, 'type': edge.ty, 'value': '', '_id': edge.id_, 'cv': '', 'tg': '',
                    'data': {'idns': '', 'etlp': '', 'summary': {'title': edge.id_},
                             'hash': '', 'api': ''}, 'created_by_organization': ''}
         return EdgeObject(summary)
 
-    def create_external_reference_from_id(id):
-        type_string = get_type_string(id)
+    def create_external_reference_from_id(id_):
+        type_string = get_type_string(id_)
         type_string = ID_TYPE_ALIAS.get(type_string.lower(), type_string)
 
-        summary = {'title': id, 'type': type_string, 'value': '', '_id': id, 'cv': '', 'tg': '',
-                   'data': {'idns': '', 'etlp': '', 'summary': {'title': id},
+        summary = {'title': id_, 'type': type_string, 'value': '', '_id': id_, 'cv': '', 'tg': '',
+                   'data': {'idns': '', 'etlp': '', 'summary': {'title': id_},
                             'hash': '', 'api': ''}, 'created_by_organization': ''}
         return EdgeObject(summary)
 
-    def get_node_type(rel_type):
+    def get_node_type():
         return LINK_TO_NODE_TYPE[rel_type]
+
     id_to_idx = {}
 
     while stack:
@@ -104,7 +105,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
         node_id = node.id_
         if node_id in hidden_ids:
             continue
-        node_type = get_node_type(rel_type)
+        node_type = get_node_type()
         is_new_node = node_id not in id_to_idx
         if is_new_node:
             idx = len(nodes)
@@ -119,7 +120,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
 
             nodes.append(dict(id=node_id, type=node.ty, title=title, depth=depth, node_type=node_type,
                               has_backlinks=backlinks, has_matches=matches, has_edges=len(node.edges) != 0,
-                              edges_shown=show_edges(rel_type, node_id), matches_shown=node_id in id_matches,
+                              edges_shown=show_edges(), matches_shown=node_id in id_matches,
                               backlinks_shown=node_id in bl_ids))
         else:
             idx = id_to_idx[node_id]
@@ -128,13 +129,13 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
             links.append({"source": parent_idx, "target": idx, "rel_type": rel_type})
 
         if is_new_node:
-            if show_edges(rel_type, node_id):
+            if show_edges():
                 for edge in node.edges:
                     try:
                         stack.append((depth + 1, idx, edge.fetch(), REL_TYPE_EDGE))
                     except EdgeError as e:
                         if e.message == edge.id_ + " not found":
-                            obj = create_external_reference(edge)
+                            obj = create_external_reference()
                             stack.append((depth + 1, idx, obj, REL_TYPE_EXT))
                             continue
                     except Exception as e:

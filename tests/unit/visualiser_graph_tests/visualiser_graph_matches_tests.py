@@ -26,6 +26,7 @@ class VisualiserGraphMatchesTests(unittest.TestCase):
         self.mock_matches_exist_patcher.stop()
         self.mock_get_backlinks_patcher.stop()
         self.mock_get_matches_patcher.stop()
+        self.mock_request.stop()
 
     def init_stix_objects(self):
         self.mock_edge_reference = mock.create_autospec(EdgeReference, id_='purple', ty='ind')

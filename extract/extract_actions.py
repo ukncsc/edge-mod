@@ -124,11 +124,11 @@ def delete_observables(draft_obs_offsets, draft_ind):
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
 
 def move_observables(draft_obs_offsets, draft_ind, new_draft_ind):
-    obs_to_dump = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
+    obs_to_move = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
                    if len(draft_ind['observables']) > draft_offset >= 0]
-    new_draft_ind['observables'].extend(obs_to_dump);
+    new_draft_ind['observables'].extend(obs_to_move);
 
-    draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
+    draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_move]
 
 
 def get_draft_obs(obs_node_id, user):
