@@ -72,6 +72,16 @@ ID_TYPE_ALIAS = {
 }
 
 
+def create_external_reference_from_id(id_):
+    type_string = get_type_string(id_)
+    type_string = ID_TYPE_ALIAS.get(type_string.lower(), type_string)
+
+    summary = {'title': id_, 'type': type_string, 'value': '', '_id': id_, 'cv': '', 'tg': '',
+               'data': {'idns': '', 'etlp': '', 'summary': {'title': id_},
+                        'hash': '', 'api': ''}, 'created_by_organization': ''}
+    return EdgeObject(summary)
+
+
 def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids, request):
     def show_edges():
         return ((REL_TYPE_BACKLINK != rel_type and REL_TYPE_MATCH != rel_type) or (node_id in show_edge_ids)) and \
@@ -86,14 +96,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
                             'hash': '', 'api': ''}, 'created_by_organization': ''}
         return EdgeObject(summary)
 
-    def create_external_reference_from_id(id_):
-        type_string = get_type_string(id_)
-        type_string = ID_TYPE_ALIAS.get(type_string.lower(), type_string)
 
-        summary = {'title': id_, 'type': type_string, 'value': '', '_id': id_, 'cv': '', 'tg': '',
-                   'data': {'idns': '', 'etlp': '', 'summary': {'title': id_},
-                            'hash': '', 'api': ''}, 'created_by_organization': ''}
-        return EdgeObject(summary)
 
     def get_node_type():
         return LINK_TO_NODE_TYPE[rel_type]
@@ -113,7 +116,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
             title = node.summary.get("title", None)
             if title is None:
                 title = build_title(node)
-            if node_type is NODE_TYPE_EXT or node_type is NODE_TYPE_DRAFT:
+            if node_type in (NODE_TYPE_EXT,  NODE_TYPE_DRAFT):
                 backlinks, matches = False, False
             else:
                 backlinks, matches, = backlinks_exist(node_id), matches_exist(node_id, request)
@@ -132,7 +135,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
             if show_edges():
                 for edge in node.edges:
                     try:
-                        stack.append((depth + 1, idx, edge.fetch(), REL_TYPE_EDGE))
+                        stack.append((depth + 1, idx, EdgeObject.load(edge.id_, request.user.filters()), REL_TYPE_EDGE))
                     except EdgeError as e:
                         if e.message == edge.id_ + " not found":
                             obj = create_external_reference()
@@ -145,15 +148,13 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
                     try:
                         stack.append((depth + 1, idx, EdgeObject.load(eoId, request.user.filters()), REL_TYPE_BACKLINK))
                     except:
-                        obj = create_external_reference_from_id(eoId)
-                        stack.append((depth + 1, idx, obj, REL_TYPE_EXT))
+                        stack.append((depth + 1, idx, create_external_reference_from_id(eoId), REL_TYPE_EXT))
 
             if node_id in id_matches:
                 for eoId in get_matches(node_id, request):
                     try:
                         stack.append((depth + 1, idx, EdgeObject.load(eoId, request.user.filters()), REL_TYPE_MATCH))
                     except:
-                        obj = create_external_reference_from_id(eoId)
-                        stack.append((depth + 1, idx, obj, REL_TYPE_EXT))
+                        stack.append((depth + 1, idx, create_external_reference_from_id(eoId), REL_TYPE_EXT))
 
     return dict(nodes=nodes, links=links)

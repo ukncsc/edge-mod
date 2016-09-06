@@ -1,7 +1,8 @@
 import hashlib
 from users.models import Draft
 from edge.generic import EdgeObject
-from adapters.certuk_mod.visualiser.graph import create_graph, REL_TYPE_EDGE, REL_TYPE_DRAFT
+from adapters.certuk_mod.visualiser.graph import create_graph, REL_TYPE_EDGE, REL_TYPE_DRAFT, REL_TYPE_EXT, \
+    create_external_reference_from_id
 
 DRAFT_ID_SEPARATOR = ":draft:"
 
@@ -66,7 +67,10 @@ def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids
                 stack.append(
                     (1, 0, create_draft_obs_node(obs_id, observable_to_name(observable, True)), REL_TYPE_DRAFT))
             else:
-                stack.append((1, 0, EdgeObject.load(obs_id), REL_TYPE_EDGE))
+                try:
+                    stack.append((1, 0, EdgeObject.load(obs_id, request.user.filters()), REL_TYPE_EDGE))
+                except:
+                    stack.append((1, 0, create_external_reference_from_id(obs_id), REL_TYPE_EXT))
 
     stack.append((0, None, create_draft_ind_node(draft_object['id'], draft_object['title']), REL_TYPE_DRAFT))
 
