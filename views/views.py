@@ -234,9 +234,7 @@ def reload_data(request, data):
 
 @login_required
 def review(request, id):
-    revision, id = __extract_revision(id)
-
-    data = generate_partial_review_data(request, id, revision)
+    data = generate_partial_review_data(request, id, 'latest')
 
     root_edge_object = data["root_edge_object"]
 
@@ -249,8 +247,7 @@ def review(request, id):
     if root_edge_object.ty == 'obs':
         sightings = getSightingsFollowHash(root_edge_object.doc['data']['hash'])
 
-    if revision is "latest":
-        revision = root_edge_object.revisions[0]['timekey']
+    revision = root_edge_object.revisions[0]['timekey']
 
     revocable = Revocable(root_edge_object, request)
 
