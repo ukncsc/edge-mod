@@ -19,7 +19,7 @@ from stix.extensions.marking.simple_marking import SimpleMarkingStructure
 
 from users.decorators import superuser_or_staff_role, json_body
 from users.models import Draft
-from edge.generic import EdgeObject, load_edge_object_or_404
+from edge.generic import EdgeObject, load_edge_object_or_404, EdgeError, WHICH_DBOBJ
 from edge.inbox import InboxProcessorForBuilders, InboxItem, InboxError
 from edge import IDManager
 from edge.handling import make_handling
@@ -36,6 +36,7 @@ from adapters.certuk_mod.validation.builder.validator import BuilderValidationIn
 from adapters.certuk_mod.common.views import error_with_message
 from adapters.certuk_mod.config.cert_config import get as get_config
 from adapters.certuk_mod.patch.incident_patch import DBIncidentPatch
+from adapters.certuk_mod.visualiser.graph import create_external_reference_from_id
 
 
 from adapters.certuk_mod.builder import customizations as cert_builder
@@ -130,10 +131,20 @@ TYPE_TO_URL = {
 }
 
 
+def to_draft_wrapper(self):
+    def filtered_loader(idref):
+        try:
+            return EdgeObject.load(idref, self.filters)
+        except EdgeError as e:
+            return create_external_reference_from_id(idref)
+
+    return WHICH_DBOBJ[self.ty].to_draft(self.obj, self.tg, filtered_loader, self.id_ns)
+
 @login_required
 def clone(request):
     stix_id = objectid_find(request)
     return clone_direct(request, stix_id)
+
 
 @login_required
 def clone_direct(request, id_):
@@ -144,7 +155,7 @@ def clone_direct(request, id_):
             if edge_object.ty == 'obs':
                 return error_with_message(request, "Observables cannot be cloned")
             new_id = IDManager().get_new_id(edge_object.ty)
-            draft = edge_object.to_draft()
+            draft = to_draft_wrapper(edge_object)
             draft['id'] = new_id
             draft['id_ns'] = LOCAL_NS
             Draft.upsert(edge_object.ty, draft, request.user)

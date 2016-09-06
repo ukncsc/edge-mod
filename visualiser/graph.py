@@ -72,6 +72,17 @@ ID_TYPE_ALIAS = {
         "stix": "pkg"
 }
 
+
+def create_external_reference_from_id(id):
+        type_string = get_type_string(id)
+        type_string = ID_TYPE_ALIAS.get(type_string.lower(), type_string)
+
+        summary = {'title': id, 'type': type_string, 'value': '', '_id': id, 'cv': '', 'tg': '',
+                   'data': {'idns': '', 'etlp': '', 'summary': {'title': id},
+                            'hash': '', 'api': ''}, 'created_by_organization': ''}
+        return EdgeObject(summary)
+
+
 def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids):
     def show_edges(rel_type, node_id):
         return ((REL_TYPE_BACKLINK != rel_type and REL_TYPE_MATCH != rel_type) or (node_id in show_edge_ids)) and \
@@ -86,14 +97,6 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
                             'hash': '', 'api': ''}, 'created_by_organization': ''}
         return EdgeObject(summary)
 
-    def create_external_reference_from_id(id):
-        type_string = get_type_string(id)
-        type_string = ID_TYPE_ALIAS.get(type_string.lower(), type_string)
-
-        summary = {'title': id, 'type': type_string, 'value': '', '_id': id, 'cv': '', 'tg': '',
-                   'data': {'idns': '', 'etlp': '', 'summary': {'title': id},
-                            'hash': '', 'api': ''}, 'created_by_organization': ''}
-        return EdgeObject(summary)
 
     def get_node_type(rel_type):
         return LINK_TO_NODE_TYPE[rel_type]
