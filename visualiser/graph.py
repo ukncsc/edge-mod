@@ -79,7 +79,7 @@ def create_external_reference_from_id(id):
 
         summary = {'title': id, 'type': type_string, 'value': '', '_id': id, 'cv': '', 'tg': '',
                    'data': {'idns': '', 'etlp': '', 'summary': {'title': id},
-                            'hash': '', 'api': ''}, 'created_by_organization': ''}
+                            'hash': '', 'api': {}}, 'created_by_organization': ''}
         return EdgeObject(summary)
 
 
