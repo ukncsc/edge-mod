@@ -37,7 +37,6 @@ from adapters.certuk_mod.common.views import error_with_message
 from adapters.certuk_mod.config.cert_config import get as get_config
 from adapters.certuk_mod.patch.incident_patch import DBIncidentPatch
 
-
 from adapters.certuk_mod.builder import customizations as cert_builder
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
@@ -52,7 +51,8 @@ from adapters.certuk_mod.cron.views import ajax_get_purge_task_status, ajax_run_
 from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, \
     ajax_set_retention_config
 
-from adapters.certuk_mod.cron.views import ajax_get_fts_task_status, ajax_run_fts, ajax_run_bl, ajax_get_mod_bl_task_status
+from adapters.certuk_mod.cron.views import ajax_get_fts_task_status, ajax_run_fts, ajax_run_bl, \
+    ajax_get_mod_bl_task_status
 from adapters.certuk_mod.fts.views import ajax_get_fts_config, ajax_reset_fts_config, \
     ajax_set_fts_config
 
@@ -96,9 +96,9 @@ HANDLING_CAVEAT = 'HANDLING_CAVEAT'
 ORGANISATIONS_URL = "/organisations/"
 FIND_URL = "find?organisation="
 
-
 cfg = settings.ACTIVE_CONFIG
 LOCAL_NS = cfg.by_key('company_namespace')
+
 
 @login_required
 def static(request, path):
@@ -134,6 +134,7 @@ TYPE_TO_URL = {
 def clone(request):
     stix_id = objectid_find(request)
     return clone_direct(request, stix_id)
+
 
 @login_required
 def clone_direct(request, id_):
@@ -179,48 +180,75 @@ def __extract_revision(id):
     return revision, id
 
 
-@login_required
-def review(request, id):
-    revision, id = __extract_revision(id)
-
+def generate_partial_review_data(request, id, revision):
     root_edge_object = PublisherEdgeObject.load(id, filters=request.user.filters(), revision=revision,
                                                 include_revision_index=True)
-
-    if revision is "latest":
-        revision = root_edge_object.revisions[0]['timekey']
-
     package = PackageGenerator.build_package(root_edge_object)
     validation_info = PackageValidationInfo.validate(package)
 
     def user_loader(idref):
         return EdgeObject.load(idref, request.user.filters())
 
-    back_links = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
     edges = EdgeGenerator.gather_edges(root_edge_object.edges, load_by_id=user_loader)
-
-   #add root object to edges for javascript to construct object
-    edges.append({
-                'ty' : root_edge_object.ty,
-                'id_' : root_edge_object.id_,
-                'is_external': False
-            })
-
-    sightings = None
-    if root_edge_object.ty == 'obs':
-        sightings = getSightingsFollowHash(root_edge_object.doc['data']['hash'])
 
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
-        validation_info.validation_dict.update({id: {"created_by":
+        validation_info.validation_dict.update({id:{"created_by":
                                                          {"status": ValidationStatus.WARN,
                                                           "message": "This object was created by %s not %s"
                                                                      % (root_edge_object.created_by_username,
                                                                         req_user)}}})
     if any(item['is_external'] for item in edges):
-        validation_info.validation_dict.update({id: {"external_references":
+        validation_info.validation_dict.update({id:{"external_references":
                                                          {"status": ValidationStatus.ERROR,
                                                           "message": "This object contains External References, clone "
                                                                      "object and remove missing references before publishing"}}})
+
+    # add root object to edges for javascript to construct object
+    edges.append({
+        'ty': root_edge_object.ty,
+        'id_': root_edge_object.id_,
+        'is_external': False
+    })
+
+    return {
+        'root_edge_object': root_edge_object,
+        'package': package,
+        "trust_groups": root_edge_object.tg,
+        "validation_info": validation_info,
+        "edges": edges
+    }
+
+
+@login_required
+@json_body
+def reload_data(request, data):
+    data = generate_partial_review_data(request, data["id"], data["revision"])
+
+    return {
+        'package': data["package"].to_dict(),
+        "trust_groups": json.dumps(data["trust_groups"]),
+        "validation_info": data["validation_info"].to_json(),
+        "edges": data["edges"]
+    }
+
+
+@login_required
+def review(request, id):
+    data = generate_partial_review_data(request, id, 'latest')
+
+    root_edge_object = data["root_edge_object"]
+
+    def user_loader(idref):
+        return EdgeObject.load(idref, request.user.filters())
+
+    back_links = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
+
+    sightings = None
+    if root_edge_object.ty == 'obs':
+        sightings = getSightingsFollowHash(root_edge_object.doc['data']['hash'])
+
+    revision = root_edge_object.revisions[0]['timekey']
 
     revocable = Revocable(root_edge_object, request)
 
@@ -233,20 +261,20 @@ def review(request, id):
     request.breadcrumbs([("Catalog", "")])
     return render(request, "catalog_review.html", {
         "root_id": id,
-        "package": package,
+        "package": data["package"],
         "trust_groups": json.dumps(root_edge_object.tg),
-        "validation_info": validation_info,
+        "validation_info": data["validation_info"],
         "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
         "back_links": json.dumps(back_links),
-        "edges": json.dumps(edges),
+        "edges": json.dumps(data["edges"]),
         'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
-        '/view/%s/' % urllib.quote(id)),
+            '/view/%s/' % urllib.quote(id)),
         'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
-        '/edit/%s/' % urllib.quote(id)),
+            '/edit/%s/' % urllib.quote(id)),
         'visualiser_url': '/adapter/certuk_mod/visualiser/%s' % urllib.quote(id),
         'clone_url': "/adapter/certuk_mod/clone_direct/" + id,
         "revisions": json.dumps(root_edge_object.revisions),
-        "revision" : revision,
+        "revision": revision,
         "version": root_edge_object.version,
         "sightings": sightings,
         'ajax_uri': reverse('catalog_ajax'),
@@ -274,10 +302,10 @@ def review_set_handling(request, data):
         edge_object = EdgeObject.load(data["rootId"])
 
         generic_object = edge_object.to_ApiObject()
-        generic_object.obj.timestamp=datetime.now(tz.tzutc())
+        generic_object.obj.timestamp = datetime.now(tz.tzutc())
         append_handling(generic_object, data["handling"])
         ip = InboxProcessorForBuilders(
-                user=request.user,
+            user=request.user,
         )
 
         ip.add(InboxItem(api_object=generic_object, etlp=edge_object.etlp))
@@ -363,7 +391,7 @@ def ajax_get_sites(request, data):
 def ajax_get_datetime(request, data):
     configuration = settings.ACTIVE_CONFIG
     current_date_time = datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime(
-            '%Y-%m-%dT%H:%M:%S')
+        '%Y-%m-%dT%H:%M:%S')
     return {'result': current_date_time}
 
 
@@ -493,5 +521,3 @@ def _construct_headers():
         'Accept': 'application/json'
     }
     return headers
-
-
