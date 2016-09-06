@@ -63,7 +63,8 @@ def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids
         obs_id = observable.get('id', create_draft_observable_id(observable))
         if obs_id not in hidden_ids:
             if DRAFT_ID_SEPARATOR in obs_id:
-                stack.append((1, 0, create_draft_obs_node(obs_id, observable_to_name(observable, True)), REL_TYPE_DRAFT))
+                stack.append(
+                    (1, 0, create_draft_obs_node(obs_id, observable_to_name(observable, True)), REL_TYPE_DRAFT))
             else:
                 stack.append((1, 0, EdgeObject.load(obs_id), REL_TYPE_EDGE))
 
@@ -123,12 +124,13 @@ def delete_observables(draft_obs_offsets, draft_ind):
                    if len(draft_ind['observables']) > draft_offset >= 0]
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
 
-def move_observables(draft_obs_offsets, draft_ind, new_draft_ind):
-    obs_to_move = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
-                   if len(draft_ind['observables']) > draft_offset >= 0]
-    new_draft_ind['observables'].extend(obs_to_move);
 
-    draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_move]
+def move_observables(draft_obs_offsets, source_draft_ind, target_draft_ind):
+    obs_to_move = [source_draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
+                   if len(source_draft_ind['observables']) > draft_offset >= 0]
+
+    target_draft_ind['observables'].extend(obs_to_move);
+    source_draft_ind['observables'] = [obs for obs in source_draft_ind['observables'] if obs not in obs_to_move]
 
 
 def get_draft_obs(obs_node_id, user):

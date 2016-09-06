@@ -13,7 +13,6 @@ from django.conf import settings
 from users.decorators import login_required_ajax
 from edge.inbox import InboxError
 from edge.tools import StopWatch
-from edge.generic import WHICH_DBOBJ
 from edge import IDManager
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
@@ -32,8 +31,7 @@ import threading
 
 import adapters.certuk_mod.extract.extract_store as extract_store
 
-
-HASH_NUMBER_RE = re.compile('(.*#)([0-9]+)')
+HASH_NUMBER_RE = re.compile('(.*#)([0-9]+)$')
 DRAFT_ID_SEPARATOR = ":draft:"
 
 
@@ -284,7 +282,7 @@ def extract_visualiser_item_get(request, node_id):
         return JsonResponse({"error": e.message}, status=500)
 
 
-def add_incremented_number(old_title, new_num):
+def append_hash_number(old_title, new_num):
     match = HASH_NUMBER_RE.match(old_title)
     if not match:
         return old_title + '#' + str(new_num)
@@ -298,7 +296,6 @@ def get_hash_number_string(title):
 
 
 def get_hash_number(title):
-
     match = HASH_NUMBER_RE.match(title)
     if not match:
         return 0
@@ -324,37 +321,26 @@ def extract_visualiser_move_observables(request):
     except DoesNotExist:
         return JsonResponse({'Error': "Draft object:%s does not exist" % move_data['id']}, status=400)
 
-    new_draft_ind = WHICH_DBOBJ['ind'].to_draft(WHICH_DBOBJ['ind'].from_dict(draft_ind),  None, EdgeObject.load)
-
-    new_id = IDManager().get_new_id('ind')
-    new_draft_ind['id'] = new_id
+    new_draft_ind = Draft.load(move_data['id'], request.user)
+    new_draft_ind['id'] = IDManager().get_new_id("ind")
     new_draft_ind['indicatorType'] = draft_ind['indicatorType']
+    new_draft_ind['observables'] = []
 
-    extract = extract_store.find(draft_ind_id=move_data['id'])[0]
-    new_draft_ind['title'] = add_incremented_number(new_draft_ind['title'],
-                                                    get_maximum_number(new_draft_ind['indicatorType'],
-                                                                       extract['draft_ids'], request.user) + 1)
+    extract_items = extract_store.find(draft_ind_id=move_data['id'])
+    if not extract_items:
+        return JsonResponse({'Error': "Unable to find extract information"}, status=400)
 
-    draft_obs_offsets = [get_draft_obs_offset(draft_ind, id_) for id_ in move_data['ids'] if
-                         DRAFT_ID_SEPARATOR in id_]
+    extract_item = extract_items[0]
+    new_draft_ind['title'] = append_hash_number(new_draft_ind['title'],
+                                                get_maximum_number(new_draft_ind['indicatorType'],
+                                                                   extract_item['draft_ids'], request.user) + 1)
 
-    move_observables(draft_obs_offsets, draft_ind, new_draft_ind)
+    move_observables(get_draft_obs_offsets(draft_ind, move_data['ids']), draft_ind, new_draft_ind)
 
-    def ref_obs_generator():
-        obs_id_map = {draft_ind['observables'][i]['id']: i for i in xrange(len(draft_ind['observables'])) if
-                      'id' in draft_ind['observables'][i]}
-        ref_obs_ids = [obs_id for obs_id in move_data['ids'] if DRAFT_ID_SEPARATOR not in obs_id]
-        for obs_id in ref_obs_ids:
-            offset = obs_id_map.get(obs_id, None)
-            if offset is not None:
-                yield offset
+    extract_item['draft_ids'].append(new_draft_ind['id'])
+    extract_store.update(extract_item['_id'], "COMPLETE", "Found %d indicators" % (len(extract_item['draft_ids'])),
+                         extract_item['draft_ids'])
 
-    extract = extract_store.find(draft_ind_id=move_data['id'])[0]
-    extract['draft_ids'].append(new_draft_ind['id'])
-    extract_store.update(extract['_id'], "COMPLETE", "Found %d indicators" % (len(extract['draft_ids'])),
-                         extract['draft_ids'])
-
-    move_observables([id_ for id_ in ref_obs_generator()], draft_ind, new_draft_ind)
     Draft.upsert('ind', draft_ind, request.user)
     Draft.upsert('ind', new_draft_ind, request.user)
 
@@ -367,18 +353,19 @@ def extract_visualiser_move_observables(request):
                         status=200)
 
 
+def get_draft_obs_offsets(draft_ind, ids):
+    return [get_draft_obs_offset(draft_ind, id_) for id_ in ids if DRAFT_ID_SEPARATOR in id_]
+
+
 @login_required_ajax
 def extract_visualiser_merge_observables(request):
     merge_data = json.loads(request.body)
-    if not is_valid_stix_id(merge_data['id']):
-        return JsonResponse({'message': "Invalid stix id: " + merge_data['id']}, status=200)
-
     try:
         draft_ind = Draft.load(merge_data['id'], request.user)
     except DoesNotExist:
         return JsonResponse({'Error': "Draft object:%s does not exist" % merge_data['id']}, status=400)
 
-    draft_obs_offsets = [get_draft_obs_offset(draft_ind, id_) for id_ in merge_data['ids'] if DRAFT_ID_SEPARATOR in id_]
+    draft_obs_offsets = get_draft_obs_offsets(draft_ind, merge_data['ids'])
 
     hash_types = ['MD5', 'MD6', 'SHA1', 'SHA224', 'SHA256', 'SHA384', 'SHA512', 'SSDEEP', 'Other']
     (can_merge, message) = can_merge_observables(draft_obs_offsets, draft_ind, hash_types)
@@ -386,7 +373,6 @@ def extract_visualiser_merge_observables(request):
         return JsonResponse({'Error': message}, status=400)
 
     merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types)
-    Draft.maybe_delete(draft_ind['id'], request.user)
     Draft.upsert('ind', draft_ind, request.user)
     return JsonResponse({'result': "success"}, status=200)
 
@@ -399,22 +385,7 @@ def extract_visualiser_delete_observables(request):
     except DoesNotExist:
         return JsonResponse({'Error': "Draft object:%s does not exist" % delete_data['id']}, status=400)
 
-    draft_obs_offsets = [get_draft_obs_offset(draft_ind, id_) for id_ in delete_data['ids'] if
-                         DRAFT_ID_SEPARATOR in id_]
-
-    delete_observables(draft_obs_offsets, draft_ind)
-
-    def ref_obs_generator():
-        obs_id_map = {draft_ind['observables'][i]['id']: i for i in xrange(len(draft_ind['observables'])) if
-                      'id' in draft_ind['observables'][i]}
-        ref_obs_ids = [obs_id for obs_id in delete_data['ids'] if DRAFT_ID_SEPARATOR not in obs_id]
-        for obs_id in ref_obs_ids:
-            offset = obs_id_map.get(obs_id, None)
-            if offset is not None:
-                yield offset
-
-    delete_observables([id_ for id_ in ref_obs_generator()], draft_ind)
-    Draft.maybe_delete(draft_ind['id'], request.user)
+    delete_observables(get_draft_obs_offsets(draft_ind, delete_data['ids']), draft_ind)
     Draft.upsert('ind', draft_ind, request.user)
     return JsonResponse({'result': "success"}, status=200)
 
