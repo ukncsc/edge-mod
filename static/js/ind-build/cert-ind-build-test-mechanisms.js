@@ -83,22 +83,21 @@ define([
         load: function (data) {
             this.snortRules.removeAll();
             this.yaraRules.removeAll();
-            var self = this;
             if ('test_mechanisms' in data) {
-                $.each(data['test_mechanisms'], function (i, v) {
-                    if (v['type'] == 'Snort') {
+                ko.utils.arrayForEach(data['test_mechanisms'], function (data) {
+                    if (data['type'] == 'Snort') {
                         var new_id = new SnortRule();
-                        self.addSnortRuleValidation(new_id);
-                        new_id.load(v['rules']);
-                        self.snortRules.push(new_id);
+                        this.addSnortRuleValidation(new_id);
+                        new_id.load(data['rules']);
+                        this.snortRules.push(new_id);
                     }
-                    else if (v['type'] == 'Yara') {
+                    else if (data['type'] == 'Yara') {
                         var new_id = new YaraRule();
-                        self.addYaraRuleValidation(new_id)
-                        new_id.load(v['rule']);
-                        self.yaraRules.push(new_id);
+                        this.addYaraRuleValidation(new_id);
+                        new_id.load(data['rule']);
+                        this.yaraRules.push(new_id);
                     }
-                });
+                }.bind(this));
             }
         },
 
