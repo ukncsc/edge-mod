@@ -11,6 +11,31 @@ define([
 
     var KILL_CHAIN_PHASES = window["killChainPhases"];
 
+    function findRule(markingStructures, xsiType, valueKey) {
+        var value = (ko.utils.arrayMap(ko.utils.arrayFilter(markingStructures, function (item) {
+            return item["xsi:type"].split(":", 2)[1] === xsiType;
+        }), function (item) {
+            return retrieveRuleValues(item, valueKey)
+        })).join(", ");
+        return new ReviewValue(value, {}, {});
+    }
+
+    function retrieveRuleValues(item, valueKey) {
+        var ruleValue;
+        if (valueKey === "rules") {
+            ruleValue = ko.utils.arrayMap(item.rules, function (rule) {
+                return retrieveRule(rule)
+            }).join(", ");
+        } else {
+            ruleValue = retrieveRule(item.rule)
+        }
+        return ruleValue
+    }
+
+    function retrieveRule(item) {
+        return item.value
+    }
+
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
             this.producer = ko.computed(function () {
@@ -71,6 +96,14 @@ define([
             this.suggestedCOAs = ko.computed(function () {
                 return stixPackage.safeReferenceArrayGet(this.id(), this.data(), "suggested_coas.suggested_coas", "course_of_action.idref", "suggested_coas");
             }, this, this.DEFER_EVALUATION);
+
+            var testMechanisms = stixPackage.safeArrayGet(this.data(), "test_mechanisms", this.simpleItem, this);
+            this.yaraRules = ko.computed(function () {
+                return findRule(testMechanisms, "YaraTestMechanismType", "rule")
+            }, this);
+            this.snortRules = ko.computed(function () {
+                return findRule(testMechanisms, "SnortTestMechanismType", "rules")
+            }, this);
         }
     });
 });

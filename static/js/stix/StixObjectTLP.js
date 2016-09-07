@@ -15,10 +15,6 @@ define([
         sharing_groups = handling.value;
     }
 
-    function simpleItem(item) {
-        return item;
-    }
-
     function checkIsHandlingCaveat(item, valueKey) {
         if (item.hasOwnProperty("marking_model_name") && sharing_groups != undefined) {
             if (sharing_groups[item["statement"]] != undefined) {
@@ -41,23 +37,25 @@ define([
     }
 
     return declare(StixObject, {
-            constructor: function (data, stixPackage) {
-                var markingStructures = stixPackage.safeArrayGet(this.data(), "handling.0.marking_structures", simpleItem, this)
-                    || stixPackage.safeArrayGet(stixPackage.header(), "handling.0.marking_structures", simpleItem, this);
-                this.tlp = ko.computed(function () {
-                    var validation = stixPackage.validations().findByProperty(this.id(), "tlp");
-                    return findByXsiType(markingStructures, "TLPMarkingStructureType", "color", validation);
-                }, this);
-                this.marking = ko.computed(function () {
-                    var validation = stixPackage.validations().findByProperty(this.id(), "marking");
-                    return findByXsiType(markingStructures, "SimpleMarkingStructureType", "statement", validation);
-                }, this);
-                this.termsOfUse = ko.computed(function () {
-                    var validation = stixPackage.validations().findByProperty(this.id(), "termsOfUse");
-                    return findByXsiType(markingStructures, "TermsOfUseMarkingStructureType", "terms_of_use", validation);
-                }, this);
-            }
+        constructor: function (data, stixPackage) {
+            var markingStructures = stixPackage.safeArrayGet(this.data(), "handling.0.marking_structures", this.simpleItem, this)
+                || stixPackage.safeArrayGet(stixPackage.header(), "handling.0.marking_structures", this.simpleItem, this);
+            this.tlp = ko.computed(function () {
+                var validation = stixPackage.validations().findByProperty(this.id(), "tlp");
+                return findByXsiType(markingStructures, "TLPMarkingStructureType", "color", validation);
+            }, this);
+            this.marking = ko.computed(function () {
+                var validation = stixPackage.validations().findByProperty(this.id(), "marking");
+                return findByXsiType(markingStructures, "SimpleMarkingStructureType", "statement", validation);
+            }, this);
+            this.termsOfUse = ko.computed(function () {
+                var validation = stixPackage.validations().findByProperty(this.id(), "termsOfUse");
+                return findByXsiType(markingStructures, "TermsOfUseMarkingStructureType", "terms_of_use", validation);
+            }, this);
+        },
+
+        simpleItem: function (item) {
+            return item;
         }
-    );
-})
-;
+    });
+});
