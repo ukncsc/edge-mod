@@ -90,7 +90,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
     nodes = []
     links = []
 
-    def create_external_reference():
+    def create_external_reference_from_edge():
         summary = {'title': edge.id_, 'type': edge.ty, 'value': '', '_id': edge.id_, 'cv': '', 'tg': '',
                    'data': {'idns': '', 'etlp': '', 'summary': {'title': edge.id_},
                             'hash': '', 'api': ''}, 'created_by_organization': ''}
@@ -138,7 +138,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
                         stack.append((depth + 1, idx, EdgeObject.load(edge.id_, request.user.filters()), REL_TYPE_EDGE))
                     except EdgeError as e:
                         if e.message == edge.id_ + " not found":
-                            obj = create_external_reference()
+                            obj = create_external_reference_from_edge()
                             stack.append((depth + 1, idx, obj, REL_TYPE_EXT))
                             continue
                     except Exception as e:
