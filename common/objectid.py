@@ -44,8 +44,10 @@ def find_id(request):
     """
     def has_single_match(match_result):
         return match_result is not None and len(match_result.groups()) == 1
-    referrer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
-    match = _URL_OBJECT_ID_MATCHER.match(referrer)
+
+    referer = urllib2.unquote(request.META.get("HTTP_REFERER", ""))
+
+    match = _URL_OBJECT_ID_MATCHER.match(referer)
     id_ = None
     if has_single_match(match):
         id_ = match.group(1)

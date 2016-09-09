@@ -1,4 +1,7 @@
-{% extends "ind-build.html" %}
+<!-- We've had to create a copy of edge's ind-build.html so we can add in an extra section to the builder.
+     https://github.com/Soltra/repository/pull/799--- has been merged and can delete 'edge-ind-build.html'
+      once 2.9 has been released and extend 'ind-build.html'-->
+{% extends "edge-ind-build.html" %}
 {% load staticfiles %}
 
 {% block head-content %}
@@ -42,6 +45,13 @@
                                 id='killChainPhase' name='killChainPhase'></select>
                     </div>
                 </div>
+{% endblock %}
+
+{% block extra-section %}
+    {% include 'cert-ind-build-test-mechanisms.html' %}
+    {% include 'cert-ind-build-snort-rule.html' %}
+    {% include 'cert-ind-build-yara-rule.html' %}
+    <div data-bind="template: {name: 'TestMechanismsPanel', data: section().findByLabel('Test Mechanisms')}"></div>
 {% endblock %}
 
 {% block ind-build-viewmodel-setup %}{% endblock %}

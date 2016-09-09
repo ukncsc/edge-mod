@@ -1,0 +1,37 @@
+<template type="text/html" id="YaraRules">
+    <table data-bind="foreach: yaraRules">
+        <tbody role="form">
+        <tr class="datarow">
+            <td>
+                <div class="form-horizontal">
+                    <fieldset>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Type</label>
+                            <div class="col-lg-8"><h4>Yara rule</h4>
+                            </div>
+                            <span class="input-group-btn" data-bind="ifnot: $root.mode().isReadOnly()">
+                                <button type="button" class="btn btn-default" title="Remove this item"
+                                        data-bind=" click: function() { $parent.removeYaraRule($data) }">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </button>
+                            </span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Rule</label>
+                            <div class="col-lg-8">
+                                <!-- ko if: rule.hasValidation -->
+                                    <span class="validation-error"
+                                        data-bind="visible: rule.hasError, text: rule.errorMessage, disable: $root.mode().isReadOnly()">
+                                    </span>
+                                <!-- /ko -->
+                                <input data-bind="value: rule, valueUpdate: 'afterkeydown', disable: $root.mode().isReadOnly()"
+                                       class="form-control">
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</template>

@@ -16,7 +16,8 @@ require([
         "canPurge": window["canPurge"],
         "canRevoke": window["canRevoke"],
         "sightings": window["sightings"],
-        "version": window["version"]
+        "version": window["version"],
+        "handlingCaveats": window["handlingCaveats"]
     });
 
     ko.applyBindings(viewModel);

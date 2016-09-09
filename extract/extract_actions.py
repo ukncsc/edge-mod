@@ -1,7 +1,8 @@
 import hashlib
 from users.models import Draft
 from edge.generic import EdgeObject
-from adapters.certuk_mod.visualiser.graph import create_graph, REL_TYPE_EDGE, REL_TYPE_DRAFT
+from adapters.certuk_mod.visualiser.graph import create_graph, REL_TYPE_EDGE, REL_TYPE_DRAFT, REL_TYPE_EXT, \
+    create_external_reference_from_id
 
 DRAFT_ID_SEPARATOR = ":draft:"
 
@@ -32,7 +33,7 @@ def summarise_draft_observable(d):
 
 def observable_to_name(observable, is_draft):
     if is_draft:
-        return observable['objectType'] + ":" + observable['title']
+        return observable['title']
     return observable['id']
 
 
@@ -40,7 +41,7 @@ def create_draft_obs_hash(obs):
     return hashlib.md5(obs['title'].encode("utf-8")).hexdigest()
 
 
-def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids):
+def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids, request):
     def create_draft_observable_id(obs):
         d = create_draft_obs_hash(obs)
         return draft_object['id'].replace('indicator', 'observable') + DRAFT_ID_SEPARATOR + d
@@ -60,16 +61,20 @@ def iterate_draft(draft_object, bl_ids, id_matches, hide_edge_ids, show_edge_ids
     stack = []
     for i in xrange(len(draft_object['observables'])):
         observable = draft_object['observables'][i]
-        obs_id = observable.get('id', create_draft_observable_id(observable))
+        obs_id = observable['id'] if 'id' in observable else create_draft_observable_id(observable)
         if obs_id not in hidden_ids:
             if DRAFT_ID_SEPARATOR in obs_id:
-                stack.append((1, 0, create_draft_obs_node(obs_id, observable_to_name(observable, True)), REL_TYPE_DRAFT))
+                stack.append(
+                    (1, 0, create_draft_obs_node(obs_id, observable_to_name(observable, True)), REL_TYPE_DRAFT))
             else:
-                stack.append((1, 0, EdgeObject.load(obs_id), REL_TYPE_EDGE))
+                try:
+                    stack.append((1, 0, EdgeObject.load(obs_id, request.user.filters()), REL_TYPE_EDGE))
+                except:
+                    stack.append((1, 0, create_external_reference_from_id(obs_id), REL_TYPE_EXT))
 
     stack.append((0, None, create_draft_ind_node(draft_object['id'], draft_object['title']), REL_TYPE_DRAFT))
 
-    return create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids)
+    return create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden_ids, request)
 
 
 def merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types):
@@ -118,10 +123,18 @@ def can_merge_observables(draft_obs_offsets, draft_ind, hash_types):
     return True, ""
 
 
-def delete_file_observables(draft_obs_offsets, draft_ind):
+def delete_observables(draft_obs_offsets, draft_ind):
     obs_to_dump = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
                    if len(draft_ind['observables']) > draft_offset >= 0]
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
+
+
+def move_observables(draft_obs_offsets, source_draft_ind, target_draft_ind):
+    obs_to_move = [source_draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
+                   if len(source_draft_ind['observables']) > draft_offset >= 0]
+
+    target_draft_ind['observables'].extend(obs_to_move);
+    source_draft_ind['observables'] = [obs for obs in source_draft_ind['observables'] if obs not in obs_to_move]
 
 
 def get_draft_obs(obs_node_id, user):

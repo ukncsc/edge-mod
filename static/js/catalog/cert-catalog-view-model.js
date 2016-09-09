@@ -51,8 +51,11 @@ define([
         },
 
         reload: function (timekey) {
-            if (timekey !== this.revision()) {
-                window.location.href = "/object/" + this.rootID() + "/" + timekey;
+            if (timekey !== this.revision) {
+                var params = {"id": this.rootID(), "revision": timekey}
+                postJSON("/adapter/certuk_mod/reload/", params, function (response) {
+                    this.stixPackage(new StixPackage(response["package"], this.rootID(), JSON.parse(response["trust_groups"]), JSON.parse(response["validation_info"]), response["edges"]))
+                }.bind(this));
             }
         },
 
@@ -66,6 +69,7 @@ define([
             this.sightings(optionsList.sightings);
             this.version(optionsList.version);
             this.revision(optionsList.revision);
+            this.handling().loadStatic(optionsList.handlingCaveats);
             this.section().loadStatic(optionsList);
         },
 

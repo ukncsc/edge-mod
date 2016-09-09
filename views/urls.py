@@ -37,11 +37,12 @@ publisher_urls = [
     (r'^extract_upload/$', 'views.extract_upload', 'extract_upload'),
     (r'^ajax/extract_list/$', 'views.extract_list', 'extract_list'),
     (r'^ajax/delete_extract/$', 'views.delete_extract', 'delete_extract'),
-    (r'^extract_visualiser/(?P<ids>.*)$', 'views.extract_visualiser', 'extract_visualiser'),
+    (r'^extract_visualiser/(?P<extract_id>.*)$', 'views.extract_visualiser', 'extract_visualiser'),
     (r'^ajax/extract_visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.extract_visualiser_get', 'extract_visualiser_ajax_view'),
     (r'^ajax/extract_visualiser/item/(?P<node_id>.*)$', 'views.extract_visualiser_item_get', 'extract_visualiser_ajax_item'),
     (r'^ajax/extract_visualiser/merge_observables/.*$', 'views.extract_visualiser_merge_observables', 'extract_visualiser_ajax_merge_observables'),
     (r'^ajax/extract_visualiser/delete_observables/.*$', 'views.extract_visualiser_delete_observables', 'extract_visualiser_ajax_delete_observables'),
+    (r'^ajax/extract_visualiser/move_observables/.*$', 'views.extract_visualiser_move_observables', 'extract_visualiser_ajax_move_observables'),
     (r'^ajax/extract_visualiser/get_extended/$', 'views.extract_visualiser_get_extended', 'extract_visualiser_get_extended'),
 
     (r'^incident_timeline/$', 'views.timeline_discover', 'timeline_discover'),
@@ -107,7 +108,9 @@ publisher_urls = [
     (r'^visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_view', 'visualiser_view'),
     (r'^ajax/visualiser/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_get', 'visualiser_ajax_view'),
     (r'^ajax/visualiser/item/(?P<id_>' + VALID_STIX_ID + ')$', 'views.visualiser_item_get', 'visualiser_ajax_item'),
-    (r'^ajax/visualiser/get_extended/.*$', 'views.visualiser_get_extended', 'visualiser_ajax_get_extended')
+    (r'^ajax/visualiser/get_extended/.*$', 'views.visualiser_get_extended', 'visualiser_ajax_get_extended'),
+
+    (r'reload/$', 'views.reload_data', None)
 ]
 
 publisher_url_patterns = [url(item[0], item[1], name=item[2]) for item in publisher_urls]

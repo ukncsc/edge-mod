@@ -14,7 +14,8 @@ from django.conf import settings
 from users.decorators import superuser_or_staff_role, json_body
 from users.models import Draft
 
-from edge.generic import EdgeObject
+from edge.generic import EdgeObject, EdgeError, WHICH_DBOBJ
+
 from edge import IDManager
 
 from adapters.certuk_mod.publisher.package_publisher import Publisher
@@ -23,9 +24,8 @@ from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 from adapters.certuk_mod.common.views import error_with_message
-
 from adapters.certuk_mod.config.cert_config import get as get_config
-
+from adapters.certuk_mod.visualiser.graph import create_external_reference_from_id
 from adapters.certuk_mod.builder import customizations as cert_builder
 from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
 from adapters.certuk_mod.cron import setup as cron_setup
@@ -34,6 +34,13 @@ from adapters.certuk_mod.audit.event import Event
 from adapters.certuk_mod.audit.handlers import log_activity
 from adapters.certuk_mod.audit.message import format_audit_message
 from adapters.certuk_mod.common.objectid import discover as objectid_discover, find_id as objectid_find
+
+from adapters.certuk_mod.catalog.views import reload_data
+from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
+from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser, extract_visualiser_get, \
+    extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables, \
+    extract_visualiser_get_extended, delete_extract, extract_list, extract_status, uploaded_stix_extracts, \
+    extract_visualiser_move_observables
 
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
 
@@ -51,12 +58,12 @@ from adapters.certuk_mod.extract.views import \
     extract_status, \
     uploaded_stix_extracts
 
-
 from adapters.certuk_mod.cron.views import ajax_get_purge_task_status, ajax_run_purge
 from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, \
     ajax_set_retention_config
 
-from adapters.certuk_mod.cron.views import ajax_get_fts_task_status, ajax_run_fts, ajax_run_bl, ajax_get_mod_bl_task_status
+from adapters.certuk_mod.cron.views import ajax_get_fts_task_status, ajax_run_fts, ajax_run_bl, \
+    ajax_get_mod_bl_task_status
 from adapters.certuk_mod.fts.views import ajax_get_fts_config, ajax_reset_fts_config, \
     ajax_set_fts_config
 
@@ -91,7 +98,6 @@ from adapters.certuk_mod.timeline.views import \
 
 from adapters.certuk_mod.ingest.views import ajax_create_incidents
 
-
 audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
@@ -100,9 +106,12 @@ mimetypes.init()
 ORGANISATIONS_URL = "/organisations/"
 FIND_URL = "find?organisation="
 
+cfg = settings.ACTIVE_CONFIG
+LOCAL_NS = cfg.by_key('company_namespace')
 
 OnPublish = Event()
 OnPublish.set_handler("Write to log", log_activity)
+
 
 @login_required
 def static(request, path):
@@ -127,6 +136,7 @@ def clone(request):
     stix_id = objectid_find(request)
     return clone_direct(request, stix_id)
 
+
 TYPE_TO_URL = {
     'cam': 'campaign',
     'coa': 'course_of_action',
@@ -138,6 +148,23 @@ TYPE_TO_URL = {
     'ttp': 'ttp'
 }
 
+
+def to_draft_wrapper(self):
+    def filtered_loader(idref):
+        try:
+            return EdgeObject.load(idref, self.filters)
+        except EdgeError as e:
+            return create_external_reference_from_id(idref)
+
+    return WHICH_DBOBJ[self.ty].to_draft(self.obj, self.tg, filtered_loader, self.id_ns)
+
+
+@login_required
+def clone(request):
+    stix_id = objectid_find(request)
+    return clone_direct(request, stix_id)
+
+
 @login_required
 def clone_direct(request, id_):
     stix_id = id_
@@ -147,14 +174,15 @@ def clone_direct(request, id_):
             if edge_object.ty == 'obs':
                 return error_with_message(request, "Observables cannot be cloned")
             new_id = IDManager().get_new_id(edge_object.ty)
-            draft = edge_object.to_draft()
+            draft = to_draft_wrapper(edge_object)
             draft['id'] = new_id
+            draft['id_ns'] = LOCAL_NS
             Draft.upsert(edge_object.ty, draft, request.user)
             return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
 
         return error_with_message(request,
-                                "No clonable object found; please only choose " +
-                                "the clone option from an object's summary or external publish page")
+                                  "No clonable object found; please only choose " +
+                                  "the clone option from an object's summary or external publish page")
 
     except Exception as e:
         ext_ref_error = "not found"
@@ -166,21 +194,6 @@ def clone_direct(request, id_):
 
         else:
             return error_with_message(request, e.message)
-
-
-def _get_request_username(request):
-    if hasattr(request, "user") and hasattr(request.user, "username"):
-        return request.user.username
-    return ""
-
-
-def __extract_revision(id):
-    revision = "latest"
-    if '/' in id:
-        revision = id.split('/')[1]
-        id = id.split('/')[0]
-    return revision, id
-
 
 
 @login_required
@@ -224,7 +237,7 @@ def ajax_get_sites(request, data):
 def ajax_get_datetime(request, data):
     configuration = settings.ACTIVE_CONFIG
     current_date_time = datetime.now(tz.gettz(configuration.by_key('display_timezone'))).strftime(
-            '%Y-%m-%dT%H:%M:%S')
+        '%Y-%m-%dT%H:%M:%S')
     return {'result': current_date_time}
 
 
@@ -350,5 +363,3 @@ def _construct_headers():
         'Accept': 'application/json'
     }
     return headers
-
-
