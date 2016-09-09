@@ -96,8 +96,6 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
                             'hash': '', 'api': ''}, 'created_by_organization': ''}
         return EdgeObject(summary)
 
-
-
     def get_node_type():
         return LINK_TO_NODE_TYPE[rel_type]
 

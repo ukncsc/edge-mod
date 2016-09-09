@@ -1,0 +1,23 @@
+<template type="text/html" id="TestMechanismsPanel">
+    <div data-bind="if: $data == $parent.section().value()">
+        <div class="panel panel-default panel-builder">
+            <div class="panel-heading">
+                Test Mechanisms
+                <span class="btn-group">
+                    <button class="btn btn-default btn-xs btn-add"
+                            data-bind="click: addSnortRule, visible: $parent.mode().isEditable()">
+                        <span class="glyphicon glyphicon-plus-sign green"></span> Add Snort Rule
+                    </button>
+                    <button class="btn btn-default btn-xs btn-add"
+                        data-bind="click: addYaraRule, visible: $parent.mode().isEditable()">
+                    <span class="glyphicon glyphicon-plus-sign green"></span> Add Yara Rule
+                    </button>
+                </span>
+            </div>
+            <div class="panel-body">
+                <div data-bind="template: {name: 'SnortRules'}"></div>
+                <div data-bind="template: {name: 'YaraRules'}"></div>
+            </div>
+        </div>
+    </div>
+</template>

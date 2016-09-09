@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+{% load site_tags %}
+{% load staticfiles %}
+{% block head-title %}{{ main_title }}{% endblock %}
+{% block head-content %}
+
+<style type="text/css">
+</style>
+
+{% endblock %}
+{% block body-content %}
+
+
+<div class="container">
+
+<div class="modal" id="draft_list">
+    <div class="modal-header">
+        <button type="button" class="close" data-bind="click:function(form){closeDraftList()}">x</button>
+        <h3>Draft List</h3>
+    </div>
+
+    <form id="form_draft_list" role="form"  class="form-horizontal">
+    {% csrf_token %}
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="draft_list" class="col-sm-4 control-label">Drafts</label>
+            <div class="col-sm-8">
+                <p><select size=5 data-bind="options: draft_list, optionsText: 'title', value: draft_selected" id="draft_list" name="draft_list">
+            </select></p>
+            </div>
+        </div>
+    </div><!-- modal-body -->
+
+    <div class="modal-footer">
+        <button class="btn btn-default" data-bind="click:function(form){closeDraftList()}">Close</button>
+        <button type="submit" class="btn btn-primary" data-bind="click:function(form){loadDraftFromList()}">Load Draft</button>
+    </div>
+    </form>
+
+</div>
+
+{% include 'candidate_modal.html' %}
+{% include 'related_items.html' %}
+{% include 'observable-builder.html' %}
+
+<div class="obj-title" data-bind="templateWithContext: { name: 'builder-hdr', data: $root, context: { imgsrc: '{% static 'img/hex/hex_ind.png' %}', typeName: 'Indicator' }  }"></div>
+
+<div class="row builder">
+<div class="col-sm-3">
+
+    <div class="list-group sidetabs" data-bind="foreach: section().options">
+        <a href="#" class="list-group-item"
+           data-bind="
+                css: { active:$parent.section().value().label()==$data.label() },
+                click: $parent.section().select.bind($parent.section()),
+                attr : { id: $data.label }">
+            <span data-bind="text: $data.label"></span>
+            <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+            <span class="badge" data-bind="text: count, effectOnChange: count, effectName: 'slide'"></span>
+        </a>
+    </div>
+
+    <!-- ko if: mode().isEditable() && !(builderMode().isEdit()) -->
+    <br>
+    <button class="btn btn-default btn-quick btn-block" data-bind="click: selectBatchBuildMode">
+        <h3 class="text-left"><span class="glyphicon glyphicon-forward pull-right"></span>Quick Add<br><small>Add a batch of Observables to <br>this Indicator, fast!</small></h3>
+    </button>
+    <!-- /ko -->
+
+</div>
+<div class="col-sm-9">
+
+<div class="alert alert-warning" data-bind="visible: isIncomplete()" >
+    <h4 data-bind="visible: messages().hasErrors()">The Indicator is incomplete:
+        <ul data-bind="foreach: messages().errors">
+            <li data-bind="text: $data"></li>
+        </ul>
+    </h4>
+    <h4 data-bind="visible: messages().hasWarnings()">Additional warnings:
+        <ul data-bind="foreach: messages().warnings">
+            <li data-bind="text: $data"></li>
+        </ul>
+    </h4>
+</div>
+
+<div class="panel panel-default" data-bind="visible: section().value().label()=='General'">
+    <div class="panel-heading">General</div>
+
+    <div class="panel-body">
+
+        <div class="form-horizontal">
+            <fieldset data-bind="with: section().findByLabel('General')">
+                <div class="form-group">
+                    <label for="title" class="col-lg-2 control-label">Title</label>
+                    <!-- ko if: title.hasValidation -->
+                    <span class="validation-error" data-bind="visible: title.hasError, text: title.errorMessage"></span>
+                    <!-- /ko -->
+                    <div class="col-lg-6">
+                        <input data-bind="value: title, valueUpdate: 'afterkeydown', disable: $root.mode().isReadOnly()" class="form-control" id="title" name="title">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="status" class="col-lg-2 control-label">Indicator Type</label>
+                    <!-- ko if: indicatorType.hasValidation -->
+                    <span class="validation-error" data-bind="visible: indicatorType.hasError, text: indicatorType.errorMessage"></span>
+                    <!-- /ko -->
+                    <div class="col-lg-6">
+                        <select data-bind="options: indicator_type_list,
+                                           value: indicatorType,
+                                           optionsCaption: 'Choose...',
+                                           disable: $root.mode().isReadOnly()"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description" class="col-lg-2 control-label">Short Description</label>
+                    <!-- ko if: short_description.hasValidation -->
+                    <span class="validation-error" data-bind="visible: short_description.hasError, text: short_description.errorMessage"></span>
+                    <!-- /ko -->
+                    <div class="col-lg-6">
+                        <input class="form-control" data-bind="value: short_description,
+                                                               valueUpdate: 'afterkeydown',
+                                                               disable: $root.mode().isReadOnly()"
+                               name="short_description" id="short_description">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description" class="col-lg-2 control-label">Description</label>
+                    <!-- ko if: description.hasValidation -->
+                    <span class="validation-error" data-bind="visible: description.hasError, text: description.errorMessage"></span>
+                    <!-- /ko -->
+                    <div class="col-lg-9">
+                        <textarea class="form-control" data-bind="value: description,
+                                                                  valueUpdate: 'afterkeydown',
+                                                                  disable: $root.mode().isReadOnly()"
+                                  rows="3" name="description" id="description"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-lg-2 control-label">Confidence</label>
+                    <!-- ko if: confidence.hasValidation -->
+                    <span class="validation-error" data-bind="visible: confidence.hasError, text: confidence.errorMessage"></span>
+                    <!-- /ko -->
+                    <div class="col-lg-6">
+                        <select data-bind="options: confidences,
+                                           value: confidence,
+                                           optionsCaption: 'Choose...',
+                                           disable: $root.mode().isReadOnly()"
+                                id='confidence' name='confidence'></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="producer" class="col-lg-2 control-label">Producer</label>
+                    <!-- ko if: producer.hasValidation -->
+                    <span class="validation-error" data-bind="visible: producer.hasError, text: producer.errorMessage"></span>
+                    <!-- /ko -->
+                    <div class="col-lg-6">
+                        <input class="form-control" data-bind="value: producer,
+                                                           valueUpdate: 'afterkeydown',
+                                                           disable: $root.mode().isReadOnly()"
+                               name="producer" id="producer">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="status" class="col-lg-2 control-label">TLP</label>
+                    <!-- ko if: tlp.hasValidation -->
+                    <span class="validation-error" data-bind="visible: tlp.hasError, text: tlp.errorMessage"></span>
+                    <!-- /ko -->
+                    <div class="col-lg-6">
+                        <select data-bind="options: tlps,
+                                           value: tlp,
+                                           optionsCaption: 'Choose...',
+                                           disable: $root.mode().isReadOnly()"
+                                id='tlp' name='tlp'></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                	<label for="markings" class="col-lg-2 control-label">Handling Caveats</label>
+                	<div class="col-lg-10">
+                		<textarea class="form-control"
+                				  rows="3"
+                				  name="markings"
+                				  id="markings"
+                				  data-bind="value: markings,
+                				  			 disable: $root.mode().isReadOnly()">
+                		</textarea>
+                		<p class="help-block"><span class="glyphicon glyphicon-info-sign"></span> Enter or paste one value per line.</p>
+                	</div>
+                </div>
+                {% block extra-fields %}{% endblock %}
+            </fieldset>
+        </div>
+
+    </div><!-- panel body -->
+
+</div><!-- General panel -->
+
+<div class="panel panel-default" data-bind="visible: section().value().label()=='Trust Groups'">
+    <div class="panel-heading">Trust Groups</div>
+
+    <div class="panel-body">
+
+        <div class="form-horizontal">
+            <fieldset data-bind="with: section().findByLabel('Trust Groups')">
+                <div class="form-group">
+                    <label for="tg_trustgroups" class="col-lg-2 control-label">Trust Groups</label>
+                    <div class="col-lg-10">
+                        <select multiple data-bind="options: options,
+                                                    selectedOptions: values,
+                                                    disable: $root.mode().isReadOnly()"
+                                id="trustgroups" name="trustgroups" size="8"></select>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+    </div><!-- panel body -->
+
+</div><!-- Trust Group panel -->
+
+<div data-bind="template: { name: 'relatedItemsPanel', data: section().findByLabel('Observables') }"></div>
+<div data-bind="template: { name: 'relatedItemsPanel', data: section().findByLabel('Indicated TTPs') }"></div>
+<div data-bind="template: { name: 'relatedItemsPanel', data: section().findByLabel('Related Indicators') }"></div>
+<div data-bind="template: { name: 'relatedItemsPanel', data: section().findByLabel('Suggested COAs') }"></div>
+
+{% block extra-section %}{% endblock %}
+
+</div><!-- content-col -->
+</div><!-- row -->
+</div><!-- container -->
+
+{% endblock %}
+{% block body-end %}
+
+<script type="text/javascript" src="{% static "js/knockout-3.1.0.js" %}"></script>
+<script type="text/javascript" src="{% static "js/moment.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/stickytape.js" %}"></script>
+
+{% include 'partials/builder_toolbar.html' %}
+
+<script type="text/html" id="operator-toggle-formgroup-template">
+    <div class="form-group">
+        <label for="status" class="col-lg-2 control-label">Composition Type</label>
+        <div class="col-lg-6 btn-group btn-group-xs" data-bind="foreach: ['AND', 'OR']">
+            <button type="button" class="btn btn-default" data-bind="
+                css: { active: $root.compositionType() === $data},
+                click: function() {$root.compositionType($data)},
+                text: $data"></button>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="operator-toggle-template">
+    <div class="btn-group btn-group-xs" data-bind="foreach: ['AND', 'OR']">
+        <button type="button" class="btn btn-default" data-bind="
+                css: { active: $root.compositionType() === $data},
+                click: function() {$root.compositionType($data)},
+                text: $data"></button>
+    </div>
+</script>
+
+<script type="text/javascript">
+    var indicator_builder = indicator_builder || {};
+    indicator_builder.ajax_uri = '{{ ajax_uri }}';
+
+    indicator_builder.id    = '{{ id }}';
+    indicator_builder.id_ns = '{{ id_ns }}';
+    indicator_builder.mode  = '{{ mode }}';
+    indicator_builder.default_producer = "{{ default_producer|safe }}";
+
+    indicator_builder.tlps_list          = {{ tlps|safe }};
+    indicator_builder.trustgroups_list   = {{ trustgroups|safe }};
+    indicator_builder.confidence_list    = {{ confidence_list|safe }};
+    indicator_builder.indicatorTypes     = {{ indicator_types|safe }};
+    indicator_builder.objectTypes        = {{ object_types|safe }};
+    indicator_builder.quickableTypes     = {{ quickable_types|safe }};
+    indicator_builder.default_tlp        = '{{ default_tlp|safe }}';
+
+</script>
+
+<script type="text/javascript" src="{% static 'js/shared/ko_templates_context.js' %}"></script>
+<script type="text/javascript" src="{% static "ind-build-functions.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-mode.js" %}"></script>
+<script type="text/javascript" src="{% static "messages.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-observable-build-mode.js" %}"></script>
+{% block constants %}{% endblock %}
+
+<script type="text/javascript" src="{% static "abstract-observable.js" %}"></script>
+<script type="text/javascript" src="{% static "abstract-mass-observable.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-obs-artifact.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-obs-mutex.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-obs-socket.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-obs-file.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-obs-address.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-obs-registry-key.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-obs-hostname.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-obs-uri.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-obs-domain-name.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-obs-email.js" %}"></script>
+{% block custom-observables %}{% endblock %}
+
+<script type="text/javascript" src="{% static "ind-build-candidate-related-items.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-observable-builder.js" %}"></script>
+{% block custom-modals %}{% endblock %}
+
+<script type="text/javascript" src="{% static "abstract-builder-form.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-general.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-trust-groups.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-related.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-related-indicators.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-suggested-coas.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-indicated-ttps.js" %}"></script>
+<script type="text/javascript" src="{% static "ind-build-observables.js" %}"></script>
+{% block custom-builder-sections %}{% endblock %}
+
+<script type="text/javascript" src="{% static "ind-build-section.js" %}"></script>
+{% block custom-builder-sections-setup %}{% endblock %}
+
+<script type="text/javascript" src="{% static "ind-build.js" %}"></script>
+{% block custom-builder-viewmodel %}{% endblock %}
+
+{% block ind-build-viewmodel-setup %}
+    <script type="text/javascript" src="{% static "ind-build-viewmodel-setup.js" %}"></script>
+{% endblock %}
+
+{% block knockout-setup %}
+    <script type="text/javascript" src="{% static "ind-build-ko-setup.js" %}"></script>
+{% endblock %}
+
+{% block view-model-on-ready %}
+    <script type="text/javascript" src="{% static "ind-build-ready.js" %}"></script>
+{% endblock %}
+
+{% endblock %}
