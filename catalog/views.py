@@ -38,19 +38,6 @@ from adapters.certuk_mod.patch.incident_patch import DBIncidentPatch
 
 HANDLING_CAVEAT = "HANDLING_CAVEAT"
 
-def __extract_revision(id):
-    revision = "latest"
-    if '/' in id:
-        revision = id.split('/')[1]
-        id = id.split('/')[0]
-    return revision, id
-
-
-def _get_request_username(request):
-    if hasattr(request, "user") and hasattr(request.user, "username"):
-        return request.user.username
-    return ""
-
 def _get_request_username(request):
     if hasattr(request, "user") and hasattr(request.user, "username"):
         return request.user.username
