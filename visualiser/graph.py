@@ -93,7 +93,7 @@ def create_graph(stack, bl_ids, id_matches, hide_edge_ids, show_edge_ids, hidden
     def create_external_reference_from_edge():
         summary = {'title': edge.id_, 'type': edge.ty, 'value': '', '_id': edge.id_, 'cv': '', 'tg': '',
                    'data': {'idns': '', 'etlp': '', 'summary': {'title': edge.id_},
-                            'hash': '', 'api': ''}, 'created_by_organization': ''}
+                            'hash': '', 'api': {}}, 'created_by_organization': ''}
         return EdgeObject(summary)
 
     def get_node_type():
