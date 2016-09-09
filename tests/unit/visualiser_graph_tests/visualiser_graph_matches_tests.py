@@ -11,11 +11,13 @@ class VisualiserGraphMatchesTests(unittest.TestCase):
         self.mock_matches_exist_patcher = mock.patch('adapters.certuk_mod.visualiser.graph.matches_exist')
         self.mock_get_backlinks_patcher = mock.patch('adapters.certuk_mod.visualiser.graph.get_backlinks')
         self.mock_get_matches_patcher = mock.patch('adapters.certuk_mod.visualiser.graph.get_matches')
+        self.mock_request_patcher = mock.patch('django.http.request.HttpRequest')
 
         self.mock_backlinks_exist = self.mock_backlinks_exist_patcher.start()
         self.mock_matches_exist = self.mock_matches_exist_patcher.start()
         self.mock_get_backlinks = self.mock_get_backlinks_patcher.start()
         self.mock_get_matches = self.mock_get_matches_patcher.start()
+        self.mock_request = self.mock_request_patcher.start()
 
         self.init_stix_objects()
 
@@ -24,6 +26,7 @@ class VisualiserGraphMatchesTests(unittest.TestCase):
         self.mock_matches_exist_patcher.stop()
         self.mock_get_backlinks_patcher.stop()
         self.mock_get_matches_patcher.stop()
+        self.mock_request.stop()
 
     def init_stix_objects(self):
         self.mock_edge_reference = mock.create_autospec(EdgeReference, id_='purple', ty='ind')
@@ -44,7 +47,7 @@ class VisualiserGraphMatchesTests(unittest.TestCase):
     def test_create_graph_with_match_rel_type(self):
         id_matches = ['purple']
         stack = [(0, None, self.mock_matching, 'match')]
-        response = create_graph(stack, [], id_matches, [], [], [])
+        response = create_graph(stack, [], id_matches, [], [], [], self.mock_request)
         self.assertEquals(response['nodes'], [self.matching_node])
         self.assertEquals(response['links'], [])
 
@@ -54,7 +57,7 @@ class VisualiserGraphMatchesTests(unittest.TestCase):
         self.mock_get_matches.return_value = ['matt']
         mock_edge_object.load.return_value = self.mock_matching2
         stack = [(0, None, self.mock_matching, 'match')]
-        response = create_graph(stack, [], id_matches, [], [], [])
+        response = create_graph(stack, [], id_matches, [], [], [], self.mock_request)
         links = [{'source': 0, 'target': 1, 'rel_type': 'match'}]
         self.assertEqual(response['nodes'][0], self.matching_node)
         self.assertEqual(response['nodes'][1], self.matching_node2)

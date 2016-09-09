@@ -28,6 +28,14 @@ define([
                     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                         topic.publish(topics.RESIZE, e.target.id);
                     });
+
+                    $(".nav-tabs").bind("DOMNodeInserted", function () {   //When a new tab is added, reset
+                        $('a[data-toggle="tab"]').off('shown.bs.tab');
+
+                        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                            topic.publish(topics.RESIZE, e.target.id);
+                        });
+                    });
                 }
             }.bind(this));
 
@@ -47,6 +55,7 @@ define([
                 (new PanelActionsBuilder())
                     .addAction(create_merge_action(id))
                     .addAction(create_delete_action(id))
+                    .addAction(create_move_action(id, this))
                     .build(),
 
                 function (viewModel) {
@@ -92,6 +101,31 @@ define([
         );
     }
 
+    function postAndAddNewIndicator(url, id, ids, graph, vm) {
+        _postJSON(base_url + url, { // Calling _ version as error callback required
+                'id': id,
+                'ids': ids
+            }, function (result) {
+                d3.json(
+                    base_url + encodeURIComponent(id),
+                    function (error, response) {
+                        if (error) {
+                            showErrorModal(error, false);
+                        }
+
+                        new_indicator = result.new_indicator;
+                        vm.indicatorInformationTypeById[new_indicator['id']] = new_indicator;
+                        vm.initViewModel(new_indicator['id']);
+                        graph.loadData(response);
+                    }
+                );
+            },
+            function (result) {
+                showErrorModal(JSON.parse(result.responseText)['Error'], false)
+            }
+        );
+    }
+
     function only_obs_drafts(type, rel_type) {
         return type === "obs" && rel_type === "draft";
     }
@@ -104,6 +138,16 @@ define([
             },
             "Delete",
             "trash");
+    }
+
+    function create_move_action(id, vm) {
+        return new PanelAction(
+            only_obs_drafts,
+            function (obs_ids_to_move, graph) {
+                postAndAddNewIndicator("move_observables/", id, obs_ids_to_move, graph, vm);
+            },
+            "Move",
+            "share-alt");
     }
 
     function create_merge_action(id) {

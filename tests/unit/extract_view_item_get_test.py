@@ -100,7 +100,7 @@ class ExtractTests(unittest.TestCase):
         with mock.patch('adapters.certuk_mod.extract.views.JsonResponse', mockJsonResponse):
             response = extract_visualiser_item_get(self.mock_request, id_obs0)
 
-        assert (response.content['package']['observables']['observables'][0]['object']['properties']['value'] == u'file:ééé')
+        assert (response.content['package']['observables']['observables'][0]['object']['properties']['value'] == u'ééé')
         self.mock_get_item.assert_not_called()
 
         summary = summarise_draft_observable(draft_obs0);
@@ -129,7 +129,7 @@ class ExtractTests(unittest.TestCase):
         with mock.patch('adapters.certuk_mod.extract.views.JsonResponse', mockJsonResponse):
             response = extract_visualiser_item_get(self.mock_request, id_obs0)
 
-        assert (response.content['package']['observables']['observables'][0]['object']['properties']['value'] == u'file:ééé')
+        assert (response.content['package']['observables']['observables'][0]['object']['properties']['value'] == u'ééé')
         self.mock_get_item.assert_not_called()
 
         summary = summarise_draft_observable(draft_obs0);

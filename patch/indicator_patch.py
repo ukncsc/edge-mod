@@ -41,6 +41,10 @@ class DBIndicatorPatch(DBIndicator):
                     draft.setdefault('test_mechanisms', []).append(yara_dict)
         return draft
 
+
+    def map(self):
+        pass
+
     def update_with(self, update_obj, update_timestamp=True):
         super(DBIndicatorPatch, self).update(self, update_obj, update_timestamp)
         self.detection_rules = update_obj.detection_rules
@@ -168,7 +172,6 @@ class IndicatorBuilderPatch(IndicatorBuilder):
         inbox_processor.run()
 
         self.delete_draft(user, indicator_data['id'])
-
 
 def apply_patch():
     WHICH_DBOBJ['ind'] = DBIndicatorPatch

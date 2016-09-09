@@ -12,7 +12,7 @@
     <ul class="nav nav-tabs">
         <!--ko foreach: viewModels -->
         <li data-bind="attr: {class: ($index()==0) ? 'active' : ''}">
-            <a data-toggle="tab" data-bind="attr: { id: $data.rootId, href: '#' + $parent.findSafeTypeByLabel($data.rootId())}">
+            <a data-toggle="tab" data-bind="attr: { id: $data.rootId, href: '#' + $parent.findSafeTypeByLabel($data.rootId()) + $index()}">
             <span data-bind="text: $parent.findTypeByLabel($data.rootId())"></span>
             </a>
         </li>
@@ -21,7 +21,7 @@
 
     <div class="tab-content">
         <!-- ko foreach: viewModels -->
-        <div data-bind="attr: {class: ($index()==0) ? 'tab-pane fade in active' : 'tab-pane fade', id: $parent.findSafeTypeByLabel($data.rootId())}">
+        <div data-bind="attr: {class: ($index()==0) ? 'tab-pane fade in active' : 'tab-pane fade', id: $parent.findSafeTypeByLabel($data.rootId()) + $index()}">
             <a data-bind="attr: {href: '/indicator/build/' + $data.rootId()}">Edit Indicator Draft:
                 <span data-bind="text: $data.rootId"></span></a>
             <div id="extract-visualiser" class="flexbox hflex">

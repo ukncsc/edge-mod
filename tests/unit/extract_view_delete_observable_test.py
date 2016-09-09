@@ -56,27 +56,3 @@ class ExtractDeleteTests(unittest.TestCase):
         extract_visualiser_delete_observables(self.mock_request)
         self.mock_draft_upsert.assert_called_with('ind', {'observables': [self.draft_obs1],
                                                      'id': self.draft_ind_id}, self.mock_request.user)
-
-    def test_delete_non_draft_observable(self):
-        self.mock_draft_load.return_value = self.draft_ind_with_obs
-        self.mock_request.body = json.dumps({"id": self.draft_ind_id, "ids": [self.obs_id0]})
-        extract_visualiser_delete_observables(self.mock_request)
-        self.mock_draft_upsert.assert_called_with('ind', {'observables': [self.obs1],
-                                                     'id': self.draft_ind_id}, self.mock_request.user)
-
-    def test_delete_non_draft_non_existent_observable(self):
-        self.mock_draft_load.return_value = self.draft_ind_with_obs
-
-        self.mock_request.body = json.dumps({"id": self.draft_ind_id, "ids": ['observable:1233']})
-        extract_visualiser_delete_observables(self.mock_request)
-        self.mock_draft_upsert.assert_called_with('ind', {'observables': [self.obs0, self.obs1],
-                                                     'id': self.draft_ind_id}, self.mock_request.user)
-
-    def test_delete_non_draft_and_draft_observable(self):
-        draft_ind_with_draft_and_non_draft ={'id': self.draft_ind_id, 'observables': [self.draft_obs0, self.obs1]}
-        self.mock_draft_load.return_value = draft_ind_with_draft_and_non_draft
-
-        self.mock_request.body = json.dumps({"id": self.draft_ind_id, "ids": [self.draft_obs_id0, self.obs_id1]})
-        extract_visualiser_delete_observables(self.mock_request)
-        self.mock_draft_upsert.assert_called_with('ind', {'observables': [],
-                                                     'id': self.draft_ind_id}, self.mock_request.user)
