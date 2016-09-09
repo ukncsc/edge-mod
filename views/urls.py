@@ -22,6 +22,7 @@ VALID_TYPES = '|'.join(CLIPPY_TYPES.iterkeys())
 
 publisher_urls = [
     (r'^static/(?P<path>[\S]+)$', 'views.static', 'static_content'),
+
     (r'^review/$', 'views.discover', 'publisher_discover'),
     (r'^review/duplicates/(?P<id_>' + VALID_STIX_ID + ')$', 'views.get_duplicates', 'get_duplicates'),
     (r'^review/editable/(?P<id_>' + VALID_STIX_ID + ')$', 'views.object_details', 'object_details'),
@@ -54,6 +55,8 @@ publisher_urls = [
     (r'^clone/$', 'views.clone', 'clone_to_draft'),
     (r'^clone_direct/(?P<id_>' + VALID_STIX_ID + ')$', 'views.clone_direct', 'clone_direct_to_draft'),
     (r'^review/(?P<id_>' + VALID_STIX_ID + ')$', 'views.review', 'catalog_review'),
+    (r'^observable_extract/(?P<output_format>[^\/]+)/(?P<obs_type_filter>[^\/]+)/(?P<id_>' + VALID_STIX_ID + ')/(?P<revision>[^\/]+)$', 'views.observable_extract', 'observable_extract'),
+
     (r'^missing/$', 'views.not_found', 'publisher_not_found'),
     (r'^noclone/(?P<msg>)', 'views.error_with_message', 'error_with_message'),
     (r'^config/$', 'views.config', 'publisher_config'),

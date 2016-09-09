@@ -44,12 +44,6 @@ class UserAccessTests(unittest.TestCase):
     def assertDecoratorNotPresent(self, view_func, decorator_name):
         self.assertIsNone(view_func.decorated_by.get(decorator_name))
 
-    def test_RequestReview_LoginCheck_Present(self):
-        self.assertDecoratorPresent(self.views.review, UserAccessTests.login_decorator_key)
-
-    def test_RequestReview_AdminCheck_NotPresent(self):
-        self.assertDecoratorNotPresent(self.views.review, UserAccessTests.superuser_or_staff_decorator_key)
-
     def test_RequestNotFound_LoginCheck_Present(self):
         self.assertDecoratorPresent(self.views.not_found, UserAccessTests.login_decorator_key)
 

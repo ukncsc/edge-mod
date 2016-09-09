@@ -1,52 +1,62 @@
 import os
 import urllib2
-import urllib
-
 import json
 from datetime import datetime
 from dateutil import tz
 import mimetypes
 import requests
 
-from django.http import FileResponse, HttpResponseNotFound, JsonResponse
-from django.core.urlresolvers import reverse
+from django.http import FileResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
-
-from stix.extensions.marking.simple_marking import SimpleMarkingStructure
 
 from users.decorators import superuser_or_staff_role, json_body
 from users.models import Draft
-from edge.generic import EdgeObject, load_edge_object_or_404, EdgeError, WHICH_DBOBJ
-from edge.inbox import InboxProcessorForBuilders, InboxItem, InboxError
+
+from edge.generic import EdgeObject, EdgeError, WHICH_DBOBJ
+
 from edge import IDManager
-from edge.handling import make_handling
-from edge.sightings import getSightingsFollowHash
-import rbac
-from clippy.models import CLIPPY_TYPES
 
 from adapters.certuk_mod.publisher.package_publisher import Publisher
 from adapters.certuk_mod.publisher.publisher_config import PublisherConfig
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
-from adapters.certuk_mod.validation.package.validator import PackageValidationInfo
 from adapters.certuk_mod.validation.builder.validator import BuilderValidationInfo
 from adapters.certuk_mod.common.views import error_with_message
 from adapters.certuk_mod.config.cert_config import get as get_config
-from adapters.certuk_mod.patch.incident_patch import DBIncidentPatch
 from adapters.certuk_mod.visualiser.graph import create_external_reference_from_id
-
 from adapters.certuk_mod.builder import customizations as cert_builder
+from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
+from adapters.certuk_mod.cron import setup as cron_setup
+from adapters.certuk_mod.audit import setup as audit_setup, status
+from adapters.certuk_mod.audit.event import Event
+from adapters.certuk_mod.audit.handlers import log_activity
+from adapters.certuk_mod.audit.message import format_audit_message
+from adapters.certuk_mod.common.objectid import discover as objectid_discover, find_id as objectid_find
 
-from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
+from adapters.certuk_mod.catalog.views import reload_data
 from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
 from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser, extract_visualiser_get, \
     extract_visualiser_item_get, extract, extract_visualiser_merge_observables, extract_visualiser_delete_observables, \
-    extract_visualiser_get_extended, delete_extract, extract_list, extract_status, uploaded_stix_extracts, extract_visualiser_move_observables
-from adapters.certuk_mod.common.logger import log_error, get_exception_stack_variable
-from adapters.certuk_mod.cron import setup as cron_setup
+    extract_visualiser_get_extended, delete_extract, extract_list, extract_status, uploaded_stix_extracts, \
+    extract_visualiser_move_observables
+
+from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
+
+from adapters.certuk_mod.extract.views import \
+    extract_upload, \
+    extract_visualiser, \
+    extract_visualiser_get, \
+    extract_visualiser_item_get, \
+    extract, \
+    extract_visualiser_merge_observables, \
+    extract_visualiser_delete_observables, \
+    extract_visualiser_get_extended, \
+    delete_extract, \
+    extract_list, \
+    extract_status, \
+    uploaded_stix_extracts
 
 from adapters.certuk_mod.cron.views import ajax_get_purge_task_status, ajax_run_purge
 from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, \
@@ -64,27 +74,26 @@ from adapters.certuk_mod.dedup.views import duplicates_finder, ajax_load_duplica
 
 from adapters.certuk_mod.config.views import ajax_get_crm_config, ajax_set_crm_config, ajax_get_cert_config, \
     ajax_get_sharing_groups, ajax_set_sharing_groups, ajax_get_markings, ajax_set_markings
-from adapters.certuk_mod.audit import setup as audit_setup, status
-from adapters.certuk_mod.audit.event import Event
-from adapters.certuk_mod.audit.handlers import log_activity
-from adapters.certuk_mod.audit.message import format_audit_message
 
-from adapters.certuk_mod.common.objectid import discover as objectid_discover, find_id as objectid_find
-from adapters.certuk_mod.catalog.backlink import BackLinkGenerator
-from adapters.certuk_mod.catalog.duplicates import DuplicateFinder
-from adapters.certuk_mod.catalog.edges import EdgeGenerator
-from adapters.certuk_mod.catalog.revoke import Revocable
+from adapters.certuk_mod.catalog.views import \
+    object_details, \
+    review_set_handling, \
+    review, \
+    get_duplicates, \
+    observable_extract
 
-from adapters.certuk_mod.retention.purge import STIXPurge
-
-from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus
-from adapters.certuk_mod.visualiser.views import visualiser_discover, visualiser_not_found, visualiser_view, \
+from adapters.certuk_mod.visualiser.views import \
+    visualiser_discover, \
+    visualiser_not_found, \
+    visualiser_view, \
     visualiser_get, \
     visualiser_item_get, \
     visualiser_get_extended
-from users.models import Repository_User
 
-from adapters.certuk_mod.timeline.views import ajax_incident_timeline, timeline_discover, incident_timeline, \
+from adapters.certuk_mod.timeline.views import \
+    ajax_incident_timeline, \
+    timeline_discover, \
+    incident_timeline, \
     incident_timeline_not_found
 
 from adapters.certuk_mod.ingest.views import ajax_create_incidents
@@ -93,12 +102,15 @@ audit_setup.configure_publisher_actions()
 cert_builder.apply_customizations()
 cron_setup.create_jobs()
 mimetypes.init()
-HANDLING_CAVEAT = 'HANDLING_CAVEAT'
+
 ORGANISATIONS_URL = "/organisations/"
 FIND_URL = "find?organisation="
 
 cfg = settings.ACTIVE_CONFIG
 LOCAL_NS = cfg.by_key('company_namespace')
+
+OnPublish = Event()
+OnPublish.set_handler("Write to log", log_activity)
 
 
 @login_required
@@ -117,6 +129,12 @@ def static(request, path):
 @login_required
 def discover(request):
     return objectid_discover(request, "publisher_review", "publisher_not_found")
+
+
+@login_required
+def clone(request):
+    stix_id = objectid_find(request)
+    return clone_direct(request, stix_id)
 
 
 TYPE_TO_URL = {
@@ -140,6 +158,7 @@ def to_draft_wrapper(self):
 
     return WHICH_DBOBJ[self.ty].to_draft(self.obj, self.tg, filtered_loader, self.id_ns)
 
+
 @login_required
 def clone(request):
     stix_id = objectid_find(request)
@@ -160,10 +179,10 @@ def clone_direct(request, id_):
             draft['id_ns'] = LOCAL_NS
             Draft.upsert(edge_object.ty, draft, request.user)
             return redirect('/' + TYPE_TO_URL[edge_object.ty] + '/build/' + new_id, request)
-        else:
-            return error_with_message(request,
-                                      "No clonable object found; please only choose " +
-                                      "the clone option from an object's summary or external publish page")
+
+        return error_with_message(request,
+                                  "No clonable object found; please only choose " +
+                                  "the clone option from an object's summary or external publish page")
 
     except Exception as e:
         ext_ref_error = "not found"
@@ -172,192 +191,9 @@ def clone_direct(request, id_):
                                       "Unable to load object as some external references were not found: "
                                       + e.message[0:-len(ext_ref_error)])
 
+
         else:
             return error_with_message(request, e.message)
-
-
-def _get_request_username(request):
-    if hasattr(request, "user") and hasattr(request.user, "username"):
-        return request.user.username
-    return ""
-
-
-def __extract_revision(id):
-    revision = "latest"
-    if '/' in id:
-        revision = id.split('/')[1]
-        id = id.split('/')[0]
-    return revision, id
-
-
-def generate_partial_review_data(request, id, revision):
-    root_edge_object = PublisherEdgeObject.load(id, filters=request.user.filters(), revision=revision,
-                                                include_revision_index=True)
-    package = PackageGenerator.build_package(root_edge_object)
-    validation_info = PackageValidationInfo.validate(package)
-
-    def user_loader(idref):
-        return EdgeObject.load(idref, request.user.filters())
-
-    edges = EdgeGenerator.gather_edges(root_edge_object.edges, load_by_id=user_loader)
-
-    req_user = _get_request_username(request)
-    if root_edge_object.created_by_username != req_user:
-        validation_info.validation_dict.update({id:{"created_by":
-                                                         {"status": ValidationStatus.WARN,
-                                                          "message": "This object was created by %s not %s"
-                                                                     % (root_edge_object.created_by_username,
-                                                                        req_user)}}})
-    if any(item['is_external'] for item in edges):
-        validation_info.validation_dict.update({id:{"external_references":
-                                                         {"status": ValidationStatus.ERROR,
-                                                          "message": "This object contains External References, clone "
-                                                                     "object and remove missing references before publishing"}}})
-
-    # add root object to edges for javascript to construct object
-    edges.append({
-        'ty': root_edge_object.ty,
-        'id_': root_edge_object.id_,
-        'is_external': False
-    })
-
-    return {
-        'root_edge_object': root_edge_object,
-        'package': package,
-        "trust_groups": root_edge_object.tg,
-        "validation_info": validation_info,
-        "edges": edges
-    }
-
-
-@login_required
-@json_body
-def reload_data(request, data):
-    data = generate_partial_review_data(request, data["id"], data["revision"])
-
-    return {
-        'package': data["package"].to_dict(),
-        "trust_groups": json.dumps(data["trust_groups"]),
-        "validation_info": data["validation_info"].to_json(),
-        "edges": data["edges"]
-    }
-
-
-@login_required
-def review(request, id):
-    data = generate_partial_review_data(request, id, 'latest')
-
-    root_edge_object = data["root_edge_object"]
-
-    def user_loader(idref):
-        return EdgeObject.load(idref, request.user.filters())
-
-    back_links = BackLinkGenerator.retrieve_back_links(root_edge_object, user_loader)
-
-    sightings = None
-    if root_edge_object.ty == 'obs':
-        sightings = getSightingsFollowHash(root_edge_object.doc['data']['hash'])
-
-    revision = root_edge_object.revisions[0]['timekey']
-
-    revocable = Revocable(root_edge_object, request)
-
-    can_revoke = revocable.is_revocable()
-
-    can_purge = can_revoke and root_edge_object.is_revoke()
-
-    handling_caveats = DBIncidentPatch.handling_to_draft(root_edge_object.obj, "handling_caveat")
-
-    request.breadcrumbs([("Catalog", "")])
-    return render(request, "catalog_review.html", {
-        "root_id": id,
-        "package": data["package"],
-        "trust_groups": json.dumps(root_edge_object.tg),
-        "validation_info": data["validation_info"],
-        "kill_chain_phases": {item['phase_id']: item['name'] for item in KILL_CHAIN_PHASES},
-        "back_links": json.dumps(back_links),
-        "edges": json.dumps(data["edges"]),
-        'view_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
-            '/view/%s/' % urllib.quote(id)),
-        'edit_url': '/' + CLIPPY_TYPES[root_edge_object.doc['type']].replace(' ', '_').lower() + (
-            '/edit/%s/' % urllib.quote(id)),
-        'visualiser_url': '/adapter/certuk_mod/visualiser/%s' % urllib.quote(id),
-        'clone_url': "/adapter/certuk_mod/clone_direct/" + id,
-        "revisions": json.dumps(root_edge_object.revisions),
-        "revision": revision,
-        "version": root_edge_object.version,
-        "sightings": sightings,
-        'ajax_uri': reverse('catalog_ajax'),
-        "can_revoke": can_revoke,
-        "can_purge": can_purge,
-        "handling_caveats": json.dumps(handling_caveats)
-    })
-
-
-@login_required
-def object_details(request, id_):
-    edge_obj = load_edge_object_or_404(id_)
-    if not rbac.user_has_tlp_access(request.user, edge_obj):
-        raise PermissionDenied
-
-    return JsonResponse({
-        'allow_edit': rbac.user_can_edit(request.user, edge_obj),
-    })
-
-
-@login_required
-@json_body
-def review_set_handling(request, data):
-    try:
-        edge_object = EdgeObject.load(data["rootId"])
-
-        generic_object = edge_object.to_ApiObject()
-        generic_object.obj.timestamp = datetime.now(tz.tzutc())
-        append_handling(generic_object, data["handling"])
-        ip = InboxProcessorForBuilders(
-            user=request.user,
-        )
-
-        ip.add(InboxItem(api_object=generic_object, etlp=edge_object.etlp))
-        ip.run()
-        return {
-            'message': '',
-            'state': 'success',
-            "success": True
-        }
-    except InboxError as e:
-        log_error(e, 'adapters/review/handling', 'Failed to set Handling')
-        return {
-            'message': e.message,
-            'state': 'error',
-            "success": False
-        }
-
-
-def purge_old_handling_caveats(edge_object):
-    markings = edge_object.obj.handling.markings[0].marking_structures
-    edge_object.obj.handling.markings[0].marking_structures = [marking for marking in markings if
-                                                               marking.marking_model_name != HANDLING_CAVEAT]
-
-
-def append_handling(edge_object, handling_markings):
-    if getattr(edge_object.obj, "handling", None) is None:
-        edge_object.obj.handling = make_handling(edge_object.ty)
-    else:
-        purge_old_handling_caveats(edge_object)
-
-    for handling in handling_markings:
-        handling_caveat = SimpleMarkingStructure(handling)
-        handling_caveat.marking_model_name = HANDLING_CAVEAT
-        edge_object.obj.handling.markings[0].marking_structures.append(handling_caveat)
-
-
-@login_required
-def get_duplicates(request, id_):
-    root_edge_object = PublisherEdgeObject.load(id_, filters=request.user.filters())
-    duplicates = DuplicateFinder.find_duplicates(root_edge_object)
-
-    return JsonResponse({"duplicates": duplicates})
 
 
 @login_required
@@ -425,10 +261,6 @@ def ajax_set_publish_site(request, data):
         'saved_id': site_id,
         'error_message': error_message
     }
-
-
-OnPublish = Event()
-OnPublish.set_handler("Write to log", log_activity)
 
 
 @login_required
