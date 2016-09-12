@@ -37,7 +37,7 @@ def capsulize_patch(self, pkg_id, enable_bfs=False):
                 eo = self #must do this as self may be a version other than latest
             else:
                 try:
-                    eo = EdgeObject.load(eo_id)
+                    eo = EdgeObject.load(eo_id, self.filters)
                 except EdgeError:
                     continue
 
