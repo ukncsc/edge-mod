@@ -86,7 +86,8 @@ def _update_existing_objects(ids_to_references, user, tlp_levels):
                 _merge_ttps(api_object.obj, references)
             elif edge_object.ty == 'tgt':
                 _merge_tgts(api_object.obj, references)
-        setattr(api_object, 'obj.timestamp', datetime.datetime.utcnow())
+        setattr(api_object.obj, 'timestamp', datetime.datetime.utcnow())
+        setattr(api_object.obj, 'tlp', tlp)
         inbox_processor.add(InboxItem(
             api_object=api_object,
             etlp=tlp,
