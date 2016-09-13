@@ -38,6 +38,7 @@ from adapters.certuk_mod.patch.incident_patch import DBIncidentPatch
 
 HANDLING_CAVEAT = "HANDLING_CAVEAT"
 
+
 def _get_request_username(request):
     if hasattr(request, "user") and hasattr(request.user, "username"):
         return request.user.username
@@ -57,13 +58,13 @@ def generate_partial_review_data(request, id, revision):
 
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
-        validation_info.validation_dict.update({id:{"created_by":
+        validation_info.validation_dict.update({id: {"created_by":
                                                          {"status": ValidationStatus.WARN,
                                                           "message": "This object was created by %s not %s"
                                                                      % (root_edge_object.created_by_username,
                                                                         req_user)}}})
     if any(item['is_external'] for item in edges):
-        validation_info.validation_dict.update({id:{"external_references":
+        validation_info.validation_dict.update({id: {"external_references":
                                                          {"status": ValidationStatus.ERROR,
                                                           "message": "This object contains External References, clone "
                                                                      "object and remove missing references before publishing"}}})
@@ -81,7 +82,7 @@ def generate_partial_review_data(request, id, revision):
         "trust_groups": root_edge_object.tg,
         "validation_info": validation_info,
         "edges": edges,
-        "revision": revision
+        "revision": root_edge_object.version
     }
 
 
