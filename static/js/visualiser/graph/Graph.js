@@ -77,7 +77,7 @@ define([
                             link.target.isRelated(true);
                             isRelatedLink = true;
                         }
-                        if (link.target.index === findIndex) {
+                        if (link.target.index === findIndex && (link.relType() === "edge" || link.relType() === "draft" || link.relType() === "external_ref")) {
                             linkedNodes.childOf['values'].push(link.source);
                             link.source.isRelated(true);
                             isRelatedLink = true;
