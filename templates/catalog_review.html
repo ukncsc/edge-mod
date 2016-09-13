@@ -61,7 +61,7 @@
                 <a class="btn btn-xs btn-success">Sightings <span data-bind="text: sightings" class="badge"></span></a>
                 <!-- /ko -->
                 <a class="btn btn-xs btn-primary"
-                   data-bind="attr:{href:'/catalog/download/'+type().code+'/'+rootID()+'/'+version()}" target='_blank'>Download
+                   data-bind="attr:{href:'/catalog/download/'+type().code+'/'+rootID()+'/'+revision()}" target='_blank'>Download
                     Revision</a>
                 <a class="btn btn-xs btn-primary" data-bind="attr:{href:'/to_html/'+rootID()}" target='_blank'>View
                     STIX-to-HTML</a>
@@ -75,32 +75,32 @@
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
                          <li class="dropdown-submenu"><a tabindex="-1" href="#">Plain Text</a>
                             <ul class="dropdown-menu  pull-right" style="position: absolute;left:100%">
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/all/'+rootID()+'/'+version()}">All</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/HTTPSessionObjectType/'+rootID()+'/'+version()}">HTTP Session</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/NetworkConnectionObjectType/'+rootID()+'/'+version()}">Network Connection</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/AddressObjectType/'+rootID()+'/'+version()}">Address</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/URIObjectType/'+rootID()+'/'+version()}">URI</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/HostnameObjectType/'+rootID()+'/'+version()}">Hostname</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/DomainNameObjectType/'+rootID()+'/'+version()}">Domain</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/MutexObjectType/'+rootID()+'/'+version()}">Mutex</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/FileObjectType/'+rootID()+'/'+version()}">File</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/SocketAddressObjectType/'+rootID()+'/'+version()}">Socket</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/WindowsRegistryKeyObjectType/'+rootID()+'/'+version()}">Registry Key</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/ArtifactObjectType/'+rootID()+'/'+version()}">Artifact</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/EmailMessageObjectType/'+rootID()+'/'+version()}">Email</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/all/'+rootID()+'/'+revision()}">All</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/HTTPSessionObjectType/'+rootID()+'/'+revision()}">HTTP Session</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/NetworkConnectionObjectType/'+rootID()+'/'+revision()}">Network Connection</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/AddressObjectType/'+rootID()+'/'+revision()}">Address</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/URIObjectType/'+rootID()+'/'+revision()}">URI</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/HostnameObjectType/'+rootID()+'/'+revision()}">Hostname</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/DomainNameObjectType/'+rootID()+'/'+revision()}">Domain</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/MutexObjectType/'+rootID()+'/'+revision()}">Mutex</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/FileObjectType/'+rootID()+'/'+revision()}">File</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/SocketAddressObjectType/'+rootID()+'/'+revision()}">Socket</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/WindowsRegistryKeyObjectType/'+rootID()+'/'+revision()}">Registry Key</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/ArtifactObjectType/'+rootID()+'/'+revision()}">Artifact</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/text/EmailMessageObjectType/'+rootID()+'/'+revision()}">Email</a></li>
                             </ul>
                         </li>
                         <li class="dropdown-submenu"><a tabindex="-1" href="#">SNORT Signature</a>
                             <ul class="dropdown-menu  pull-right" style="position: absolute;left:100%">
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/SNORT/all/'+rootID()+'/'+version()}">All</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/SNORT/DomainNameObjectType/'+rootID()+'/'+version()}">Domain</a></li>
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/SNORT/AddressObjectType/'+rootID()+'/'+version()}">Address</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/SNORT/all/'+rootID()+'/'+revision()}">All</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/SNORT/DomainNameObjectType/'+rootID()+'/'+revision()}">Domain</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/SNORT/AddressObjectType/'+rootID()+'/'+revision()}">Address</a></li>
                             </ul>
                         </li>
                         <!--
                          <li class="dropdown-submenu"><a tabindex="-1" href="#">BRO Signature</a>
                             <ul class="dropdown-menu  pull-right" style="position: absolute;left:100%">
-                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/BRO/all/'+rootID()+'/'+version()}">All</a></li>
+                                <li><a tabindex="-1" data-bind="attr:{href:'/adapter/certuk_mod/observable_extract/BRO/all/'+rootID()+'/'+revision()}">All</a></li>
                             </ul>
                         </li> -->
                     </ul>
@@ -136,7 +136,6 @@
         var cloneURL = "{{ clone_url }}";
         var visualiserURL = "{{ visualiser_url }}";
         var revisions = Object.freeze({{ revisions|safe }});
-        var version = "{{ version }}";
         var sightings = "{{ sightings }}";
         var backLinks = Object.freeze({{ back_links|safe }});
         var edges = Object.freeze({{ edges|safe }});

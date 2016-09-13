@@ -36,7 +36,6 @@ define([
             this.editURL = ko.observable(editURL);
             this.rootID = ko.observable(rootId);
             this.revision = ko.observable("");
-            this.version = ko.observable("");
             this.sightings = ko.observable("");
             this.editable = ko.observable(this.isEditable(rootId))
             this.section = ko.observable(new Section());
@@ -55,6 +54,7 @@ define([
                 var params = {"id": this.rootID(), "revision": timekey}
                 postJSON("/adapter/certuk_mod/reload/", params, function (response) {
                     this.stixPackage(new StixPackage(response["package"], this.rootID(), JSON.parse(response["trust_groups"]), JSON.parse(response["validation_info"]), response["edges"]))
+                    this.revision(response["revision"])
                 }.bind(this));
             }
         },
@@ -67,7 +67,6 @@ define([
 
         loadStatic: function (optionsList) {
             this.sightings(optionsList.sightings);
-            this.version(optionsList.version);
             this.revision(optionsList.revision);
             this.handling().loadStatic(optionsList.handlingCaveats);
             this.section().loadStatic(optionsList);
