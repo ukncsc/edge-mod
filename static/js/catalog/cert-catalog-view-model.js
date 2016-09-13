@@ -51,7 +51,7 @@ define([
         },
 
         reload: function (timekey) {
-            if (timekey !== this.revision) {
+            if (timekey !== this.revision()) {
                 var params = {"id": this.rootID(), "revision": timekey}
                 postJSON("/adapter/certuk_mod/reload/", params, function (response) {
                     this.stixPackage(new StixPackage(response["package"], this.rootID(), JSON.parse(response["trust_groups"]), JSON.parse(response["validation_info"]), response["edges"]))
@@ -123,6 +123,10 @@ define([
             }
         },
 
+        _onCloseCallback: function () {
+            this.reload("latest");
+        },
+
         externalPublish: function () {
             var validations = this.stixPackage().validations();
             var contentData = {
@@ -160,7 +164,8 @@ define([
                         label: "Close",
                         hide: ko.observable(true)
                     }
-                ]
+                ],
+                onCloseCallback: this._onCloseCallback.bind(this)
             });
 
             if (hasErrors) {

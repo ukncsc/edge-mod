@@ -26,6 +26,7 @@ define([
             this.modalReference = null;
 
             this.onShow = options["onShow"];
+            this.onCloseCallback = options["onCloseCallback"];
         },
 
         show: function () {
@@ -54,16 +55,21 @@ define([
 
         _afterModalRender: function (nodes) {
             // Get the modal:
-            var modalElements = nodes.filter(function(node) {
+            var modalElements = nodes.filter(function (node) {
                 return node.nodeType === 1; // Ignore text
             });
             var modal = $(modalElements);
 
             // Ensure it always removes itself from the DOM when closed, and clean up the KO bindings:
             modal.on("hidden.bs.modal", function () {
-                modal.each(function (index, element) { ko.cleanNode(element); });
+                modal.each(function (index, element) {
+                    ko.cleanNode(element);
+                });
                 modal.remove();
-            });
+                if (typeof this.onCloseCallback === "function") {
+                    this.onCloseCallback();
+                }
+            }.bind(this));
 
             // Show it:
             modal.modal({
