@@ -38,18 +38,11 @@ from adapters.certuk_mod.patch.incident_patch import DBIncidentPatch
 
 HANDLING_CAVEAT = "HANDLING_CAVEAT"
 
+
 def _get_request_username(request):
     if hasattr(request, "user") and hasattr(request.user, "username"):
         return request.user.username
     return ""
-
-
-def __extract_revision(id):
-    revision = "latest"
-    if '/' in id:
-        revision = id.split('/')[1]
-        id = id.split('/')[0]
-    return revision, id
 
 
 def generate_partial_review_data(request, id, revision):
@@ -65,13 +58,13 @@ def generate_partial_review_data(request, id, revision):
 
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
-        validation_info.validation_dict.update({id:{"created_by":
+        validation_info.validation_dict.update({id: {"created_by":
                                                          {"status": ValidationStatus.WARN,
                                                           "message": "This object was created by %s not %s"
                                                                      % (root_edge_object.created_by_username,
                                                                         req_user)}}})
     if any(item['is_external'] for item in edges):
-        validation_info.validation_dict.update({id:{"external_references":
+        validation_info.validation_dict.update({id: {"external_references":
                                                          {"status": ValidationStatus.ERROR,
                                                           "message": "This object contains External References, clone "
                                                                      "object and remove missing references before publishing"}}})
@@ -88,20 +81,22 @@ def generate_partial_review_data(request, id, revision):
         'package': package,
         "trust_groups": root_edge_object.tg,
         "validation_info": validation_info,
-        "edges": edges
+        "edges": edges,
+        "revision": root_edge_object.version
     }
 
 
 @login_required
 @json_body
 def reload_data(request, data):
-    data = generate_partial_review_data(request, data["id"], data["revision"])
+    review_data = generate_partial_review_data(request, data["id"], data["revision"])
 
     return {
-        'package': data["package"].to_dict(),
-        "trust_groups": json.dumps(data["trust_groups"]),
-        "validation_info": data["validation_info"].to_json(),
-        "edges": data["edges"]
+        'package': review_data["package"].to_dict(),
+        "trust_groups": json.dumps(review_data["trust_groups"]),
+        "validation_info": review_data["validation_info"].to_json(),
+        "edges": review_data["edges"],
+        "revision": review_data["revision"]
     }
 
 
@@ -147,7 +142,6 @@ def review(request, id):
         'clone_url': "/adapter/certuk_mod/clone_direct/%s" % urllib.quote(id),
         "revisions": json.dumps(root_edge_object.revisions),
         "revision": revision,
-        "version": root_edge_object.version,
         "sightings": sightings,
         'ajax_uri': reverse('catalog_ajax'),
         "can_revoke": can_revoke,

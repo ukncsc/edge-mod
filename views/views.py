@@ -170,7 +170,7 @@ def clone_direct(request, id_):
     stix_id = id_
     try:
         if stix_id:
-            edge_object = EdgeObject.load(stix_id)
+            edge_object = EdgeObject.load(stix_id, request.user.filters())
             if edge_object.ty == 'obs':
                 return error_with_message(request, "Observables cannot be cloned")
             new_id = IDManager().get_new_id(edge_object.ty)

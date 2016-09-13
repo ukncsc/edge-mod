@@ -16,7 +16,6 @@ require([
         "canPurge": window["canPurge"],
         "canRevoke": window["canRevoke"],
         "sightings": window["sightings"],
-        "version": window["version"],
         "handlingCaveats": window["handlingCaveats"]
     });
 
