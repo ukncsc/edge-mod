@@ -27,6 +27,7 @@ define([
         addSnortRule: function () {
             var new_rule = new SnortRule();
             this.addSnortRuleValidation(new_rule);
+            new_rule.rules.push(ko.observable(''));
             this.snortRules.push(new_rule);
         },
 
