@@ -28,7 +28,7 @@ define([
             this.retention.getConfig();
             this.fts.getConfig();
             this.dedup.getConfig();
-            this.crm.getURL();
+            this.crm.getConfig();
             this.handling.getConfig();
             this.markings.getConfig();
         }

@@ -9,14 +9,10 @@ define([
         declaredClass: "HandlingConfig",
         constructor: declare.superCall(function (sup) {
             return function () {
-                sup.call(this);
+                sup.call(this, "get_sharing_groups/", "An error occurred while attempting to retrieve the Sharing Groups.");
                 this.handling_caveats = ko.observableArray([{"stix_value": "", "display_value": ""}]);
             }
         }),
-
-        getConfig: function () {
-            this.getData("get_sharing_groups/", "An error occurred while attempting to retrieve the Sharing Groups.");
-        },
 
         _parseResponse: function (configText) {
             if (configText !== null) {
@@ -40,7 +36,7 @@ define([
         },
 
         isHandlingCaveatsFull: function () {
-            var arrayLength = this.handling_caveats().length
+            var arrayLength = this.handling_caveats().length;
             for (var index = 0; index < arrayLength; index++) {
                 if (this.handling_caveats()[index]['stix_value'] == "" || this.handling_caveats()[index]['display_value'] == "") {
                     return false

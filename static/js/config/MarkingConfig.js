@@ -13,14 +13,10 @@ define([
         declaredClass: "MarkingConfig",
         constructor: declare.superCall(function (sup) {
             return function () {
-                sup.call(this);
+                sup.call(this, "get_markings/", "An error occurred while attempting to retrieve the Marking Priorities.");
                 this.marking_priorities = ko.observableArray([]);
             }
         }),
-
-        getConfig: function () {
-            this.getData("get_markings/", "An error occurred while attempting to retrieve the Marking Priorities.");
-        },
 
         _parseResponse: function (/*Array*/configText) {
             if (configText !== null) {
