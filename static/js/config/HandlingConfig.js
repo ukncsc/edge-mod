@@ -11,9 +11,9 @@ define([
             return function () {
                 sup.call(this, "get_sharing_groups/", "An error occurred while attempting to retrieve the Sharing Groups.");
                 this.handling_caveats = ko.observableArray([]);
-                this.savedHandlingCaveats = ko.obsemodrvableArray([]);
+                this.savedHandlingCaveats = ko.observableArray([]);
                 this.handlingCaveatsChanged = ko.computed(function () {
-                    return this.handling_caveats().concat(this.savedHandlingCaveats())
+                    return true;
                 }, this);
 
                 this.enabled.subscribe(this._onEnabledChanged.bind(this));
@@ -25,15 +25,15 @@ define([
             if (configText !== null) {
                 this.enabled(configText["enabled"] || false);
                 this.savedEnabled(configText["enabled"] || false);
-                var handlingList = [];
-                var handlingConfigText = configText["value"];
-                for (var key in handlingConfigText) {
-                    if (handlingConfigText.hasOwnProperty(key)) {
-                        handlingList.push({"stix_value": key, "display_value": handlingConfigText[key]})
-                    }
-                }
-                this.handling_caveats(handlingList);
-                this.savedHandlingCaveats(handlingList);
+
+                ko.utils.objectForEach(configText["value"], function (key, value) {
+                    this.handling_caveats.push(ko.observable({
+                        "stix_value": key,
+                        "display_value": value
+                    }))
+                }.bind(this));
+
+                this.savedHandlingCaveats(this.handling_caveats());
             }
         },
 
