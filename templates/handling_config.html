@@ -27,7 +27,8 @@
                     data-bind="click: addGroup">Add Mapping
             </button>
             <button class="btn btn-default"
-                    data-bind="click: save">Save
+                        data-bind="click: save, css: { disabled: !(changesPending()) },
+                                                text: gotConfig() ? 'Save' : 'Retrieving config...'">
             </button>
         </div>
     </div>

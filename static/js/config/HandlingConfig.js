@@ -10,13 +10,21 @@ define([
         constructor: declare.superCall(function (sup) {
             return function () {
                 sup.call(this, "get_sharing_groups/", "An error occurred while attempting to retrieve the Sharing Groups.");
-                this.handling_caveats = ko.observableArray([{"stix_value": "", "display_value": ""}]);
+                this.handling_caveats = ko.observableArray([]);
+                this.savedHandlingCaveats = ko.obsemodrvableArray([]);
+                this.handlingCaveatsChanged = ko.computed(function () {
+                    return this.handling_caveats().concat(this.savedHandlingCaveats())
+                }, this);
+
+                this.enabled.subscribe(this._onEnabledChanged.bind(this));
+                this.changesPending = ko.computed(this.changesPending, this);
             }
         }),
 
         _parseResponse: function (configText) {
             if (configText !== null) {
-                this.enabled(configText["enabled"] || false)
+                this.enabled(configText["enabled"] || false);
+                this.savedEnabled(configText["enabled"] || false);
                 var handlingList = [];
                 var handlingConfigText = configText["value"];
                 for (var key in handlingConfigText) {
@@ -24,7 +32,8 @@ define([
                         handlingList.push({"stix_value": key, "display_value": handlingConfigText[key]})
                     }
                 }
-                this.handling_caveats(handlingList)
+                this.handling_caveats(handlingList);
+                this.savedHandlingCaveats(handlingList);
             }
         },
 
@@ -84,6 +93,35 @@ define([
             return true
         },
 
+        changesPending: function () {
+            return this.gotConfig() &&
+                (
+                    this.enabled() != this.savedEnabled() ||
+                    this.handlingCaveatsChanged()
+                );
+        },
+
+        _onEnabledChanged: function () {
+            if(!this.enabled()) {
+                this.handling_caveats.removeAll();
+                ko.utils.arrayForEach(this.savedHandlingCaveats(), function (item) {
+                    this.handling_caveats.push({"stix_value": item.stix_value, "display_value": item.display_value})
+                }.bind(this));
+            }
+        },
+
+        _onSuccesfulSave: function (response, successMessage) {
+            var modal = this.createSuccessModal(successMessage);
+
+            this.savedHandlingCaveats.removeAll();
+            ko.utils.arrayForEach(this.marking_priorities(), function (item) {
+                this.savedMarkingPriorities.push(item.marking());
+            }.bind(this));
+            this.savedEnabled(this.enabled());
+
+            modal.show();
+        },
+
         containsDuplicates: function (handlingCaveats) {
             var stixValueArray = handlingCaveats.map(function (caveat) {
                 return caveat.stix_value
@@ -96,7 +134,6 @@ define([
                 return true
             }
         },
-
 
         createSimpleConfigObject: function (handlingArray) {
             var markings = {};

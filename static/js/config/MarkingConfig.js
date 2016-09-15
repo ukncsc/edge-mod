@@ -16,7 +16,6 @@ define([
                 sup.call(this, "get_markings/", "An error occurred while attempting to retrieve the Marking Priorities.");
                 this.marking_priorities = ko.observableArray([]);
                 this.savedMarkingPriorities = ko.observableArray([]);
-
                 this.markingsChanged = ko.computed(function () {
                     var bothMarkings = [];
                     ko.utils.arrayForEach(this.marking_priorities(), function (item) {
@@ -26,8 +25,7 @@ define([
                         bothMarkings.push(item)
                     });
                     var distinctValues = ko.utils.arrayGetDistinctValues(bothMarkings);
-                    return distinctValues.length != this.savedMarkingPriorities().length ? true : false;
-
+                    return distinctValues.length != this.savedMarkingPriorities().length;
                 }, this);
 
                 this.enabled.subscribe(this._onEnabledChanged.bind(this));
@@ -66,6 +64,7 @@ define([
 
                 );
         },
+
         _onEnabledChanged: function () {
             if (!(this.enabled())) {
                 this.marking_priorities.removeAll();
@@ -73,6 +72,18 @@ define([
                     this.marking_priorities.push(new Marking(item))
                 }.bind(this));
             }
+        },
+
+        _onSuccesfulSave: function (response, successMessage) {
+            var modal = this.createSuccessModal(successMessage);
+
+            this.savedMarkingPriorities.removeAll();
+            ko.utils.arrayForEach(this.marking_priorities(), function (item) {
+                this.savedMarkingPriorities.push(item.marking());
+            }.bind(this));
+            this.savedEnabled(this.enabled());
+
+            modal.show();
         },
 
         removeEmptyData: function () {
