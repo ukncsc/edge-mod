@@ -13,12 +13,14 @@ if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.p
 
 
 class STIXBacklinks(object):
-    PAGE_SIZE = 200
+    PAGE_SIZE = 600
 
     def __init__(self):
         pass
 
     def run(self):
+        previous_failures = set()
+
         def _process_bulk_op():
             for blo in dict_bls.keys():
                 c = db.stix_backlinks_mod.find_one({'_id': blo})
@@ -32,7 +34,9 @@ class STIXBacklinks(object):
                 try:
                     db.stix_backlinks_mod.update({'_id': blo}, {'$set': {'value': existing_bls}}, upsert=True)
                 except Exception as e:
-                    log_activity("system", "Backlink", "ERROR", "processing %s length of backlinks: %d error %s)" % (blo, len(existing_bls), e.message))
+                    if blo not in previous_failures:
+                        log_activity("system", "Backlink", "ERROR", "processing %s length of backlinks: %d error %s)" % (blo, len(existing_bls), e.message))
+                        previous_failures.add(blo)
 
         db = get_db()
 
