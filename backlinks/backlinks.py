@@ -30,7 +30,7 @@ class STIXBacklinks(object):
                     existing_bls[new_bl['id']] = new_bl['type']
 
                 try:
-                    db.stix_backlinks.update({'_id': blo}, {'$set': {'value': existing_bls}}, upsert=True)
+                    db.stix_backlinks_mod.update({'_id': blo}, {'$set': {'value': existing_bls}}, upsert=True)
                 except Exception as e:
                     log_activity("system", "Backlink", "ERROR", "processing %s length of backlinks: %d error %s)" % (blo, len(existing_bls), e.message))
 
