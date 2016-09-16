@@ -11,13 +11,6 @@ define([
             return function () {
                 sup.call(this, "get_sharing_groups/", "An error occurred while attempting to retrieve the Sharing Groups.");
                 this.handling_caveats = ko.observableArray([]);
-                this.savedHandlingCaveats = ko.observableArray([]);
-                this.handlingCaveatsChanged = ko.computed(function () {
-                    return true;
-                }, this);
-
-                this.enabled.subscribe(this._onEnabledChanged.bind(this));
-                this.changesPending = ko.computed(this.changesPending, this);
             }
         }),
 
@@ -27,13 +20,11 @@ define([
                 this.savedEnabled(configText["enabled"] || false);
 
                 ko.utils.objectForEach(configText["value"], function (key, value) {
-                    this.handling_caveats.push(ko.observable({
+                    this.handling_caveats.push({
                         "stix_value": key,
                         "display_value": value
-                    }))
+                    })
                 }.bind(this));
-
-                this.savedHandlingCaveats(this.handling_caveats());
             }
         },
 
@@ -91,35 +82,6 @@ define([
                     return false
             }
             return true
-        },
-
-        changesPending: function () {
-            return this.gotConfig() &&
-                (
-                    this.enabled() != this.savedEnabled() ||
-                    this.handlingCaveatsChanged()
-                );
-        },
-
-        _onEnabledChanged: function () {
-            if(!this.enabled()) {
-                this.handling_caveats.removeAll();
-                ko.utils.arrayForEach(this.savedHandlingCaveats(), function (item) {
-                    this.handling_caveats.push({"stix_value": item.stix_value, "display_value": item.display_value})
-                }.bind(this));
-            }
-        },
-
-        _onSuccesfulSave: function (response, successMessage) {
-            var modal = this.createSuccessModal(successMessage);
-
-            this.savedHandlingCaveats.removeAll();
-            ko.utils.arrayForEach(this.marking_priorities(), function (item) {
-                this.savedMarkingPriorities.push(item.marking());
-            }.bind(this));
-            this.savedEnabled(this.enabled());
-
-            modal.show();
         },
 
         containsDuplicates: function (handlingCaveats) {
