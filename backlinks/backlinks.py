@@ -34,7 +34,7 @@ class STIXBacklinks(object):
             try:
                 bulk_op.execute()
             except Exception:
-                pass
+                log_activity("system", "Backlink", "ERROR", "Failed to proccess Backlinks")
 
         db = get_db()
 
