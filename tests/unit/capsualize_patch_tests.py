@@ -68,7 +68,7 @@ class CapsualizePatchTests(unittest.TestCase):
         with mock.patch.dict('adapters.certuk_mod.patch.capsulize_patch.PACKAGE_ADD_DISPATCH', {'ind': mock_ind, 'obs': mock_obs}):
             self.eo_child.edges = [self.eo]
 
-            def raise_EdgeError(x):
+            def raise_EdgeError(x, f):
                 raise EdgeError;
 
             mock_EdgeObject.load = raise_EdgeError
