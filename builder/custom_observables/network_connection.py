@@ -2,6 +2,7 @@ from cybox.objects.network_connection_object import NetworkConnection
 from edge.tools import rgetattr
 from adapters.certuk_mod.builder.custom_observable_definition import CustomObservableDefinition
 from indicator.observable_object_generator import ObservableObjectGenerator
+from adapters.certuk_mod.builder.custom_observables.custom_observable_utils import collapse_nested_values
 
 
 class NetworkConnectionObservableDefinition(CustomObservableDefinition):
@@ -26,10 +27,10 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
         return network_connection
 
     def get_socket(self, socket_object):
-        address = rgetattr(socket_object, ['ip_address', 'address_value'], '')
-        hostname = rgetattr(socket_object, ['hostname', 'hostname_value'], '')
-        port = rgetattr(socket_object, ['port', 'port_value'], '')
-        protocol = rgetattr(socket_object, ['port', 'layer4_protocol'], '')
+        address = collapse_nested_values(rgetattr(socket_object, ['ip_address', 'address_value'], ''))
+        hostname = collapse_nested_values(rgetattr(socket_object, ['hostname', 'hostname_value'], ''))
+        port = collapse_nested_values(rgetattr(socket_object, ['port', 'port_value'], ''))
+        protocol = collapse_nested_values(rgetattr(socket_object, ['port', 'layer4_protocol'], ''))
 
         socket = {
             "ip_address": str(address),
@@ -43,18 +44,18 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
         socket = self.get_socket(socket_object)
 
         if socket['ip_address']:
-            combined = str(socket['ip_address'])
+            combined = str(collapse_nested_values(socket['ip_address']))
         elif socket['hostname']:
-            combined = str(socket['hostname'])
+            combined = str(collapse_nested_values(socket['hostname']))
         else:
             combined = '(unknown)'
 
         if socket['port']:
             combined += ":"
-            combined += str(socket['port'])
+            combined += str(collapse_nested_values(socket['port']))
         if socket['protocol']:
             combined += ":"
-            combined += str(socket['protocol'])
+            combined += str(collapse_nested_values(socket['protocol']))
 
         return str(combined)
 
