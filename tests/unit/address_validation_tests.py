@@ -6,7 +6,10 @@ from adapters.certuk_mod.validation.observable.address import AddressValidationI
 class AddressValidationTests(unittest.TestCase):
 
     INVALID_CATEGORIES = [
-        'ip-addr',
+        'ip-addr'
+    ]
+
+    DEFAULT_TO_VALID_CATEGORIES = [
         '',
         None
     ]
@@ -40,6 +43,11 @@ class AddressValidationTests(unittest.TestCase):
         for category in self.INVALID_CATEGORIES:
             address_validation = AddressValidationInfo.validate(category=category, address_value=None)
             self.assertEqual(address_validation.category.status, ValidationStatus.ERROR)
+
+    def test_Validate_IfNoCategoryDefault_Passes(self):
+        for category in self.DEFAULT_TO_VALID_CATEGORIES:
+            address_validation = AddressValidationInfo.validate(category=category, address_value=None)
+            self.assertIsNone(address_validation.category, 'Expecting category validation to be defaulted')
 
     def test_Validate_IfNoAddressValue_Fails(self):
         for category in ['ipv4-addr', 'ipv6-addr', 'e-mail', 'mac', 'cidr']:
