@@ -1,8 +1,17 @@
 import unittest
+import mock
 from adapters.certuk_mod.builder.custom_observables.port import PortObservableDefinition
 
 
 class PortObjectTypeTests(unittest.TestCase):
+
+    nested_port_object_mock = mock.MagicMock()
+    nested_port_object_mock._object.properties.port_value.value.return_value = 9030
+    nested_port_object_mock._object.properties.layer4protocol.value.return_value = 'tcp'
+
+    flat_port_object_mock = mock.MagicMock()
+    flat_port_object_mock._object.properties.port_value.return_value = 9030
+    flat_port_object_mock._object.properties.layer4protocol.return_value = 'tcp'
     NESTED_PORT_OBJECT = {
         'id': 'test_id',
         'title': 'PortObjectTest',
@@ -53,27 +62,27 @@ class PortObjectTypeTests(unittest.TestCase):
     def test_summary_value_with_flat_fields(self):
         port_object = PortObservableDefinition()
 
-        summary_value_flat_fields = PortObservableDefinition.summary_value_generator(port_object, PortObjectTypeTests.FLAT_PORT_OBJECT)
+        summary_value_flat_fields = port_object.summary_value_generator(PortObjectTypeTests.flat_port_object_mock)
 
         self.assertEqual(PortObjectTypeTests.summary_value, summary_value_flat_fields)
 
     def test_summary_value_with_nested_fields(self):
         port_object = PortObservableDefinition()
 
-        summary_value_nested_fields = PortObservableDefinition.summary_value_generator(port_object, PortObjectTypeTests.NESTED_PORT_OBJECT)
+        summary_value_nested_fields = port_object.summary_value_generator(PortObjectTypeTests.nested_port_object_mock)
 
         self.assertEqual(PortObjectTypeTests.summary_value, summary_value_nested_fields)
 
     def test_to_draft_handling_with_flat_fields(self):
         port_object = PortObservableDefinition()
 
-        to_draft_object = PortObservableDefinition.to_draft_handler(port_object, PortObjectTypeTests.FLAT_PORT_OBJECT, 'trust_group', 'load_by_id', id_ns='purple')
+        to_draft_object = port_object.to_draft_handler(PortObjectTypeTests.flat_port_object_mock, 'trust_group', 'load_by_id', id_ns='purple')
 
         self.assertEqual(to_draft_object, PortObjectTypeTests.to_draft_object)
 
     def test_to_draft_handler_with_nested_fields(self):
         port_object = PortObservableDefinition()
 
-        to_draft_object = PortObservableDefinition.to_draft_handler(port_object, PortObjectTypeTests.NESTED_PORT_OBJECT, 'trust_group', 'load_by_id', id_ns='purple')
+        to_draft_object = port_object.to_draft_handler(PortObjectTypeTests.nested_port_object_mock, 'trust_group', 'load_by_id', id_ns='purple')
 
         self.assertEqual(to_draft_object, PortObjectTypeTests.to_draft_object)
