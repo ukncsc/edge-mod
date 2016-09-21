@@ -1,44 +1,107 @@
-import random
 from django.conf import settings
-from adapters.certuk_mod.catalog.generate_snort import generate_sid
+
+from cybox.objects.address_object import Address
+from cybox.objects.uri_object import URI
 
 cfg = settings.ACTIVE_CONFIG
 LOCAL_ALIAS = cfg.by_key('company_alias')
 
+OBJECT_FIELDS = {
+    'AddressObjectType': ['address_value'],
+    'DomainNameObjectType': ['value'],
+    'EmailMessageObjectType': [
+        'header.from_.address_value',
+        'header.to.address_value',
+    ],
+    'FileObjectType': ['hashes.simple_hash_value'],
+    'HTTPSessionObjectType': ['http_request_response.http_client_request.' +
+                    'http_request_header.parsed_header.user_agent'],
+    'SocketAddressObjectType': ['ip_address.address_value'],
+    'URIObjectType': ['value'],
+}
 
-def write_bro_rule(src_IP="*", dst_IP="*", src_port="*", dst_port="*", proto="*"):
-    return "signature { protocol == %s src-ip == %s src-port == %s  dst-ip == %s dst-port == %s}" % \
-           (proto, src_IP, src_port, dst_IP, dst_port);
+OBJECT_CONSTRAINTS = {
+    'Address': {
+        'category': [Address.CAT_IPV4, Address.CAT_IPV6],
+    },
+    'URI': {
+        'type_': [URI.TYPE_URL],
+    },
+}
+
+STRING_CONDITION_CONSTRAINT = ['None', 'Equals']
+
+HEADER_LABELS = [
+    'indicator', 'indicator_type', 'meta.source', 'meta.url',
+    'meta.do_notice', 'meta.if_in', 'meta.whitelist',
+]
+
+# Map Cybox object type to Bro Intel types.
+BIF_TYPE_MAPPING = {
+    'AddressObjectType': 'Intel::ADDR',
+    'DomainNameObjectType': 'Intel::DOMAIN',
+    'EmailMessageObjectType': 'Intel::EMAIL',
+    'FileObjectType': 'Intel::FILE_HASH',
+    'HTTPSessionObjectType': 'Intel::SOFTWARE',
+    'SocketAddressObjectType': 'Intel::ADDR',
+    'URIObjectType': 'Intel::URL',
+}
+
+# Map observable id prefix to source and url.
+BIF_SOURCE_MAPPING = {
+    'cert_au': {
+        'source': 'CERT-AU',
+        'url': 'https://www.cert.gov.au/',
+    },
+    'CCIRC-CCRIC': {
+        'source': 'CCIRC',
+        'url': ('https://www.publicsafety.gc.ca/' +
+                'cnt/ntnl-scrt/cbr-scrt/ccirc-ccric-eng.aspx'),
+    },
+    'NCCIC': {
+        'source': 'NCCIC',
+        'url': 'https://www.us-cert.gov/',
+    },
+}
 
 
-def generate_bro(obs, obs_type, ref):
-    if obs_type == 'AddressObjectType':
-        return write_bro_rule(dst_IP=obs)
-
-    if obs_type == "NetworkConnectionObjectType":
-        # needs to be smarter deadling with non existing values, even in cert data no guarantee all values there so order is messed
-        content_string = ''
-        parsed_network_connection = obs.split(':')
-        src_ip = parsed_network_connection[1]
-        src_prt = parsed_network_connection[2]
-        protocol = parsed_network_connection[3]
-        dst_ip = parsed_network_connection[4]
-
-        return ""  # write_bro_rule()
-
-    if obs_type == "SocketAddressObjectType":
-
-        content_string = ''
-        parsed_socket = obs.split(':')
-        src_ip = parsed_socket[0]
-        parsed_port_and_protocol = parsed_socket[1].split('(')
-        if len(parsed_port_and_protocol) > 1:
-            src_prt = parsed_port_and_protocol[0]
-            protocol = parsed_port_and_protocol[1].strip(')')
+def generate_bro(obs, obs_type, id_prefix):
+    # Deals with nested structure for fields which have attributes
+    def flatten_nested_values(obj):
+        if isinstance(obj,dict):
+            return obj["value"]
         else:
-            src_prt = parsed_port_and_protocol[0]
-            protocol = "*"
+            return obj
 
-        return write_bro_rule(proto=protocol, src_IP=src_ip, src_port=src_prt)
+    text=''
+    if obs_type in BIF_TYPE_MAPPING:
+        # Look up source and url from observable ID
+        if id_prefix in BIF_SOURCE_MAPPING:
+            source = BIF_SOURCE_MAPPING[id_prefix]['source']
+            url = BIF_SOURCE_MAPPING[id_prefix]['url']
+        else:
+            source = id_prefix
+            url = ''
 
-    return ''
+        bif_type = BIF_TYPE_MAPPING[obs_type]
+        for fields in obs:
+            for field in OBJECT_FIELDS[obs_type]:
+                if field in fields:
+                    field_values = [
+                        flatten_nested_values(obs[field]),
+                        '\t',
+                        bif_type,
+                        '\t',
+                        source,
+                        '\t',
+                        url,
+                        '\t',
+                        'T',
+                        '\t',
+                        '-',
+                        '\t',
+                        '-',
+                    ]
+                    text += text.join(field_values)
+    return text
+

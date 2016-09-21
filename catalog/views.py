@@ -276,7 +276,10 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
         if eo.apidata.has_key("observable_composition"):
             continue
 
-        result += writer(eo.summary['value'], eo.summary['type'])
+        if writer == bro_writer:
+            result += writer(eo.apidata["object"]["properties"], eo.summary["type"])
+        else:
+            result += writer(eo.summary['value'], eo.summary['type'])
 
     response = HttpResponse(content_type='text/txt')
     response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (output_format, obs_type_filter, id_)
