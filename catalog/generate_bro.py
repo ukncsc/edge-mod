@@ -15,7 +15,7 @@ OBJECT_FIELDS = {
         ['header','to','address_value'],
     ],
     'FileObjectType': [['hashes','simple_hash_value']],
-    'HTTPSessionObjectType': [['http_request_response',0,'http_client_request','http_request_header','parsed_header','user_agent']],
+    'HTTPSessionObjectType': [['http_request_response','http_client_request','http_request_header','parsed_header','user_agent']],
     'SocketAddressObjectType': [['ip_address','address_value']],
     'URIObjectType': [['value']],
 }
