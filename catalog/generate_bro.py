@@ -2,22 +2,22 @@ from django.conf import settings
 
 from cybox.objects.address_object import Address
 from cybox.objects.uri_object import URI
+from edge.tools import rgetattr
 
 cfg = settings.ACTIVE_CONFIG
 LOCAL_ALIAS = cfg.by_key('company_alias')
 
 OBJECT_FIELDS = {
-    'AddressObjectType': ['address_value'],
-    'DomainNameObjectType': ['value'],
+    'AddressObjectType': [['address_value']],
+    'DomainNameObjectType': [['value']],
     'EmailMessageObjectType': [
-        'header.from_.address_value',
-        'header.to.address_value',
+        ['header','from', 'address_value'],
+        ['header','to','address_value'],
     ],
-    'FileObjectType': ['hashes.simple_hash_value'],
-    'HTTPSessionObjectType': ['http_request_response.http_client_request.' +
-                    'http_request_header.parsed_header.user_agent'],
-    'SocketAddressObjectType': ['ip_address.address_value'],
-    'URIObjectType': ['value'],
+    'FileObjectType': [['hashes','simple_hash_value']],
+    'HTTPSessionObjectType': [['http_request_response',0,'http_client_request','http_request_header','parsed_header','user_agent']],
+    'SocketAddressObjectType': [['ip_address','address_value']],
+    'URIObjectType': [['value']],
 }
 
 OBJECT_CONSTRAINTS = {
@@ -68,12 +68,23 @@ BIF_SOURCE_MAPPING = {
 def generate_bro(obs, obs_type, id_prefix):
     # Deals with nested structure for fields which have attributes
     def flatten_nested_values(obj):
-        if isinstance(obj,dict):
+        if isinstance(obj, dict):
             return obj["value"]
         else:
             return obj
 
-    text=''
+    def rgetvalue(o, l, d=None):
+        """recursive walk dict using a list"""
+        if o is None:
+            return d
+        if isinstance(o, list):
+            return rgetvalue(o[0], l, d)
+        if len(l) == 1:
+            return o[l[0]]
+        else:
+            return rgetvalue(o[l[0]], l[1:], d)
+
+    text = ''
     if obs_type in BIF_TYPE_MAPPING:
         # Look up source and url from observable ID
         if id_prefix in BIF_SOURCE_MAPPING:
@@ -84,24 +95,23 @@ def generate_bro(obs, obs_type, id_prefix):
             url = ''
 
         bif_type = BIF_TYPE_MAPPING[obs_type]
-        for fields in obs:
-            for field in OBJECT_FIELDS[obs_type]:
-                if field in fields:
-                    field_values = [
-                        flatten_nested_values(obs[field]),
-                        '\t',
-                        bif_type,
-                        '\t',
-                        source,
-                        '\t',
-                        url,
-                        '\t',
-                        'T',
-                        '\t',
-                        '-',
-                        '\t',
-                        '-',
-                    ]
-                    text += text.join(field_values)
-    return text
-
+        for field in OBJECT_FIELDS[obs_type]:
+            retrieved_value = rgetvalue(obs, field)
+            if retrieved_value is not None:
+                field_values = [
+                    flatten_nested_values(retrieved_value),
+                    '\t',
+                    bif_type,
+                    '\t',
+                    source,
+                    '\t',
+                    url,
+                    '\t',
+                    'T',
+                    '\t',
+                    '-',
+                    '\t',
+                    '-',
+                ]
+                text += text.join(field_values)
+        return text
