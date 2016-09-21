@@ -24,7 +24,7 @@ define([
                     ko.utils.arrayForEach(this.savedMarkingPriorities(), function (item) {
                         bothMarkings.push(item)
                     });
-                    var distinctValues = ko.utils.arrayGetDistinctValues(bothMarkings);
+                    var distinctValues = ko.utils.arrayGetDistinctValues(bothMarkings).filter(function (item) { return item}); //remove empty items
                     return distinctValues.length != this.savedMarkingPriorities().length;
                 }, this);
 
@@ -61,7 +61,6 @@ define([
                 (
                     this.enabled() != this.savedEnabled() ||
                     this.markingsChanged()
-
                 );
         },
 

@@ -14,13 +14,13 @@
 
                 <div class="col-sm-5">
                     <input type="text" class="form-control"
-                           data-bind="value: $data.marking, valueUpdate: 'afterkeydown'">
+                           data-bind="value: $data.marking, valueUpdate: 'afterkeydown', enable: $parent.enabled">
                 </div>
             </div>
         </div>
         <div class="row col-sm-3 pull-right">
             <button class="btn btn-default"
-                    data-bind="click: addMarking">Add Marking
+                    data-bind="click: addMarking, enable: enabled">Add Marking
             </button>
             <button class="btn btn-default"
                         data-bind="click: save, css: { disabled: !(changesPending()) },

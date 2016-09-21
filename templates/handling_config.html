@@ -12,22 +12,22 @@
                     <h5>Stix Value: </h5>
                 </div>
                 <div class="col-sm-3">
-                    <input class="form-control" data-bind="value: $data.stix_value, valueUpdate: 'afterkeydown'">
+                    <input class="form-control" data-bind="value: $data.stix_value, valueUpdate: 'afterkeydown', enable: $parent.enabled">
                 </div>
                 <div class="col-sm-2">
                     <h5>Display Value: </h5>
                 </div>
                 <div class="col-sm-3">
-                    <input class="form-control" data-bind="value: $data.display_value, valueUpdate: 'afterkeydown'">
+                    <input class="form-control" data-bind="value: $data.display_value, valueUpdate: 'afterkeydown', enable: $parent.enabled">
                 </div>
             </div>
         </div>
         <div class="row col-sm-3 pull-right">
             <button class="btn btn-default"
-                    data-bind="click: addGroup">Add Mapping
+                    data-bind="click: addGroup, enable: enabled">Add Mapping
             </button>
             <button class="btn btn-default"
-                        data-bind="click: save">Save
+                        data-bind="click: save, enable: something_to_save">Save
             </button>
         </div>
     </div>
