@@ -12,22 +12,22 @@ define([
     return declare(StixObjectTLP, {
         constructor: function (data, stixPackage) {
             this.stage = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), data, "stage.value");
+                return stixPackage.safeValueGet(this.id, data, "stage.value");
             }, this);
             this.type = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), data, "type.value");
+                return stixPackage.safeValueGet(this.id, data, "type.value");
             }, this);
             this.objective = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), data, "objective.description");
+                return stixPackage.safeValueGet(this.id, data, "objective.description");
             }, this);
             this.impact = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), data, "impact.description");
+                return stixPackage.safeValueGet(this.id, data, "impact.description");
             }, this);
             this.efficacy = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), data, "efficacy.description");
+                return stixPackage.safeValueGet(this.id, data, "efficacy.description");
             }, this);
             this.cost = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), data, "cost.description");
+                return stixPackage.safeValueGet(this.id, data, "cost.description");
             }, this);
             this.properties = ko.computed(function () {
                 return ko.utils.arrayFilter([
@@ -43,7 +43,7 @@ define([
                 });
             }, this);
             this.relatedCOAs = ko.computed(function () {
-                return stixPackage.safeReferenceArrayGet(this.id(), data, "related_coas.coas", "course_of_action.idref");
+                return stixPackage.safeReferenceArrayGet(this.id, data, "related_coas.coas", "course_of_action.idref");
             }, this, this.DEFER_EVALUATION);
         }
     });

@@ -34,13 +34,13 @@ define([
 
                 this.data = ko.observable(data);
                 this.type = ko.computed(function () {
-                    var type = stixPackage.safeValueGet(this.id(), data, "object.properties.xsi:type", "xsi:type");
-                    return type.isEmpty === false ? type : stixPackage.safeValueGet(this.id(), data, "observable_composition.operator");
+                    var type = stixPackage.safeValueGet(this.id, data, "object.properties.xsi:type", "xsi:type");
+                    return type.isEmpty === false ? type : stixPackage.safeValueGet(this.id, data, "observable_composition.operator");
                 }, this);
                 var objectType = ko.computed(function () {
                     var type = stixPackage.safeGet(data, "object.properties.xsi:type");
                     var ctor = getObjectType(type);
-                    return new ctor(this.id(), stixPackage.safeGet(data, "object.properties"), stixPackage);
+                    return new ctor(this.id, stixPackage.safeGet(data, "object.properties"), stixPackage);
                 }, this);
                 this.properties = ko.computed(function () {
                     return objectType().properties();

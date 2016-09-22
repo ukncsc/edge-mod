@@ -46,7 +46,7 @@ define([
                 assert.isNotNull(classUnderTest);
             },
             "has correct id": function () {
-                assert.equal(classUnderTest.id(), "pss:campaign-a7bc3ff3-2d60-4d11-9a91-09ea9f6feb9c");
+                assert.equal(classUnderTest.id, "pss:campaign-a7bc3ff3-2d60-4d11-9a91-09ea9f6feb9c");
             },
             "has correct title": function () {
                 var actual = classUnderTest.title();
@@ -93,7 +93,7 @@ define([
                 assert.lengthOf(actualRelatedTTPs, 1);
                 var actualRelatedTTP = actualRelatedTTPs[0];
                 assert.instanceOf(actualRelatedTTP, TTP);
-                assert.equal(actualRelatedTTP.id(), "opensource:ttp-70fe9862-02f1-4561-9892-209023f2b42c")
+                assert.equal(actualRelatedTTP.id, "opensource:ttp-70fe9862-02f1-4561-9892-209023f2b42c")
             },
             "has correct associated campaigns": function () {
                 var actual = classUnderTest.associatedCampaigns();
@@ -104,7 +104,7 @@ define([
                 assert.lengthOf(actualAssociatedCampaigns, 1);
                 var actualAssociatedCampaign = actualAssociatedCampaigns[0];
                 assert.instanceOf(actualAssociatedCampaign, Campaign);
-                assert.equal(actualAssociatedCampaign.id(), "pss:campaign-658d8c83-b38b-4979-8ec9-125653e680c7")
+                assert.equal(actualAssociatedCampaign.id, "pss:campaign-658d8c83-b38b-4979-8ec9-125653e680c7")
             },
             "has correct related incidents": function () {
                 var actual = classUnderTest.relatedIncidents();
@@ -115,7 +115,7 @@ define([
                 assert.lengthOf(actualRelatedIncidents, 1);
                 var actualRelatedIncident = actualRelatedIncidents[0];
                 assert.instanceOf(actualRelatedIncident, Incident);
-                assert.equal(actualRelatedIncident.id(), "pss:incident-4ac9bbd1-99c4-48b0-adfb-593e3ef384cd")
+                assert.equal(actualRelatedIncident.id, "pss:incident-4ac9bbd1-99c4-48b0-adfb-593e3ef384cd")
             },
             "has correct related indicators": function () {
                 var actual = classUnderTest.relatedIndicators();
@@ -126,7 +126,7 @@ define([
                 assert.lengthOf(actualRelatedIndicators, 1);
                 var actualRelatedIndicator = actualRelatedIndicators[0];
                 assert.instanceOf(actualRelatedIndicator, Indicator);
-                assert.equal(actualRelatedIndicator.id(), "pss:indicator-019ac66c-131e-4f7d-9ad2-a7afa5c1640a")
+                assert.equal(actualRelatedIndicator.id, "pss:indicator-019ac66c-131e-4f7d-9ad2-a7afa5c1640a")
             },
             "has correct related actors": function () {
                 var actual = classUnderTest.relatedActors();
@@ -137,7 +137,7 @@ define([
                 assert.lengthOf(actualRelatedActors, 1);
                 var actualRelatedActor = actualRelatedActors[0];
                 assert.instanceOf(actualRelatedActor, ThreatActor);
-                assert.equal(actualRelatedActor.id(), "pss:threatactor-0bdab62c-3a6b-46ff-b3ce-59507b1aa4ed")
+                assert.equal(actualRelatedActor.id, "pss:threatactor-0bdab62c-3a6b-46ff-b3ce-59507b1aa4ed")
             }
         }
     });

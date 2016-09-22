@@ -26,16 +26,16 @@ define([
         },
         constructor: function (data, stixPackage) {
 
-            this.id = ko.observable(stixPackage.safeGet(data, "id"));
+            this.id = stixPackage.safeGet(data, "id");
 
-            var validation = stixPackage.validations().findByProperty(this.id(), "namespace");
-            this.namespace = ko.observable(new ReviewValue(getNamespaceIfExists(this.id()), validation.state, validation.message));
+            var validation = stixPackage.validations().findByProperty(this.id, "namespace");
+            this.namespace = ko.observable(new ReviewValue(getNamespaceIfExists(this.id), validation.state, validation.message));
 
-            this.title = ko.observable(stixPackage.safeValueGet(this.id(), data, "title"));
+            this.title = ko.observable(stixPackage.safeValueGet(this.id, data, "title"));
 
-            this.shortDescription = ko.observable(stixPackage.safeValueGet(this.id(), data, "short_description"));
+            this.shortDescription = ko.observable(stixPackage.safeValueGet(this.id, data, "short_description"));
 
-            this.description = ko.observable(stixPackage.safeValueGet(this.id(), data, "description"));
+            this.description = ko.observable(stixPackage.safeValueGet(this.id, data, "description"));
 
             this.trustGroups = ko.observable(new ReviewValue(stixPackage.trustGroups(), null, null));
 

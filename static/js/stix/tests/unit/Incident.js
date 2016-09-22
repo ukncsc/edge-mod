@@ -50,7 +50,7 @@ define([
                     assert.isNotNull(classUnderTest);
                 },
                 "has correct id": function () {
-                    assert.equal(classUnderTest.id(), "purple-secure-systems:incident-02468346-fdf2-4095-a905-f3731fccd58d");
+                    assert.equal(classUnderTest.id, "purple-secure-systems:incident-02468346-fdf2-4095-a905-f3731fccd58d");
                 },
                 "has correct title": function () {
                     var actual = classUnderTest.title();
@@ -127,7 +127,7 @@ define([
                     assert.lengthOf(actualLeveragedTTPs, 1);
                     var actualLeveragedTTP = actualLeveragedTTPs[0];
                     assert.instanceOf(actualLeveragedTTP, TTP);
-                    assert.equal(actualLeveragedTTP.id(), "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32");
+                    assert.equal(actualLeveragedTTP.id, "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32");
                 },
                 "has correct related incidents": function () {
                     var actual = classUnderTest.relatedIncidents();
@@ -138,10 +138,10 @@ define([
                     assert.lengthOf(actualRelatedIncidents, 2);
                     var actualRelatedIncident1 = actualRelatedIncidents[0];
                     assert.instanceOf(actualRelatedIncident1, Incident);
-                    assert.equal(actualRelatedIncident1.id(), "purple-secure-systems:incident-2ac2d36b-fa0f-49aa-87bc-bdc27a497f19");
+                    assert.equal(actualRelatedIncident1.id, "purple-secure-systems:incident-2ac2d36b-fa0f-49aa-87bc-bdc27a497f19");
                     var actualRelatedIncident2 = actualRelatedIncidents[1];
                     assert.instanceOf(actualRelatedIncident2, Incident);
-                    assert.equal(actualRelatedIncident2.id(), "purple-secure-systems:incident-0b0090ab-bae8-4167-a538-9cc68033f9c9");
+                    assert.equal(actualRelatedIncident2.id, "purple-secure-systems:incident-0b0090ab-bae8-4167-a538-9cc68033f9c9");
                 },
                 "has correct related indicators": function () {
                     var actual = classUnderTest.relatedIndicators();
@@ -152,10 +152,10 @@ define([
                     assert.lengthOf(actualRelatedIndicators, 2);
                     var actualRelatedIndicator1 = actualRelatedIndicators[0];
                     assert.instanceOf(actualRelatedIndicator1, Indicator);
-                    assert.equal(actualRelatedIndicator1.id(), "purple-secure-systems:indicator-d46e13c9-7dce-4272-a593-1cd2f9212a2d");
+                    assert.equal(actualRelatedIndicator1.id, "purple-secure-systems:indicator-d46e13c9-7dce-4272-a593-1cd2f9212a2d");
                     var actualRelatedIndicator2 = actualRelatedIndicators[1];
                     assert.instanceOf(actualRelatedIndicator2, Indicator);
-                    assert.equal(actualRelatedIndicator2.id(), "purple-secure-systems:indicator-1cf691e8-6428-402c-a28e-b609ba7d6d2d");
+                    assert.equal(actualRelatedIndicator2.id, "purple-secure-systems:indicator-1cf691e8-6428-402c-a28e-b609ba7d6d2d");
                 },
                 "has correct related observables": function () {
                     var actual = classUnderTest.relatedObservables();
@@ -166,13 +166,13 @@ define([
                     assert.lengthOf(actualRelatedObservables, 3);
                     var actualRelatedObservable1 = actualRelatedObservables[0];
                     assert.instanceOf(actualRelatedObservable1, Observable);
-                    assert.equal(actualRelatedObservable1.id(), "purple-secure-systems:observable-f9faeb29-9c98-434c-b07a-4647e6cdd6f2");
+                    assert.equal(actualRelatedObservable1.id, "purple-secure-systems:observable-f9faeb29-9c98-434c-b07a-4647e6cdd6f2");
                     var actualRelatedObservable2 = actualRelatedObservables[1];
                     assert.instanceOf(actualRelatedObservable2, Observable);
-                    assert.equal(actualRelatedObservable2.id(), "purple-secure-systems:observable-1fb0e40b-d23d-4b81-ab78-0824e2642ebf");
+                    assert.equal(actualRelatedObservable2.id, "purple-secure-systems:observable-1fb0e40b-d23d-4b81-ab78-0824e2642ebf");
                     var actualRelatedObservable3 = actualRelatedObservables[2];
                     assert.instanceOf(actualRelatedObservable3, Observable);
-                    assert.equal(actualRelatedObservable3.id(), "purple-secure-systems:observable-9db11783-3887-4f32-9f10-f18ebf2fba98");
+                    assert.equal(actualRelatedObservable3.id, "purple-secure-systems:observable-9db11783-3887-4f32-9f10-f18ebf2fba98");
                 }
             }
         }

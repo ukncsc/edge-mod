@@ -80,10 +80,10 @@ define([
                     assert.isNotNull(classUnderTest.root);
                 },
                 "has correct id": function () {
-                    assert.equal(classUnderTest.root.id(), "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
+                    assert.equal(classUnderTest.root.id, "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
                 }
             },
-            "findById()": {
+            "findByid": {
                 setup: function () {
                     loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
                 },
@@ -96,17 +96,17 @@ define([
                     );
                 }
             },
-            "findByStringId()": {
+            "findByStringid": {
                 setup: function () {
                     loadPackage("purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
                 },
                 "found": function () {
                     var actual = classUnderTest.findByStringId("purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
-                    assert.equal(actual.id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064")
+                    assert.equal(actual.id, "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064")
                 },
                 "found from cache": function () {
                     var actual = classUnderTest.findByStringId("purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
-                    assert.equal(actual.id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064")
+                    assert.equal(actual.id, "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064")
                 }
             },
             "header() no header": {
@@ -263,7 +263,7 @@ define([
                     var actualSTIXObjects = actual.value;
                     assert.isArray(actualSTIXObjects);
                     assert.lengthOf(actualSTIXObjects, 1);
-                    assert.equal(actualSTIXObjects[0].id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
+                    assert.equal(actualSTIXObjects[0].id, "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
                 }
             }
         }

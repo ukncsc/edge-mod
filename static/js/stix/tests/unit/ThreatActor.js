@@ -43,7 +43,7 @@ define([
                     assert.isNotNull(classUnderTest);
                 },
                 "has correct id": function () {
-                    assert.equal(classUnderTest.id(), "pss:threatactor-0bdab62c-3a6b-46ff-b3ce-59507b1aa4ed");
+                    assert.equal(classUnderTest.id, "pss:threatactor-0bdab62c-3a6b-46ff-b3ce-59507b1aa4ed");
                 },
                 "has correct title": function () {
                     var actual = classUnderTest.title();
@@ -108,7 +108,7 @@ define([
                     assert.lengthOf(actualObservedTTPs, 1);
                     var actualObservedTTP = actualObservedTTPs[0];
                     assert.instanceOf(actualObservedTTP, TTP);
-                    assert.equal(actualObservedTTP.id(), "opensource:ttp-70fe9862-02f1-4561-9892-209023f2b42c")
+                    assert.equal(actualObservedTTP.id, "opensource:ttp-70fe9862-02f1-4561-9892-209023f2b42c")
                 },
                 "has correct associated actors": function () {
                     var actual = classUnderTest.associatedActors();
@@ -119,7 +119,7 @@ define([
                     assert.lengthOf(actualAssociatedActors, 1);
                     var actualAssociatedActor = actualAssociatedActors[0];
                     assert.instanceOf(actualAssociatedActor, ThreatActor);
-                    assert.equal(actualAssociatedActor.id(), "pss:threatactor-377173e0-08c4-4ce4-aa7d-347cdbc69775")
+                    assert.equal(actualAssociatedActor.id, "pss:threatactor-377173e0-08c4-4ce4-aa7d-347cdbc69775")
                 },
                 "has correct associated campaigns": function () {
                     var actual = classUnderTest.associatedCampaigns();
@@ -130,7 +130,7 @@ define([
                     assert.lengthOf(actualAssociatedCampaigns, 1);
                     var actualAssociatedCampaign = actualAssociatedCampaigns[0];
                     assert.instanceOf(actualAssociatedCampaign, Campaign);
-                    assert.equal(actualAssociatedCampaign.id(), "pss:campaign-658d8c83-b38b-4979-8ec9-125653e680c7");
+                    assert.equal(actualAssociatedCampaign.id, "pss:campaign-658d8c83-b38b-4979-8ec9-125653e680c7");
                 }
             }
         }

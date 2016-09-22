@@ -40,7 +40,7 @@ define([
                     assert.isNotNull(classUnderTest);
                 },
                 "has correct id": function () {
-                    assert.equal(classUnderTest.id(), "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
+                    assert.equal(classUnderTest.id, "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30");
                 },
                 "has correct title": function () {
                     var actual = classUnderTest.title();
@@ -132,7 +132,7 @@ define([
                     assert.lengthOf(actualRelatedCOAs, 1);
                     var actualRelatedCOA = actualRelatedCOAs[0];
                     assert.instanceOf(actualRelatedCOA, CourseOfAction);
-                    assert.equal(actualRelatedCOA.id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
+                    assert.equal(actualRelatedCOA.id, "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
                 }
             }
         }
