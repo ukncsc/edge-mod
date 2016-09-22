@@ -1,9 +1,6 @@
 import datetime
 import json
-from stix.extensions.identity.ciq_identity_3_0 import STIXCIQIdentity3_0, OrganisationInfo, PartyName, Language, \
-    Address, ElectronicAddressIdentifier, FreeTextLine, ContactNumber
 from dateutil import parser as dtparser
-import types
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required

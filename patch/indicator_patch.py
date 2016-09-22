@@ -126,7 +126,7 @@ class IndicatorBuilderPatch(IndicatorBuilder):
         #  otherwise, get it from...?the database?
         if reedit_flag:
             user_action_log = logging.getLogger('user_actions')
-            user_action_log.info("%s updated STIX item %s (%s)" % (user.username, indicator.id_, indicator.title))
+            user_action_log.info("%s updated STIX item %s (%s)", user.username, indicator.id_, indicator.title)
         # EOIndicator = self.edge_object_loader.load(indicator.id_)              # Get the parent indicator
         #     find_ob_comp = lambda edges: [x.fetch() for x in edges if x.ty == 'obs'][0]
         #     # Find the observable composition among it's edges and return only the first hit.

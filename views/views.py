@@ -115,12 +115,6 @@ def discover(request):
     return objectid_discover(request, "publisher_review", "publisher_not_found")
 
 
-@login_required
-def clone(request):
-    stix_id = objectid_find(request)
-    return clone_direct(request, stix_id)
-
-
 TYPE_TO_URL = {
     'cam': 'campaign',
     'coa': 'course_of_action',

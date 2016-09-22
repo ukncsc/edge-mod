@@ -5,7 +5,7 @@ from datetime import datetime
 from dateutil import tz
 import rbac
 
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
