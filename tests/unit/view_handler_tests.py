@@ -105,7 +105,6 @@ class ViewHandlerTests(unittest.TestCase):
             'clone_url': "/adapter/certuk_mod/clone_direct/Dummy%20ID",
             "revisions": '[{"timekey": "latest"}]',
             "revision": "latest",
-            "version": mock_root_edgge_object.version,
             "sightings": None,
 
             'ajax_uri': '/catalog/ajax/',

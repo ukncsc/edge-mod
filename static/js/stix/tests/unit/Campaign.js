@@ -51,44 +51,44 @@ define([
             "has correct title": function () {
                 var actual = classUnderTest.title();
                 assert.instanceOf(actual, ReviewValue);
-                assert.isFalse(actual.isEmpty());
-                assert.equal(actual.value(), "Test campaign");
+                assert.isFalse(actual.isEmpty);
+                assert.equal(actual.value, "Test campaign");
             },
             "has correct short description": function () {
                 var actual = classUnderTest.shortDescription();
                 assert.instanceOf(actual, ReviewValue);
-                assert.isFalse(actual.isEmpty());
-                assert.equal(actual.value(), "short description");
+                assert.isFalse(actual.isEmpty);
+                assert.equal(actual.value, "short description");
             },
             "has correct description": function () {
                 var actual = classUnderTest.description();
                 assert.instanceOf(actual, ReviewValue);
-                assert.isFalse(actual.isEmpty());
-                assert.equal(actual.value(), "long description");
+                assert.isFalse(actual.isEmpty);
+                assert.equal(actual.value, "long description");
             },
             "has correct TLP": function () {
                 var actual = classUnderTest.tlp();
                 assert.instanceOf(actual, ReviewValue);
-                assert.isFalse(actual.isEmpty());
-                assert.equal(actual.value(), "WHITE");
+                assert.isFalse(actual.isEmpty);
+                assert.equal(actual.value, "WHITE");
             },
             "has correct effects": function () {
                 var actual = classUnderTest.intendedEffects();
                 assert.instanceOf(actual, ReviewValue);
-                assert.isFalse(actual.isEmpty());
-                assert.equal(actual.value(), "Advantage");
+                assert.isFalse(actual.isEmpty);
+                assert.equal(actual.value, "Advantage");
             },
             "has correct names": function () {
                 var actual = classUnderTest.names();
                 assert.instanceOf(actual, ReviewValue);
-                assert.isFalse(actual.isEmpty());
-                assert.equal(actual.value(), "Joe Bloggs");
+                assert.isFalse(actual.isEmpty);
+                assert.equal(actual.value, "Joe Bloggs");
             },
             "has correct related TTPs": function () {
                 var actual = classUnderTest.relatedTTPs();
                 assert.instanceOf(actual, ReviewValue);
-                assert.isFalse(actual.isEmpty());
-                var actualRelatedTTPs = actual.value();
+                assert.isFalse(actual.isEmpty);
+                var actualRelatedTTPs = actual.value;
                 assert.isArray(actualRelatedTTPs);
                 assert.lengthOf(actualRelatedTTPs, 1);
                 var actualRelatedTTP = actualRelatedTTPs[0];
@@ -98,8 +98,8 @@ define([
             "has correct associated campaigns": function () {
                 var actual = classUnderTest.associatedCampaigns();
                 assert.instanceOf(actual, ReviewValue);
-                assert.isFalse(actual.isEmpty());
-                var actualAssociatedCampaigns = actual.value();
+                assert.isFalse(actual.isEmpty);
+                var actualAssociatedCampaigns = actual.value;
                 assert.isArray(actualAssociatedCampaigns);
                 assert.lengthOf(actualAssociatedCampaigns, 1);
                 var actualAssociatedCampaign = actualAssociatedCampaigns[0];
@@ -109,8 +109,8 @@ define([
             "has correct related incidents": function () {
                 var actual = classUnderTest.relatedIncidents();
                 assert.instanceOf(actual, ReviewValue);
-                assert.isFalse(actual.isEmpty());
-                var actualRelatedIncidents = actual.value();
+                assert.isFalse(actual.isEmpty);
+                var actualRelatedIncidents = actual.value;
                 assert.isArray(actualRelatedIncidents);
                 assert.lengthOf(actualRelatedIncidents, 1);
                 var actualRelatedIncident = actualRelatedIncidents[0];
@@ -120,8 +120,8 @@ define([
             "has correct related indicators": function () {
                 var actual = classUnderTest.relatedIndicators();
                 assert.instanceOf(actual, ReviewValue);
-                assert.isFalse(actual.isEmpty());
-                var actualRelatedIndicators = actual.value();
+                assert.isFalse(actual.isEmpty);
+                var actualRelatedIndicators = actual.value;
                 assert.isArray(actualRelatedIndicators);
                 assert.lengthOf(actualRelatedIndicators, 1);
                 var actualRelatedIndicator = actualRelatedIndicators[0];
@@ -131,8 +131,8 @@ define([
             "has correct related actors": function () {
                 var actual = classUnderTest.relatedActors();
                 assert.instanceOf(actual, ReviewValue);
-                assert.isFalse(actual.isEmpty());
-                var actualRelatedActors = actual.value();
+                assert.isFalse(actual.isEmpty);
+                var actualRelatedActors = actual.value;
                 assert.isArray(actualRelatedActors);
                 assert.lengthOf(actualRelatedActors, 1);
                 var actualRelatedActor = actualRelatedActors[0];

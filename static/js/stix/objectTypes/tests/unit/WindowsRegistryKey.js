@@ -56,8 +56,8 @@ define([
                         assert.equal(actualProperty.label(), expected.label);
                         var actual = actualProperty.value();
                         assert.instanceOf(actual, ReviewValue);
-                        assert.isFalse(actual.isEmpty());
-                        assert.equal(actual.value(), expected.value);
+                        assert.isFalse(actual.isEmpty);
+                        assert.equal(actual.value, expected.value);
                     });
                 }
             },
@@ -84,8 +84,8 @@ define([
                         assert.equal(actualProperty.label(), expected.label);
                         var actual = actualProperty.value();
                         assert.instanceOf(actual, ReviewValue);
-                        assert.isFalse(actual.isEmpty());
-                        assert.equal(actual.value(), expected.value);
+                        assert.isFalse(actual.isEmpty);
+                        assert.equal(actual.value, expected.value);
                     });
                 }
             }

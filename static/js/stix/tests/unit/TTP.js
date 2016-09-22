@@ -44,56 +44,56 @@ define([
                 "has correct title": function () {
                     var actual = classUnderTest.title();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Trying everything");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Trying everything");
                 },
                 "has correct short description": function () {
                     var actual = classUnderTest.shortDescription();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "All the tricks in the book");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "All the tricks in the book");
                 },
                 "has correct description": function () {
                     var actual = classUnderTest.description();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Including the kitchen sink");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Including the kitchen sink");
                 },
                 "has correct TLP": function () {
                     var actual = classUnderTest.tlp();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "RED");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "RED");
                 },
                 "has correct target": function () {
                     var actual = classUnderTest.target();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Primary Target");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Primary Target");
                 },
                 "has correct attack patterns, concatenating capec ids into values": function () {
                     var actual = classUnderTest.attackPatterns();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Pattern 1(CAPEC-01), Pattern 2(CAPEC-02), Pattern 3(CAPEC-03)");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Pattern 1(CAPEC-01), Pattern 2(CAPEC-02), Pattern 3(CAPEC-03)");
                 },
                 "has correct malware instances": function () {
                     var actual = classUnderTest.malwareInstances();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Automated Transfer Scripts, Adware, Dialer");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Automated Transfer Scripts, Adware, Dialer");
                 },
                 "has correct intended effects": function () {
                     var actual = classUnderTest.intendedEffects();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Unauthorized Access, Brand Damage, Account Takeover, Theft, Advantage");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Unauthorized Access, Brand Damage, Account Takeover, Theft, Advantage");
                 },
                 "has correct related TTPs": function () {
                     var actual = classUnderTest.relatedTTPs();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualTTPs = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualTTPs = actual.value;
                     assert.isArray(actualTTPs);
                     assert.lengthOf(actualTTPs, 1);
                     var actualRelatedTTP = actualTTPs[0];

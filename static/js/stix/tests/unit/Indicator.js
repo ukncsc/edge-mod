@@ -88,62 +88,62 @@ define([
                 "has correct title": function () {
                     var actual = classUnderTest.title();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Fully populated indicator");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Fully populated indicator");
                 },
                 "has correct short description": function () {
                     var actual = classUnderTest.shortDescription();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Every field has a value");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Every field has a value");
                 },
                 "has correct description": function () {
                     var actual = classUnderTest.description();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Every field, collection, etc has a value");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Every field, collection, etc has a value");
                 },
                 "has correct TLP": function () {
                     var actual = classUnderTest.tlp();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "RED");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "RED");
                 },
                 "has correct Marking": function () {
                     var actual = classUnderTest.marking();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Unclassified, Public");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Unclassified, Public");
                 },
                 "has correct Terms of Use": function () {
                     var actual = classUnderTest.termsOfUse();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Public Domain");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Public Domain");
                 },
                 "has correct producer": function () {
                     var actual = classUnderTest.producer();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Purple Secure Systems");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Purple Secure Systems");
                 },
                 "has correct confidence": function () {
                     var actual = classUnderTest.confidence();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "High");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "High");
                 },
                 "has correct indicator types": function () {
                     var actual = classUnderTest.indicatorTypes();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Malware Artifacts");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Malware Artifacts");
                 },
                 "has correct kill chain phase": function () {
                     var actual = classUnderTest.killChainPhase();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Reconnaissance");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Reconnaissance");
                 },
                 "has correct observable": function () {
                     var actual = classUnderTest.observable();
@@ -153,14 +153,14 @@ define([
                 "has correct composition": function () {
                     var actual = classUnderTest.composition();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "AND");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "AND");
                 },
                 "has correct observables": function () {
                     var actual = classUnderTest.observables();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualObservables = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualObservables = actual.value;
                     assert.isArray(actualObservables);
                     assert.lengthOf(actualObservables, 3);
                     var actualObservable1 = actualObservables[0];
@@ -176,8 +176,8 @@ define([
                 "has correct related indicators": function () {
                     var actual = classUnderTest.relatedIndicators();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualRelatedIndicators = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualRelatedIndicators = actual.value;
                     assert.isArray(actualRelatedIndicators);
                     assert.lengthOf(actualRelatedIndicators, 1);
                     var actualRelatedIndicator = actualRelatedIndicators[0];
@@ -187,8 +187,8 @@ define([
                 "has correct indicated TTPs": function () {
                     var actual = classUnderTest.indicatedTTPs();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualIndicatedTTPs = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualIndicatedTTPs = actual.value;
                     assert.isArray(actualIndicatedTTPs);
                     assert.lengthOf(actualIndicatedTTPs, 1);
                     var actualIndicatedTTP = actualIndicatedTTPs[0];
@@ -198,8 +198,8 @@ define([
                 "has correct suggested COAs": function () {
                     var actual = classUnderTest.suggestedCOAs();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualSuggestedCOAs = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualSuggestedCOAs = actual.value;
                     assert.isArray(actualSuggestedCOAs);
                     assert.lengthOf(actualSuggestedCOAs, 1);
                     var actualSuggestedCOA = actualSuggestedCOAs[0];
@@ -214,14 +214,14 @@ define([
                 "has correct composite indicator expression": function () {
                     var actual = classUnderTest.compositeIndicatorComposition();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "OR");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "OR");
                 },
                 "has correct composite indicators": function () {
                     var actual = classUnderTest.compositeIndicators();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualCompositeIndicators = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualCompositeIndicators = actual.value;
                     assert.deepEqual(actualCompositeIndicators.map(function (item) {
                         return item.id();
                     }), [
@@ -249,8 +249,8 @@ define([
                 "has correct observables": function () {
                     var actual = classUnderTest.observables();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualObservables = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualObservables = actual.value;
                     assert.isArray(actualObservables);
                     assert.lengthOf(actualObservables, 1);
                     var actualObservable = actualObservables[0];
@@ -260,8 +260,8 @@ define([
                 "has correct kill chain phase": function () {
                     var actual = classUnderTest.killChainPhase();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "pss:TTP-f5ddf190-b7b0-4c33-a9f4-f2beb6453d04");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "pss:TTP-f5ddf190-b7b0-4c33-a9f4-f2beb6453d04");
                 }
             },
             "no observable indicator": {
@@ -271,7 +271,7 @@ define([
                 "has correct observables": function () {
                     var actual = classUnderTest.observables();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isTrue(actual.isEmpty());
+                    assert.isTrue(actual.isEmpty);
                 },
             }
         }
