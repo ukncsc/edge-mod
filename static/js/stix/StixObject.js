@@ -13,7 +13,7 @@ define([
     "use strict";
 
     function getNamespaceIfExists(id) {
-        if(id != null ) {
+        if (id != null) {
             return id.split(":", 2)[0]
         } else {
             return id
@@ -25,26 +25,20 @@ define([
             deferEvaluation: true
         },
         constructor: function (data, stixPackage) {
-            this.data = ko.observable(data);
-            this.id = ko.computed(function () {
-                return stixPackage.safeGet(this.data(), "id");
-            }, this);
-            this.namespace = ko.computed(function () {
-                var validation = stixPackage.validations().findByProperty(this.id(), "namespace");
-                return new ReviewValue(getNamespaceIfExists(this.id()), validation.state, validation.message);
-            }, this);
-            this.title = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), this.data(), "title");
-            }, this);
-            this.shortDescription = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), this.data(), "short_description");
-            }, this);
-            this.description = ko.computed(function () {
-                return stixPackage.safeValueGet(this.id(), this.data(), "description");
-            }, this);
-            this.trustGroups = ko.computed(function () {
-                return new ReviewValue(stixPackage.trustGroups(), null, null);
-            }, this);
+
+            this.id = ko.observable(stixPackage.safeGet(data, "id"));
+
+            var validation = stixPackage.validations().findByProperty(this.id(), "namespace");
+            this.namespace = ko.observable(new ReviewValue(getNamespaceIfExists(this.id()), validation.state, validation.message));
+
+            this.title = ko.observable(stixPackage.safeValueGet(this.id(), data, "title"));
+
+            this.shortDescription = ko.observable(stixPackage.safeValueGet(this.id(), data, "short_description"));
+
+            this.description = ko.observable(stixPackage.safeValueGet(this.id(), data, "description"));
+
+            this.trustGroups = ko.observable(new ReviewValue(stixPackage.trustGroups(), null, null));
+
         }
     });
 });

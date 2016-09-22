@@ -189,7 +189,7 @@ define([
         },
 
         onRowClicked: function (item, event) {
-            if (item.id() && item.title().value() != "(External)") {
+            if (item.id() && item.title().value != "(External)") {
                 window.open("/object/" + item.id());
             }
         }

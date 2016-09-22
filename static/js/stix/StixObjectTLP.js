@@ -38,7 +38,7 @@ define([
 
     return declare(StixObject, {
         constructor: function (data, stixPackage) {
-            var markingStructures = stixPackage.safeArrayGet(this.data(), "handling.0.marking_structures", this.simpleItem, this)
+            var markingStructures = stixPackage.safeArrayGet(data, "handling.0.marking_structures", this.simpleItem, this)
                 || stixPackage.safeArrayGet(stixPackage.header(), "handling.0.marking_structures", this.simpleItem, this);
             this.tlp = ko.computed(function () {
                 var validation = stixPackage.validations().findByProperty(this.id(), "tlp");
