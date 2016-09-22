@@ -23,14 +23,10 @@ class PortObservableDefinition(CustomObservableDefinition):
         return port
 
     def summary_value_generator(self, obj):
-        flat_port_value = collapse_nested_values(rgetattr(obj, ['_object', 'properties', 'port_value']))
-        print("flat port object: " + str(rgetattr(obj, ['_object', 'properties', 'port_value'])))
-        flat_layer4_protocol = collapse_nested_values(rgetattr(obj, ['_object', 'properties', 'layer4_protocol']))
-        print("flat port object: " + str(rgetattr(obj, ['_object', 'properties', 'layer4_protocol'])))
+        flat_port_value = str(collapse_nested_values(rgetattr(obj, ['_object', 'properties', 'port_value'])))
+        flat_layer4_protocol = str(collapse_nested_values(rgetattr(obj, ['_object', 'properties', 'layer4_protocol'])))
 
-        summary_value = "Port Value: " + flat_port_value + ", Layer 4 Protocol:" + flat_layer4_protocol
-
-        return str(summary_value)
+        return str("Port Value: " + flat_port_value + ", Layer 4 Protocol: " + flat_layer4_protocol)
 
     def to_draft_handler(self, observable, tg, load_by_id, id_ns=''):
         return {

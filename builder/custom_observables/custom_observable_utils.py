@@ -1,10 +1,11 @@
 from edge.tools import rgetattr
 
 
-def collapse_nested_values(inputValue):
-    value = inputValue
-    print("input value: " + inputValue)
+def collapse_nested_values(value):
     if isinstance(value, basestring):
-        value = rgetattr(value, ['value'])
-    print("value: " + value)
-    return value
+        return value
+    if isinstance(value, int):
+        return str(value)
+    else:
+        return rgetattr(value, ['value'])
+
