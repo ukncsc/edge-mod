@@ -2,8 +2,6 @@ from django.conf import settings
 
 from cybox.objects.address_object import Address
 from cybox.objects.uri_object import URI
-from edge.tools import rgetattr
-
 cfg = settings.ACTIVE_CONFIG
 LOCAL_ALIAS = cfg.by_key('company_alias')
 
