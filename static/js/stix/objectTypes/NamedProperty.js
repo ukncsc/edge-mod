@@ -12,7 +12,7 @@ define([
     }
 
     function findValue(rawValue) {
-        return asReviewValue(rawValue).value();
+        return asReviewValue(rawValue).value;
     }
 
     function formatName(name) {
@@ -37,7 +37,7 @@ define([
         }
         var namedProperty = new NamedProperty(name, value);
         var realValue = namedProperty.value();
-        if (!(realValue.isEmpty())) {
+        if (!(realValue.isEmpty)) {
             aPropertyList.push({label: namedProperty.name, value: namedProperty.value});
         }
     };

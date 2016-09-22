@@ -38,18 +38,18 @@ define([
 
     return declare(StixObject, {
         constructor: function (data, stixPackage) {
-            var markingStructures = stixPackage.safeArrayGet(this.data(), "handling.0.marking_structures", this.simpleItem, this)
+            var markingStructures = stixPackage.safeArrayGet(data, "handling.0.marking_structures", this.simpleItem, this)
                 || stixPackage.safeArrayGet(stixPackage.header(), "handling.0.marking_structures", this.simpleItem, this);
             this.tlp = ko.computed(function () {
-                var validation = stixPackage.validations().findByProperty(this.id(), "tlp");
+                var validation = stixPackage.validations().findByProperty(this.id, "tlp");
                 return findByXsiType(markingStructures, "TLPMarkingStructureType", "color", validation);
             }, this);
             this.marking = ko.computed(function () {
-                var validation = stixPackage.validations().findByProperty(this.id(), "marking");
+                var validation = stixPackage.validations().findByProperty(this.id, "marking");
                 return findByXsiType(markingStructures, "SimpleMarkingStructureType", "statement", validation);
             }, this);
             this.termsOfUse = ko.computed(function () {
-                var validation = stixPackage.validations().findByProperty(this.id(), "termsOfUse");
+                var validation = stixPackage.validations().findByProperty(this.id, "termsOfUse");
                 return findByXsiType(markingStructures, "TermsOfUseMarkingStructureType", "terms_of_use", validation);
             }, this);
         },
