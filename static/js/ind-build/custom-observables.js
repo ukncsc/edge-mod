@@ -6,6 +6,7 @@ define([
     "ind-build/cert-ind-build-obs-email",
     "ind-build/cert-ind-build-obs-artifact",
     "ind-build/cert-ind-build-obs-http-session",
-    "ind-build/cert-ind-build-obs-network-connection"
+    "ind-build/cert-ind-build-obs-network-connection",
+    "ind-build/cert-ind-build-obs-port"
 ], function () {
 });

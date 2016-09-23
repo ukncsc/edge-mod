@@ -9,11 +9,12 @@ define([
         "./objectTypes/NetworkConnection",
         "./objectTypes/SocketAddress",
         "./objectTypes/WindowsRegistryKey",
+        "./objectTypes/Port",
         "kotemplate!root-obs:./templates/root-Observable.html",
         "kotemplate!flat-obs:./templates/flat-Observable.html",
         "kotemplate!list-obs:./templates/list-Observables.html"
     ], function (declare, ko, StixObject, StixObjectType, EmailMessageObjectType, FileObjectType, HTTPSessionObjectType, NetworkConnectionObjectType,
-                 SocketAddressObjectType, WindowsRegistryKeyObjectType) {
+                 SocketAddressObjectType, WindowsRegistryKeyObjectType, PortObjectType) {
         "use strict";
 
         var OBJECT_TYPES = Object.freeze({
@@ -22,7 +23,8 @@ define([
             "HTTPSessionObjectType": HTTPSessionObjectType,
             "SocketAddressObjectType": SocketAddressObjectType,
             "WindowsRegistryKeyObjectType": WindowsRegistryKeyObjectType,
-            "NetworkConnectionObjectType": NetworkConnectionObjectType
+            "NetworkConnectionObjectType": NetworkConnectionObjectType,
+            "PortObjectType": PortObjectType
         });
 
         function getObjectType(type) {
@@ -46,5 +48,4 @@ define([
             }
         });
     }
-)
-;
+);
