@@ -11,12 +11,13 @@ define([
             return function () {
                 sup.call(this, "get_sharing_groups/", "An error occurred while attempting to retrieve the Sharing Groups.");
                 this.handling_caveats = ko.observableArray([]);
-                this.saved_handling_caveats = [];
+                this.saved_handling_caveats = ko.observableArray([]);
                 // The save button should only be available if there is something to save.
                 // This flag tests changes to Enabled status, changes in number of Handling Caveats, and changes to stix_value and display_value of existing caveats
-                this.something_to_save_trigger = ko.observable("dummy variable");
                 this.something_to_save = ko.computed(function () {
-                    var trigger = this.something_to_save_trigger() + "";
+
+                    if (this.savedEnabled() != this.enabled())
+                        return true;
                     //Empty Caveats will be removed before saving. It is therefore necessary to exclude new pairs that are empty in the difference tests
                     //We need to create a JS copy to avoid changing the ko handling_caveats.
                     var current_handling_caveats = ko.toJS(this.handling_caveats);
@@ -24,15 +25,15 @@ define([
                         return caveat.stix_value || caveat.display_value
                     });
 
+                    if (current_handling_caveats.length != this.saved_handling_caveats().length)
+                        return true;
+
+
                     var stringifiedSavedHandlingArray = [];
 
-                    if (this.savedEnabled() != this.enabled())
-                        return true;
-                    if (current_handling_caveats.length != this.saved_handling_caveats.length)
-                        return true;
-
-                    for (var i in this.saved_handling_caveats)
-                        stringifiedSavedHandlingArray.push(JSON.stringify(this.saved_handling_caveats[i]));
+                    ko.utils.arrayForEach(this.saved_handling_caveats(), function (caveat) {
+                        stringifiedSavedHandlingArray.push(JSON.stringify(caveat));
+                    });
 
                     for (var i in current_handling_caveats) {
                         var stringifiedItem = JSON.stringify({
@@ -69,6 +70,7 @@ define([
                     this.handling_caveats.push(this._createHandlingCaveat(key, value));
 
                 }.bind(this));
+                this.saved_handling_caveats(ko.toJS(this.handling_caveats));
             }
         },
 
@@ -95,12 +97,9 @@ define([
                 var configObject = this.createSimpleConfigObject(this.handling_caveats());
                 var successMessage = "The sharing group mappings were successfully saved";
                 var errorMessage = "An error occurred while attempting to save the sharing groups configuration";
-                this.saved_handling_caveats = [];
-                for (var i in this.handling_caveats()) {
-                    this.saved_handling_caveats.push({"stix_value": this.handling_caveats()[i]()["stix_value"](), "display_value": this.handling_caveats()[i]()["display_value"]()});
-                }
                 this.saveData("set_sharing_groups/", configObject, successMessage, errorMessage);
-                this.something_to_save_trigger.valueHasMutated();
+                this.saved_handling_caveats(ko.toJS(this.handling_caveats));
+                this.saved_handling_caveats.valueHasMutated();
             } else {
                 this.createErrorModal("All Handling Caveat mappings must be pairs of non-empty strings." +
                     " There must be no duplicate Stix or Display Values")
@@ -118,7 +117,6 @@ define([
             }
             this.removeIndexes(indexesToRemove, handlingCaveats);
             this.handling_caveats.valueHasMutated();
-            return handlingCaveats;
         },
 
         isValid: function (handlingCaveatArray) {
