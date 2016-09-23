@@ -1,5 +1,3 @@
-
-from inspect import getargspec
 from indicator.observable_object_type_definition import ObservableObjectTypeDefinition
 
 

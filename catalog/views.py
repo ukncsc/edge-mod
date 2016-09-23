@@ -5,7 +5,7 @@ from datetime import datetime
 from dateutil import tz
 import rbac
 
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
@@ -263,7 +263,7 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
         if eo.ty != 'obs':
             continue
 
-        if eo.apidata.has_key("observable_composition"):
+        if "observable_composition" in eo.apidata:
             continue
 
         result += writer(eo.summary['value'], eo.summary['type'])
