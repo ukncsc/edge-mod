@@ -40,8 +40,8 @@ class STIXBacklinks(object):
 
         db = get_db()
 
-        db.stix_backlinks_mod.update({"_id": "max_created_on"}, {'value': datetime.now()}, True)
-        db.stix_backlinks.update({"_id": "max_created_on"}, {'value': datetime.now() + timedelta(days=5)}, True) #Make sure the bg process doesn't continue
+        db.stix_backlinks_mod.update({"_id": "max_created_on"}, {'value': datetime.utcnow()}, True)
+        db.stix_backlinks.update({"_id": "max_created_on"}, {'value': datetime.utcnow() + timedelta(days=5)}, True) #Make sure the bg process doesn't continue
 
         update_timer = StopWatch()
 
