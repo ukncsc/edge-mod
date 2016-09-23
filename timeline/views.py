@@ -62,7 +62,6 @@ def ajax_incident_timeline(request, id_):
         graph = dict()
         graph['nodes'] = []
         graph['links'] = []
-        graph['title'] = "Incident : " + edge_object.obj.title
         graph['tzname'] = datetime.datetime.now(settings.LOCAL_TZ).tzname()
 
         for key, value in time_dict.iteritems():

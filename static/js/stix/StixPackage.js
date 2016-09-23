@@ -184,8 +184,13 @@ define([
         retrieveIdentity: function (/*Object*/object, /*String*/ propertyPath) {
             var identity = new Identity();
             var uuidValue = this.safeGet(object, propertyPath);
-            identity.getNameFromCRM(uuidValue);
-            return identity.name;
+            if (uuidValue != null) {
+                identity.getNameFromCRM(uuidValue);
+                return identity.name;
+            } else {
+                return "(Missing)"
+            }
+
         },
 
         safeIdentityListGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
