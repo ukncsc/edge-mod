@@ -41,14 +41,60 @@ define([
             this.section = ko.observable(new Section());
             this.handlingEnabled = ko.observable(handlingEnabled);
             this.handling = ko.observable(new Handling());
+            this.extractHandler = this.extractObservable.bind(this);
             Topic.subscribe(topics.HANDLING, function () {
                 this.externalPublish()
             }.bind(this), this);
             Topic.subscribe(topics.REVISION, function (data) {
                 this.reload(data)
             }.bind(this), this);
+            this.extractablesInPlainText = ko.observableArray([
+                new this.stixObservableType("All", "all", "text"),
+                new this.stixObservableType("Http Session", "HTTPSessionObjectType", "text"),
+                new this.stixObservableType("Network Connection", "NetworkConnectionObjectType", "text"),
+                new this.stixObservableType("Address", "AddressObjectType", "text"),
+                new this.stixObservableType("URI", "URIObjectType", "text"),
+                new this.stixObservableType("Hostname", "HostnameObjectType", "text"),
+                new this.stixObservableType("Domain", "DomainNameObjectType", "text"),
+                new this.stixObservableType("Mutex", "MutexObjectType", "text"),
+                new this.stixObservableType("File", "FileObjectType", "text"),
+                new this.stixObservableType("Socket", "SocketAddressObjectType", "text"),
+                new this.stixObservableType("Registery Key", "WindowsRegistryKeyObjectType", "text"),
+                new this.stixObservableType("Artifact", "ArtifactObjectType", "text"),
+                new this.stixObservableType("Email", "EmailMessageObjectType", "text")
+            ]);
+            this.extractablesInSnort = ko.observableArray([
+                new this.stixObservableType("All", "all", "SNORT"),
+                new this.stixObservableType("Domain", "DomainNameObjectType", "SNORT"),
+                new this.stixObservableType("Address", "AddressObjectType", "SNORT")
+            ]);
         },
+       stixObservableType : function (name, path, type) {
+            this.name = name;
+            this.path = path;
+            this.type = type;
+        },
+        extractObservable: function (stixObservableType) {
+            var href = encodeURI("/adapter/certuk_mod/observable_extract/" + stixObservableType.type +"/" + stixObservableType.path + "/" + this.rootID() + '/' + this.revision());
+            var successHandler = function (response) {
+                var data = JSON.parse(response)
+                if (data["observables-found"])
+                    window.location.href = href + "/download";
+                else
+                {
+                    if (stixObservableType.name == "All")
+                        showErrorModal("There are no observables to download")
+                    else
+                        showErrorModal("There are no observables of type: " + stixObservableType.name)
+                }
+            }
+            var failureHandler = function () {
+                    showErrorModal("An error occurred whilst attempting to download Observables")
+            }
+            getJSON(href, null, successHandler, failureHandler)
 
+            return false
+        },
         reload: function (timekey) {
             if (timekey !== this.revision()) {
                 var params = {"id": this.rootID(), "revision": timekey}

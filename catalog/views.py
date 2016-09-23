@@ -217,7 +217,7 @@ def get_duplicates(request, id_):
 
 
 @login_required
-def observable_extract(request, output_format, obs_type_filter, id_, revision):
+def observable_extract(request, output_format, obs_type_filter, id_, revision, extra = "none"):
     revision = "latest"  # override as not sure if it makes sense to use the revision.
 
     def text_writer(value, obs_type):
@@ -268,7 +268,10 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
 
         result += writer(eo.summary['value'], eo.summary['type'])
 
-    response = HttpResponse(content_type='text/txt')
-    response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (output_format, obs_type_filter, id_)
-    response.write(result)
+    if (extra == "download"):
+        response = HttpResponse(content_type='text/txt')
+        response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (output_format, obs_type_filter, id_)
+        response.write(result)
+    else :
+        response = HttpResponse(json.dumps({"observables-found" : True if result else False}), content_type='text/txt')
     return response
