@@ -1,4 +1,6 @@
-Copyright (c) 2016 Crown Copyright (CERT-UK)  
+[![Code Health](https://landscape.io/github/certuk/mod/develop/landscape.svg?style=flat&badge_auth_token=411899cd1398417aa61ce33b9c554ef2)](https://landscape.io/github/certuk/mod/develop)
+
+Copyright (c) 2016 Crown Copyright (CERT-UK)
 
 Permission is hereby granted, free of charge, to use, copy, modify, merge, distribute and/or sub-licence the software together with any associated documentation provided that it is solely for your own internal use and subject to the following conditions:
 
