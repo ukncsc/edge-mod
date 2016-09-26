@@ -7,15 +7,22 @@ define([
 
     return declare(null, {
         declaredClass: "base-mongo-config",
-        constructor: function () {
-            this.enabled = ko.observable(false);
+        constructor: function (endPointConfig, errorMessage) {
+            this.enabled = ko.observable();
+            this.savedEnabled = ko.observable();
+            this.gotConfig = ko.observable(false);
+
+            this.endPointConfig = ko.observable(endPointConfig);
+            this.errorMessage = ko.observable(errorMessage);
         },
 
-        getData: function (url, errorMessage) {
-            getJSON(url, {}, function (response) {
+        getConfig: function () {
+            this.gotConfig(false);
+            getJSON(this.endPointConfig(), {}, function (response) {
+                this.gotConfig(true);
                 this._parseResponse(response);
             }.bind(this), function (error) {
-                this.createErrorModal(errorMessage + " (" + error + ").")
+                this.createErrorModal(this.errorMessage() + " (" + error + ").")
             }.bind(this));
         },
 
@@ -63,7 +70,7 @@ define([
         },
 
         _onSuccesfulSave: function (response, successMessage) {
-            var modal = this.createSuccessModal(successMessage)
+            var modal = this.createSuccessModal(successMessage);
             modal.show();
         },
 
