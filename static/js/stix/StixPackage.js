@@ -15,7 +15,7 @@ define([
     var config = Object.freeze(JSON.parse(configService));
     var crm_config = config.crm_config;
     if (crm_config) {
-        crmIsEnabled = crm_config.enabled;
+        crmIsEnabled = crm_config.value.enabled;
     }
 
     return declare(null, {
