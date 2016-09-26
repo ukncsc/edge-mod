@@ -24,7 +24,7 @@ define([
         load: declare.superCall(function (sup) {
             return function (data) {
                 sup.call(this, data);
-                this.port(data["port"]|| "");
+                this.port(data["port_value"]|| "");
                 this.protocol(data["layer4_protocol"] || "");
             };
         }),

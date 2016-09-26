@@ -13,6 +13,7 @@ from file import FileValidationInfo
 from registry_key import RegistryKeyValidationInfo
 from network_connection import NetworkConnectionValidationInfo
 from adapters.certuk_mod.validation import FieldAlias
+from adapters.certuk_mod.validation.observable.port import PortValidationInfo
 
 
 class ObservableValidator(object):
@@ -36,7 +37,8 @@ class ObservableValidator(object):
             EmailValidationInfo.TYPE: EmailValidationInfo.validate,
             FileValidationInfo.TYPE: FileValidationInfo.validate,
             RegistryKeyValidationInfo.TYPE: RegistryKeyValidationInfo.validate,
-            NetworkConnectionValidationInfo.TYPE: NetworkConnectionValidationInfo.validate
+            NetworkConnectionValidationInfo.TYPE: NetworkConnectionValidationInfo.validate,
+            PortValidationInfo.TYPE: PortValidationInfo.validate
         }
         actual_type = object_type.field_value if isinstance(object_type, FieldAlias) else object_type
         handler = handler_map.get(actual_type)
