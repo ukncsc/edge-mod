@@ -2,14 +2,14 @@ define([
     "dcl/dcl",
     "knockout",
     "ind-build/indicator-builder-shim",
-    "ind-build/validation",
+    "ind-build/validation"
 ], function (declare, ko, indicator_builder, validation) {
     "use strict";
 
     var CERTObservablePort = declare(indicator_builder.AbstractObservable, {
         constructor: declare.superCall(function (sup) {
             return function () {
-                sup.call(this, "Network Connection");
+                sup.call(this, "Port");
                 this.port = ko.observable("");
                 this.port.extend({
                     validate: {
@@ -45,8 +45,8 @@ define([
                     this.objectTitle(this.objectType() + " : " + this.port() + " : " + this.protocol());
                 }
                 return ko.utils.extend(sup.call(this), {
-                        port: this.port(),
-                        protocol: this.protocol()
+                        port_value: this.port(),
+                        layer4_protocol: this.protocol()
                 })
             };
         })

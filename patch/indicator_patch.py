@@ -7,7 +7,7 @@ from edge import relate
 from edge.generic import ApiObject, EdgeObject
 from edge.indicator import DBIndicator
 from edge.inbox import InboxProcessorForBuilders, InboxItem
-from indicator.observable_object_generator import ObservableObjectGenerator
+from adapters.certuk_mod.builder.cert_observable_object_generator import CERTObservableObjectGenerator
 
 from edge.handling import lines2list, handling_from_draft
 from cybox.core import ObservableComposition, Object, Observable
@@ -175,4 +175,4 @@ class IndicatorBuilderPatch(IndicatorBuilder):
 
 def apply_patch():
     WHICH_DBOBJ['ind'] = DBIndicatorPatch
-    IndicatorBuilder.publish_indicator = IndicatorBuilderPatch(ObservableObjectGenerator()).publish_indicator
+    IndicatorBuilder.publish_indicator = IndicatorBuilderPatch(CERTObservableObjectGenerator()).publish_indicator
