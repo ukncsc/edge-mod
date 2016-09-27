@@ -67,7 +67,10 @@ def generate_bro(obs, obs_type, id_prefix):
     # Deals with nested structure for fields which have attributes
     def flatten_nested_values(obj):
         if isinstance(obj, dict):
-            return obj["value"]
+            if isinstance(obj["value"], list):
+                return ','.join(obj["value"])
+            else:
+                return obj["value"]
         else:
             return obj
 
