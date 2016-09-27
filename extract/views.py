@@ -28,6 +28,7 @@ from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObj
 from adapters.certuk_mod.extract.extract_actions import create_graph, iterate_draft, observable_to_name, \
     get_draft_obs, get_draft_obs_offset, move_observables, can_merge_observables, merge_draft_file_observables, \
     delete_observables
+from adapters.certuk_mod.visualiser.graph import REL_TYPE_EDGE
 from adapters.certuk_mod.common.activity import save as log_activity
 
 import datetime
