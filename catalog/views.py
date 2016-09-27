@@ -5,7 +5,7 @@ from datetime import datetime
 from dateutil import tz
 import rbac
 
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
@@ -24,7 +24,6 @@ from edge.handling import make_handling
 from edge.sightings import getSightingsFollowHash
 
 from adapters.certuk_mod.catalog.generate_snort import generate_snort
-from adapters.certuk_mod.catalog.generate_bro import generate_bro
 from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
@@ -274,7 +273,7 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
         if eo.ty != 'obs':
             continue
 
-        if eo.apidata.has_key("observable_composition"):
+        if "observable_composition" in eo.apidata:
             continue
 
         if writer == bro_writer:

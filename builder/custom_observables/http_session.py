@@ -41,7 +41,7 @@ class HTTPSessionObservableDefinition(CustomObservableDefinition):
     def summary_value_generator(self, obj):
         http_request_response_list = rgetattr(obj, ['_object', 'properties', 'http_request_response'])
         value = rgetattr(http_request_response_list[0],
-                            ['http_client_request', 'http_request_header', 'parsed_header', 'user_agent'],
+                         ['http_client_request', 'http_request_header', 'parsed_header', 'user_agent'],
                          '(undefined)')
         return str(value)
 

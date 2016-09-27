@@ -195,8 +195,8 @@ class ObservableStructureConverter(object):
             http_request_response = simple.pop('http_request_response', {})
             simple['user_agent'] = \
                 ObservableStructureConverter.flatten_property_value_field(
-                        http_request_response[0]['http_client_request']
-                        ['http_request_header']['parsed_header']['user_agent'])
+                    http_request_response[0]['http_client_request']
+                    ['http_request_header']['parsed_header']['user_agent'])
         except LookupError:
             simple['user_agent'] = None
 
