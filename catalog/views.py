@@ -233,13 +233,6 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
                 return snort_val + os.linesep
         return ""
 
-    def bro_writer(value, obs_type):
-        if obs_type == obs_type_filter or obs_type_filter == "all":
-            bro_val = generate_bro(value, obs_type, id_.split(':', 1)[1].split('-', 1)[1])
-            if bro_val:
-                return bro_val + os.linesep
-        return ""
-
     def not_implemented_writer(*args):
         return ""
 
@@ -248,8 +241,6 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
         writer = text_writer
     elif output_format == "SNORT":
         writer = snort_writer
-    elif output_format == "BRO":
-        writer = bro_writer
     else:
         writer = not_implemented_writer
         result = "%s not implemented" % output_format
@@ -276,10 +267,7 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
         if "observable_composition" in eo.apidata:
             continue
 
-        if writer == bro_writer:
-            result += writer(eo.apidata["object"]["properties"], eo.summary["type"])
-        else:
-            result += writer(eo.summary['value'], eo.summary['type'])
+        result += writer(eo.summary['value'], eo.summary['type'])
 
     response = HttpResponse(content_type='text/txt')
     response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (output_format, obs_type_filter, id_)
