@@ -38,7 +38,6 @@ class BackLinkGenerator(object):
 
         return backtable
 
-
     @staticmethod
     def retrieve_back_links(edge_object, user_loader):
 

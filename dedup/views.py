@@ -54,7 +54,7 @@ def ajax_load_object(request, id_):
     return JsonResponse({
         "root_id": id_,
         "package": package.to_dict(),
-        "type_info" : [{"id_": id_, "ty":root_edge_object.ty}]
+        "type_info": [{"id_": id_, "ty": root_edge_object.ty}]
     }, status=200)
 
 
@@ -74,6 +74,7 @@ def ajax_load_parent_ids(request):
         return JsonResponse({
             'message': e.message
         }, status=500)
+
 
 def build_activity_message(count, duration, messages, validation_result):
     validation_text = []

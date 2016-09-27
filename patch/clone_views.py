@@ -64,7 +64,7 @@ def inc_build_from_clone(request, id):
         messages.info(request, e.message)
         return redirect('/setup')
 
-    template = inc_template(static, None, id_ns);
+    template = inc_template(static, None, id_ns)
     template['draft_id'] = id
     template['id'] = None
 

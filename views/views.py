@@ -168,8 +168,6 @@ def clone_direct(request, id_):
             return error_with_message(request,
                                       "Unable to load object as some external references were not found: "
                                       + e.message[0:-len(ext_ref_error)])
-
-
         else:
             return error_with_message(request, e.message)
 

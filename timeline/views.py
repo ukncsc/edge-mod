@@ -56,7 +56,7 @@ def ajax_incident_timeline(request, id_):
         if edge_object.ty != 'inc':
             return JsonResponse({'message': "Only timelines for Incidents can be viewed"}, status=400)
         if not edge_object.obj.time:
-             return JsonResponse({'message': "No times found in this Incident"}, status=400)
+            return JsonResponse({'message': "No times found in this Incident"}, status=400)
 
         time_dict = edge_object.obj.time.to_dict()
         graph = dict()
@@ -78,8 +78,8 @@ def ajax_incident_timeline(request, id_):
     except Exception as e:
         ext_ref_error = "not found"
         if e.message.endswith(ext_ref_error):
-            message = "Unable to load object as some external references were not found: " + e.message[
-                                                                                             0:-len(ext_ref_error)]
+            message = "Unable to load object as some external references were not found: " \
+                      + e.message[0:-len(ext_ref_error)]
         else:
             message = e.message
         return JsonResponse({'message': message}, status=500)

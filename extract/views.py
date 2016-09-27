@@ -53,7 +53,7 @@ def uploaded_stix_extracts(request):
 
 @login_required_ajax
 def extract_upload(request):
-    file_import = request.FILES.get('import', "");
+    file_import = request.FILES.get('import', "")
     extract_id = extract_store.create(request.user.username, str(file_import))
 
     if 'import' not in request.FILES:
@@ -141,10 +141,10 @@ def process_stix(stream, user, extract_id, file_name):
                 obs['title'] = obs['objectType'] + ":" + obs['title']
 
     def remove_from_db(ids):
-        PAGE_SIZE = 100
-        for page_index in range(0, len(ids), PAGE_SIZE):
+        page_size = 100
+        for page_index in range(0, len(ids), page_size):
             try:
-                chunk_ids = ids[page_index: page_index + PAGE_SIZE]
+                chunk_ids = ids[page_index: page_index + page_size]
                 STIXPurge.remove(chunk_ids)
             except Exception:
                 pass
@@ -249,9 +249,9 @@ def extract_visualiser_item_get(request, node_id):
     def convert_draft_to_viewable_obs(observable):
         view_obs = dict(id=node_id)
         view_obs['object'] = {'properties':
-                                  {'xsi:type': observable['objectType'],
-                                   'value': observable_to_name(observable, DRAFT_ID_SEPARATOR in node_id),
-                                   'description': observable.get('description', '')}}
+                              {'xsi:type': observable['objectType'],
+                               'value': observable_to_name(observable, DRAFT_ID_SEPARATOR in node_id),
+                               'description': observable.get('description', '')}}
 
         return view_obs
 

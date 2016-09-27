@@ -171,7 +171,7 @@ class ObservableStructureConverter(object):
         ip_address = simple.pop('ip_address', None)
         if ip_address:
             simple['ip_address'] = ObservableStructureConverter.flatten_property_value_field(
-                    ip_address.get('address_value'))
+                ip_address.get('address_value'))
         hostname = simple.pop('hostname', None)
         if hostname:
             simple['hostname'] = ObservableStructureConverter.flatten_property_value_field(
@@ -182,8 +182,10 @@ class ObservableStructureConverter(object):
     @staticmethod
     def __network_connection_package_to_simple(builder_dict):
         simple = builder_dict.copy()
-        simple['source_socket_address'] = ObservableStructureConverter.__socket_package_to_simple(simple.pop('source_socket_address', {}))
-        simple['destination_socket_address'] = ObservableStructureConverter.__socket_package_to_simple(simple.pop('destination_socket_address', {}))
+        simple['source_socket_address'] = \
+            ObservableStructureConverter.__socket_package_to_simple(simple.pop('source_socket_address', {}))
+        simple['destination_socket_address'] = \
+            ObservableStructureConverter.__socket_package_to_simple(simple.pop('destination_socket_address', {}))
         return simple
 
     @staticmethod
@@ -193,8 +195,8 @@ class ObservableStructureConverter(object):
             http_request_response = simple.pop('http_request_response', {})
             simple['user_agent'] = \
                 ObservableStructureConverter.flatten_property_value_field(
-                        http_request_response[0]['http_client_request']['http_request_header']['parsed_header'][
-                            'user_agent'])
+                        http_request_response[0]['http_client_request']
+                        ['http_request_header']['parsed_header']['user_agent'])
         except LookupError:
             simple['user_agent'] = None
 
@@ -209,7 +211,7 @@ class ObservableStructureConverter(object):
         simple['subject'] = ObservableStructureConverter.flatten_property_value_field(header.get('subject'))
         if header.get('from'):
             simple['from'] = ObservableStructureConverter.flatten_property_value_field(
-                    header['from'].get('address_value'))
+                header['from'].get('address_value'))
         simple['date'] = ObservableStructureConverter.flatten_property_value_field(header.get('date'))
 
         def flatten_address_list(address_list):

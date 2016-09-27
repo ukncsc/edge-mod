@@ -187,8 +187,8 @@ class STIXPurge(object):
 
         ids_to_delete = []
         while True:
-            minimum_id, minimum_date, old_ids = self._get_old_ids(minimum_id, minimum_date,
-                                                                           version_epoch, namespace_filter)
+            minimum_id, minimum_date, old_ids = self._get_old_ids(
+                minimum_id, minimum_date, version_epoch, namespace_filter)
 
             if not old_ids:
                 break
@@ -199,9 +199,11 @@ class STIXPurge(object):
             if not items_under_link_threshold:
                 continue
 
-            hashes_deletion_candidates = self._get_hashes_for_possible_deletion(items_under_link_threshold.values(), namespace_filter)
+            hashes_deletion_candidates = self._get_hashes_for_possible_deletion(
+                items_under_link_threshold.values(), namespace_filter)
 
-            ids_to_delete += self._get_ids_for_deletion(hashes_deletion_candidates, items_under_link_threshold.keys(), namespace_filter)
+            ids_to_delete += self._get_ids_for_deletion(
+                hashes_deletion_candidates, items_under_link_threshold.keys(), namespace_filter)
 
         return ids_to_delete
 
@@ -259,7 +261,6 @@ class STIXPurge(object):
             }
         })
 
-
     @staticmethod
     def wait_for_background_jobs_completion(as_at_date, minutes_to_wait=5, poll_interval=5):
             tries_remaining = int((60 * minutes_to_wait) / poll_interval)
@@ -284,7 +285,8 @@ class STIXPurge(object):
                 namespace_filter_text = 'not in %s namespace,' % LOCAL_ALIAS.upper()
 
             messages = [
-                'Objects created before %s which are %s are candidates for deletion' % (min_date.strftime("%Y-%m-%d %H:%M:%S"), namespace_filter_text)]
+                'Objects created before %s which are %s are candidates for deletion' %
+                (min_date.strftime("%Y-%m-%d %H:%M:%S"), namespace_filter_text)]
             summarise(messages, 'Found %d objects with insufficient back links or sightings', objects)
             summarise(messages, 'Found %d orphaned observable compositions', compositions)
             messages.append('In %dms' % time_ms)

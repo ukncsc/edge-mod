@@ -96,7 +96,8 @@ class STIXDedup(object):
         additional_sightings = STIXDedup.get_additional_sightings_count(duplicates)
         additional_file_hashes = STIXDedup.get_additional_file_hashes(original, duplicates)
         tlp_level = STIXDedup.load_eo(original)[1]
-        _update_existing_properties({original: additional_sightings}, additional_file_hashes, self.user, {original: tlp_level})
+        _update_existing_properties(
+            {original: additional_sightings}, additional_file_hashes, self.user, {original: tlp_level})
 
     @staticmethod
     def remove_duplicates(duplicates):

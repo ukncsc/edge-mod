@@ -10,7 +10,8 @@ class HostnameValidationInfo(ObservableValidationInfo):
     TYPE = 'HostnameObjectType'
 
     HOSTNAME_MATCHER = re.compile(
-        r'^[A-Z]+(?:(?:[A-Z0-9]|[A-Z0-9][A-Z0-9\-]*[A-Z0-9])\.)*(?:[A-Z0-9]|[A-Z0-9][A-Z0-9\-]*[A-Z0-9])$', re.IGNORECASE)
+        r'^[A-Z]+(?:(?:[A-Z0-9]|[A-Z0-9][A-Z0-9\-]*[A-Z0-9])\.)*(?:[A-Z0-9]|[A-Z0-9][A-Z0-9\-]*[A-Z0-9])$',
+        re.IGNORECASE)
 
     def __init__(self, observable_data, **field_validation):
         super(HostnameValidationInfo, self).__init__(HostnameValidationInfo.TYPE, observable_data, **field_validation)

@@ -5,7 +5,7 @@ from datetime import datetime
 from dateutil import tz
 import rbac
 
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.http import JsonResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
@@ -24,6 +24,7 @@ from edge.handling import make_handling
 from edge.sightings import getSightingsFollowHash
 
 from adapters.certuk_mod.catalog.generate_snort import generate_snort
+from adapters.certuk_mod.catalog.generate_bro import generate_bro
 from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
@@ -59,15 +60,16 @@ def generate_partial_review_data(request, id, revision):
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
         validation_info.validation_dict.update({id: {"created_by":
-                                                         {"status": ValidationStatus.WARN,
-                                                          "message": "This object was created by %s not %s"
-                                                                     % (root_edge_object.created_by_username,
-                                                                        req_user)}}})
+                                                     {"status": ValidationStatus.WARN,
+                                                      "message": "This object was created by %s not %s"
+                                                                 % (root_edge_object.created_by_username,
+                                                                    req_user)}}})
     if any(item['is_external'] for item in edges):
         validation_info.validation_dict.update({id: {"external_references":
-                                                         {"status": ValidationStatus.ERROR,
-                                                          "message": "This object contains External References, clone "
-                                                                     "object and remove missing references before publishing"}}})
+                                                     {"status": ValidationStatus.ERROR,
+                                                      "message": "This object contains External References, clone "
+                                                                 "object and remove missing references before"
+                                                                 " publishing"}}})
 
     # add root object to edges for javascript to construct object
     edges.append({
@@ -232,6 +234,13 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
                 return snort_val + os.linesep
         return ""
 
+    def bro_writer(value, obs_type):
+        if obs_type == obs_type_filter or obs_type_filter == "all":
+            bro_val = generate_bro(value, obs_type, id_.split(':', 1)[1].split('-', 1)[1])
+            if bro_val:
+                return bro_val + os.linesep
+        return ""
+
     def not_implemented_writer(*args):
         return ""
 
@@ -240,6 +249,8 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
         writer = text_writer
     elif output_format == "SNORT":
         writer = snort_writer
+    elif output_format == "BRO":
+        writer = bro_writer
     else:
         writer = not_implemented_writer
         result = "%s not implemented" % output_format
@@ -263,10 +274,13 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
         if eo.ty != 'obs':
             continue
 
-        if "observable_composition" in eo.apidata:
+        if eo.apidata.has_key("observable_composition"):
             continue
 
-        result += writer(eo.summary['value'], eo.summary['type'])
+        if writer == bro_writer:
+            result += writer(eo.apidata["object"]["properties"], eo.summary["type"])
+        else:
+            result += writer(eo.summary['value'], eo.summary['type'])
 
     response = HttpResponse(content_type='text/txt')
     response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (output_format, obs_type_filter, id_)

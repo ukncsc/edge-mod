@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 import json
 
-from adapters.certuk_mod.config.cert_config import get  as get_config
+from adapters.certuk_mod.config.cert_config import get as get_config
 from adapters.certuk_mod.config.cert_config import save as save_config
 from adapters.certuk_mod.config.cert_config import get_all as get_all
 from users.decorators import superuser_or_staff_role, login_required_ajax

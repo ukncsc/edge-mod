@@ -19,7 +19,8 @@ class Revocable(object):
         return system_id_ns
 
     def is_revocable(self):
-        created_by_organization = Optional(Repository_User).objects.get(id=self.edge_object.doc['created_by']).organization.value()
+        created_by_organization = Optional(Repository_User).objects.get(
+            id=self.edge_object.doc['created_by']).organization.value()
 
         return (
             self.edge_object.id_ns == self.namespace and

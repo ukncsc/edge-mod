@@ -41,7 +41,6 @@ class DBIndicatorPatch(DBIndicator):
                     draft.setdefault('test_mechanisms', []).append(yara_dict)
         return draft
 
-
     def map(self):
         pass
 
@@ -78,7 +77,6 @@ class IndicatorBuilderPatch(IndicatorBuilder):
         if 'test_mechanisms' in indicator_data:
             for test_mechanism in indicator_data['test_mechanisms']:
                 indicator.test_mechanisms.append(IndicatorBuilderPatch.test_mechanism_from_draft(test_mechanism))
-
 
         api_objects = {}
         observable_composition = ObservableComposition(operator=indicator_data.get('composition_type'))
@@ -172,6 +170,7 @@ class IndicatorBuilderPatch(IndicatorBuilder):
         inbox_processor.run()
 
         self.delete_draft(user, indicator_data['id'])
+
 
 def apply_patch():
     WHICH_DBOBJ['ind'] = DBIndicatorPatch

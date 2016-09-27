@@ -7,7 +7,8 @@ from adapters.certuk_mod.common.activity import save as log_activity
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repository.settings')
 
-if not hasattr(settings, 'BASE_DIR'): raise Exception('could not load settings.py')
+if not hasattr(settings, 'BASE_DIR'):
+    raise Exception('could not load settings.py')
 
 
 class STIXFts(object):
