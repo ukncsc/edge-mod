@@ -6,17 +6,15 @@ define([
     "stix/ValidationInfo",
     "intern/dojo/text!./data/COA_package_01.json",
     "intern/dojo/text!./data/TTP_package_01.json",
-    "intern/dojo/text!./data/Incident_package_01.json",
     "stix/tests/unit/CreateEdges"
-], function (registerSuite, assert, ReviewValue, StixPackage, ValidationInfo, package01, package02, package03, CreateEdges) {
+], function (registerSuite, assert, ReviewValue, StixPackage, ValidationInfo, package01, package02, CreateEdges) {
     "use strict";
 
     // statics go here
     var packageData = Object.freeze({
         "purple-secure-systems:coa-00000000-0000-0000-0000-000000000000": Object.freeze({}),
         "purple-secure-systems:coa-f30bc9fa-c5ce-4e8a-800f-4411cbce2f30": Object.freeze(JSON.parse(package01)),
-        "purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59": Object.freeze(JSON.parse(package02)),
-        "purple-secure-systems:incident-02468346-fdf2-4095-a905-f3731fccd58d": Object.freeze(JSON.parse(package03))
+        "purple-secure-systems:ttp-6f879a43-2e10-41d6-ba7a-b3ba8844ca59": Object.freeze(JSON.parse(package02))
     });
     var simpleObject = Object.freeze({
         prop1: "value1",
