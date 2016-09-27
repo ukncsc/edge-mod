@@ -1,0 +1,14 @@
+test-warnings: false
+strictness: medium
+max-line-length: 120
+pep8:
+  full: true
+uses:
+  - django
+autodetect: true
+python-targets:
+  - 2
+
+
+
+

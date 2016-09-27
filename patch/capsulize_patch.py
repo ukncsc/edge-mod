@@ -34,7 +34,7 @@ def capsulize_patch(self, pkg_id, enable_bfs=False):
             completed_ids.add(eo_id)
 
             if self.id_ == eo_id:
-                eo = self #must do this as self may be a version other than latest
+                eo = self  # must do this as self may be a version other than latest
             else:
                 try:
                     eo = EdgeObject.load(eo_id, self.filters)

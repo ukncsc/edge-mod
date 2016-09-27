@@ -14,8 +14,7 @@ def apply_customizations():
     observable_patch.apply_patch(CUSTOM_OBSERVABLES)
     original_indicator_views.observable_object_generator = CERTObservableObjectGenerator()
     original_indicator_views.indicator_builder = IndicatorBuilder(original_indicator_views.observable_object_generator)
-    original_indicator_views.view_data_generator = CERTIndicatorBuilderTemplateDataGenerator('Indicator',
-                                                                                             'cert-ind-build.html',
-                                                                                             original_indicator_views.indicator_builder)
+    original_indicator_views.view_data_generator = CERTIndicatorBuilderTemplateDataGenerator(
+        'Indicator', 'cert-ind-build.html', original_indicator_views.indicator_builder)
 
     clone_views.apply_patch()

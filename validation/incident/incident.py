@@ -14,7 +14,7 @@ class IncidentValidationInfo(ObjectValidationInfo):
         HighMediumLow.TERM_UNKNOWN
     )
 
-    STATUS_VALUES = IncidentStatus._ALLOWED_VALUES;
+    STATUS_VALUES = IncidentStatus._ALLOWED_VALUES
 
     def __init__(self, **field_validation):
         super(IncidentValidationInfo, self).__init__(**field_validation)

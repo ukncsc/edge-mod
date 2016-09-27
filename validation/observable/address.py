@@ -38,7 +38,9 @@ class AddressValidationInfo(ObservableValidationInfo):
     @classmethod
     def validate(cls, **observable_data):
         address_value = observable_data['address_value']
-        category = observable_data.get('category', AddressValidationInfo.IPv4_CATEGORY) or AddressValidationInfo.IPv4_CATEGORY  #Default according to Cybox Schema
+        category = observable_data.get(
+            'category', AddressValidationInfo.IPv4_CATEGORY) or AddressValidationInfo.IPv4_CATEGORY
+        # Default according to Cybox Schema
 
         category_validation = None
         address_validation = None

@@ -31,6 +31,6 @@ def find(user=None, category=None, state=None, regex=None, limit=100):
         query['message'] = {'$regex': regex, '$options': 'i'}
     return [match for match in
             _activity_log()
-                .find(query, {'_id': 0})
-                .sort('timestamp', pymongo.DESCENDING)
-                .limit(int(limit))]
+            .find(query, {'_id': 0})
+            .sort('timestamp', pymongo.DESCENDING)
+            .limit(int(limit))]

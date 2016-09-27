@@ -271,7 +271,7 @@ def _generate_duplicates_by_hash(contents, hashes, db, type_):
 
     map_table = {
         id_: hash_to_existing_ids[hash_] for id_, hash_ in hashes.iteritems() if hash_ in hash_to_existing_ids
-        }
+    }
 
     return map_table
 
@@ -442,7 +442,7 @@ def _existing_ttp_capec_dedup(contents, hashes, user, local):
     map_table = {
         id_[0]: existing_title_capec_string_to_id[key][0] for key, id_ in ttp_title_capec_string_to_ids.iteritems() if
         key in existing_title_capec_string_to_id
-        }
+    }
 
     tlp_levels = _map_id_to_tlp(contents, map_table)
 
@@ -531,7 +531,7 @@ def _existing_tgt_cve_dedup(contents, hashes, user, local):
     map_table = {
         id_[0]: existing_cve_ids_to_id[key][0] for key, id_ in cve_to_tgt_ids.iteritems() if
         key in existing_cve_ids_to_id
-        }
+    }
 
     out, additional_edges = _coalesce_non_observable_duplicates(contents, map_table)
 
@@ -625,7 +625,7 @@ class DedupInboxProcessor(InboxProcessorForPackages):
         # We can exclude packages, as they only serve as containers for other objects.
         contents_to_validate = {
             id_: inbox_item.api_object for id_, inbox_item in contents.iteritems() if inbox_item.api_object.ty != 'pkg'
-            }
+        }
         # Wrap the contents in a package for convenience so they can be easily validated:
         package_for_validation = create_package(contents_to_validate)
         package_for_validation.stix_header = package_header

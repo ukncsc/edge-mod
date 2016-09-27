@@ -18,7 +18,8 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
         network_connection = NetworkConnection()
 
         src_socket_address = ObservableObjectGenerator._generate_socket_object(object_data['source_socket_address'])
-        dst_socket_address = ObservableObjectGenerator._generate_socket_object(object_data['destination_socket_address'])
+        dst_socket_address = ObservableObjectGenerator._generate_socket_object(
+            object_data['destination_socket_address'])
 
         network_connection.source_socket_address = src_socket_address
         network_connection.destination_socket_address = dst_socket_address
@@ -60,9 +61,11 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
 
     def summary_value_generator(self, obj):
         network_connection_object = "Source Socket Address: "
-        network_connection_object += self.get_socket_summary(rgetattr(obj, ['_object', 'properties', 'source_socket_address']))
+        network_connection_object += self.get_socket_summary(
+            rgetattr(obj, ['_object', 'properties', 'source_socket_address']))
         network_connection_object += ": Destination Socket Address: "
-        network_connection_object += self.get_socket_summary(rgetattr(obj, ['_object', 'properties', 'destination_socket_address']))
+        network_connection_object += self.get_socket_summary(
+            rgetattr(obj, ['_object', 'properties', 'destination_socket_address']))
         return network_connection_object
 
     def to_draft_handler(self, observable, tg, load_by_id, id_ns=''):
@@ -72,6 +75,8 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
             'id_ns': id_ns,
             'title': rgetattr(observable, ['title'], ''),
             'description': str(rgetattr(observable, ['description'], '')),
-            'source_socket_address': self.get_socket(rgetattr(observable, ['_object', 'properties', 'source_socket_address'])),
-            'destination_socket_address': self.get_socket(rgetattr(observable, ['_object', 'properties', 'destination_socket_address']))
+            'source_socket_address': self.get_socket(
+                rgetattr(observable, ['_object', 'properties', 'source_socket_address'])),
+            'destination_socket_address': self.get_socket(
+                rgetattr(observable, ['_object', 'properties', 'destination_socket_address']))
         }

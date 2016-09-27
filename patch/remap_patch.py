@@ -31,26 +31,28 @@ def remap_ind(src, maptable):
 
     return n
 
-#Fix EDGE bug. MOD#254 (missing .item for the RelatedCampaigns)
-def remap_cam(src,maptable):
+
+# Fix EDGE bug. MOD#254 (missing .item for the RelatedCampaigns)
+def remap_cam(src, maptable):
     n = remap.copywrapper(src)
 
-    for ref in remap.coalesce(n,'associated_campaigns'):
-        ref.item.idref = remap.maybe_remap(ref.item.idref,maptable)
-    for ref in remap.coalesce(n,'related_packages'):
-        ref.item.idref = remap.maybe_remap(ref.item.idref,maptable)
-    for ref in remap.coalesce(n,'related_incidents'):
-        ref.item.idref = remap.maybe_remap(ref.item.idref,maptable)
-    for ref in remap.coalesce(n,'related_indicators'):
-        ref.item.idref = remap.maybe_remap(ref.item.idref,maptable)
-    for ref in remap.coalesce(n,'related_ttps'):
-        ref.item.idref = remap.maybe_remap(ref.item.idref,maptable)
+    for ref in remap.coalesce(n, 'associated_campaigns'):
+        ref.item.idref = remap.maybe_remap(ref.item.idref, maptable)
+    for ref in remap.coalesce(n, 'related_packages'):
+        ref.item.idref = remap.maybe_remap(ref.item.idref, maptable)
+    for ref in remap.coalesce(n, 'related_incidents'):
+        ref.item.idref = remap.maybe_remap(ref.item.idref, maptable)
+    for ref in remap.coalesce(n, 'related_indicators'):
+        ref.item.idref = remap.maybe_remap(ref.item.idref, maptable)
+    for ref in remap.coalesce(n, 'related_ttps'):
+        ref.item.idref = remap.maybe_remap(ref.item.idref, maptable)
 
     for atr in n.attribution:
         for rta in atr:
-            rta.item.idref = remap.maybe_remap(rta.item.idref,maptable)
+            rta.item.idref = remap.maybe_remap(rta.item.idref, maptable)
 
     return n
+
 
 def apply_patch():
     remap.REMAP_DISPATCH['tgt'] = remap_tgt

@@ -59,15 +59,16 @@ def generate_partial_review_data(request, id, revision):
     req_user = _get_request_username(request)
     if root_edge_object.created_by_username != req_user:
         validation_info.validation_dict.update({id: {"created_by":
-                                                         {"status": ValidationStatus.WARN,
-                                                          "message": "This object was created by %s not %s"
-                                                                     % (root_edge_object.created_by_username,
-                                                                        req_user)}}})
+                                                     {"status": ValidationStatus.WARN,
+                                                      "message": "This object was created by %s not %s"
+                                                                 % (root_edge_object.created_by_username,
+                                                                    req_user)}}})
     if any(item['is_external'] for item in edges):
         validation_info.validation_dict.update({id: {"external_references":
-                                                         {"status": ValidationStatus.ERROR,
-                                                          "message": "This object contains External References, clone "
-                                                                     "object and remove missing references before publishing"}}})
+                                                     {"status": ValidationStatus.ERROR,
+                                                      "message": "This object contains External References, clone "
+                                                                 "object and remove missing references before"
+                                                                 " publishing"}}})
 
     # add root object to edges for javascript to construct object
     edges.append({

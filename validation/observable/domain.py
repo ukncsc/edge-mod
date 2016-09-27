@@ -15,7 +15,8 @@ class DomainNameValidationInfo(ObservableValidationInfo):
     TLD_MATCHER = re.compile(r'^\.?[a-z]{2,63}$', re.IGNORECASE)
 
     def __init__(self, observable_data, **field_validation):
-        super(DomainNameValidationInfo, self).__init__(DomainNameValidationInfo.TYPE, observable_data, **field_validation)
+        super(DomainNameValidationInfo, self).__init__(
+            DomainNameValidationInfo.TYPE, observable_data, **field_validation)
         self.value = field_validation.get('value')
         self.type = field_validation.get('type')
 

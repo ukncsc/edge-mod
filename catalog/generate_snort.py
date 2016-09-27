@@ -5,9 +5,9 @@ cfg = settings.ACTIVE_CONFIG
 LOCAL_ALIAS = cfg.by_key('company_alias')
 
 
-def write_snort_rule(src_IP, dst_IP, src_port, dst_port, proto, msg, sid, detail):
+def write_snort_rule(src_ip, dst_ip, src_port, dst_port, proto, msg, sid, detail):
     return "alert %s %s %s -> %s %s (msg:\"%s\";%s sid: %s;)" % \
-           (proto, src_IP, src_port, dst_IP, dst_port, msg, detail, sid);
+           (proto, src_ip, src_port, dst_ip, dst_port, msg, detail, sid)
 
 
 def generate_sid():
