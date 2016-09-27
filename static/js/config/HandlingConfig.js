@@ -93,6 +93,7 @@ define([
 
         save: function () {
             this.removeEmptyCaveats(this.handling_caveats());
+
             if (this.isValid(this.handling_caveats())) {
                 var configObject = this.createSimpleConfigObject(this.handling_caveats());
                 var successMessage = "The sharing group mappings were successfully saved";
@@ -100,6 +101,7 @@ define([
                 this.saveData("set_sharing_groups/", configObject, successMessage, errorMessage);
                 this.saved_handling_caveats(ko.toJS(this.handling_caveats));
                 this.saved_handling_caveats.valueHasMutated();
+                this.savedEnabled(this.enabled());
             } else {
                 this.createErrorModal("All Handling Caveat mappings must be pairs of non-empty strings." +
                     " There must be no duplicate Stix or Display Values")
