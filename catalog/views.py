@@ -24,6 +24,7 @@ from edge.handling import make_handling
 from edge.sightings import getSightingsFollowHash
 
 from adapters.certuk_mod.catalog.generate_snort import generate_snort
+from adapters.certuk_mod.catalog.generate_bro import generate_bro
 from adapters.certuk_mod.common.logger import log_error
 from adapters.certuk_mod.publisher.package_generator import PackageGenerator
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
@@ -233,6 +234,13 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
                 return snort_val + os.linesep
         return ""
 
+    def bro_writer(value, obs_type):
+        if obs_type == obs_type_filter or obs_type_filter == "all":
+            bro_val = generate_bro(value, obs_type, id_.split(':', 1)[1].split('-', 1)[1])
+            if bro_val:
+                return bro_val + os.linesep
+        return ""
+
     def not_implemented_writer(*args):
         return ""
 
@@ -241,6 +249,8 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
         writer = text_writer
     elif output_format == "SNORT":
         writer = snort_writer
+    elif output_format == "BRO":
+        writer = bro_writer
     else:
         writer = not_implemented_writer
         result = "%s not implemented" % output_format
@@ -267,7 +277,10 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
         if "observable_composition" in eo.apidata:
             continue
 
-        result += writer(eo.summary['value'], eo.summary['type'])
+        if writer == bro_writer:
+            result += writer(eo.apidata["object"]["properties"], eo.summary["type"])
+        else:
+            result += writer(eo.summary['value'], eo.summary['type'])
 
     response = HttpResponse(content_type='text/txt')
     response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (output_format, obs_type_filter, id_)
