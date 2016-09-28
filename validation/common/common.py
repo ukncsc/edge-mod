@@ -1,8 +1,8 @@
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus, ObjectValidationInfo
-from edge.generic import EdgeError
-from edge.generic import EdgeObject, load_edge_object_or_404
+from edge.generic import EdgeObject
 
 class CommonValidationInfo(ObjectValidationInfo):
+
     TLP_MAP = {'RED': 4, 'AMBER': 3, 'GREEN': 2, 'WHITE': 1, 'NULL': 0}
 
     def __init__(self, **field_validation):
@@ -36,9 +36,10 @@ class CommonValidationInfo(ObjectValidationInfo):
                 except LookupError:
                     item_tlp = package_tlp
 
-        if not item_tlp:
+        if not item_tlp or item_tlp == 'NULL':
             field_validation[r'tlp'] = FieldValidationInfo(ValidationStatus.ERROR, r'TLP missing')
         elif cls.TLP_MAP[item_tlp] > cls.TLP_MAP[package_tlp]:
-            field_validation[r'tlp'] = FieldValidationInfo(ValidationStatus.WARN, r'Child object has less permissive TLP')
+            field_validation[r'tlp'] = FieldValidationInfo(ValidationStatus.WARN,
+                                                           r'Child object has less permissive TLP')
 
         return cls(**field_validation)

@@ -10,7 +10,7 @@ from adapters.certuk_mod.validation.common.structure import (
 )
 from adapters.certuk_mod.validation.indicator.indicator import IndicatorValidationInfo
 from adapters.certuk_mod.validation.observable.validator import ObservableValidator
-from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus, ObjectValidationInfo
+from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus
 from edge.combine import STIXPackage
 from edge.tools import nested_get
 
@@ -56,7 +56,8 @@ class PackageValidationInfo(object):
                     validation_results = ObservableValidator.validate(
                         object_type=FieldAlias('xsi:type', properties.get('xsi:type')),
                         description=observable.get('description'), **properties)
-                    validation_results.extend(CommonValidationInfo.validate(item = observable, package_dict = stix_header))
+                    validation_results.extend(CommonValidationInfo.validate(item = observable,
+                                                                            package_dict=stix_header))
                     if validation_results and validation_results.validation_dict:
                         observable_validation.update({id_: validation_results.validation_dict})
                 else:
@@ -74,7 +75,8 @@ class PackageValidationInfo(object):
                 other_properties = OtherStructureConverter.package_to_simple(incident, stix_header)
                 validation_results = CommonValidationInfo.validate(item=incident, package_dict=stix_header)
                 if len(other_properties.get('external_ids', [])):
-                    validation_results.extend({'external_ids': FieldValidationInfo(ValidationStatus.WARN, r'External IDs exist within an Incident in the package')})
+                    validation_results.extend({'external_ids': FieldValidationInfo(ValidationStatus.WARN,
+                                                                                   r'External IDs exist within an Incident in the package')})
                 if validation_results and validation_results.validation_dict:
                     incident_validation.update({id_: validation_results.validation_dict})
             else:
@@ -105,7 +107,8 @@ class PackageValidationInfo(object):
             id_ = other_object['id']
             namespace_validation = NamespaceValidationInfo.validate(type_, id_)
             if namespace_validation.is_local():
-                validation_results = CommonValidationInfo.validate(item=other_object, package_dict = stix_header)
+                validation_results = CommonValidationInfo.validate(item=other_object,
+                                                                   package_dict=stix_header)
                 if validation_results and validation_results.validation_dict:
                     other_validation.update({id_: validation_results.validation_dict})
             else:
