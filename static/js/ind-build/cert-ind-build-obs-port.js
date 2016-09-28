@@ -17,7 +17,13 @@ define([
                         "failedValidationMessage": "A port value is required"
                     }
                 }).valueHasMutated();
+                this.port.reviewOnly = ko.computed(function () {
+                    return this.reviewOnly();
+                }, this);
                 this.protocol = ko.observable("");
+                this.protocol.reviewOnly = ko.computed(function () {
+                    return this.reviewOnly();
+                }, this);
             }
         }),
 

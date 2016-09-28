@@ -15,14 +15,14 @@
     <div class="form-group">
         <label for="port" class="col-lg-2 control-label">Port</label>
         <div class="col-lg-6">
-            <input id="user_agent" class="form-control" data-bind="value: port" style="width:350px">
+            <input id="user_agent" class="form-control" data-bind="value: port, disable: $data.reviewOnly()" style="width:350px">
             <span style="color: red;">* (Required)</span>
         </div>
     </div>
     <div class="form-group">
         <label for="protocol" class="col-lg-2 control-label">Protocol</label>
         <div class="col-lg-6">
-            <input id="user_agent" class="form-control" data-bind="value: protocol" style="width:350px">
+            <input id="user_agent" class="form-control" data-bind="value: protocol, disable: $data.reviewOnly()" style="width:350px">
         </div>
     </div>
 </script>
