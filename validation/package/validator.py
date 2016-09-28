@@ -74,7 +74,7 @@ class PackageValidationInfo(object):
                 other_properties = OtherStructureConverter.package_to_simple(incident, stix_header)
                 validation_results = CommonValidationInfo.validate(item=incident, package_dict=stix_header)
                 if len(other_properties.get('external_ids', [])):
-                    validation_results.extend(FieldValidationInfo(ValidationStatus.WARN, r'External IDs exist within an Incident in the package'))
+                    validation_results.extend({'external_ids': FieldValidationInfo(ValidationStatus.WARN, r'External IDs exist within an Incident in the package')})
                 if validation_results and validation_results.validation_dict:
                     incident_validation.update({id_: validation_results.validation_dict})
             else:
