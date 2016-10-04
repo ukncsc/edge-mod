@@ -217,7 +217,7 @@ def get_duplicates(request, id_):
 
 
 @login_required
-def observable_extract(request, output_format, obs_type_filter, id_, revision, extra = "none"):
+def observable_extract(request, output_format, obs_type_filter, id_, revision):
     revision = "latest"  # override as not sure if it makes sense to use the revision.
 
     def text_writer(value, obs_type):

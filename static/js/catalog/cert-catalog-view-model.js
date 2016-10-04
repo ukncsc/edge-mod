@@ -95,6 +95,7 @@ define([
                 showErrorModal(stixObservableFilterOption.noObservableMsg);
             });
         },
+        
         reload: function (timekey) {
             if (timekey !== this.revision()) {
                 var params = {"id": this.rootID(), "revision": timekey}
