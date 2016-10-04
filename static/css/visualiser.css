@@ -2,6 +2,12 @@
     background-color: transparent;
 }
 
+.btn-group.panel-actions {
+    position:   absolute;
+    right:   30px;
+    bottom: 30px;
+}
+
 #visualiser {
     overflow: hidden;
     position: fixed;

@@ -2,7 +2,7 @@
 {% include 'visualiser_panel.html' %}
 <template id="Graph">
     <div id="graph-container" class="flex-main" data-bind="with: model">
-        <div class="btn-group " style="position:absolute;top:5px;left:5px;">
+        <div class="btn-group" style="position:absolute;top:5px;left:5px;">
             <button type="button" class="btn btn-default btn-lg"
                     data-bind="click: saveAsPNG">
                 <span class="glyphicon glyphicon-download"></span>
@@ -113,19 +113,32 @@
             <!-- ko if: selectedTemplate() -->
             <div class="row" data-bind="template: { name: selectedTemplate(), data: selectedRoot }"></div>
             <!-- ko with: graph -->
+            <!-- ko with: selectedLinkedNodes -->
+            <!-- ko if: $parent.links().length > 0 -->
+                <div class="btn-group panel-actions" role="group">
+                    <!-- ko foreach: $parents[2].model.panel_actions().actions -->
+                    <button type="button" data-toggle="tooltip" class="btn btn-default" data-bind="attr: {title:action_name},
+                        click:$parents[1].call_action.bind($parents[1], $data.action())">
+                        <!-- ko if: glyphicon_name -->
+                        <span data-bind="css: glyphicon_name"></span>
+                        <!-- /ko -->
+                        <!-- ko ifnot: glyphicon_name -->
+                        <!--ko text: action_name--><!--/ko-->
+                        <!-- /ko -->
+                    </button>
+                    <!-- /ko -->
+                </div>
+            <!-- /ko -->
             <dl data-bind="visible:true" class="linkedNodes" style="display:none">
-                <!-- ko with: selectedLinkedNodes -->
-
-                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: parentOf, title: 'References', cssClass:'edge', model: $parents[1]}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: parentOf, title: 'References', cssClass:'draft', model: $parents[1]}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: externalRefs, title: 'External References', cssClass:'external_ref', model: $parents[1]}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: backlinks, title: 'Backlinks', cssClass: 'backlink', model: $parents[1]}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: matches, title: 'Matching Objects', cssClass: 'match', model: $parents[1]}}"></div>
-                <div data-bind="template: {name: 'VisualiserPanelDrafts', data: {realData: drafts, title: 'Drafts', cssClass:'draft', model: $parents[1]}}"></div>
+                <div data-bind="template: {name: 'VisualiserPanel', data: {realData: drafts, title: 'Drafts', cssClass:'draft', model: $parents[1]}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanel', data: {realData: childOf, title: 'Referenced By', cssClass: 'edge', model: $parents[1]}}"></div>
                 <div data-bind="template: {name: 'VisualiserPanelHidden', data: {cssClass: 'hidden_node', title: 'Hidden Nodes', model: $parents[1]}}"></div>
-
-                <!-- /ko -->
             </dl>
+            <!-- /ko -->
             <!-- /ko -->
             <!-- /ko -->
             <p data-bind="ifnot: selectedTemplate">Nothing selected</p>
