@@ -97,7 +97,7 @@ def merge_draft_file_observables(draft_obs_offsets, draft_ind, hash_types):
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
 
 
-def can_merge_observables(draft_obs_offsets, draft_ind, hash_types):
+def can_merge_draft_observables(draft_obs_offsets, draft_ind, hash_types):
     if len(draft_obs_offsets) <= 1:
         return False, "Unable to merge these observables, at least 2 draft observables should be selected for a merge"
 
@@ -129,12 +129,28 @@ def delete_observables(draft_obs_offsets, draft_ind):
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
 
 
-def move_observables(draft_obs_offsets, source_draft_ind, target_draft_ind):
+def move_draft_observables(draft_obs_offsets, source_draft_ind, target_draft_ind):
     obs_to_move = [source_draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
                    if len(source_draft_ind['observables']) > draft_offset >= 0]
 
     target_draft_ind['observables'].extend(obs_to_move)
     source_draft_ind['observables'] = [obs for obs in source_draft_ind['observables'] if obs not in obs_to_move]
+
+def move_existing_observables(obs_ids, source_draft_ind, target_draft_ind):
+    existing_obs_to_move = [obs for obs in obs_ids if not DRAFT_ID_SEPARATOR in obs]
+    obs_to_move = [EdgeObject.load(id_).apidata for id_ in existing_obs_to_move]
+
+    target_draft_ind['observables'].extend(obs_to_move)
+    new_source_draft_obs = []
+    for obs in source_draft_ind['observables']:
+        if 'id' not in obs.keys():
+            new_source_draft_obs.append(obs)
+        elif obs['id'] not in existing_obs_to_move:
+            new_source_draft_obs.append(obs)
+
+    source_draft_ind['observables'] = new_source_draft_obs
+
+
 
 
 def get_draft_obs(obs_node_id, user):

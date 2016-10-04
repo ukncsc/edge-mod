@@ -26,7 +26,7 @@ from adapters.certuk_mod.common.objectid import is_valid_stix_id
 from adapters.certuk_mod.visualiser.views import visualiser_item_get
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
 from adapters.certuk_mod.extract.extract_actions import create_graph, iterate_draft, observable_to_name, \
-    get_draft_obs, get_draft_obs_offset, move_observables, can_merge_observables, merge_draft_file_observables, \
+    get_draft_obs, get_draft_obs_offset, move_draft_observables, move_existing_observables, can_merge_draft_observables, merge_draft_file_observables, \
     delete_observables
 from adapters.certuk_mod.visualiser.graph import REL_TYPE_EDGE
 from adapters.certuk_mod.common.activity import save as log_activity
@@ -340,7 +340,9 @@ def extract_visualiser_move_observables(request):
                                                 get_maximum_number(new_draft_ind['indicatorType'],
                                                                    extract_item['draft_ids'], request.user) + 1)
 
-    move_observables(get_draft_obs_offsets(draft_ind, move_data['ids']), draft_ind, new_draft_ind)
+    move_draft_observables(get_draft_obs_offsets(draft_ind, move_data['ids']), draft_ind, new_draft_ind)
+    move_existing_observables(move_data['ids'], draft_ind, new_draft_ind)
+
 
     extract_item['draft_ids'].append(new_draft_ind['id'])
     extract_store.update(extract_item['_id'], "COMPLETE", "Found %d indicators" % (len(extract_item['draft_ids'])),
@@ -361,6 +363,12 @@ def extract_visualiser_move_observables(request):
 def get_draft_obs_offsets(draft_ind, ids):
     return [get_draft_obs_offset(draft_ind, id_) for id_ in ids if DRAFT_ID_SEPARATOR in id_]
 
+def array_has_existing_observables(array):
+    existing_observable_exists = False
+    for id in array:
+        if DRAFT_ID_SEPARATOR not in id:
+            existing_observable_exists = True
+    return existing_observable_exists
 
 @login_required_ajax
 def extract_visualiser_merge_observables(request):
@@ -370,10 +378,13 @@ def extract_visualiser_merge_observables(request):
     except DoesNotExist:
         return JsonResponse({'Error': "Draft object:%s does not exist" % merge_data['id']}, status=400)
 
+    if (array_has_existing_observables(merge_data['ids'])):
+        return JsonResponse({'Error': "You can only merge Draft Objects"}, status=400)
+
     draft_obs_offsets = get_draft_obs_offsets(draft_ind, merge_data['ids'])
 
     hash_types = ['MD5', 'MD6', 'SHA1', 'SHA224', 'SHA256', 'SHA384', 'SHA512', 'SSDEEP', 'Other']
-    (can_merge, message) = can_merge_observables(draft_obs_offsets, draft_ind, hash_types)
+    (can_merge, message) = can_merge_draft_observables(draft_obs_offsets, draft_ind, hash_types)
     if not can_merge:
         return JsonResponse({'Error': message}, status=400)
 
@@ -389,6 +400,9 @@ def extract_visualiser_delete_observables(request):
         draft_ind = Draft.load(delete_data['id'], request.user)
     except DoesNotExist:
         return JsonResponse({'Error': "Draft object:%s does not exist" % delete_data['id']}, status=400)
+
+    if (array_has_existing_observables(delete_data['ids'])):
+        return JsonResponse({'Error': "You can only delete Draft Objects"}, status=400)
 
     delete_observables(get_draft_obs_offsets(draft_ind, delete_data['ids']), draft_ind)
     Draft.upsert('ind', draft_ind, request.user)
