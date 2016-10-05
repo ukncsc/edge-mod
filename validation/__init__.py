@@ -41,3 +41,7 @@ class ObjectValidationInfo(object):
     @classmethod
     def validate(cls, **object_data):
         raise NotImplementedError('This method must be overridden.')
+
+    def extend(self, validation):
+        if validation and validation.validation_dict:
+            self.validation_dict.update(validation.validation_dict)

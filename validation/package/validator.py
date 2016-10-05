@@ -25,7 +25,7 @@ class PackageValidationInfo(object):
         stix_header = package_dict.get(r'stix_header')
         validation = {}
         validation.update(PackageValidationInfo.__validate_observables(
-            nested_get(package_dict, [r'observables', r'observables'])
+            nested_get(package_dict, [r'observables', r'observables']), stix_header
         ))
         validation.update(PackageValidationInfo.__validate_indicators(
             nested_get(package_dict, [r'indicators']), stix_header
@@ -40,81 +40,104 @@ class PackageValidationInfo(object):
         validation.update(PackageValidationInfo.__validate_other(
             nested_get(package_dict, [r'ttps', r'ttps']), r'ttp', stix_header
         ))
+        validation.update(PackageValidationInfo.__validate_other(
+            nested_get(package_dict, [r'threat_actors']), r'act', stix_header
+        ))
+        validation.update(PackageValidationInfo.__validate_other(
+            nested_get(package_dict, [r'campaigns']), r'cam', stix_header
+        ))
+        validation.update(PackageValidationInfo.__validate_other(
+            nested_get(package_dict, [r'exploit_targets']), r'tgt', stix_header
+        ))
 
         return validation
 
     @staticmethod
-    def __validate_observables(observables):
-        observable_validation = {}
+    def __validate_observables(observables, stix_header):
+        all_observables_validation = {}
         for observable in observables:
             if 'observable_composition' not in observable:
                 id_ = observable['id']
+                observable_validation = ObjectValidationInfo()
+                observable_validation.extend(CommonValidationInfo.validate(item=observable,
+                                                                        package_dict=stix_header))
                 namespace_validation = NamespaceValidationInfo.validate(r'obs', id_)
                 if namespace_validation.is_local():
                     properties = observable['object']['properties']
                     properties = ObservableStructureConverter.package_to_simple(properties.get('xsi:type'), properties)
-                    validation_results = ObservableValidator.validate(
+                    observable_validation.extend(ObservableValidator.validate(
                         object_type=FieldAlias('xsi:type', properties.get('xsi:type')),
                         description=observable.get('description'), **properties)
-                    if validation_results and validation_results.validation_dict:
-                        observable_validation.update({id_: validation_results.validation_dict})
+                    )
                 else:
-                    observable_validation.update({id_: namespace_validation.validation_dict})
+                    observable_validation.extend(namespace_validation)
 
-        return observable_validation
+                if observable_validation.validation_dict:
+                    all_observables_validation.update({id_: observable_validation.validation_dict})
+
+        return all_observables_validation
 
     @staticmethod
     def __validate_incidents(incidents, stix_header):
-        incident_validation = {}
+        all_incidents_validation = {}
 
         for incident in incidents:
             id_ = incident['id']
+            incident_validation = ObjectValidationInfo()
+            incident_validation.extend(CommonValidationInfo.validate(item=incident,
+                                                                     package_dict=stix_header))
             namespace_validation = NamespaceValidationInfo.validate(r'inc', id_)
             if namespace_validation.is_local():
                 other_properties = OtherStructureConverter.package_to_simple(incident, stix_header)
-                validation_results = CommonValidationInfo.validate(**other_properties)
-                if validation_results and validation_results.validation_dict:
-                    incident_validation.update({id_: validation_results.validation_dict})
                 if len(other_properties.get('external_ids', [])):
-                    field_validation = {'external_ids': FieldValidationInfo(
-                        ValidationStatus.WARN,
-                        r'External IDs exist within an Incident in the package')
+                    field_validation = {'external_ids': {
+                        'status': ValidationStatus.WARN,
+                        'message': r'External IDs exist within an Incident in the package'}
                     }
-                    incident_validation.update({id_: ObjectValidationInfo(**field_validation).validation_dict})
+                    incident_validation.validation_dict.update(field_validation)
             else:
-                incident_validation.update({id_: namespace_validation.validation_dict})
+                incident_validation.extend(namespace_validation)
 
-        return incident_validation
+            if incident_validation.validation_dict:
+                all_incidents_validation.update({id_: incident_validation.validation_dict})
+
+        return all_incidents_validation
 
     @staticmethod
     def __validate_indicators(indicators, stix_header):
-        indicator_validation = {}
+        all_indicators_validation = {}
         for indicator in indicators:
             id_ = indicator['id']
+            indicator_validation = ObjectValidationInfo()
+            indicator_validation.extend(CommonValidationInfo.validate(item=indicator,
+                                                                      package_dict=stix_header))
             namespace_validation = NamespaceValidationInfo.validate(r'ind', id_)
             if namespace_validation.is_local():
                 indicator_properties = IndicatorStructureConverter.package_to_simple(indicator, stix_header)
-                validation_results = IndicatorValidationInfo.validate(**indicator_properties)
-                if validation_results and validation_results.validation_dict:
-                    indicator_validation.update({id_: validation_results.validation_dict})
+                indicator_validation.extend(IndicatorValidationInfo.validate(**indicator_properties))
             else:
-                indicator_validation.update({id_: namespace_validation.validation_dict})
-        return indicator_validation
+                indicator_validation.extend(namespace_validation)
+            if indicator_validation.validation_dict:
+                all_indicators_validation.update({id_: indicator_validation.validation_dict})
+
+        return all_indicators_validation
 
     @staticmethod
     def __validate_other(other_objects, type_, stix_header):
-        other_validation = {}
+        all_other_objects_validation = {}
         for other_object in other_objects:
             id_ = other_object['id']
+            other_object_validation = ObjectValidationInfo()
+            other_object_validation.extend(CommonValidationInfo.validate(item=other_object,
+                                                               package_dict=stix_header))
             namespace_validation = NamespaceValidationInfo.validate(type_, id_)
-            if namespace_validation.is_local():
-                other_properties = OtherStructureConverter.package_to_simple(other_object, stix_header)
-                validation_results = CommonValidationInfo.validate(**other_properties)
-                if validation_results and validation_results.validation_dict:
-                    other_validation.update({id_: validation_results.validation_dict})
-            else:
-                other_validation.update({id_: namespace_validation.validation_dict})
-        return other_validation
+            if not namespace_validation.is_local():
+                other_object_validation.extend(namespace_validation)
+
+            if other_object_validation.validation_dict:
+                all_other_objects_validation.update({id_: other_object_validation.validation_dict})
+
+        return all_other_objects_validation
 
     def to_json(self):
         return json.dumps(self.validation_dict)
