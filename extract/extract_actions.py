@@ -1,6 +1,6 @@
 import hashlib
 from users.models import Draft
-from edge.generic import EdgeObject
+from edge.generic import EdgeObject, EdgeError
 from adapters.certuk_mod.visualiser.graph import create_graph, REL_TYPE_EDGE, REL_TYPE_DRAFT, REL_TYPE_EXT, \
     create_external_reference_from_id
 
@@ -123,10 +123,22 @@ def can_merge_draft_observables(draft_obs_offsets, draft_ind, hash_types):
     return True, ""
 
 
-def delete_observables(draft_obs_offsets, draft_ind):
+def delete_draft_observables(draft_obs_offsets, draft_ind):
     obs_to_dump = [draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
                    if len(draft_ind['observables']) > draft_offset >= 0]
     draft_ind['observables'] = [obs for obs in draft_ind['observables'] if obs not in obs_to_dump]
+
+
+def delete_existing_observables(obs_ids, draft_ind):
+    existing_obs_to_delete = [obs for obs in obs_ids if DRAFT_ID_SEPARATOR not in obs]
+    new_draft_obs = []
+    for obs in draft_ind['observables']:
+        # If the obs doesn't have an ID then this suggests the obs is a draft
+        if 'id' not in obs:
+            new_draft_obs.append(obs)
+        elif obs['id'] not in existing_obs_to_delete:
+            new_draft_obs.append(obs)
+    draft_ind['observables'] = new_draft_obs
 
 
 def move_draft_observables(draft_obs_offsets, source_draft_ind, target_draft_ind):
@@ -136,21 +148,26 @@ def move_draft_observables(draft_obs_offsets, source_draft_ind, target_draft_ind
     target_draft_ind['observables'].extend(obs_to_move)
     source_draft_ind['observables'] = [obs for obs in source_draft_ind['observables'] if obs not in obs_to_move]
 
+
 def move_existing_observables(obs_ids, source_draft_ind, target_draft_ind):
-    existing_obs_to_move = [obs for obs in obs_ids if not DRAFT_ID_SEPARATOR in obs]
-    obs_to_move = [EdgeObject.load(id_).apidata for id_ in existing_obs_to_move]
+    existing_obs_to_move = [obs for obs in obs_ids if DRAFT_ID_SEPARATOR not in obs]
+    obs_to_move = []
+    for id_ in existing_obs_to_move:
+        try:
+            obs_to_move.append(EdgeObject.load(id_).to_draft())
+        except EdgeError:
+            continue
 
     target_draft_ind['observables'].extend(obs_to_move)
     new_source_draft_obs = []
     for obs in source_draft_ind['observables']:
-        if 'id' not in obs.keys():
+        # If the obs doesn't have an ID then this suggests the obs is a draft
+        if 'id' not in obs:
             new_source_draft_obs.append(obs)
         elif obs['id'] not in existing_obs_to_move:
             new_source_draft_obs.append(obs)
 
     source_draft_ind['observables'] = new_source_draft_obs
-
-
 
 
 def get_draft_obs(obs_node_id, user):
