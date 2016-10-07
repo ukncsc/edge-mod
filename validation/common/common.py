@@ -1,5 +1,5 @@
 from adapters.certuk_mod.validation import FieldValidationInfo, ValidationStatus, ObjectValidationInfo
-from edge.generic import EdgeObject
+from edge.generic import EdgeObject, EdgeError
 
 class CommonValidationInfo(ObjectValidationInfo):
 
@@ -19,9 +19,12 @@ class CommonValidationInfo(ObjectValidationInfo):
         item_tlp = item.get(r'tlp')
 
         package_dict = common_data.get(r'package_dict')
-        package_tlp = None
+
         if package_dict:
             package_tlp = package_dict.get(r'tlp')
+        else:
+            package_dict = {}
+            package_tlp = None
 
         field_validation = {}
 
@@ -38,7 +41,7 @@ class CommonValidationInfo(ObjectValidationInfo):
                 try:
                     eo = EdgeObject.load(item['id'])
                     item_tlp = eo.etlp if hasattr(eo, 'etlp') else 'NULL'
-                except LookupError:
+                except EdgeError:
                     item_tlp = package_tlp
 
         if not item_tlp or item_tlp == 'NULL':
