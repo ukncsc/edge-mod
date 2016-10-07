@@ -129,6 +129,10 @@ define([
 
         safeValueGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath, /*String?*/ validationPath) {
             var simpleValue = this.safeGet(object, propertyPath);
+            if(simpleValue instanceof Object) {
+                //flatten structures which have attributes on the stix object
+                simpleValue = simpleValue["value"]
+            }
             var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
             return new ReviewValue(simpleValue, validation.state, validation.message);
         },
