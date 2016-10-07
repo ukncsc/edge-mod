@@ -31,7 +31,7 @@ define([
                     requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
-                        displayMessage: "You need to enter a title for your indicator"
+                        displayMessage: "You need to enter a title for your incident"
                     }
                 });
                 this.shortDescription = ko.observable();
@@ -39,28 +39,28 @@ define([
                     requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
-                        displayMessage: "You need to enter a description for your indicator"
+                        displayMessage: "You need to enter a description for your incident"
                     }
                 });
                 this.confidence = ko.observable().extend({
                     requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
-                        displayMessage: "You need to select a confidence level for your indicator"
+                        displayMessage: "You need to select a confidence level for your incident"
                     }
                 });
                 this.status = ko.observable().extend({
                     requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
-                        displayMessage: "You need to select a status for your indicator"
+                        displayMessage: "You need to select a status for your incident"
                     }
                 });
                 this.tlp = ko.observable().extend({
                     requiredGrouped: {
                         required: true,
                         group: this.validationGroup,
-                        displayMessage: "You need to select a TLP for your indicator"
+                        displayMessage: "You need to select a TLP for your incident"
                     }
                 });
 
@@ -72,7 +72,7 @@ define([
                         validateFunction: function () {
                             return this.reporter();
                         }.bind(this),
-                        displayMessage: "You need to select a reporter for your indicator"
+                        displayMessage: "You need to select a reporter for your incident"
                     }
                 });
                 this.markingsEnabled = ko.observable(markingsEnabled);
@@ -81,7 +81,7 @@ define([
                         requiredGrouped: {
                             required: true,
                             group: this.validationGroup,
-                            displayMessage: "You need to select a marking for your indicator"
+                            displayMessage: "You need to select a marking for your incident"
                         }
                     });
                 }
