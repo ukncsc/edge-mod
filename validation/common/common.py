@@ -13,10 +13,15 @@ class CommonValidationInfo(ObjectValidationInfo):
     def validate(cls, **common_data):
 
         item = common_data.get(r'item')
+        if not item:
+            item = common_data
+
         item_tlp = item.get(r'tlp')
 
         package_dict = common_data.get(r'package_dict')
-        package_tlp = package_dict.get(r'tlp')
+        package_tlp = None
+        if package_dict:
+            package_tlp = package_dict.get(r'tlp')
 
         field_validation = {}
 
