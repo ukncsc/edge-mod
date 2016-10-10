@@ -42,6 +42,7 @@ class ExtractDeleteTests(unittest.TestCase):
 
         self.obs_id0 = 'observable:123'
         self.obs_id1 = 'observable:1234'
+        self.obs_id2 = 'observable:12345'
         self.obs0 = {'id': self.obs_id0, 'title': 'test0', 'objectType': 'File', 'file_name': "abc.txt", 'hashes':[]}
         self.obs1 = {'id': self.obs_id1, 'title': 'test1', 'objectType': 'File', 'file_name':'',
                       'hashes': [{'hash_type': 'md5', 'hash_value': '123123123'}]}
@@ -53,6 +54,20 @@ class ExtractDeleteTests(unittest.TestCase):
     def test_delete_draft_observable(self):
         self.mock_draft_load.return_value = self.draft_ind_with_draft_obs
         self.mock_request.body = json.dumps({"id": self.draft_ind_id, "ids": [self.draft_obs_id0]})
-        extract_visualiser_delete_observables(self.mock_request)
+        response = extract_visualiser_delete_observables(self.mock_request)
+        self.assertTrue(response.status_code == 200)
         self.mock_draft_upsert.assert_called_with('ind', {'observables': [self.draft_obs1],
                                                      'id': self.draft_ind_id}, self.mock_request.user)
+    def test_delete_existing_observable_with_draft_ind(self):
+        self.mock_draft_load.return_value = self.draft_ind_with_obs
+        self.mock_request.body = json.dumps({"id": self.draft_ind_id, "ids": [self.obs_id0]})
+        response = extract_visualiser_delete_observables(self.mock_request)
+        self.assertTrue(response.status_code == 200)
+        self.mock_draft_upsert.assert_called_with('ind', {'observables': [self.obs1],
+                                                          'id': self.draft_ind_id}, self.mock_request.user)
+    def test_existing_observable_with_unrelated_draft_ind(self):
+        self.mock_draft_load.return_value = self.draft_ind_with_obs
+        self.mock_request.body = json.dumps({"id": self.draft_ind_id, "ids": [self.obs_id2]})
+        response = extract_visualiser_delete_observables(self.mock_request)
+        self.assertTrue(response.status_code == 400)
+        self.mock_draft_upsert.assert_not_called()

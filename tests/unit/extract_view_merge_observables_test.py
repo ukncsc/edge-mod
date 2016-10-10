@@ -71,13 +71,14 @@ class ExtractMergeTests(unittest.TestCase):
                                                   {'observables': [merged_obs],'id': 'indicator:123'},
                                                   self.mock_request.user)
 
+
     def test_try_merge_non_draft_observable(self):
         self.mock_draft_load.return_value = self.draft_ind_with_obs
         self.mock_draft_list.return_value = [self.draft_ind_with_obs]
 
         self.mock_request.body = json.dumps({"id":  self.draft_ind_id, "ids": [self.obs_id0]})
-        extract_visualiser_merge_observables(self.mock_request)
-
+        response = extract_visualiser_merge_observables(self.mock_request)
+        self.assertTrue(response.status_code == 400)
         self.mock_draft_upsert.assert_not_called()
 
     def test_try_merge_non_file_observable(self):
