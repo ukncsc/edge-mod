@@ -24,7 +24,7 @@ class ObservableValidationInfo(ObjectValidationInfo):
     @staticmethod
     def __validate_description(description):
         if not description:
-            return FieldValidationInfo(status=ValidationStatus.INFO, message='No description')
+            return FieldValidationInfo(status=ValidationStatus.INFO, message='No description for Observable')
         return None
 
     @staticmethod
