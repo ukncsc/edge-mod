@@ -16,7 +16,9 @@
         <li data-bind="text: message, attr: { title: fields.join('\n') }"></li>
     </ul>
 </div>
-<!-- ko if: validations.hasErrors -->
+<!-- ko if: validations.hasErrors-->
+<!-- ko if: typeof(messageError) !== 'undefined'-->
 <div data-bind="text: messageError" class="bg-danger text-danger text-center"></div>
+<!-- /ko -->
 <!-- /ko -->
 <hr>
