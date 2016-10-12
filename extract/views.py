@@ -364,9 +364,9 @@ def get_draft_obs_offsets(draft_ind, ids):
     return [get_draft_obs_offset(draft_ind, id_) for id_ in ids if DRAFT_ID_SEPARATOR in id_]
 
 
-def get_existing_observables(array):
+def get_existing_observables(obs_ids):
     existing_observables = []
-    for obs_id in array:
+    for obs_id in obs_ids:
         if DRAFT_ID_SEPARATOR not in obs_id:
             existing_observables.append(obs_id)
     return existing_observables
