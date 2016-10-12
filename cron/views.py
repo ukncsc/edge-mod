@@ -28,6 +28,7 @@ def ajax_run_purge(request, data):
         'id': task.id
     }
 
+
 @login_required_ajax
 @superuser_or_staff_role
 @json_body
@@ -73,6 +74,7 @@ def ajax_get_mod_bl_task_status(request, data):
     return {
         'status': bl_task_is_running()
     }
+
 
 @login_required_ajax
 @superuser_or_staff_role

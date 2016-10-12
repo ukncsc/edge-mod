@@ -7,7 +7,7 @@ from edge import relate
 from edge.generic import ApiObject, EdgeObject
 from edge.indicator import DBIndicator
 from edge.inbox import InboxProcessorForBuilders, InboxItem
-from indicator.observable_object_generator import ObservableObjectGenerator
+from adapters.certuk_mod.builder.cert_observable_object_generator import CERTObservableObjectGenerator
 
 from edge.handling import lines2list, handling_from_draft
 from cybox.core import ObservableComposition, Object, Observable
@@ -40,7 +40,6 @@ class DBIndicatorPatch(DBIndicator):
                     yara_dict['type'] = 'Yara'
                     draft.setdefault('test_mechanisms', []).append(yara_dict)
         return draft
-
 
     def map(self):
         pass
@@ -78,7 +77,6 @@ class IndicatorBuilderPatch(IndicatorBuilder):
         if 'test_mechanisms' in indicator_data:
             for test_mechanism in indicator_data['test_mechanisms']:
                 indicator.test_mechanisms.append(IndicatorBuilderPatch.test_mechanism_from_draft(test_mechanism))
-
 
         api_objects = {}
         observable_composition = ObservableComposition(operator=indicator_data.get('composition_type'))
@@ -126,7 +124,7 @@ class IndicatorBuilderPatch(IndicatorBuilder):
         #  otherwise, get it from...?the database?
         if reedit_flag:
             user_action_log = logging.getLogger('user_actions')
-            user_action_log.info("%s updated STIX item %s (%s)" % (user.username, indicator.id_, indicator.title))
+            user_action_log.info("%s updated STIX item %s (%s)", user.username, indicator.id_, indicator.title)
         # EOIndicator = self.edge_object_loader.load(indicator.id_)              # Get the parent indicator
         #     find_ob_comp = lambda edges: [x.fetch() for x in edges if x.ty == 'obs'][0]
         #     # Find the observable composition among it's edges and return only the first hit.
@@ -173,6 +171,7 @@ class IndicatorBuilderPatch(IndicatorBuilder):
 
         self.delete_draft(user, indicator_data['id'])
 
+
 def apply_patch():
     WHICH_DBOBJ['ind'] = DBIndicatorPatch
-    IndicatorBuilder.publish_indicator = IndicatorBuilderPatch(ObservableObjectGenerator()).publish_indicator
+    IndicatorBuilder.publish_indicator = IndicatorBuilderPatch(CERTObservableObjectGenerator()).publish_indicator

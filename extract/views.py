@@ -14,6 +14,8 @@ from users.decorators import login_required_ajax
 from edge.inbox import InboxError
 from edge.tools import StopWatch
 from edge import IDManager
+from edge.generic import EdgeObject
+from users.models import Draft
 
 from adapters.certuk_mod.builder.kill_chain_definition import KILL_CHAIN_PHASES
 from adapters.certuk_mod.retention.purge import STIXPurge
@@ -23,7 +25,10 @@ from adapters.certuk_mod.extract.ioc_wrapper import parse_file, IOCParseExceptio
 from adapters.certuk_mod.common.objectid import is_valid_stix_id
 from adapters.certuk_mod.visualiser.views import visualiser_item_get
 from adapters.certuk_mod.publisher.publisher_edge_object import PublisherEdgeObject
-from adapters.certuk_mod.extract.extract_actions import *
+from adapters.certuk_mod.extract.extract_actions import create_graph, iterate_draft, observable_to_name, \
+    get_draft_obs, get_draft_obs_offset, move_observables, can_merge_observables, merge_draft_file_observables, \
+    delete_observables
+from adapters.certuk_mod.visualiser.graph import REL_TYPE_EDGE
 from adapters.certuk_mod.common.activity import save as log_activity
 
 import datetime
@@ -49,7 +54,7 @@ def uploaded_stix_extracts(request):
 
 @login_required_ajax
 def extract_upload(request):
-    file_import = request.FILES.get('import', "");
+    file_import = request.FILES.get('import', "")
     extract_id = extract_store.create(request.user.username, str(file_import))
 
     if 'import' not in request.FILES:
@@ -137,10 +142,10 @@ def process_stix(stream, user, extract_id, file_name):
                 obs['title'] = obs['objectType'] + ":" + obs['title']
 
     def remove_from_db(ids):
-        PAGE_SIZE = 100
-        for page_index in range(0, len(ids), PAGE_SIZE):
+        page_size = 100
+        for page_index in range(0, len(ids), page_size):
             try:
-                chunk_ids = ids[page_index: page_index + PAGE_SIZE]
+                chunk_ids = ids[page_index: page_index + page_size]
                 STIXPurge.remove(chunk_ids)
             except Exception:
                 pass
@@ -245,9 +250,9 @@ def extract_visualiser_item_get(request, node_id):
     def convert_draft_to_viewable_obs(observable):
         view_obs = dict(id=node_id)
         view_obs['object'] = {'properties':
-                                  {'xsi:type': observable['objectType'],
-                                   'value': observable_to_name(observable, DRAFT_ID_SEPARATOR in node_id),
-                                   'description': observable.get('description', '')}}
+                              {'xsi:type': observable['objectType'],
+                               'value': observable_to_name(observable, DRAFT_ID_SEPARATOR in node_id),
+                               'description': observable.get('description', '')}}
 
         return view_obs
 

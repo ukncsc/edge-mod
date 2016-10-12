@@ -19,25 +19,22 @@ define([
                     classUnderTest = new ReviewValue();
                 },
                 "value is null": function () {
-                    assert.isNull(classUnderTest.value());
-                },
-                "state is OK": function () {
-                    assert.equal(classUnderTest.state(), ReviewValue.State.OK);
+                    assert.isNull(classUnderTest.value);
                 },
                 "message is null": function () {
-                    assert.isNull(classUnderTest.message());
+                    assert.isNull(classUnderTest.message);
                 },
                 "isEmpty is true": function () {
-                    assert.isTrue(classUnderTest.isEmpty());
+                    assert.isTrue(classUnderTest.isEmpty);
                 },
                 "hasError is false": function () {
-                    assert.isFalse(classUnderTest.hasError());
+                    assert.isFalse(classUnderTest.hasError);
                 },
                 "hasWarning is false": function () {
-                    assert.isFalse(classUnderTest.hasWarning());
+                    assert.isFalse(classUnderTest.hasWarning);
                 },
                 "hasInfo is false": function () {
-                    assert.isFalse(classUnderTest.hasInfo());
+                    assert.isFalse(classUnderTest.hasInfo);
                 }
             },
             "constructor: error message": {
@@ -45,25 +42,22 @@ define([
                     classUnderTest = new ReviewValue("aValue", ReviewValue.State.ERROR, "error message");
                 },
                 "value is 'aValue'": function () {
-                    assert.equal(classUnderTest.value(), "aValue");
-                },
-                "state is ERROR": function () {
-                    assert.equal(classUnderTest.state(), ReviewValue.State.ERROR);
+                    assert.equal(classUnderTest.value, "aValue");
                 },
                 "message is 'error message'": function () {
-                    assert.equal(classUnderTest.message(), "error message");
+                    assert.equal(classUnderTest.message, "error message");
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 },
                 "hasError is true": function () {
-                    assert.isTrue(classUnderTest.hasError());
+                    assert.isTrue(classUnderTest.hasError);
                 },
                 "hasWarning is false": function () {
-                    assert.isFalse(classUnderTest.hasWarning());
+                    assert.isFalse(classUnderTest.hasWarning);
                 },
                 "hasInfo is false": function () {
-                    assert.isFalse(classUnderTest.hasInfo());
+                    assert.isFalse(classUnderTest.hasInfo);
                 }
             },
             "constructor: warning message": {
@@ -71,25 +65,22 @@ define([
                     classUnderTest = new ReviewValue("aValue", ReviewValue.State.WARN, "warning message");
                 },
                 "value is 'aValue'": function () {
-                    assert.equal(classUnderTest.value(), "aValue");
-                },
-                "state is WARN": function () {
-                    assert.equal(classUnderTest.state(), ReviewValue.State.WARN);
+                    assert.equal(classUnderTest.value, "aValue");
                 },
                 "message is 'warning message'": function () {
-                    assert.equal(classUnderTest.message(), "warning message");
+                    assert.equal(classUnderTest.message, "warning message");
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 },
                 "hasError is false": function () {
-                    assert.isFalse(classUnderTest.hasError());
+                    assert.isFalse(classUnderTest.hasError);
                 },
                 "hasWarning is true": function () {
-                    assert.isTrue(classUnderTest.hasWarning());
+                    assert.isTrue(classUnderTest.hasWarning);
                 },
                 "hasInfo is false": function () {
-                    assert.isFalse(classUnderTest.hasInfo());
+                    assert.isFalse(classUnderTest.hasInfo);
                 }
             },
             "constructor: info message": {
@@ -97,25 +88,22 @@ define([
                     classUnderTest = new ReviewValue("aValue", ReviewValue.State.INFO, "info message");
                 },
                 "value is 'aValue'": function () {
-                    assert.equal(classUnderTest.value(), "aValue");
-                },
-                "state is INFO": function () {
-                    assert.equal(classUnderTest.state(), ReviewValue.State.INFO);
+                    assert.equal(classUnderTest.value, "aValue");
                 },
                 "message is 'info message'": function () {
-                    assert.equal(classUnderTest.message(), "info message");
+                    assert.equal(classUnderTest.message, "info message");
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 },
                 "hasError is false": function () {
-                    assert.isFalse(classUnderTest.hasError());
+                    assert.isFalse(classUnderTest.hasError);
                 },
                 "hasWarning is false": function () {
-                    assert.isFalse(classUnderTest.hasWarning());
+                    assert.isFalse(classUnderTest.hasWarning);
                 },
                 "hasInfo is true": function () {
-                    assert.isTrue(classUnderTest.hasInfo());
+                    assert.isTrue(classUnderTest.hasInfo);
                 }
             },
             "constructor: missing message": {
@@ -123,25 +111,22 @@ define([
                     classUnderTest = new ReviewValue("aValue", ReviewValue.State.INFO);
                 },
                 "value is 'aValue'": function () {
-                    assert.equal(classUnderTest.value(), "aValue");
-                },
-                "state is INFO": function () {
-                    assert.equal(classUnderTest.state(), ReviewValue.State.INFO);
+                    assert.equal(classUnderTest.value, "aValue");
                 },
                 "message is null": function () {
-                    assert.isNull(classUnderTest.message());
+                    assert.isNull(classUnderTest.message);
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 },
                 "hasError is false": function () {
-                    assert.isFalse(classUnderTest.hasError());
+                    assert.isFalse(classUnderTest.hasError);
                 },
                 "hasWarning is false": function () {
-                    assert.isFalse(classUnderTest.hasWarning());
+                    assert.isFalse(classUnderTest.hasWarning);
                 },
                 "hasInfo is true": function () {
-                    assert.isTrue(classUnderTest.hasInfo());
+                    assert.isTrue(classUnderTest.hasInfo);
                 }
             },
             "constructor: invalid state (out of range)": {
@@ -149,25 +134,22 @@ define([
                     classUnderTest = new ReviewValue("aValue", 42, "a message");
                 },
                 "value is 'aValue'": function () {
-                    assert.equal(classUnderTest.value(), "aValue");
-                },
-                "state is OK": function () {
-                    assert.equal(classUnderTest.state(), ReviewValue.State.OK);
+                    assert.equal(classUnderTest.value, "aValue");
                 },
                 "message is 'info message'": function () {
-                    assert.isNull(classUnderTest.message());
+                    assert.isNull(classUnderTest.message);
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 },
                 "hasError is false": function () {
-                    assert.isFalse(classUnderTest.hasError());
+                    assert.isFalse(classUnderTest.hasError);
                 },
                 "hasWarning is false": function () {
-                    assert.isFalse(classUnderTest.hasWarning());
+                    assert.isFalse(classUnderTest.hasWarning);
                 },
                 "hasInfo is false": function () {
-                    assert.isFalse(classUnderTest.hasInfo());
+                    assert.isFalse(classUnderTest.hasInfo);
                 }
             },
             "constructor: invalid state (NaN)": {
@@ -175,25 +157,22 @@ define([
                     classUnderTest = new ReviewValue("aValue", NaN, "a message");
                 },
                 "value is 'aValue'": function () {
-                    assert.equal(classUnderTest.value(), "aValue");
-                },
-                "state is OK": function () {
-                    assert.equal(classUnderTest.state(), ReviewValue.State.OK);
+                    assert.equal(classUnderTest.value, "aValue");
                 },
                 "message is 'info message'": function () {
-                    assert.isNull(classUnderTest.message());
+                    assert.isNull(classUnderTest.message);
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 },
                 "hasError is false": function () {
-                    assert.isFalse(classUnderTest.hasError());
+                    assert.isFalse(classUnderTest.hasError);
                 },
                 "hasWarning is false": function () {
-                    assert.isFalse(classUnderTest.hasWarning());
+                    assert.isFalse(classUnderTest.hasWarning);
                 },
                 "hasInfo is false": function () {
-                    assert.isFalse(classUnderTest.hasInfo());
+                    assert.isFalse(classUnderTest.hasInfo);
                 }
             },
             "constructor: boolean value": {
@@ -201,10 +180,10 @@ define([
                     classUnderTest = new ReviewValue(true);
                 },
                 "value is true": function () {
-                    assert.isTrue(classUnderTest.value());
+                    assert.isTrue(classUnderTest.value);
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 }
             },
             "constructor: non-finite numeric value": {
@@ -212,10 +191,10 @@ define([
                     classUnderTest = new ReviewValue(NaN);
                 },
                 "value is null": function () {
-                    assert.isNull(classUnderTest.value());
+                    assert.isNull(classUnderTest.value);
                 },
                 "isEmpty is true": function () {
-                    assert.isTrue(classUnderTest.isEmpty());
+                    assert.isTrue(classUnderTest.isEmpty);
                 }
             },
             "constructor: finite numeric value": {
@@ -223,10 +202,10 @@ define([
                     classUnderTest = new ReviewValue(42);
                 },
                 "value is 42": function () {
-                    assert.equal(classUnderTest.value(), 42);
+                    assert.equal(classUnderTest.value, 42);
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 }
             },
             "constructor: empty string value": {
@@ -234,10 +213,10 @@ define([
                     classUnderTest = new ReviewValue("");
                 },
                 "value is null": function () {
-                    assert.isNull(classUnderTest.value());
+                    assert.isNull(classUnderTest.value);
                 },
                 "isEmpty is true": function () {
-                    assert.isTrue(classUnderTest.isEmpty());
+                    assert.isTrue(classUnderTest.isEmpty);
                 }
             },
             "constructor: string value": {
@@ -245,10 +224,10 @@ define([
                     classUnderTest = new ReviewValue("aValue");
                 },
                 "value is 'aValue'": function () {
-                    assert.equal(classUnderTest.value(), "aValue");
+                    assert.equal(classUnderTest.value, "aValue");
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 }
             },
             "constructor: empty array value": {
@@ -256,10 +235,10 @@ define([
                     classUnderTest = new ReviewValue([]);
                 },
                 "value is null": function () {
-                    assert.isNull(classUnderTest.value());
+                    assert.isNull(classUnderTest.value);
                 },
                 "isEmpty is true": function () {
-                    assert.isTrue(classUnderTest.isEmpty());
+                    assert.isTrue(classUnderTest.isEmpty);
                 }
             },
             "constructor: single array value (object)": {
@@ -267,10 +246,10 @@ define([
                     classUnderTest = new ReviewValue([{ "a": "Curly" }]);
                 },
                 "value is [{\"a\": \"Curly\"}]": function () {
-                    assert.deepEqual(classUnderTest.value(), [{"a": "Curly"}]);
+                    assert.deepEqual(classUnderTest.value, [{"a": "Curly"}]);
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 }
             },
             "constructor: single array value, (non-object)": {
@@ -278,10 +257,10 @@ define([
                     classUnderTest = new ReviewValue(["Curly"]);
                 },
                 "value is 'Curly'": function () {
-                    assert.equal(classUnderTest.value(), "Curly");
+                    assert.equal(classUnderTest.value, "Curly");
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 }
             },
             "constructor: multiple array value (object)": {
@@ -289,10 +268,10 @@ define([
                     classUnderTest = new ReviewValue([{"a": "Curly"}, {"b": "Larry"}, {"c": "Mo"}]);
                 },
                 "value is [{\"a\": \"Curly\"}, {\"b\": \"Larry\"}, {\"c\": \"Mo\"}]": function () {
-                    assert.deepEqual(classUnderTest.value(), [{"a": "Curly"}, {"b": "Larry"}, {"c": "Mo"}]);
+                    assert.deepEqual(classUnderTest.value, [{"a": "Curly"}, {"b": "Larry"}, {"c": "Mo"}]);
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 }
             },
             "constructor: multiple array value (non-object)": {
@@ -300,10 +279,10 @@ define([
                     classUnderTest = new ReviewValue(["Curly", "Larry", "Mo"]);
                 },
                 "value is 'Curly, Larry and Mo'": function () {
-                    assert.equal(classUnderTest.value(), "Curly, Larry and Mo");
+                    assert.equal(classUnderTest.value, "Curly, Larry and Mo");
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 }
             },
             "constructor: empty object value": {
@@ -313,10 +292,10 @@ define([
                     });
                 },
                 "value is null": function () {
-                    assert.isNull(classUnderTest.value(), null);
+                    assert.isNull(classUnderTest.value, null);
                 },
                 "isEmpty is true": function () {
-                    assert.isTrue(classUnderTest.isEmpty());
+                    assert.isTrue(classUnderTest.isEmpty);
                 }
             },
             "constructor: simple object value with custom delimiter": {
@@ -327,10 +306,10 @@ define([
                     });
                 },
                 "value is 'aValue,bValue'": function () {
-                    assert.equal(classUnderTest.value(), "aValue,bValue");
+                    assert.equal(classUnderTest.value, "aValue,bValue");
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 }
             },
             "constructor: ranged object value": {
@@ -342,10 +321,10 @@ define([
                     });
                 },
                 "value is 'Any Inclusive Between 125.141.33.100 and 125.141.33.200'": function () {
-                    assert.equal(classUnderTest.value(), "Any Inclusive Between 125.141.33.100 and 125.141.33.200");
+                    assert.equal(classUnderTest.value, "Any Inclusive Between 125.141.33.100 and 125.141.33.200");
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 }
             },
             "constructor: unknown type value": {
@@ -353,10 +332,10 @@ define([
                     classUnderTest = new ReviewValue(new Date(Date.UTC(2015, 10, 9)));
                 },
                 "value is 'Mon Nov 09 2015 00:00:00 GMT+0000 (GMT)'": function () {
-                    assert.equal(classUnderTest.value(), "Mon Nov 09 2015 00:00:00 GMT+0000 (GMT)");
+                    assert.equal(classUnderTest.value, "Mon Nov 09 2015 00:00:00 GMT+0000 (GMT)");
                 },
                 "isEmpty is false": function () {
-                    assert.isFalse(classUnderTest.isEmpty());
+                    assert.isFalse(classUnderTest.isEmpty);
                 }
             },
             "State.parse()": {

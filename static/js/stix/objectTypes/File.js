@@ -19,7 +19,7 @@ define([
                         NamedProperty.addToPropertyList(
                             propertyList,
                             hashType,
-                            this.stixPackage.safeValueGet(this.id, hash, "simple_hash_value", hashType.value())
+                            this.stixPackage.safeValueGet(this.id, hash, "simple_hash_value", hashType.value)
                         );
                     }.bind(this));
                 }

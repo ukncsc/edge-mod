@@ -18,20 +18,20 @@ define([
     }
 
     var valueBuilders = Object.freeze({
-        "Boolean" : function (rawValue) {
+        "Boolean": function (rawValue) {
             return rawValue;
         },
-        "Number" : function (rawValue) {
+        "Number": function (rawValue) {
             return isFinite(rawValue) ? rawValue : null;
         },
-        "ObservableString" : function (rawValue, deliminator) {
+        "ObservableString": function (rawValue, deliminator) {
             return rawValue;
         },
-        "String" : function (rawValue, rawDelimiter) {
+        "String": function (rawValue, rawDelimiter) {
             var delimiter = rawDelimiter || "##comma##";
             return rawValue.length > 0 ? rawValue.split(delimiter).join(",") : null;
         },
-        "Array" : function (rawValue) {
+        "Array": function (rawValue) {
             var builtValue;
             if (rawValue.length > 1) {
                 builtValue = typeof rawValue[0] === "object"
@@ -44,7 +44,7 @@ define([
             }
             return builtValue;
         },
-        "Object" : function (rawValue) {
+        "Object": function (rawValue) {
             var condition = rawValue["condition"] || "Equals";
             var applyCondition = rawValue["apply_condition"];
             var builtValue = buildValue(rawValue["value"], rawValue["delimiter"]);
@@ -63,7 +63,7 @@ define([
         }
     });
 
-    function defaultValueBuilder (rawValue) {
+    function defaultValueBuilder(rawValue) {
         return rawValue ? String(rawValue) : null;
     }
 
@@ -71,7 +71,7 @@ define([
         if (ko.isObservable(rawValue)) {
             var valueType = "ObservableString";
         } else {
-             var valueType = Object.prototype.toString.call(rawValue).slice(8, -1);
+            var valueType = Object.prototype.toString.call(rawValue).slice(8, -1);
         }
 
         return (valueBuilders[valueType] || defaultValueBuilder)(rawValue, delimiter);
@@ -81,35 +81,31 @@ define([
         return isFinite(state) && state >= ReviewValue.State.OK && state <= ReviewValue.State.ERROR;
     }
 
+    function getValue(value) {
+        var ret = buildValue(value);
+        if (ko.isObservable(ret)) {
+            return ret();
+        }
+        return ret;
+    };
+
+    //function ReviewValue_hasWarning(rv)
     var ReviewValue = declare(null, {
         declaredClass: "ReviewValue",
         constructor: function (/*Any*/ value, /*State?*/ state, /*String?*/ message) {
-            this.value = ko.computed(function () {
-                var ret = buildValue(value);
-                if (ko.isObservable(ret)) {
-                    return ret();
-                }
-                return ret;
-            });
-            this.state = ko.computed(function () {
-                return isValidState(state) ? state : ReviewValue.State.OK;
-            });
-            this.message = ko.computed(function () {
-                return this.state() === ReviewValue.State.OK ? null : message || null;
-            }.bind(this));
+            var state = isValidState(state) ? state : ReviewValue.State.OK;
 
-            this.isEmpty = ko.computed(function () {
-                return this.value() === null;
-            }.bind(this));
-            this.hasError = ko.computed(function () {
-                return this.state() === ReviewValue.State.ERROR;
-            }.bind(this));
-            this.hasWarning = ko.computed(function () {
-                return this.state() === ReviewValue.State.WARN;
-            }.bind(this));
-            this.hasInfo = ko.computed(function () {
-                return this.state() === ReviewValue.State.INFO;
-            }.bind(this));
+            this.value = getValue(value);
+
+            this.message = (state === ReviewValue.State.OK ? null : message || null);
+
+            this.isEmpty = this.value === null;
+
+            this.hasError = state === ReviewValue.State.ERROR;
+
+            this.hasWarning = state === ReviewValue.State.WARN;
+
+            this.hasInfo = state === ReviewValue.State.INFO;
         }
     });
     ReviewValue.State = Object.freeze({

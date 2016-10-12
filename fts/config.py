@@ -75,11 +75,11 @@ class FtsConfiguration(object):
         except (DoesNotExist, FtsConfigurationError):
             # Either task has not been saved, or dodgy data was in the database
             task = PeriodicTaskWithTTL(
-                    task=cls.TASK_NAME,
-                    name='fts',
-                    crontab=PeriodicTaskWithTTL.Crontab(month_of_year='*', day_of_month='*', day_of_week='*',
-                                                        hour=cls.DEFAULT_HOUR, minute=cls.DEFAULT_MINUTE),
-                    enabled=enabled
+                task=cls.TASK_NAME,
+                name='fts',
+                crontab=PeriodicTaskWithTTL.Crontab(month_of_year='*', day_of_month='*', day_of_week='*',
+                                                    hour=cls.DEFAULT_HOUR, minute=cls.DEFAULT_MINUTE),
+                enabled=enabled
             )
         task.kwargs = {
             cls.__missing_indicies_key: only_missing_indicies

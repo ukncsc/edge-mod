@@ -24,9 +24,9 @@ def create(user, filename):
 def update(id, state, message, draft_ids):
     _extract_store().update(
         {'_id': ObjectId(oid=id)},
-        { "$set": {'state': state if state in VALID_STATES else "FAILED",
-         'message': message,
-         'draft_ids': draft_ids} }
+        {"$set": {'state': state if state in VALID_STATES else "FAILED",
+                  'message': message,
+                  'draft_ids': draft_ids}}
     )
 
 
@@ -39,12 +39,12 @@ def find(user=None, filename=None, state=None, draft_ind_id=None, limit=100):
     if state and str(state).upper() in VALID_STATES:
         query['state'] = {'$eq': str(state).upper()}
     if draft_ind_id:
-       query['draft_ids'] = {'$in':[draft_ind_id]}
+        query['draft_ids'] = {'$in': [draft_ind_id]}
     return [match for match in
             _extract_store()
-                .find(query)
-                .sort('timestamp', pymongo.DESCENDING)
-                .limit(int(limit))]
+            .find(query)
+            .sort('timestamp', pymongo.DESCENDING)
+            .limit(int(limit))]
 
 
 def get(id):

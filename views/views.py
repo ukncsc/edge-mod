@@ -42,22 +42,6 @@ from adapters.certuk_mod.extract.views import extract_upload, extract_visualiser
     extract_visualiser_get_extended, delete_extract, extract_list, extract_status, uploaded_stix_extracts, \
     extract_visualiser_move_observables
 
-from adapters.certuk_mod.common.views import activity_log, ajax_activity_log
-
-from adapters.certuk_mod.extract.views import \
-    extract_upload, \
-    extract_visualiser, \
-    extract_visualiser_get, \
-    extract_visualiser_item_get, \
-    extract, \
-    extract_visualiser_merge_observables, \
-    extract_visualiser_delete_observables, \
-    extract_visualiser_get_extended, \
-    delete_extract, \
-    extract_list, \
-    extract_status, \
-    uploaded_stix_extracts
-
 from adapters.certuk_mod.cron.views import ajax_get_purge_task_status, ajax_run_purge
 from adapters.certuk_mod.retention.views import ajax_get_retention_config, ajax_reset_retention_config, \
     ajax_set_retention_config
@@ -131,12 +115,6 @@ def discover(request):
     return objectid_discover(request, "publisher_review", "publisher_not_found")
 
 
-@login_required
-def clone(request):
-    stix_id = objectid_find(request)
-    return clone_direct(request, stix_id)
-
-
 TYPE_TO_URL = {
     'cam': 'campaign',
     'coa': 'course_of_action',
@@ -190,8 +168,6 @@ def clone_direct(request, id_):
             return error_with_message(request,
                                       "Unable to load object as some external references were not found: "
                                       + e.message[0:-len(ext_ref_error)])
-
-
         else:
             return error_with_message(request, e.message)
 

@@ -33,7 +33,7 @@ define([
                 },
                 "value()": function () {
                     var actual = classUnderTest.value();
-                    assert.equal(actual.value(), "simple value");
+                    assert.equal(actual.value, "simple value");
                 }
             },
             "constructor: valid (embedded name, simple value)": {
@@ -45,7 +45,7 @@ define([
                 },
                 "value()": function () {
                     var actual = classUnderTest.value();
-                    assert.equal(actual.value(), "simple value");
+                    assert.equal(actual.value, "simple value");
                 }
             },
             "constructor: valid (simple name, embedded value)": {
@@ -57,7 +57,7 @@ define([
                 },
                 "value()": function () {
                     var actual = classUnderTest.value();
-                    assert.equal(actual.value(), "embedded value");
+                    assert.equal(actual.value, "embedded value");
                 }
             },
             "constructor: valid (embedded name and value)": {
@@ -69,7 +69,7 @@ define([
                 },
                 "value()": function () {
                     var actual = classUnderTest.value();
-                    assert.equal(actual.value(), "embedded value");
+                    assert.equal(actual.value, "embedded value");
                 }
             },
             "addToPropertyList()": {
@@ -103,8 +103,8 @@ define([
                     assert.equal(actualProperty.label(), "Name");
                     var actual = actualProperty.value();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "value");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "value");
                 }
             },
             "removeFromPropertyList()": {

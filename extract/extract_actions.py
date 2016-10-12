@@ -133,7 +133,7 @@ def move_observables(draft_obs_offsets, source_draft_ind, target_draft_ind):
     obs_to_move = [source_draft_ind['observables'][draft_offset] for draft_offset in draft_obs_offsets
                    if len(source_draft_ind['observables']) > draft_offset >= 0]
 
-    target_draft_ind['observables'].extend(obs_to_move);
+    target_draft_ind['observables'].extend(obs_to_move)
     source_draft_ind['observables'] = [obs for obs in source_draft_ind['observables'] if obs not in obs_to_move]
 
 

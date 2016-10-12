@@ -57,7 +57,7 @@ def visualiser_item_get(request, id_):
             "root_id": id_,
             "package": package.to_dict(),
             "validation_info": validation_info,
-            "type_info" : [{"id_": id_, "ty":root_edge_object.ty}]
+            "type_info": [{"id_": id_, "ty": root_edge_object.ty}]
         }, status=200)
     except EdgeError as e:
         if e.message == id_ + " not found":

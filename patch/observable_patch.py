@@ -75,8 +75,8 @@ def generate_db_observable_patch(custom_draft_handler_map):
                         cls.SHORT_NAME,
                         obs_type,
                         '|'.join(
-                                [str(rgetattr(properties, str(path).split('.'), '')) for path in
-                                 OBS_HASH_PATHS[obs_type]]
+                            [str(rgetattr(properties, str(path).split('.'), '')) for path in
+                             OBS_HASH_PATHS[obs_type]]
                         )
                     )
                     hash_ = "certuk:%s" % hashlib.sha1(to_hash).hexdigest()

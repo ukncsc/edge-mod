@@ -64,7 +64,7 @@ def inc_build_from_clone(request, id):
         messages.info(request, e.message)
         return redirect('/setup')
 
-    template = inc_template(static, None, id_ns);
+    template = inc_template(static, None, id_ns)
     template['draft_id'] = id
     template['id'] = None
 
@@ -198,7 +198,6 @@ def ttp_build_from_clone(request, id):
         'malware': json.dumps(static['malware']),
         'trustgroups': json.dumps(static['trustgroups']),
         'intended_effects': json.dumps(static['intended_effects']),
-        'object_type': "ttp",
         'draft_id': id,
         'base_template': "ttp-build.html"
     })

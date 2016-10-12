@@ -3,10 +3,11 @@ define([
     "knockout",
     "./StixId",
     "./ReviewValue",
+    "./AsyncReviewValue",
     "./ValidationInfo",
     "common/cert-identity",
     "text!config-service"
-], function (declare, ko, StixId, ReviewValue, ValidationInfo, Identity, configService) {
+], function (declare, ko, StixId, ReviewValue, AsyncReviewValue, ValidationInfo, Identity, configService) {
     "use strict";
 
     var crmIsEnabled = false;
@@ -14,7 +15,7 @@ define([
     var config = Object.freeze(JSON.parse(configService));
     var crm_config = config.crm_config;
     if (crm_config) {
-        crmIsEnabled = crm_config.enabled;
+        crmIsEnabled = crm_config.value.enabled;
     }
 
     return declare(null, {
@@ -128,6 +129,10 @@ define([
 
         safeValueGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath, /*String?*/ validationPath) {
             var simpleValue = this.safeGet(object, propertyPath);
+            if(simpleValue instanceof Object) {
+                //flatten structures which have attributes on the stix object
+                simpleValue = simpleValue["value"]
+            }
             var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
             return new ReviewValue(simpleValue, validation.state, validation.message);
         },
@@ -175,7 +180,7 @@ define([
             if (crmIsEnabled !== false) {
                 var identityName = this.retrieveIdentity(object, propertyPath);
                 var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
-                return new ReviewValue(identityName, validation.state, validation.message);
+                return new AsyncReviewValue(identityName, validation.state, validation.message);
             } else {
                 return this.safeValueGet(id, object, propertyPath, validationPath);
             }
@@ -184,8 +189,13 @@ define([
         retrieveIdentity: function (/*Object*/object, /*String*/ propertyPath) {
             var identity = new Identity();
             var uuidValue = this.safeGet(object, propertyPath);
-            identity.getNameFromCRM(uuidValue);
-            return identity.name;
+            if (uuidValue != null) {
+                identity.getNameFromCRM(uuidValue);
+                return identity.name;
+            } else {
+                return "(Missing)"
+            }
+
         },
 
         safeIdentityListGet: function (/*String*/ id, /*Object*/ object, /*String*/ propertyPath,
@@ -198,7 +208,7 @@ define([
 
                 var computedStringRepresentation = this.concatenateIdentities(obsArrayIds);
                 var validation = this._validationInfo.findByProperty(id, validationPath || propertyPath);
-                return new ReviewValue(computedStringRepresentation, validation.state, validation.message);
+                return new AsyncReviewValue(computedStringRepresentation, validation.state, validation.message);
             } else {
                 return this.safeListGet(id, object, propertyPath, valueKey, validationPath, delimiter)
             }

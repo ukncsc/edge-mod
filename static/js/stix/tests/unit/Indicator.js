@@ -83,128 +83,128 @@ define([
                     assert.isNotNull(classUnderTest);
                 },
                 "has correct id": function () {
-                    assert.equal(classUnderTest.id(), "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3619");
+                    assert.equal(classUnderTest.id, "purple-secure-systems:indicator-a29bda62-395a-4ac4-bfe2-761228ff3619");
                 },
                 "has correct title": function () {
                     var actual = classUnderTest.title();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Fully populated indicator");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Fully populated indicator");
                 },
                 "has correct short description": function () {
                     var actual = classUnderTest.shortDescription();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Every field has a value");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Every field has a value");
                 },
                 "has correct description": function () {
                     var actual = classUnderTest.description();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Every field, collection, etc has a value");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Every field, collection, etc has a value");
                 },
                 "has correct TLP": function () {
                     var actual = classUnderTest.tlp();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "RED");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "RED");
                 },
                 "has correct Marking": function () {
                     var actual = classUnderTest.marking();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Unclassified, Public");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Unclassified, Public");
                 },
                 "has correct Terms of Use": function () {
                     var actual = classUnderTest.termsOfUse();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Public Domain");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Public Domain");
                 },
                 "has correct producer": function () {
                     var actual = classUnderTest.producer();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Purple Secure Systems");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Purple Secure Systems");
                 },
                 "has correct confidence": function () {
                     var actual = classUnderTest.confidence();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "High");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "High");
                 },
                 "has correct indicator types": function () {
                     var actual = classUnderTest.indicatorTypes();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Malware Artifacts");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Malware Artifacts");
                 },
                 "has correct kill chain phase": function () {
                     var actual = classUnderTest.killChainPhase();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "Reconnaissance");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "Reconnaissance");
                 },
                 "has correct observable": function () {
                     var actual = classUnderTest.observable();
                     assert.instanceOf(actual, Observable);
-                    assert.equal(actual.id(), "purple-secure-systems:observable-346b24fb-52a3-40b3-9e1c-c30985a1253a");
+                    assert.equal(actual.id, "purple-secure-systems:observable-346b24fb-52a3-40b3-9e1c-c30985a1253a");
                 },
                 "has correct composition": function () {
                     var actual = classUnderTest.composition();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "AND");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "AND");
                 },
                 "has correct observables": function () {
                     var actual = classUnderTest.observables();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualObservables = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualObservables = actual.value;
                     assert.isArray(actualObservables);
                     assert.lengthOf(actualObservables, 3);
                     var actualObservable1 = actualObservables[0];
                     assert.instanceOf(actualObservable1, Observable);
-                    assert.equal(actualObservable1.id(), "purple-secure-systems:observable-4a7c90a4-7735-440b-a6d9-d81ee0632449");
+                    assert.equal(actualObservable1.id, "purple-secure-systems:observable-4a7c90a4-7735-440b-a6d9-d81ee0632449");
                     var actualObservable2 = actualObservables[1];
                     assert.instanceOf(actualObservable2, Observable);
-                    assert.equal(actualObservable2.id(), "purple-secure-systems:Observable-9e96c799-7710-425f-a308-d4b6716f930c");
+                    assert.equal(actualObservable2.id, "purple-secure-systems:Observable-9e96c799-7710-425f-a308-d4b6716f930c");
                     var actualObservable3 = actualObservables[2];
                     assert.instanceOf(actualObservable3, Observable);
-                    assert.equal(actualObservable3.id(), "purple-secure-systems:Observable-043c5263-c43a-4e7a-adff-553a04e4cc34");
+                    assert.equal(actualObservable3.id, "purple-secure-systems:Observable-043c5263-c43a-4e7a-adff-553a04e4cc34");
                 },
                 "has correct related indicators": function () {
                     var actual = classUnderTest.relatedIndicators();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualRelatedIndicators = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualRelatedIndicators = actual.value;
                     assert.isArray(actualRelatedIndicators);
                     assert.lengthOf(actualRelatedIndicators, 1);
                     var actualRelatedIndicator = actualRelatedIndicators[0];
                     assert.instanceOf(actualRelatedIndicator, Indicator);
-                    assert.equal(actualRelatedIndicator.id(), "purple-secure-systems:Indicator-7fc78054-e6f4-4b13-b3fc-44b1f4e2d9b8");
+                    assert.equal(actualRelatedIndicator.id, "purple-secure-systems:Indicator-7fc78054-e6f4-4b13-b3fc-44b1f4e2d9b8");
                 },
                 "has correct indicated TTPs": function () {
                     var actual = classUnderTest.indicatedTTPs();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualIndicatedTTPs = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualIndicatedTTPs = actual.value;
                     assert.isArray(actualIndicatedTTPs);
                     assert.lengthOf(actualIndicatedTTPs, 1);
                     var actualIndicatedTTP = actualIndicatedTTPs[0];
                     assert.instanceOf(actualIndicatedTTP, TTP);
-                    assert.equal(actualIndicatedTTP.id(), "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32");
+                    assert.equal(actualIndicatedTTP.id, "purple-secure-systems:ttp-fd4a07b1-0649-4d95-a5f2-761deb09ba32");
                 },
                 "has correct suggested COAs": function () {
                     var actual = classUnderTest.suggestedCOAs();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualSuggestedCOAs = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualSuggestedCOAs = actual.value;
                     assert.isArray(actualSuggestedCOAs);
                     assert.lengthOf(actualSuggestedCOAs, 1);
                     var actualSuggestedCOA = actualSuggestedCOAs[0];
                     assert.instanceOf(actualSuggestedCOA, CourseOfAction);
-                    assert.equal(actualSuggestedCOA.id(), "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
+                    assert.equal(actualSuggestedCOA.id, "purple-secure-systems:coa-c26fd863-4438-4ba0-b433-9d532bd01064");
                 }
             },
             "valid composite indicators": {
@@ -214,16 +214,16 @@ define([
                 "has correct composite indicator expression": function () {
                     var actual = classUnderTest.compositeIndicatorComposition();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "OR");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "OR");
                 },
                 "has correct composite indicators": function () {
                     var actual = classUnderTest.compositeIndicators();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualCompositeIndicators = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualCompositeIndicators = actual.value;
                     assert.deepEqual(actualCompositeIndicators.map(function (item) {
-                        return item.id();
+                        return item.id;
                     }), [
                         "fireeye:indicator-d06e4685-15a9-43b1-b356-e6440b05ed6d",
                         "fireeye:indicator-56dc9707-3656-4ebf-a6d3-6b979aca2ad6",
@@ -244,24 +244,24 @@ define([
                 "has correct observable": function () {
                     var actual = classUnderTest.observable();
                     assert.instanceOf(actual, Observable);
-                    assert.equal(actual.id(), "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928");
+                    assert.equal(actual.id, "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928");
                 },
                 "has correct observables": function () {
                     var actual = classUnderTest.observables();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    var actualObservables = actual.value();
+                    assert.isFalse(actual.isEmpty);
+                    var actualObservables = actual.value;
                     assert.isArray(actualObservables);
                     assert.lengthOf(actualObservables, 1);
                     var actualObservable = actualObservables[0];
                     assert.instanceOf(actualObservable, Observable);
-                    assert.equal(actualObservable.id(), "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928");
+                    assert.equal(actualObservable.id, "fireeye:observable-f8ecdc30-c052-4efb-9aa1-3a26a7a32928");
                 },
                 "has correct kill chain phase": function () {
                     var actual = classUnderTest.killChainPhase();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isFalse(actual.isEmpty());
-                    assert.equal(actual.value(), "pss:TTP-f5ddf190-b7b0-4c33-a9f4-f2beb6453d04");
+                    assert.isFalse(actual.isEmpty);
+                    assert.equal(actual.value, "pss:TTP-f5ddf190-b7b0-4c33-a9f4-f2beb6453d04");
                 }
             },
             "no observable indicator": {
@@ -271,7 +271,7 @@ define([
                 "has correct observables": function () {
                     var actual = classUnderTest.observables();
                     assert.instanceOf(actual, ReviewValue);
-                    assert.isTrue(actual.isEmpty());
+                    assert.isTrue(actual.isEmpty);
                 },
             }
         }

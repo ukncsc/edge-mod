@@ -16,7 +16,7 @@ def rehash(timestamp):
     """
     A script to recalculate all observable data hashes according to CERT requirements (can safely be run multiple times)
     """
-    PAGE_SIZE = 5000
+    page_size = 5000
     cert_builder.apply_customizations()
     db = get_db()
     base_query = {
@@ -61,10 +61,10 @@ def rehash(timestamp):
             }
         })
 
-        if not update_count % PAGE_SIZE:
+        if not update_count % page_size:
             bulk = bulk_execute(bulk)
 
-    if update_count % PAGE_SIZE:
+    if update_count % page_size:
         bulk_execute(bulk)
 
 

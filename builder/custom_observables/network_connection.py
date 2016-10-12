@@ -2,6 +2,7 @@ from cybox.objects.network_connection_object import NetworkConnection
 from edge.tools import rgetattr
 from adapters.certuk_mod.builder.custom_observable_definition import CustomObservableDefinition
 from indicator.observable_object_generator import ObservableObjectGenerator
+from adapters.certuk_mod.builder.custom_observables.custom_observable_utils import collapse_nested_values
 
 
 class NetworkConnectionObservableDefinition(CustomObservableDefinition):
@@ -18,7 +19,8 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
         network_connection = NetworkConnection()
 
         src_socket_address = ObservableObjectGenerator._generate_socket_object(object_data['source_socket_address'])
-        dst_socket_address = ObservableObjectGenerator._generate_socket_object(object_data['destination_socket_address'])
+        dst_socket_address = ObservableObjectGenerator._generate_socket_object(
+            object_data['destination_socket_address'])
 
         network_connection.source_socket_address = src_socket_address
         network_connection.destination_socket_address = dst_socket_address
@@ -26,10 +28,10 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
         return network_connection
 
     def get_socket(self, socket_object):
-        address = rgetattr(socket_object, ['ip_address', 'address_value'], '')
-        hostname = rgetattr(socket_object, ['hostname', 'hostname_value'], '')
-        port = rgetattr(socket_object, ['port', 'port_value'], '')
-        protocol = rgetattr(socket_object, ['port', 'layer4_protocol'], '')
+        address = collapse_nested_values(rgetattr(socket_object, ['ip_address', 'address_value'], ''))
+        hostname = collapse_nested_values(rgetattr(socket_object, ['hostname', 'hostname_value'], ''))
+        port = collapse_nested_values(rgetattr(socket_object, ['port', 'port_value'], ''))
+        protocol = collapse_nested_values(rgetattr(socket_object, ['port', 'layer4_protocol'], ''))
 
         socket = {
             "ip_address": str(address),
@@ -43,26 +45,28 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
         socket = self.get_socket(socket_object)
 
         if socket['ip_address']:
-            combined = str(socket['ip_address'])
+            combined = str(collapse_nested_values(socket['ip_address']))
         elif socket['hostname']:
-            combined = str(socket['hostname'])
+            combined = str(collapse_nested_values(socket['hostname']))
         else:
             combined = '(unknown)'
 
         if socket['port']:
             combined += ":"
-            combined += str(socket['port'])
+            combined += str(collapse_nested_values(socket['port']))
         if socket['protocol']:
             combined += ":"
-            combined += str(socket['protocol'])
+            combined += str(collapse_nested_values(socket['protocol']))
 
         return str(combined)
 
     def summary_value_generator(self, obj):
         network_connection_object = "Source Socket Address: "
-        network_connection_object += self.get_socket_summary(rgetattr(obj, ['_object', 'properties', 'source_socket_address']))
+        network_connection_object += self.get_socket_summary(
+            rgetattr(obj, ['_object', 'properties', 'source_socket_address']))
         network_connection_object += ": Destination Socket Address: "
-        network_connection_object += self.get_socket_summary(rgetattr(obj, ['_object', 'properties', 'destination_socket_address']))
+        network_connection_object += self.get_socket_summary(
+            rgetattr(obj, ['_object', 'properties', 'destination_socket_address']))
         return network_connection_object
 
     def to_draft_handler(self, observable, tg, load_by_id, id_ns=''):
@@ -72,6 +76,8 @@ class NetworkConnectionObservableDefinition(CustomObservableDefinition):
             'id_ns': id_ns,
             'title': rgetattr(observable, ['title'], ''),
             'description': str(rgetattr(observable, ['description'], '')),
-            'source_socket_address': self.get_socket(rgetattr(observable, ['_object', 'properties', 'source_socket_address'])),
-            'destination_socket_address': self.get_socket(rgetattr(observable, ['_object', 'properties', 'destination_socket_address']))
+            'source_socket_address': self.get_socket(
+                rgetattr(observable, ['_object', 'properties', 'source_socket_address'])),
+            'destination_socket_address': self.get_socket(
+                rgetattr(observable, ['_object', 'properties', 'destination_socket_address']))
         }

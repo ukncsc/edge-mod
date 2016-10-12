@@ -1,7 +1,7 @@
 from edge.models import StixBacklink
 from mongoengine import DoesNotExist
 from clippy.models import CLIPPY_TYPES
-from edge.generic import EdgeObject, EdgeError
+from edge.generic import EdgeError
 
 
 class BackLinkGenerator(object):
@@ -37,7 +37,6 @@ class BackLinkGenerator(object):
             backtable = {}
 
         return backtable
-
 
     @staticmethod
     def retrieve_back_links(edge_object, user_loader):

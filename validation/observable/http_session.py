@@ -11,7 +11,8 @@ class HTTPSessionValidationInfo(ObservableValidationInfo):
     USER_AGENT_MATCHER = re.compile(r'.+/.+', re.IGNORECASE)
 
     def __init__(self, observable_data, **field_validation):
-        super(HTTPSessionValidationInfo, self).__init__(HTTPSessionValidationInfo.TYPE, observable_data, **field_validation)
+        super(HTTPSessionValidationInfo, self).__init__(
+            HTTPSessionValidationInfo.TYPE, observable_data, **field_validation)
         self.user_agent = field_validation['user_agent']
 
     @classmethod
