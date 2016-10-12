@@ -282,7 +282,11 @@ def observable_extract(request, output_format, obs_type_filter, id_, revision):
         else:
             result += writer(eo.summary['value'], eo.summary['type'])
 
-    response = HttpResponse(content_type='text/txt')
-    response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (output_format, obs_type_filter, id_)
-    response.write(result)
+    if (result):
+        response = HttpResponse(content_type='text/txt')
+        response['Content-Disposition'] = 'attachment; filename="%s_%s_%s.txt"' % (output_format, obs_type_filter, id_)
+        response.write(result)
+        return response
+    else :
+        response = HttpResponse(status = 400);
     return response

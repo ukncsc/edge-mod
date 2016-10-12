@@ -41,14 +41,61 @@ define([
             this.section = ko.observable(new Section());
             this.handlingEnabled = ko.observable(handlingEnabled);
             this.handling = ko.observable(new Handling());
+            this.extractHandler = this.create_extract_text_file.bind(this);
             Topic.subscribe(topics.HANDLING, function () {
                 this.externalPublish()
             }.bind(this), this);
             Topic.subscribe(topics.REVISION, function (data) {
                 this.reload(data)
             }.bind(this), this);
+            this.extractablesInPlainText = ko.observableArray([
+                new this.stixObservableFilterOption("All", "all", "text", "There are no Observables to extract"),
+                new this.stixObservableFilterOption("Http Session", "HTTPSessionObjectType", "text"),
+                new this.stixObservableFilterOption("Network Connection", "NetworkConnectionObjectType", "text"),
+                new this.stixObservableFilterOption("Address", "AddressObjectType", "text"),
+                new this.stixObservableFilterOption("URI", "URIObjectType", "text"),
+                new this.stixObservableFilterOption("Hostname", "HostnameObjectType", "text"),
+                new this.stixObservableFilterOption("Domain", "DomainNameObjectType", "text"),
+                new this.stixObservableFilterOption("Mutex", "MutexObjectType", "text"),
+                new this.stixObservableFilterOption("File", "FileObjectType", "text"),
+                new this.stixObservableFilterOption("Socket", "SocketAddressObjectType", "text"),
+                new this.stixObservableFilterOption("Registery Key", "WindowsRegistryKeyObjectType", "text"),
+                new this.stixObservableFilterOption("Artifact", "ArtifactObjectType", "text"),
+                new this.stixObservableFilterOption("Email", "EmailMessageObjectType", "text")
+            ]);
+            this.extractablesInSnort = ko.observableArray([
+                new this.stixObservableFilterOption("All", "all", "SNORT", "There are no Observables to extract"),
+                new this.stixObservableFilterOption("Domain", "DomainNameObjectType", "SNORT"),
+                new this.stixObservableFilterOption("Address", "AddressObjectType", "SNORT")
+            ]);
         },
-
+       stixObservableFilterOption : function (name, filter, format, noObservableMsg) {
+            this.name = name;
+            this.filter = filter;
+            this.format = format;
+            this.noObservableMsg = noObservableMsg || ("There are no observables of type: " + name)
+        },
+        download: function (filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        },
+        create_extract_text_file: function (stixObservableFilterOption){
+            var filter = stixObservableFilterOption.filter;
+            var format = stixObservableFilterOption.format;
+            var id = this.rootID();
+            var revision = this.revision();
+            _ajaxJSON('GET', "/adapter/certuk_mod/observable_extract/" + format + "/" + filter + "/" + id + '/' + revision, {}, function (response) {
+                this.download(format + "_" + filter + "_" + id+ ".txt", response);
+            }.bind(this), function (response) {
+                showErrorModal(stixObservableFilterOption.noObservableMsg);
+            });
+        },
+        
         reload: function (timekey) {
             if (timekey !== this.revision()) {
                 var params = {"id": this.rootID(), "revision": timekey}
