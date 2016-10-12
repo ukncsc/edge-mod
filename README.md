@@ -1,4 +1,4 @@
-[![Code Health](https://landscape.io/github/ncscuk/mod/develop/landscape.svg?style=flat&badge_auth_token=411899cd1398417aa61ce33b9c554ef2)](https://landscape.io/github/ncscuk/mod/develop)
+[![Code Health](https://landscape.io/github/ncscuk/mod/develop/landscape.svg?style=flat&badge_auth_token=95a029ec07bc4d65a2999de76c16dfc8)](https://landscape.io/github/ncscuk/mod/develop)
 
 Copyright (c) 2016 Crown Copyright (NCSC)
 
