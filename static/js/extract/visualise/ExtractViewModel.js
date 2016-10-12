@@ -125,14 +125,14 @@ define([
             }
         );
     }
-
-    function only_obs_drafts(type, rel_type) {
-        return type === "obs" && rel_type === "draft";
+    //NOTE: this function is sometimes give two arguments and this must be handled
+    function only_obs(type, rel_type) {
+        return type === "obs";
     }
 
     function create_delete_action(id) {
         return new PanelAction(
-            only_obs_drafts,
+            only_obs,
             function (obs_ids_to_delete, graph) {
                 postAndReloadGraph("delete_observables/", id, obs_ids_to_delete, graph);
             },
@@ -142,7 +142,7 @@ define([
 
     function create_move_action(id, vm) {
         return new PanelAction(
-            only_obs_drafts,
+            only_obs,
             function (obs_ids_to_move, graph) {
                 postAndAddNewIndicator("move_observables/", id, obs_ids_to_move, graph, vm);
             },
@@ -152,7 +152,7 @@ define([
 
     function create_merge_action(id) {
         return new PanelAction(
-            only_obs_drafts,
+            only_obs,
             function (obs_ids_to_merge, graph) {
                 postAndReloadGraph("merge_observables/", id, obs_ids_to_merge, graph);
             },

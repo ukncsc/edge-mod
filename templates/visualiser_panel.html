@@ -29,23 +29,3 @@
     </dd>
     <!-- /ko -->
 </template>
-
-<template id="VisualiserPanelDrafts">
-    <!-- ko template: {name: 'VisualiserPanel', data: $data} --><!-- /ko -->
-
-    <!-- ko if: realData['values'].length > 0 -->
-    <div class="btn-group" role="group">
-        <!-- ko foreach: model.panel_actions().actions -->
-        <button type="button" data-toggle="tooltip" class="btn btn-default" data-bind="attr: {title:action_name},
-                        click:$parents[2].call_action.bind($parents[2], $data.action())">
-            <!-- ko if: glyphicon_name -->
-            <span data-bind="css: glyphicon_name"></span>
-            <!-- /ko -->
-            <!-- ko ifnot: glyphicon_name -->
-            <!--ko text: action_name--><!--/ko-->
-            <!-- /ko -->
-        </button>
-        <!-- /ko -->
-    </div>
-    <!-- /ko -->
-</template>
