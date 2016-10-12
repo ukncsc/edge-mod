@@ -1,6 +1,6 @@
-[![Code Health](https://landscape.io/github/certuk/mod/develop/landscape.svg?style=flat&badge_auth_token=411899cd1398417aa61ce33b9c554ef2)](https://landscape.io/github/certuk/mod/develop)
+[![Code Health](https://landscape.io/github/ncscuk/mod/develop/landscape.svg?style=flat&badge_auth_token=95a029ec07bc4d65a2999de76c16dfc8)](https://landscape.io/github/ncscuk/mod/develop)
 
-Copyright (c) 2016 Crown Copyright (CERT-UK)
+Copyright (c) 2016 Crown Copyright (NCSC)
 
 Permission is hereby granted, free of charge, to use, copy, modify, merge, distribute and/or sub-licence the software together with any associated documentation provided that it is solely for your own internal use and subject to the following conditions:
 
@@ -52,7 +52,7 @@ Upgrading the adapter requires a few extra steps before following the installati
 
 
 ## Feedback
-We would welcome feedback on this adapter and the functionality it provides. Please raise an issue on GitHub or email us at taxii[at]cert[dot]gov[dot]uk
+We would welcome feedback on this adapter and the functionality it provides. Please raise an issue on GitHub or email us at taxii[at]ncsc[dot]gov[dot]uk
 
 ## Thanks
 Thanks to the folks at Soltra for building a great platform for us to build these modification on.
